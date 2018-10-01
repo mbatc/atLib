@@ -29,8 +29,37 @@
 #include "atImage.h"
 
 int64_t s_imageCounter = 0;
+int64_t s_samplerCounter = 0;
+
 atHashMap<int64_t, ID3D11ShaderResourceView*> s_image_store;
+atHashMap<int64_t, ID3D11SamplerState*> s_sampler_store;
 atHashMap<atFilename, int64_t> s_imageID;
+atHashMap<D3D11_SAMPLER_DESC, int64_t> s_samplerID;
+
+int64_t atHardwareTexture::CreateSampler(const int64_t filter, const atTexCoordMode uMode, const atTexCoordMode vMode, const atTexCoordMode wMode, const float mipLodBias, const atComparison compFunc, const atVec4F & borderCol, const float minLOD, const float maxLOD)
+{
+  D3D11_SAMPLER_DESC desc;
+  desc.Filter = (D3D11_FILTER)filter;
+  desc.AddressU = (D3D11_TEXTURE_ADDRESS_MODE)uMode;
+  desc.AddressV = (D3D11_TEXTURE_ADDRESS_MODE)vMode;
+  desc.AddressW = (D3D11_TEXTURE_ADDRESS_MODE)wMode;
+  desc.ComparisonFunc = (D3D11_COMPARISON_FUNC)compFunc;
+  desc.MaxLOD = maxLOD;
+  desc.MinLOD = minLOD;
+  desc.MipLODBias = mipLodBias;
+  desc.MaxAnisotropy = 0;
+  memcpy(desc.BorderColor, borderCol.data(), atGetTypeDesc(borderCol).size);
+
+  int64_t *pID = s_samplerID.TryGet(desc);
+  if (pID)
+    return *pID;
+
+  ID3D11SamplerState *pSampler = nullptr;
+  atGraphics::GetDevice()->CreateSamplerState(&desc, &pSampler);
+  s_sampler_store.Add(s_samplerCounter, pSampler);
+  s_samplerID.Add(desc, s_samplerCounter);
+  return s_samplerCounter++;
+}
 
 int64_t atHardwareTexture::UploadImage(const atFilename &file)
 {
@@ -42,14 +71,14 @@ int64_t atHardwareTexture::UploadImage(const atFilename &file)
   atImage image(file);
   
   D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
+  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   desc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
   desc.Texture2D.MipLevels = 1;
   desc.Texture2D.MostDetailedMip = 0;
 
   D3D11_TEXTURE2D_DESC texDesc;
   texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-  texDesc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
+  texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   texDesc.Height = (UINT)image.Height();
   texDesc.Width = (UINT)image.Width();
   texDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -71,13 +100,13 @@ int64_t atHardwareTexture::UploadImage(const atFilename &file)
   pTexture->Release();
   pTexture = nullptr;
 
-  s_image_store.Add(s_imageCounter++, pShaderRes);
-  s_imageID.Add(file, s_imageCounter - 1);
-  
-  return s_imageCounter - 1;
+  s_image_store.Add(s_imageCounter, pShaderRes);
+  s_imageID.Add(file, s_imageCounter);
+  return s_imageCounter++;
 }
 
-void* atHardwareTexture::GetResource(const int64_t id) { ID3D11ShaderResourceView **ppShaderRes = s_image_store.TryGet(id); return ppShaderRes ? *ppShaderRes : nullptr; }
+void* atHardwareTexture::GetTexture(const int64_t id) { ID3D11ShaderResourceView **ppShaderRes = s_image_store.TryGet(id); return ppShaderRes ? *ppShaderRes : nullptr; }
+void* atHardwareTexture::GetSampler(const int64_t id) { ID3D11SamplerState **ppSampler = s_sampler_store.TryGet(id); return ppSampler ? *ppSampler : nullptr; }
 
 // A hacky way of releasing resources when the program ends
 struct CleanupStruct
@@ -85,6 +114,8 @@ struct CleanupStruct
   ~CleanupStruct()
   {
     for (auto &kvp : s_image_store)
+      atGraphics::SafeRelease(kvp.m_val);
+    for (auto &kvp : s_sampler_store)
       atGraphics::SafeRelease(kvp.m_val);
   }
 };

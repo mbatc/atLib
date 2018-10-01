@@ -29,10 +29,10 @@
 #include "3rdParty/stb/stb_image_write.h" // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
 #include "3rdParty/stb/stb_image.h"       // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
 
-static atCol _LoadChannel1(const uint8_t *pData) { return atColor::PackARGB(pData[0], pData[0], pData[0]); }
-static atCol _LoadChannel3(const uint8_t *pData) { return atColor::PackARGB(pData[0], pData[1], pData[2]); }
-static atCol _LoadChannel2(const uint8_t *pData) { return atColor::PackARGB(pData[0], pData[0], pData[0], pData[1]); }
-static atCol _LoadChannel4(const uint8_t *pData) { return atColor::PackARGB(pData[0], pData[1], pData[2], pData[3]); }
+static atCol _LoadChannel1(const uint8_t *pData) { return atColor::Pack(pData[0], pData[0], pData[0]); }
+static atCol _LoadChannel3(const uint8_t *pData) { return atColor::Pack(pData[0], pData[1], pData[2]); }
+static atCol _LoadChannel2(const uint8_t *pData) { return atColor::Pack(pData[0], pData[0], pData[0], pData[1]); }
+static atCol _LoadChannel4(const uint8_t *pData) { return *(atCol*)pData; }
 
 static atVector<atCol> _LoadFromMemory(const uint8_t *pData, const atVec2I &size, const int nChannels)
 {

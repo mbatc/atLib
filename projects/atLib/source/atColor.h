@@ -28,20 +28,20 @@
 
 #include "atMath.h"
 
-#define atCOL_MASKR(c) (0xFF000000 & c)
-#define atCOL_MASKG(c) (0x00FF0000 & c)
-#define atCOL_MASKB(c) (0x0000FF00 & c)
-#define atCOL_MASKA(c) (0x000000FF & c)
+#define atCOL_MASKR(c) (0x000000FF & c)
+#define atCOL_MASKG(c) (0x0000FF00 & c)
+#define atCOL_MASKB(c) (0x00FF0000 & c)
+#define atCOL_MASKA(c) (0xFF000000 & c)
 
-#define atCOL_GETR(c) (c >> 24)
-#define atCOL_GETG(c) (atCOL_MASKA(c >> 16))
-#define atCOL_GETB(c) (atCOL_MASKA(c >> 8))
-#define atCOL_GETA(c) (atCOL_MASKA(c))
+#define atCOL_GETR(c) (atCOL_MASKR(c))
+#define atCOL_GETG(c) (atCOL_MASKR(c >> 8))
+#define atCOL_GETB(c) (atCOL_MASKR(c >> 16))
+#define atCOL_GETA(c) (atCOL_MASKR(c >> 24))
 
-#define atCOL_PACKR(c) (atCOL_MASKA(c) << 24)
-#define atCOL_PACKG(c) (atCOL_MASKA(c) << 16)
-#define atCOL_PACKB(c) (atCOL_MASKA(c) << 8)
-#define atCOL_PACKA(c) (atCOL_MASKA(c))
+#define atCOL_PACKR(c) (atCOL_MASKR(c))
+#define atCOL_PACKG(c) (atCOL_MASKR(c) << 8)
+#define atCOL_PACKB(c) (atCOL_MASKR(c) << 16)
+#define atCOL_PACKA(c) (atCOL_MASKR(c) << 24)
 
 typedef uint32_t atCol;
 

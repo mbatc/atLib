@@ -72,6 +72,7 @@ public:
 
   // Textures
   atHashMap<atString, int64_t> m_textures;
+  atHashMap<atString, int64_t> m_samplers;
 
 protected:
   atVector<VertexData> m_layout;

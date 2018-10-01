@@ -28,13 +28,37 @@
 
 #include "atFilename.h"
 
+enum atTexCoordMode
+{
+  atTCM_Wrap = 1,           // D3D11_TEXTURE_ADDRESS_WRAP
+  atTCM_Mirror = 2,         // D3D11_TEXTURE_ADDRESS_MIRROR
+  atTCM_MirrorOnce = 5,     // D3D11_TEXTURE_ADDRESS_MIRROR_ONCE
+  atTCM_Clamp = 3,          // D3D11_TEXTURE_ADDRESS_CLAMP
+  atTCM_Border = 4          // D3D11_TEXTURE_ADDRESS_BORDER
+};
+
+enum atComparison
+{
+  atComp_Equal = 3,         // D3D11_COMPARISON_EQUAL
+  atComp_NotEqual = 6,      // D3D11_COMPARISON_NOT_EQUAL
+  atComp_Greater = 5,       // D3D11_COMPARISON_GREATER
+  atComp_Less = 2,          // D3D11_COMPARISON_LESS
+  atComp_GreaterEqual = 7,  // D3D11_COMPARISON_GREATER_EQUAL
+  atComp_LessEqual = 4,     // D3D11_COMPARISON_LESS_EQUAL
+  atComp_Always = 8,        // D3D11_COMPARISON_ALWAYS
+  atComp_Never = 1,         // D3D11_COMPARISON_NEVER
+};
+
 class atHardwareTexture
 {
 public:
   atHardwareTexture() = delete;
 
+  static int64_t CreateSampler(const int64_t filter = 21 /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/, const atTexCoordMode uMode = atTCM_Wrap, const atTexCoordMode vMode = atTCM_Wrap, const atTexCoordMode wMode = atTCM_Wrap, const float mipLodBias = 0, const atComparison compFunc = atComp_Never, const atVec4F &borderCol = { 0,0,0,0 }, const float minLOD = 0.f, const float maxLOD = FLT_MAX);
+
   static int64_t UploadImage(const atFilename &file);
-  static void* GetResource(const int64_t id);
+  static void* GetTexture(const int64_t id);
+  static void* GetSampler(const int64_t id);
 };
 
 #endif // atHardwareTexture_h__

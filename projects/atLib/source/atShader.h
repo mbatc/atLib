@@ -81,8 +81,7 @@ private:
   bool SetShader(const atFilename &file, atShaderParser *pParser, atVector<uint8_t> *pByteCode, atFilename *pCurFile, void **pDXObject, const char *shaderType);
   void GenerateBuffers();
   void AddResources(const atShaderParser &parser, const atShaderType type);
-  void UpdateDXBuffers();
-  void BindResources();
+  void UpdateResources();
 
   struct ResourceDesc
   {

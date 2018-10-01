@@ -73,8 +73,12 @@ bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type
   UINT stride = (UINT)m_stride;
   
   for (auto &kvp : m_textures)
-    atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetResource(kvp.m_val), 0);
-  atShaderPool::SetVariable(m_shaderID, "mvp", (void*)mvp.m_data, atGetTypeDesc<float>().size * 16);
+    atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetTexture(kvp.m_val), 0);
+  
+  for (auto &kvp : m_samplers)
+    atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetSampler(kvp.m_val), 0);
+
+  atShaderPool::SetVariable(m_shaderID, "mvp", (void*)mvp.Transpose().m_data, atGetTypeDesc<float>().size * 16);
 
   atRenderState::BindShader(m_shaderID);
   atShaderPool::BindInputLayout(m_layoutID);

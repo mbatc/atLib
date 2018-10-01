@@ -122,7 +122,7 @@ void atShader::Reload()
 
 void atShader::Bind()
 {
-  UpdateDXBuffers();
+  UpdateResources();
 
   atGraphics::GetContext()->VSSetShader(m_pVert, 0, 0);
   atGraphics::GetContext()->PSSetShader(m_pPixel, 0, 0);
@@ -245,6 +245,7 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
     rd.vars = buffer.m_val.packingOrder;
     rd.reg = buffer.m_val.reg;
     rd.type = atSRT_Buffer;
+    rd.shader = type;
 
     D3D11_BUFFER_DESC desc;
     desc.ByteWidth = (UINT)rd.data.size();
@@ -273,6 +274,7 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
     rd.type = atSRT_Texture;
     rd.vars.push_back(tex.m_val);
     rd.offsets.push_back(0);
+    rd.shader = type;
   }
 
   for (auto &smpl : parser.m_samplers)
@@ -284,10 +286,11 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
     rd.type = atSRT_Sampler;
     rd.vars.push_back(smpl.m_val);
     rd.offsets.push_back(0);
+    rd.shader = type;
   }
 }
 
-void atShader::UpdateDXBuffers()
+void atShader::UpdateResources()
 {
   ID3D11DeviceContext* pCtx = atGraphics::GetContext();
   for (int64_t i = 0; i < m_resource.size(); ++i)
@@ -302,16 +305,13 @@ void atShader::UpdateDXBuffers()
       pCtx->Map((ID3D11Buffer*)m_resource[i].pDXResource, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
       memcpy(resource.pData, m_resource[i].data.data(), (size_t)m_resource[i].data.size());
       pCtx->Unmap((ID3D11Buffer*)m_resource[i].pDXResource, 0);
+      break;
     case atSRT_Texture: break;
     case atSRT_Sampler: break;
     default: break;
     }
     m_bufDirty[i] = false;
   }
-}
-
-void atShader::BindResources()
-{
 }
 
 int64_t atShader::CreateInputLayout(const atVector<D3D11_INPUT_ELEMENT_DESC> &desc)

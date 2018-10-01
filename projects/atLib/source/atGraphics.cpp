@@ -218,3 +218,11 @@ int64_t atGraphics::RefreshRateNumerator(const bool vsync) { GetOutputDisplay();
 int64_t atGraphics::RefreshRateDenominator(const bool vsync) { GetOutputDisplay(); return vsync ? RefreshRate::den : RefreshRate::defDen; }
 DWORD atGraphics::GetCreateFlags() { return m_flags; }
 D3D_FEATURE_LEVEL atGraphics::GetFeatureLevel() { GetDevice(); return m_featureLevel; }
+bool operator==(const D3D11_SAMPLER_DESC & lhs, const D3D11_SAMPLER_DESC & rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_SAMPLER_DESC)) == 0; }
+bool operator==(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_BLEND_DESC)) == 0; }
+bool operator==(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_RASTERIZER_DESC)) == 0; }
+bool operator==(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0; }
+bool operator!=(const D3D11_SAMPLER_DESC & lhs, const D3D11_SAMPLER_DESC & rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs) { return !(lhs == rhs); }
