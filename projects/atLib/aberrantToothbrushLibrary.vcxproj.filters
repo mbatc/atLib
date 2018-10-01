@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Memory">
+      <UniqueIdentifier>{8f37f911-7a0f-4308-a6ff-fdbc9d180720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Containers">
+      <UniqueIdentifier>{531235c6-08ff-4bda-a44e-2cc7d061af81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platform">
+      <UniqueIdentifier>{4670697a-18ac-4f94-8cca-58e3a47719be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Memory">
+      <UniqueIdentifier>{1128773b-0262-41c1-851a-c6fd9f83554f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Containers">
+      <UniqueIdentifier>{74d36408-70b6-4309-9121-b0cf6351e3e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platform">
+      <UniqueIdentifier>{31ce893c-f910-4e97-b617-277932683d35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{d71527f0-d543-494e-b6c0-0c8bac8461f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{dbe148e7-f3d4-4fe6-bfab-4e3b17a77535}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{2d1fd761-2923-4802-b3c7-fb86e6b27a71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\Input">
+      <UniqueIdentifier>{c9933124-22a6-4825-8a44-52667e37189b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Input">
+      <UniqueIdentifier>{36f78626-f6b6-4554-8826-1adfb02a7e2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{9ffd0135-1e26-4268-a3e8-e57ef9662f64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{17cc39d0-b49d-42e1-9a90-62a76022fa6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Shader">
+      <UniqueIdentifier>{7b8fc310-7a51-4e1c-8bcb-2d01ddca3163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Shader">
+      <UniqueIdentifier>{7d4f11a3-ec9e-45b6-b839-f9de80281502}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry">
+      <UniqueIdentifier>{2389a72f-20ff-4a42-821e-1a0e42081331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry">
+      <UniqueIdentifier>{985069d8-ee02-40b0-95c5-764e2120cc44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Material">
+      <UniqueIdentifier>{94efa33c-b006-4ea8-bf14-4639c6b886db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Material">
+      <UniqueIdentifier>{9651c3c5-4b3a-4d4b-ba00-ffb29283a7f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math\Vectors">
+      <UniqueIdentifier>{5c7f9bd2-c1c2-478b-bf94-ae92d2aaf5d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IO">
+      <UniqueIdentifier>{6a9ae372-9d79-4797-82a6-d00e45611f40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IO\Streams">
+      <UniqueIdentifier>{30881173-d902-4aec-a7c8-2b0ac1d5426f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Time">
+      <UniqueIdentifier>{6b2cdae0-5572-4153-91d9-3153f32b0e8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO">
+      <UniqueIdentifier>{2d40627a-0227-446c-9d22-723670bdc8f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Time">
+      <UniqueIdentifier>{5ddc633b-0948-415b-a75a-9a3b99c6635b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO\Streams">
+      <UniqueIdentifier>{732e011f-a6db-4674-b805-493a54c31c83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math\Matrices">
+      <UniqueIdentifier>{b6234689-a41a-4905-b988-e2ca9fd858cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{35e4f25d-ef91-41a3-ac0f-1b5cea55d2ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\String">
+      <UniqueIdentifier>{07928a70-b0dc-4183-8cd6-344f9d2e4c07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\String">
+      <UniqueIdentifier>{750293a0-1d88-4364-9153-31b501646f53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Material\Texture">
+      <UniqueIdentifier>{0e6f3424-1d32-4e08-a1b8-b7e74b04d4b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Material\Texture\Image">
+      <UniqueIdentifier>{b32bd39d-9608-49b1-946c-6743dc50c97a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Material\Texture">
+      <UniqueIdentifier>{3245365b-737c-4f9c-bc41-464f4733b111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Material\Texture\Image">
+      <UniqueIdentifier>{4775d9b7-82f1-4fcb-8aac-d9e204292b8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3rdParty">
+      <UniqueIdentifier>{88285eb8-2077-41dd-8f46-3a403b4b90f3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\atAlloc.cpp">
+      <Filter>Source Files\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atAssert.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atWindow.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atButtonState.cpp">
+      <Filter>Source Files\UI\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atGraphics.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atRenderTarget.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atShader.cpp">
+      <Filter>Source Files\Graphics\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFile.cpp">
+      <Filter>Source Files\Containers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atShaderPool.cpp">
+      <Filter>Source Files\Graphics\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMesh.cpp">
+      <Filter>Source Files\Graphics\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atRenderable.cpp">
+      <Filter>Source Files\Graphics\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMaterial.cpp">
+      <Filter>Source Files\Graphics\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atRenderState.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFileCommon.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atDateTime.cpp">
+      <Filter>Source Files\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atWriteStream.cpp">
+      <Filter>Source Files\IO\Streams</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atReadStream.cpp">
+      <Filter>Source Files\IO\Streams</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFormat.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atTypes.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMath.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atShaderParser.cpp">
+      <Filter>Source Files\Graphics\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atString.cpp">
+      <Filter>Source Files\String</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFileInfo.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atCamera.cpp">
+      <Filter>Source Files\UI\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atInput.cpp">
+      <Filter>Source Files\UI\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atColor.cpp">
+      <Filter>Source Files\Graphics\Material\Texture\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atScan.cpp">
+      <Filter>Source Files\String</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atImageHelper.cpp">
+      <Filter>Source Files\Graphics\Material\Texture\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atImage.cpp">
+      <Filter>Source Files\Graphics\Material\Texture\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atHardwareTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\atAlloc.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMemory.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atVector.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atTypes.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atAssert.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atWindow.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMath.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atButtonState.h">
+      <Filter>Header Files\UI\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atInput.h">
+      <Filter>Header Files\UI\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atGraphics.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atRenderState.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atRenderTarget.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atShader.h">
+      <Filter>Header Files\Graphics\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atKeyValue.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atPool.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFile.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atShaderPool.h">
+      <Filter>Header Files\Graphics\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atRenderable.h">
+      <Filter>Header Files\Graphics\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMesh.h">
+      <Filter>Header Files\Graphics\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMaterial.h">
+      <Filter>Header Files\Graphics\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atVector3.h">
+      <Filter>Header Files\Math\Vectors</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atVector4.h">
+      <Filter>Header Files\Math\Vectors</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atVector2.h">
+      <Filter>Header Files\Math\Vectors</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atVectorMath.h">
+      <Filter>Header Files\Math\Vectors</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atReadStream.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atStreamSeekable.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atWriteStream.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFileCommon.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFileInfo.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atDateTime.h">
+      <Filter>Header Files\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atHashMap.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMatrix.h">
+      <Filter>Header Files\Math\Matrices</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFormat.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atCamera.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atTransformable.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atShaderParser.h">
+      <Filter>Header Files\Graphics\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atString.h">
+      <Filter>Header Files\String</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFilename.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atScan.h">
+      <Filter>Header Files\String</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atImage.h">
+      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atColor.h">
+      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atImageHelper.h">
+      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="source\3rdParty\stb\stb_image.h">
+      <Filter>Header Files\3rdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="source\3rdParty\stb\stb_image_write.h">
+      <Filter>Header Files\3rdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atHardwareTexture.h">
+      <Filter>Header Files\Graphics\Material\Texture</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\atHashMap.inl">
+      <Filter>Header Files\Containers</Filter>
+    </None>
+    <None Include="source\atMatrix.inl">
+      <Filter>Header Files\Math\Matrices</Filter>
+    </None>
+    <None Include="source\atMath.inl">
+      <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="source\atTransformable.inl">
+      <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="source\atFilename.inl">
+      <Filter>Header Files\IO</Filter>
+    </None>
+    <None Include="source\atString.inl">
+      <Filter>Header Files\String</Filter>
+    </None>
+    <None Include="source\atColor.inl">
+      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,21 @@
+Texture2D diffuseTexture;
+SamplerState samplerType;
+
+struct psOutput
+{
+  float4 color : COLOR;
+};
+
+struct vsOutput
+{
+  float4 position : SV_Position;
+  float4 color : COLOR;
+  float2 texCoord : TEXCOORD;
+};
+
+psOutput main(vsOutput In) : SV_Target
+{
+  psOutput Out;
+  Out.color = In.color * diffuseTexture.Sample(samplerType, In.texCoord);
+  return Out;
+}
