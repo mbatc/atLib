@@ -169,6 +169,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>E:\Programming Projects\atLib\3rdParty\stb;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\shared;$(IncludePath)</IncludePath>
     <SourcePath>E:\Programming Projects\atLib\3rdParty\stb;$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\builds\bin\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\builds\output\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

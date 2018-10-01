@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+*.obj
+/projects/atLib/Debug/*.exe
+/projects/atLib/Debug/*.log
+/projects/atLib/x64/Release/aberrant.5910BD68.tlog/*.lastbuildstate
+*.tlog
+*.pdb
+*.enc
+*.suo
+*.opendb
+*.db
+*.idb
+*.ilk
+*.log
