@@ -1,6 +1,6 @@
 ## Licensing
 
-Everything in this repository including 3rd Party libraries are License under
+All source code in this repository including 3rd Party libraries are License under
 the following:
 
 ### The MIT License
