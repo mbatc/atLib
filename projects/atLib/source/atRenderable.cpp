@@ -54,10 +54,7 @@ atRenderable::~atRenderable() { Clear(); }
 
 bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
 {
-  if (!m_pVertBuffer || !m_pIndexBuffer)
-    if (!Rebuild())
-      return false;
-
+  Rebuild();
   if (m_shaderID == AT_INVALID_ID || m_shaderRound != atShaderPool::ShaderRound())
   {
     m_shaderID = atShaderPool::GetShader(m_shader); 
@@ -68,22 +65,45 @@ bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type
     return false;
 
   m_shaderRound = atShaderPool::ShaderRound();
+    
+  // Get Resources and Locations
+  for (auto &kvp : m_resource)
+  {
+    if(kvp.m_val.id != AT_INVALID_ID)
+      continue;
 
-  UINT offset = 0;
-  UINT stride = (UINT)m_stride;
-  
-  for (auto &kvp : m_textures)
-    atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetTexture(kvp.m_val), 0);
-  
-  for (auto &kvp : m_samplers)
-    atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetSampler(kvp.m_val), 0);
+    switch (kvp.m_val.type)
+    {
+    case atRRT_Texture: kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); break;
+    case atRRT_Sampler: kvp.m_val.id = atHardwareTexture::CreateSampler(); break;
+    case atRRT_Variable: kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); break;
+    }
+    if (kvp.m_val.id == AT_INVALID_ID) kvp.m_val.id = 0;
+  }
 
+  // Upload and Bind Resources
+  for (auto &kvp : m_resource)
+  {
+    if (kvp.m_val.id == AT_INVALID_ID)
+      continue;
+
+    switch (kvp.m_val.type)
+    {
+    case atRRT_Texture: atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetTexture(kvp.m_val.id), 0); break;
+    case atRRT_Sampler: atShaderPool::SetVariable(m_shaderID, kvp.m_key, (void*)atHardwareTexture::GetSampler(kvp.m_val.id), 0); break;
+    case atRRT_Variable: atShaderPool::SetVariable(m_shaderID, kvp.m_val.loc, kvp.m_val.data.data(), kvp.m_val.data.size()); break;
+    }
+  }
   atShaderPool::SetVariable(m_shaderID, "mvp", (void*)mvp.Transpose().m_data, atGetTypeDesc<float>().size * 16);
 
+  // Bind Shader to DX Context
   atRenderState::BindShader(m_shaderID);
   atShaderPool::BindInputLayout(m_layoutID);
-  atGraphics::GetContext()->IASetVertexBuffers(0, 1, &m_pVertBuffer, &stride, &offset);
 
+  // Bind Vertex Buffer and Index Buffer (if not null) then Draw
+  UINT offset = 0;
+  UINT stride = (UINT)m_stride;
+  atGraphics::GetContext()->IASetVertexBuffers(0, 1, &m_pVertBuffer, &stride, &offset);
   switch (type)
   {
   case atRPT_TriangleList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
@@ -107,66 +127,57 @@ bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type
 
 bool atRenderable::Rebuild()
 {
-  m_layout.clear();
-  int64_t nVerts = 0;
-  for (auto &kvp : m_positions)
-    if (kvp.m_val.size() > 0)
+  bool vbInvalid = false;
+  bool ibInvalid = false;
+
+  int64_t vbCount = 0;
+  int64_t ibCount = 0;
+
+  for (auto &kvp : m_resource)
+    if (kvp.m_val.type == atRRT_VertexData)
     {
-      m_layout.push_back(VertexData{ kvp.m_key, atGetTypeDesc(kvp.m_val[0]) });
-      atAssert(kvp.m_val.size() == nVerts || nVerts == 0, "All per vertex vectors must be of the same size()!");
-      nVerts = kvp.m_val.size();
+      vbInvalid |= kvp.m_val.id == AT_INVALID_ID;
+      ++vbCount;
     }
-
-  for (auto &kvp : m_normals)
-    if (kvp.m_val.size() > 0)
+    else if (kvp.m_val.type == atRRT_Indices) 
     {
-      m_layout.push_back(VertexData{ kvp.m_key, atGetTypeDesc(kvp.m_val[0]) });
-      atAssert(kvp.m_val.size() == nVerts || nVerts == 0, "All per vertex vectors must be of the same size()!");
-      nVerts = kvp.m_val.size();
+      ibInvalid |= kvp.m_val.id == AT_INVALID_ID;
+      ++ibCount;
     }
-
-  for (auto &kvp : m_colors)
-    if (kvp.m_val.size() > 0)
-    {
-      m_layout.push_back(VertexData{ kvp.m_key, atGetTypeDesc(kvp.m_val[0]) });
-      atAssert(kvp.m_val.size() == nVerts || nVerts == 0, "All per vertex vectors must be of the same size()!");
-      nVerts = kvp.m_val.size();
-    }
-
-  for (auto &kvp : m_texCoords)
-    if (kvp.m_val.size() > 0)
-    {
-      m_layout.push_back(VertexData{ kvp.m_key, atGetTypeDesc(kvp.m_val[0]) });
-      atAssert(kvp.m_val.size() == nVerts || nVerts == 0, "All per vertex vectors must be of the same size()!");
-      nVerts = kvp.m_val.size();
-    }
-
-  m_stride = 0;
-  for (const VertexData &data : m_layout)
-    m_stride += data.desc.size;
-  atVector<uint8_t> rawVert(m_stride * nVerts, 0);
-
-  int64_t offset = 0;
-  for (int64_t i = 0; i < nVerts; ++i)
-    for (const VertexData &data : m_layout)
-    {
-      atVector<atVec3F> *pPos = m_positions.TryGet(data.semantic);
-      atVector<atVec4F> *pCol = m_colors.TryGet(data.semantic);
-      atVector<atVec3F> *pNorm = m_normals.TryGet(data.semantic);
-      atVector<atVec2F> *pCoord = m_texCoords.TryGet(data.semantic);
-
-      if (pPos) memcpy(rawVert.data() + offset, (pPos->data() + i)->data(), (size_t)data.desc.size);
-      if (pCol) memcpy(rawVert.data() + offset, (pCol->data() + i)->data(), (size_t)data.desc.size);
-      if (pNorm) memcpy(rawVert.data() + offset, (pNorm->data() + i)->data(), (size_t)data.desc.size);
-      if (pCoord) memcpy(rawVert.data() + offset, (pCoord->data() + i)->data(), (size_t)data.desc.size);
-      offset += data.desc.size;
-    }
-
-  atGraphics::SafeRelease(m_pVertBuffer);
-  atGraphics::SafeRelease(m_pIndexBuffer);
 
   bool res = true;
-  { // Create D3D11 Vertex Buffer
+  if (vbInvalid || vbCount == 0)
+  {
+    atGraphics::SafeRelease(m_pVertBuffer);
+
+    m_layout.clear();
+    int64_t nVerts = 0;
+    for (auto &kvp : m_resource)
+    {
+      if (kvp.m_val.type != atRRT_VertexData)
+        continue;
+
+      kvp.m_val.id = 0;
+      m_layout.push_back(VertexData{ kvp.m_key, kvp.m_val.desc });
+      atAssert(kvp.m_val.count == nVerts || nVerts == 0, "All per vertex vectors must be of the same size()!");
+      nVerts = kvp.m_val.count;
+    }
+
+    m_stride = 0;
+    for (const VertexData &data : m_layout)
+      m_stride += data.desc.size;
+    atVector<uint8_t> rawVert(m_stride * nVerts, 0);
+
+    int64_t offset = 0;
+    for (int64_t i = 0; i < nVerts; ++i)
+      for (const VertexData &data : m_layout)
+      {
+        Resource &res = m_resource.Get(data.semantic);
+        memcpy(rawVert.data() + offset, res.data.data() + i * data.desc.size, (size_t)data.desc.size);
+        offset += data.desc.size;
+      }
+
+    // Create D3D11 Vertex Buffer
     D3D11_BUFFER_DESC desc;
     desc.Usage = D3D11_USAGE_DEFAULT;
     desc.ByteWidth = (UINT)rawVert.size();
@@ -184,22 +195,39 @@ bool atRenderable::Rebuild()
     res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pVertBuffer));
   }
 
-  { // Create D3D11 Index Buffer
-    D3D11_BUFFER_DESC desc;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.ByteWidth = (UINT)(sizeof(uint32_t) * m_indices.size());
-    desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
+  if (ibInvalid || ibCount == 0)
+  {
+    atGraphics::SafeRelease(m_pIndexBuffer);
 
-    D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = m_indices.data();
-    data.SysMemPitch = 0;
-    data.SysMemSlicePitch = 0;
+    Resource *pIndices = nullptr;
+    for (auto &kvp : m_resource)
+      if (kvp.m_val.type == atRRT_Indices)
+      {
+        pIndices = &kvp.m_val;
+        pIndices->id = 0;
+        break;
+      }
 
-    m_nIndices = m_indices.size();
-    res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pIndexBuffer));
+    if (pIndices)
+    {
+      // Create D3D11 Index Buffer
+      D3D11_BUFFER_DESC desc;
+      desc.Usage = D3D11_USAGE_DEFAULT;
+      desc.ByteWidth = (UINT)pIndices->data.size();
+      desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+      desc.CPUAccessFlags = 0;
+      desc.MiscFlags = 0;
+
+      D3D11_SUBRESOURCE_DATA data;
+      data.pSysMem = pIndices->data.data();
+      data.SysMemPitch = 0;
+      data.SysMemSlicePitch = 0;
+
+      m_nIndices = pIndices->count;
+      res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pIndexBuffer));
+    }
   }
+
   return res;
 }
 
@@ -211,12 +239,24 @@ void atRenderable::Clear()
   m_shaderID = AT_INVALID_ID;
   m_nIndices = 0;
   m_nVerts = 0;
+  m_resource.Clear();
+}
 
-  m_texCoords.Clear();
-  m_positions.Clear();
-  m_indices.clear();
-  m_normals.Clear();
-  m_colors.Clear();
+atRenderable::Resource& atRenderable::GetResource(const atString &name)
+{
+  Resource *pRes = m_resource.TryGet(name);
+  if (pRes)
+    return *pRes;
+  m_resource.Add(name);
+  return m_resource.Get(name);
+}
+
+void atRenderable::FreeResource(const atString &name)
+{
+  Resource *pRes = m_resource.TryGet(name);
+  if (!pRes)
+    return;
+  m_resource.Remove(name);
 }
 
 void atRenderable::SetShader(const atString &name) { m_shader = name; m_layoutID = -1; }

@@ -97,6 +97,14 @@ template <> atTypeDesc atGetTypeDesc<atVector2<int16_t>>();
 template <> atTypeDesc atGetTypeDesc<atVector3<int16_t>>();
 template <> atTypeDesc atGetTypeDesc<atVector4<int16_t>>();
 
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 2, 2>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 3, 3>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 4, 4>>();
+
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 2, 2>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 3, 3>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 4, 4>>();
+
 template <typename T> T atMin(const T &a) { return a; }
 template <typename T> T atMax(const T &a) { return a; }
 template <typename T, typename T2, typename... Args> T atMin(const T &first, const T2 &second, Args ...args) { T argMin = (T)atMin(second, Args...); return (argMin < first) ? argMin : first; }
@@ -109,7 +117,7 @@ template <typename T> T atTan(const T rads) { return tan(rads); }
 template <typename T> T atASin(const T rads) { return asin(rads); }
 template <typename T> T atACos(const T rads) { return acos(rads); }
 template <typename T> T atATan(const T rads) { return atan(rads); }
-template<typename T> T atATan2(const atVector2<T> pos) { return atATan2(pos.x, pos.y); }
+template <typename T> T atATan2(const atVector2<T> pos) { return atATan2(pos.x, pos.y); }
 template <typename T> T atATan2(const T y, const T x);
 
 template <typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);

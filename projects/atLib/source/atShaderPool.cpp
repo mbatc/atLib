@@ -118,7 +118,7 @@ int64_t atShaderPool::GetInputLayout(const int64_t id, const atVector<VertexData
   atVector<D3D11_INPUT_ELEMENT_DESC> d3dDesc;
   d3dDesc.reserve(desc.size());
   for (const VertexData &data : desc)
-    d3dDesc.push_back({data.semantic.c_str(), 0, (DXGI_FORMAT)atFormat::DXGI(data.desc.type, data.desc.count), 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0});
+    d3dDesc.push_back({data.semantic.c_str(), 0, (DXGI_FORMAT)atFormat::DXGI(data.desc.type, data.desc.count), 0, &data == desc.begin() ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0});
   return pRef->pShader->CreateInputLayout(d3dDesc);
 }
 
@@ -126,6 +126,21 @@ bool atShaderPool::SetVariable(const int64_t shader, const atString &name, void 
 {
   ShaderReference *pRef = s_shaders.TryGet(shader);
   return pRef ? pRef->pShader->SetResource(name, pData, len) : false;
+}
+
+bool atShaderPool::SetVariable(const int64_t shader, const int64_t loc, void *pData, int64_t len)
+{
+  if (loc == AT_INVALID_ID)
+    return false;
+
+  ShaderReference *pRef = s_shaders.TryGet(shader);
+  return pRef ? pRef->pShader->SetResource(loc, pData, len) : false;
+}
+
+int64_t atShaderPool::GetVariableLoc(const int64_t shader, const atString &name)
+{
+  ShaderReference *pRef = s_shaders.TryGet(shader);
+  return pRef ? pRef->pShader->GetResourceLoc(name) : -1;
 }
 
 void atShaderPool::ReleaseShader(const int64_t id)

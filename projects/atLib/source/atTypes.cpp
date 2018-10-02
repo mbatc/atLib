@@ -25,7 +25,7 @@
 
 #include "atTypes.h"
 
-int64_t atSize(const atType &val)
+template <> int64_t atSize(const atType &val)
 {
   switch (val)
   {
@@ -43,6 +43,10 @@ int64_t atSize(const atType &val)
   }
 }
 
+template<> atType atGetType<bool>() { return atType_Uint8; }
+template<> atType atGetType<char>() { return atType_Uint8; }
+template<> atType atGetType<wchar_t>() { return atType_Uint16; }
+
 template<> atType atGetType<int8_t>() { return atType_Int8; }
 template<> atType atGetType<int16_t>() { return atType_Int16; }
 template<> atType atGetType<int32_t>() { return atType_Int32; }
@@ -51,6 +55,7 @@ template<> atType atGetType<uint8_t>() { return atType_Uint8; }
 template<> atType atGetType<uint16_t>() { return atType_Uint16; }
 template<> atType atGetType<uint32_t>() { return atType_Uint32; }
 template<> atType atGetType<uint64_t>() { return atType_Uint64; }
+
 template<> atType atGetType<float>() { return atType_Float32; }
 template<> atType atGetType<double>() { return atType_Float64; }
 

@@ -33,8 +33,8 @@ template <typename T> class atVector2
 {
 public:
   template <typename ValType> using VecType = atVector2<ValType>;
-  const int64_t element_count = 2;
-  
+  static const int64_t element_count = 2;
+
   atVector2(const T _x = { 0 }, const T _y = { 0 }) : x(_x), y(_y) {}
   atVector2(const VecType<T> &copy) : x(copy.x), y (copy.y) {}
 
@@ -123,7 +123,7 @@ public:
 
   T* data() { return &x; }
   const T* data() const { return &x; }
-
+  
   T x;
   T y;
 };

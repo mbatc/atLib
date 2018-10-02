@@ -48,3 +48,11 @@ template <> atTypeDesc atGetTypeDesc<atVector4<int8_t>>() { return{ atGetType<in
 template <> atTypeDesc atGetTypeDesc<atVector2<int16_t>>() { return{ atGetType<int16_t>(), 2 }; }
 template <> atTypeDesc atGetTypeDesc<atVector3<int16_t>>() { return{ atGetType<int16_t>(), 3 }; }
 template <> atTypeDesc atGetTypeDesc<atVector4<int16_t>>() { return{ atGetType<int16_t>(), 4 }; }
+
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 2, 2>>() { return{ atGetType<double>(), 4}; }
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 3, 3>>() { return{ atGetType<double>(), 9}; }
+template <> atTypeDesc atGetTypeDesc<atMatrix<double, 4, 4>>() { return{ atGetType<double>(), 16 }; }
+
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 2, 2>>() { return{ atGetType<float>(), 4 }; }
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 3, 3>>() { return{ atGetType<float>(), 9 }; }
+template <> atTypeDesc atGetTypeDesc<atMatrix<float, 4, 4>>() { return{ atGetType<float>(), 16 }; }

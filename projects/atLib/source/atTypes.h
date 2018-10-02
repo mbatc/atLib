@@ -60,7 +60,8 @@ enum atType
 
 // Return the size in bytes of a specific type
 template <typename T> int64_t atSize() { return sizeof(T); };
-template <typename T> int64_t atSize(const T& val) { return sizeof(val); };
+template <typename T> int64_t atSize(const T& val) { return sizeof(val); }; 
+template <> int64_t atSize(const atType &val);
 
 struct atTypeDesc
 {
@@ -77,6 +78,9 @@ struct atTypeDesc
 
 // Return an enum representing the type
 template <typename T> atType atGetType() { return atType_Unknown; }
+template<> atType atGetType<bool>();
+template<> atType atGetType<char>();
+template<> atType atGetType<wchar_t>();
 template<> atType atGetType<int8_t>();
 template<> atType atGetType<int16_t>();
 template<> atType atGetType<int32_t>();

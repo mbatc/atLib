@@ -33,7 +33,7 @@ template <typename T> class atVector4
 public:
   template <typename T> using VecType = atVector4<T>;
 
-  const int64_t element_count = 4;
+  static const int64_t element_count = 4;
 
   atVector4(const T _x = { 0 }, const T _y = { 0 }, const T _z = { 0 }, const T _w = { 0 }) : x(_x), y(_y), z(_z), w(_w) {}
   atVector4(const VecType<T> &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {}

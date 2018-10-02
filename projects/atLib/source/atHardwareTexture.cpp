@@ -61,7 +61,7 @@ int64_t atHardwareTexture::CreateSampler(const int64_t filter, const atTexCoordM
   return s_samplerCounter++;
 }
 
-int64_t atHardwareTexture::UploadImage(const atFilename &file)
+int64_t atHardwareTexture::UploadTexture(const atFilename &file)
 {
   int64_t *pID = s_imageID.TryGet(file);
   if (pID)
@@ -96,6 +96,10 @@ int64_t atHardwareTexture::UploadImage(const atFilename &file)
 
   ID3D11Texture2D *pTexture = nullptr;
   atGraphics::GetDevice()->CreateTexture2D(&texDesc, &data, &pTexture);
+  
+  if (!pTexture)
+    return AT_INVALID_ID;
+
   atGraphics::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pShaderRes);
   pTexture->Release();
   pTexture = nullptr;

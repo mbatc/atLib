@@ -44,18 +44,18 @@ int main(int argc, char **argv)
   atUnused(argc, argv);
 
   atWindow wnd("My window");
-  atCamera cam(wnd, { 0,0, 0.5 });
+  atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
 
   atRenderable ro;
 
   ro.SetShader("assets/shaders/color");
-  ro.m_samplers.Add("samplerType", atHardwareTexture::CreateSampler());
-  ro.m_textures.Add("diffuseTexture", atHardwareTexture::UploadImage(atString("assets/test/images/brick.jpg")));
-  ro.m_positions.Add("POSITION", { {-1, -1, -5 }, { 0, 1, -5 }, { 1, -1, -5 } });
-  ro.m_texCoords.Add("TEXCOORD", { { 0, 1 },{ 0.5, 0 },{ 1, 1 } });
-  ro.m_colors.Add("COLOR", { { 1,1,1,1 }, { 1,1,1,1 }, { 1,1,1,1 } });
-  ro.m_indices = { 0,1,2 };
+  ro.SetChannel("samplerType", 0, atRRT_Sampler);
+  ro.SetChannel("diffuseTexture", atString("assets/test/images/brick.jpg"), atRRT_Texture);
+  ro.SetChannel("POSITION", atVector<atVec3F>{ { -1, -1, -5 },{ 0, 1, -5 },{ 1, -1, -5 } }, atRRT_VertexData);
+  ro.SetChannel("COLOR", atVector<atVec4F>{ { 1, 1, 1, 1 },{ 1, 1, 1, 1 },{ 1, 1, 1, 1 } }, atRRT_VertexData);
+  ro.SetChannel("TEXCOORD", atVector<atVec2F>{ { 0, 1 },{ 0.5, 0 },{ 1, 1 } }, atRRT_VertexData);
+  ro.SetChannel("idxBuffer", { 0u, 1u, 2u }, atRRT_Indices);
 
   float col = 66.f;
 

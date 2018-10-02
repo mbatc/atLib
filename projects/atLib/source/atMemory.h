@@ -57,8 +57,7 @@ template <class T> typename std::enable_if<!std::is_destructible<T>::value>::typ
 //*************************
 // Function Implementations
 
-template<class T, typename... Args>
-inline T* atInternal_New(const int64_t count, Args&&... args)
+template<class T, typename... Args> T* atInternal_New(const int64_t count, Args&&... args)
 {
   const int64_t size = count * sizeof(T);
   void *pBlock = atAlloc(size + sizeof(int64_t));
@@ -73,8 +72,7 @@ inline T* atInternal_New(const int64_t count, Args&&... args)
   return pStart;
 }
 
-template <class T> 
-inline void atDelete(T* pBlock)
+template <class T> void atDelete(T* pBlock)
 {
   void *pActualAlloc = (int64_t*)pBlock - 1;
   const int64_t count = *(int64_t*)pActualAlloc;
@@ -86,15 +84,13 @@ inline void atDelete(T* pBlock)
   atFree(pActualAlloc);
 }
 
-template <class T> 
-inline typename std::enable_if<std::is_destructible<T>::value>::type atDestructArray(T *pVal, const int64_t count)
+template <class T> typename std::enable_if<std::is_destructible<T>::value>::type atDestructArray(T *pVal, const int64_t count)
 {
   for (int64_t i = 0; i < count; ++i)
     atDestruct(&pVal[i]);
 }
 
-template <class T, typename... Args> 
-inline typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstructArray(T *pVal, const int64_t count, Args... args)
+template <class T, typename... Args> typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstructArray(T *pVal, const int64_t count, Args... args)
 {
   for (int64_t i = 0; i < count; ++i)
     atConstruct<T, Args...>(pVal + i, std::forward<Args>(args)...);

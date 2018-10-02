@@ -44,3 +44,19 @@ template <> const wchar_t* atStringBasic<wchar_t>::Binary() { return L"01"; }
 template <> const wchar_t* atStringBasic<wchar_t>::AlphabetUpper() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
 template <> const wchar_t* atStringBasic<wchar_t>::AlphabetLower() { return L"abcdefghijklmnopqrstuvwxyz"; }
 template <> const wchar_t* atStringBasic<wchar_t>::AlphabetAll() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; }
+
+template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str)
+{
+  atTypeDesc ret = atGetTypeDesc<char>();
+  ret.count = str.length() + 1;
+  ret.size = atSize(ret.type) * ret.count;
+  return ret;
+}
+
+template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str)
+{
+  atTypeDesc ret = atGetTypeDesc<wchar_t>();
+  ret.count = str.length() + 1;
+  ret.size = atSize(ret.type) * ret.count;
+  return ret;
+}

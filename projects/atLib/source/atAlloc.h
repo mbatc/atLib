@@ -38,6 +38,7 @@ void* _atAllocRelTrace(const int64_t size, const int64_t line, const char *file,
 void* _atReallocRelTrace(void *pBlock, const int64_t size, const int64_t line, const char *file, const char *function);
 
 void atFree(void *pBlock);
+
 #define atAlloc(size) _atAllocTrace(size, __LINE__, __FILE__, __FUNCSIG__)
 #define atRealloc(block, size) _atReallocTrace(block, size, __LINE__, __FILE__, __FUNCSIG__)
 

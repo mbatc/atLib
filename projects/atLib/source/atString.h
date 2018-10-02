@@ -168,6 +168,9 @@ template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, co
 template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs) { return atString(lhs).operator+(rhs); }
 template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs) { return lhs.operator+(rhs); }
 
+template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str);
+template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str);
+
 typedef atStringBasic<wchar_t> atWideString;
 typedef atStringBasic<char> atString;
 

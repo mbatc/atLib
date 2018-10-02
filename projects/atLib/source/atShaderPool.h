@@ -44,6 +44,8 @@ public:
 
   // Set a variable in the currently bound shader
   static bool SetVariable(const int64_t shader, const atString &name, void *pData, int64_t len);
+  static bool SetVariable(const int64_t shader, const int64_t loc, void *pData, int64_t len);
+  static int64_t GetVariableLoc(const int64_t shader, const atString &name);
 };
 
 #endif
