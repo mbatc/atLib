@@ -1,5 +1,4 @@
 
-
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -170,5 +169,12 @@ template<typename T> atVector2<T> operator*(const atMatrix<T, 2, 2> &lhs, const 
   atMatrix<T, 1, 2> mat = atMatrix<T, 2, 1>(rhs).Mult(lhs);
   return atVector4<T>(mat[0], mat[1]);
 }
+
+template<typename T> atVector4<T> operator*(const T &lhs, const atVector4<T>& rhs) { return rhs * lhs; }
+template<typename T> atVector3<T> operator*(const T &lhs, const atVector3<T>& rhs) { return rhs * lhs; }
+template<typename T> atVector2<T> operator*(const T &lhs, const atVector2<T>& rhs) { return rhs * lhs; }
+template<typename T> atVector4<T> operator/(const T &lhs, const atVector4<T>& rhs) { return atVector4<T>(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z, lhs / rhs.w); }
+template<typename T> atVector3<T> operator/(const T &lhs, const atVector3<T>& rhs) { return atVector3<T>(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z); }
+template<typename T> atVector2<T> operator/(const T &lhs, const atVector2<T>& rhs) { return atVector2<T>(lhs / rhs.x, lhs / rhs.y); }
 
 template<typename T> atMatrix<T, 4, 4> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll) { return atMatrixRotationY(yaw) * atMatrixRotationX(pitch) * atMatrixRotationZ(roll); }

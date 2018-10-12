@@ -36,12 +36,21 @@
 #include "atGraphics.h"
 #include "atHardwareTexture.h"
 #include "atImage.h"
+#include "atIntersects.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
+
+  atRay<double> rayA(atVec3F64(0, 0, 0), atVec3F64(0, 0, 1));
+  atRay<double> rayB(atVec3F64(1, 0, 0), atVec3F64(0, 1, 0));
+   
+  atVec3F64 closestToB;
+  rayA.GetClosestPoint(rayB, &closestToB);
+  atVec3F64 closestToA;
+  rayB.GetClosestPoint(rayA, &closestToA);
 
   atWindow wnd("My window");
   atCamera cam(wnd, { 0,0, 5 });

@@ -82,7 +82,7 @@ public:
   template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Multiply(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Multiply<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Assign(VecCls<VecType> *pLhs, const VecCls<VecType> &rhs) { return Assign<VecCls, VecType, VecCls, VecType>(pLhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Cross(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Cross<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
-  template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Dot(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Dot<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
+  template <template <typename> class VecCls, typename VecType> static VecType Dot(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Dot<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static bool Equals(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Equals<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
 
   template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Add(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)

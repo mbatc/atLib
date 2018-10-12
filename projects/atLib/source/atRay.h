@@ -23,20 +23,30 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef _atAssert_h__
-#define _atAssert_h__
+#ifndef atRay_h__
+#define atRay_h__
 
-#include "atTypes.h"
+#include "atVector3.h"
 
-void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
-void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
+template <typename T> class atRay
+{
+public:
+  using Vec3 = atVector3<T>;
+  
+  atRay(const Vec3 &pos, const Vec3 &dir);
 
-#ifdef _DEBUG
-#define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
-#else
-#define atAssert(cond, message)
-#endif
+  Vec3 At(const T time);
+  Vec3 GetTime(const Vec3 &point);
+  bool IsOnRay(const Vec3 &point, T *pTime);
+  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime = nullptr);
 
-#define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
+  T TimeX(const T val);
+  T TimeY(const T val);
+  T TimeZ(const T val);
 
-#endif
+  Vec3 m_pos;
+  Vec3 m_dir;
+};
+
+#include "atRay.inl"
+#endif // atRay_h__

@@ -28,7 +28,7 @@
 
 #include "atTypes.h"
 #include "atVector4.h"
-#include <minmax.h>
+#include "atMatrix.h"
 #include <math.h>
 
 #define atE 2.71828182845904523536   // e
@@ -135,6 +135,14 @@ template <typename T> atVector4<T> operator*(const atMatrix<T, 4, 4> &lhs, const
 template <typename T> atVector3<T> operator*(const atMatrix<T, 4, 4> &lhs, const atVector3<T> &rhs);
 template <typename T> atVector3<T> operator*(const atMatrix<T, 3, 3> &lhs, const atVector3<T> &rhs);
 template <typename T> atVector2<T> operator*(const atMatrix<T, 2, 2> &lhs, const atVector2<T> &rhs);
+
+template <typename T> atVector4<T> operator*(const T &lhs, const atVector4<T> &rhs);
+template <typename T> atVector3<T> operator*(const T &lhs, const atVector3<T> &rhs);
+template <typename T> atVector2<T> operator*(const T &lhs, const atVector2<T> &rhs);
+
+template <typename T> atVector4<T> operator/(const T &lhs, const atVector4<T> &rhs);
+template <typename T> atVector3<T> operator/(const T &lhs, const atVector3<T> &rhs);
+template <typename T> atVector2<T> operator/(const T &lhs, const atVector2<T> &rhs);
 
 #include "atMath.inl"
 #endif // _atMath_h__
