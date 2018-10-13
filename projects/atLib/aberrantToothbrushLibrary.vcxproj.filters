@@ -118,6 +118,9 @@
     <Filter Include="Header Files\3rdParty">
       <UniqueIdentifier>{88285eb8-2077-41dd-8f46-3a403b4b90f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math\Geometry">
+      <UniqueIdentifier>{52df6770-8f07-4880-9287-04a2071731f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -350,6 +353,15 @@
     <ClInclude Include="source\atHardwareTexture.h">
       <Filter>Header Files\Graphics\Material\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="source\atIntersects.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atRay.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atAABB.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -375,6 +387,18 @@
     </None>
     <None Include="source\atColor.inl">
       <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+    </None>
+    <None Include="source\atIntersects.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atRay.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atAABB.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atVector.inl">
+      <Filter>Header Files\Containers</Filter>
     </None>
   </ItemGroup>
 </Project>

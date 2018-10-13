@@ -1,3 +1,4 @@
+#include "atRay.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,7 +24,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime)
+template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
 {
   T comp = 0;
   // Check which directions have non-zero values
@@ -53,39 +54,61 @@ template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime)
   return res;
 }
 
-template <typename T> bool atRay<T>::GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime)
+template <typename T> bool atRay<T>::GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime) const
 {
   atAssert(pPoint != nullptr, "pPoint must not be nullptr");
   T time = { 0 };
   // Calculate required Dot Products
-  T dA_dB_2 = m_dir.Dot(ray.m_dir);
-  if (dA_dB_2 == 0)
-    return false;
-
-  dA_dB_2 *= dA_dB_2;
-
+  T dA_dB = m_dir.Dot(ray.m_dir);
   const T dA_dA = m_dir.Dot(m_dir);
-  const T dB_dB = ray.m_dir.Dot(ray.m_dir);
+  const T den = dA_dB + dA_dA;
+  if (den == 0)
+    return false;
   const T dB_B = ray.m_dir.Dot(ray.m_pos);
+  const T dB_A = ray.m_dir.Dot(m_pos);
   const T dA_A = m_dir.Dot(m_pos);
   const T dA_B = m_dir.Dot(ray.m_pos);
-
-  // Calculate major parts of equation
-  const T coeff = (1 + (dA_dA * dB_dB) / dA_dB_2);
-  const T partA = (1 - dB_B);
-  const T partB = (dB_dB * (dA_A - dA_B) / dA_dB_2);
+  const T num = dB_B * dA_dB - dB_A * dA_dB - dA_B - dA_A;
 
   // Calculate Time
-  time = coeff * (partA - partB);
+  time = num / den;
   if (pTime)
     *pTime = time;
   *pPoint = At(time);
   return true;
 }
 
-template <typename T> T atRay<T>::TimeX(const T val) { return (val - m_pos.x) / m_dir.x; }
-template <typename T> T atRay<T>::TimeY(const T val) { return (val - m_pos.y) / m_dir.y; }
-template <typename T> T atRay<T>::TimeZ(const T val) { return (val - m_pos.z) / m_dir.z; }
+template<typename T> bool atRay<T>::GetClosestPoint(const atRay<T>& ray, Vec3 *pPoint, T *pTime, T *pDist) const
+{
+  if (!GetClosestPoint(ray, pPoint, pTime))
+    return false;
+  Vec3 p2; 
+  ray.GetClosestPoint(*this, &p2);
+  *pDist = (p2 - *pPoint).Mag();
+  return true;
+}
+
+template<typename T> bool atRay<T>::GetClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime, T* pDist) const
+{
+  atAssert(pPoint != nullptr, "pPoint must not be nullptr");
+  T time = 0;
+  bool res = true;
+  if (m_dir != atVector3<T>::zero())
+    res = point == m_pos;
+  else
+    time = m_dir.Dot(point - m_pos) / m_dir.Dot(m_dir);
+  if (*pTime)
+    *pTime = time;
+  *pPoint = At(time);
+
+  if (*pDist)
+    *pDist = (*pPoint - point).Mag();
+	return res;
+}
+
+template <typename T> T atRay<T>::TimeX(const T val) const { return (val - m_pos.x) / m_dir.x; }
+template <typename T> T atRay<T>::TimeY(const T val) const { return (val - m_pos.y) / m_dir.y; }
+template <typename T> T atRay<T>::TimeZ(const T val) const { return (val - m_pos.z) / m_dir.z; }
 template <typename T> atRay<T>::atRay(const Vec3 &pos, const Vec3 &dir) : m_pos(pos), m_dir(dir) {}
-template <typename T> typename atRay<T>::Vec3 atRay<T>::At(const T time) { return m_pos + m_dir * time; }
-template <typename T> typename atRay<T>::Vec3 atRay<T>::GetTime(const Vec3 &point) { return GetTime(m_dir.x != 0 ? TimeX(point.x) : 0, m_dir.y != 0 ? TimeY(point.y) : 0, m_dir.z != 0 ? TimeZ(point.z) : 0); }
+template <typename T> typename atRay<T>::Vec3 atRay<T>::At(const T time) const { return m_pos + m_dir * time; }
+template <typename T> typename atRay<T>::Vec3 atRay<T>::GetTime(const Vec3 &point) const { return Vec3(m_dir.x != 0 ? TimeX(point.x) : 0, m_dir.y != 0 ? TimeY(point.y) : 0, m_dir.z != 0 ? TimeZ(point.z) : 0); }

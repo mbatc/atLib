@@ -165,7 +165,7 @@ public:
     VecType ret = { 0 };
     for (int64_t i = 0; i < vec.element_count; ++i)
       ret += vec[i] * vec[i];
-    return ret / (VecType)vec.element_count;
+    return ret;
   }
 
   template <template <typename> class VecCls, typename VecType> static VecType Mag(const VecCls<VecType> &vec) { return sqrt(Length(vec)); }

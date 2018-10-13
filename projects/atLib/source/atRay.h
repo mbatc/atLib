@@ -35,14 +35,16 @@ public:
   
   atRay(const Vec3 &pos, const Vec3 &dir);
 
-  Vec3 At(const T time);
-  Vec3 GetTime(const Vec3 &point);
-  bool IsOnRay(const Vec3 &point, T *pTime);
-  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime = nullptr);
+  Vec3 At(const T time) const;
+  Vec3 GetTime(const Vec3 &point) const;
+  bool IsOnRay(const Vec3 &point, T *pTime) const;
+  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime = nullptr) const;
+  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T* pTime, T* pDist) const;
+  bool GetClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime = nullptr, T* pDist = nullptr) const;
 
-  T TimeX(const T val);
-  T TimeY(const T val);
-  T TimeZ(const T val);
+  T TimeX(const T val) const;
+  T TimeY(const T val) const;
+  T TimeZ(const T val) const;
 
   Vec3 m_pos;
   Vec3 m_dir;

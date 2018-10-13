@@ -26,7 +26,7 @@
 template<typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T *pTime)
 {
   atVector3<T> point;
-  if (!a.GetClosestPoint(b, &point, pTime))
+  if (!b.GetClosestPoint(a, &point, pTime))
     return false;
   return a.IsOnRay(point);
 }

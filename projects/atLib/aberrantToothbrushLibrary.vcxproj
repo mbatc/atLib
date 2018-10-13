@@ -54,6 +54,7 @@
   <ItemGroup>
     <ClInclude Include="source\3rdParty\stb\stb_image.h" />
     <ClInclude Include="source\3rdParty\stb\stb_image_write.h" />
+    <ClInclude Include="source\atAABB.h" />
     <ClInclude Include="source\atAlloc.h" />
     <ClInclude Include="source\atAssert.h" />
     <ClInclude Include="source\atButtonState.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="source\atImage.h" />
     <ClInclude Include="source\atImageHelper.h" />
     <ClInclude Include="source\atInput.h" />
+    <ClInclude Include="source\atIntersects.h" />
     <ClInclude Include="source\atKeyValue.h" />
     <ClInclude Include="source\atMaterial.h" />
     <ClInclude Include="source\atMath.h" />
@@ -78,6 +80,7 @@
     <ClInclude Include="source\atMesh.h" />
     <ClInclude Include="source\atColor.h" />
     <ClInclude Include="source\atPool.h" />
+    <ClInclude Include="source\atRay.h" />
     <ClInclude Include="source\atReadStream.h" />
     <ClInclude Include="source\atRenderable.h" />
     <ClInclude Include="source\atRenderState.h" />
@@ -104,13 +107,17 @@
     </Natvis>
   </ItemGroup>
   <ItemGroup>
+    <None Include="source\atAABB.inl" />
     <None Include="source\atColor.inl" />
     <None Include="source\atFilename.inl" />
     <None Include="source\atHashMap.inl" />
+    <None Include="source\atIntersects.inl" />
     <None Include="source\atMath.inl" />
     <None Include="source\atMatrix.inl" />
+    <None Include="source\atRay.inl" />
     <None Include="source\atString.inl" />
     <None Include="source\atTransformable.inl" />
+    <None Include="source\atVector.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5910BD68-490E-4C92-89CF-67F7BBA296BA}</ProjectGuid>
