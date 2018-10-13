@@ -121,6 +121,9 @@
     <Filter Include="Header Files\Math\Geometry">
       <UniqueIdentifier>{52df6770-8f07-4880-9287-04a2071731f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Memory\Allocators">
+      <UniqueIdentifier>{ff3a10df-5ba0-4e54-8ff1-153c84d2123d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -215,6 +218,9 @@
     </ClCompile>
     <ClCompile Include="source\atHardwareTexture.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atHash.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +368,15 @@
     <ClInclude Include="source\atAABB.h">
       <Filter>Header Files\Math\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="source\atBlockAllocator.h">
+      <Filter>Header Files\Memory\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atAllocator.h">
+      <Filter>Header Files\Memory\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atHash.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -399,6 +414,12 @@
     </None>
     <None Include="source\atVector.inl">
       <Filter>Header Files\Containers</Filter>
+    </None>
+    <None Include="source\atBlockAllocator.inl">
+      <Filter>Header Files\Memory\Allocators</Filter>
+    </None>
+    <None Include="source\atAllocator.inl">
+      <Filter>Header Files\Memory\Allocators</Filter>
     </None>
   </ItemGroup>
 </Project>

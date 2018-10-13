@@ -31,6 +31,7 @@
     <ClCompile Include="source\atFormat.cpp" />
     <ClCompile Include="source\atGraphics.cpp" />
     <ClCompile Include="source\atHardwareTexture.cpp" />
+    <ClCompile Include="source\atHash.cpp" />
     <ClCompile Include="source\atImage.cpp" />
     <ClCompile Include="source\atImageHelper.cpp" />
     <ClCompile Include="source\atInput.cpp" />
@@ -56,7 +57,9 @@
     <ClInclude Include="source\3rdParty\stb\stb_image_write.h" />
     <ClInclude Include="source\atAABB.h" />
     <ClInclude Include="source\atAlloc.h" />
+    <ClInclude Include="source\atAllocator.h" />
     <ClInclude Include="source\atAssert.h" />
+    <ClInclude Include="source\atBlockAllocator.h" />
     <ClInclude Include="source\atButtonState.h" />
     <ClInclude Include="source\atCamera.h" />
     <ClInclude Include="source\atDateTime.h" />
@@ -67,6 +70,7 @@
     <ClInclude Include="source\atFormat.h" />
     <ClInclude Include="source\atGraphics.h" />
     <ClInclude Include="source\atHardwareTexture.h" />
+    <ClInclude Include="source\atHash.h" />
     <ClInclude Include="source\atHashMap.h" />
     <ClInclude Include="source\atImage.h" />
     <ClInclude Include="source\atImageHelper.h" />
@@ -108,6 +112,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="source\atAABB.inl" />
+    <None Include="source\atAllocator.inl" />
+    <None Include="source\atBlockAllocator.inl" />
     <None Include="source\atColor.inl" />
     <None Include="source\atFilename.inl" />
     <None Include="source\atHashMap.inl" />
