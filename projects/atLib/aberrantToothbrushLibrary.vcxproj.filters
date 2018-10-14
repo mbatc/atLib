@@ -448,5 +448,8 @@
     <None Include="source\atIterator.inl">
       <Filter>Header Files\Containers</Filter>
     </None>
+    <None Include="source\atOBJReader.inl">
+      <Filter>Header Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </None>
   </ItemGroup>
 </Project>

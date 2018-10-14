@@ -19,14 +19,6 @@ static atOBJKeyword _ScanKeyword(char *pSrc, int64_t *pLen = nullptr)
   return atOBJNone;
 }
 
-static atString _ReadLine(char **ppSrc, int64_t len)
-{
-  int64_t start = atString::_find_first_not(*ppSrc, len, atString::Whitespace());
-  int64_t end = atString::_find_first_of(*ppSrc, len, "\r\n", start);
-  *ppSrc += end;
-  return atString(*ppSrc - end + start, *ppSrc);
-}
-
 static atOBJKeyword _ScanKeyword(char **ppSrc, int64_t *pLen = nullptr)
 {
   int64_t len = 0;
@@ -36,22 +28,51 @@ static atOBJKeyword _ScanKeyword(char **ppSrc, int64_t *pLen = nullptr)
   return ret;
 }
 
-static atVec3F64 _ParseVec3(char **ppSrc, int64_t *pLen = nullptr)
+static atString _ReadLine(char **ppSrc, int64_t len)
 {
-  return atVec3F64();
+  int64_t start = atString::_find_first_not(*ppSrc, len, atString::Whitespace());
+  int64_t end = atString::_find_first_of(*ppSrc, len, "\r\n", start);
+  *ppSrc += end;
+  return atString(*ppSrc - end + start, *ppSrc);
 }
 
-static atVec2F64 _ParseVec2(char **ppSrc, int64_t *pLen = nullptr)
+static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Triangle> *pTris, const int64_t matID)
 {
-  return atVec2F64();
-}
+  int64_t pos = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace());
+  int64_t newLine = atString::_find_first_of(*ppSrc, srcLen, '\n');
+  int64_t vertCount = 0;
+  
+  while (pos < newLine)
+  {
+    vertCount++;
+    pos = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos);
+    pos = atString::_find_first_of(*ppSrc, srcLen, atString::Whitespace(), pos);
+  }
 
-// Parse Face
-static atMesh::Triangle _ParseFace(char **ppSrc, atVector<atMesh::Triangle> *pTris, const int64_t matID)
-{
-  pTris->push_back(atMesh::Triangle());
-  atMesh::Triangle tri
-  return atMesh::Triangle();
+  int64_t faceCount = vertCount - 2;
+  if (faceCount < 1)
+    return;
+
+  atMesh::Vertex startVert;
+  int64_t texIndex = atOBJInvalidIndex;
+  int64_t posIndex = atOBJInvalidIndex;
+  int64_t normIndex = atOBJInvalidIndex;
+  
+  for (int64_t i = 0; i < faceCount; ++i)
+  {
+    pTris->push_back(atMesh::Triangle());
+    atMesh::Triangle &tri = pTris->at(pTris->size() - 1);
+    bool readStart = startVert.position == atOBJInvalidIndex;
+    if (!readStart) tri.vert[0] = startVert;
+    for (int64_t i = readStart ? 0 : 1; i < 3; ++i)
+    {
+
+
+      if (i == 0)
+        startVert = tri.vert[0];
+    }
+  }
+
 }
 
 bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
@@ -78,10 +99,10 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
   {
     switch (_ScanKeyword(&pSrc))
     {
-    case atOBJFace: _ParseFace(&pSrc, &pMesh->m_triangles, matID); break;
-    case atOBJVertex: pMesh->m_positions.push_back(_ParseVec3(&pSrc)); break;
-    case atOBJNormal: pMesh->m_positions.push_back(_ParseVec3(&pSrc)); break;
-    case atOBJTexCoord: pMesh->m_texCoords.push_back(_ParseVec3(&pSrc).xy()); break;
+    case atOBJFace: _ParseFace(&pSrc, data.end() - (uint8_t*)pSrc, &pMesh->m_triangles, matID); break;
+    case atOBJVertex: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atOBJNormal: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atOBJTexCoord: pMesh->m_texCoords.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc).xy()); break;
     case atOBJLine: pSrc += atString::_find_first_of(pSrc, data.end() - (uint8_t*)pSrc, "\n\r"); break;
     case atOBJMatLib: mtlFile = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc); break;
     case atOBJMatRef: matName = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc); break;

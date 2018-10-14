@@ -15,11 +15,16 @@ enum atOBJKeyword
   atOBJNone
 };
 
+#define atOBJInvalidIndex INT64_MAX
+
 class atOBJReader
 {
 public:
   atOBJReader() = delete;
   static bool Read(const atFilename &file, atMesh *pMesh);
+
+protected:
+  template <typename T> static T ParseVector(char **ppSrc, const int64_t srcLen, int64_t *pLen = nullptr);
 };
 
 class atOBJWriter
@@ -29,4 +34,5 @@ public:
   static bool Write(const atFilename &file, const atMesh &mesh);
 };
 
+#include "atOBJReader.inl"
 #endif // atOBJParser_h__

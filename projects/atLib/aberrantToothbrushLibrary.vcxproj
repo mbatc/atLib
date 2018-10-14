@@ -124,6 +124,7 @@
     <None Include="source\atIterator.inl" />
     <None Include="source\atMath.inl" />
     <None Include="source\atMatrix.inl" />
+    <None Include="source\atOBJReader.inl" />
     <None Include="source\atRay.inl" />
     <None Include="source\atString.inl" />
     <None Include="source\atTransformable.inl" />
