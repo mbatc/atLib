@@ -37,6 +37,11 @@
     <ClCompile Include="source\atMaterial.cpp" />
     <ClCompile Include="source\atMath.cpp" />
     <ClCompile Include="source\atMesh.cpp" />
+    <ClCompile Include="source\atMeshReader.cpp" />
+    <ClCompile Include="source\atMTLReader.cpp" />
+    <ClCompile Include="source\atMTLWriter.cpp" />
+    <ClCompile Include="source\atOBJReader.cpp" />
+    <ClCompile Include="source\atOBJWriter.cpp" />
     <ClCompile Include="source\atReadStream.cpp" />
     <ClCompile Include="source\atRenderable.cpp" />
     <ClCompile Include="source\atRenderState.cpp" />
@@ -72,6 +77,7 @@
     <ClInclude Include="source\atImageHelper.h" />
     <ClInclude Include="source\atInput.h" />
     <ClInclude Include="source\atIntersects.h" />
+    <ClInclude Include="source\atIterator.h" />
     <ClInclude Include="source\atKeyValue.h" />
     <ClInclude Include="source\atMaterial.h" />
     <ClInclude Include="source\atMath.h" />
@@ -79,6 +85,9 @@
     <ClInclude Include="source\atMemory.h" />
     <ClInclude Include="source\atMesh.h" />
     <ClInclude Include="source\atColor.h" />
+    <ClInclude Include="source\atMeshParser.h" />
+    <ClInclude Include="source\atMTLParser.h" />
+    <ClInclude Include="source\atOBJParser.h" />
     <ClInclude Include="source\atPool.h" />
     <ClInclude Include="source\atRay.h" />
     <ClInclude Include="source\atReadStream.h" />
@@ -112,6 +121,7 @@
     <None Include="source\atFilename.inl" />
     <None Include="source\atHashMap.inl" />
     <None Include="source\atIntersects.inl" />
+    <None Include="source\atIterator.inl" />
     <None Include="source\atMath.inl" />
     <None Include="source\atMatrix.inl" />
     <None Include="source\atRay.inl" />

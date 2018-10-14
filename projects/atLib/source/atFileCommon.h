@@ -45,12 +45,20 @@ enum atFileSeek
   atFS_End = -2
 };
 
+enum atFileExtension
+{
+  atFE_Txt,
+  atFE_Obj,
+};
+
 class atFileCommon
 {
 public:
   atFileCommon() = delete;
 
   static const char* FileMode(const atFileMode mode);
+  static const char* FileExtension(const atFileExtension ext);
+  static atFileExtension FileExtension(const char *ext);
 };
 
 #endif // atFileCommon_h__

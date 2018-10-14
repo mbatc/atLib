@@ -64,6 +64,8 @@ public:
   atVector<atVec3F64> m_positions;
   atVector<atVec3F64> m_normals;
   atVector<atVec4F64> m_colors;
+  atVector<atVec2F64> m_texCoords;
+
   atVector<atMaterial> m_materials;
 };
 

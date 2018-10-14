@@ -23,10 +23,34 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atIterator.h"
+#include "atString.h"
+
+template <typename T> T _ToLower(const T c) { return  (c >= 65 && c < 91) || !(c >= 97 && c <= 122) ? c : c - 3;  }
+template <typename T> T _ToUpper(const T c) { return c >= 65 && c < 91 ? c + 32 : c; }
+
 template <typename T> atStringBasic<T>::atStringBasic(atVector<T> &&move)
 {
   m_data.swap(move);
   validate();
+}
+
+template<typename T> atStringBasic<T> atStringBasic<T>::_to_lower(const T *str, const int64_t len)
+{
+  atVector<T> data;
+  data.reserve(len);
+  for (const T c : atIterate(str, len))
+    data.push_back(_ToLower(c));
+  return atStringBasic<T>(data);
+}
+
+template<typename T> atStringBasic<T> atStringBasic<T>::_to_upper(const T *str, const int64_t len)
+{
+  atVector<T> data;
+  data.reserve(len);
+  for (const T c : atIterate(str, len))
+    data.push_back(_ToUpper(c));
+  return atStringBasic<T>(data);
 }
 
 template<typename T> atStringBasic<T> atStringBasic<T>::_replace(const T *str, const int64_t len, const T _char, const T with, const int64_t start, int64_t count)
@@ -303,6 +327,31 @@ template<typename T> atVector<atStringBasic<T>> atStringBasic<T>::_split(const T
   return ret;
 }
 
+template<typename T> bool atStringBasic<T>::compare(const T * lhs, const T * rhs, const atStringCompareOptions options)
+{
+  if (options == atSCO_MatchCase)
+    return !strcmp(lhs, rhs);
+  int64_t len = strlen(lhs);
+  int64_t len2 = strlen(rhs);
+  if (len != len2) return false;
+
+  T cUpper = 0;
+  T cLower = 0;
+
+  for (int64_t i = 0; i < len; ++i)
+  {
+    T c = rhs[i];
+    cUpper = _ToUpper(c);
+    cLower = _ToLower(c);
+    if (lhs[i] != cUpper && lhs[i] != cLower)
+      return false;
+  }
+  return true;
+}
+
+template <typename T> bool atStringBasic<T>::compare(const T *str, const atStringCompareOptions options) const { return compare(c_str(), str, options); }
+template<typename T> atStringBasic<T> atStringBasic<T>::to_lower() { return _to_lower(c_str(), length()); }
+template<typename T> atStringBasic<T> atStringBasic<T>::to_upper() { return _to_upper(c_str(), length()); }
 template <typename T> template <class T1> atStringBasic<T>::atStringBasic(const T1 *pStart, const T1 *pEnd) { m_data.assign(pStart, pEnd); validate(); }
 template <typename T> template <class T1> atStringBasic<T>::atStringBasic(const atStringBasic<T1> &str) { m_data.assign(str.begin(), str.end()); validate(); }
 template <typename T> atStringBasic<T>::atStringBasic() { set_string("", 0); }
@@ -310,7 +359,6 @@ template <typename T> atStringBasic<T>::atStringBasic(const T *str) { set_string
 template <typename T> atStringBasic<T>::atStringBasic(const atStringBasic &copy) { set_string(copy.m_data); }
 template <typename T> atStringBasic<T>::atStringBasic(atStringBasic &&move) { m_data.swap(move.m_data); }
 template <typename T> atStringBasic<T>::atStringBasic(const atVector<T> &str) { set_string(str.data(), str.size()); }
-template <typename T> bool atStringBasic<T>::compare(const T *str) const { return !strcmp(str, c_str()); }
 template <typename T> void atStringBasic<T>::append(const T _char) { m_data.insert(length(), _char); }
 template <typename T> atStringBasic<T> atStringBasic<T>::replace(const T _char, const T with, const int64_t start, int64_t count) const { return _replace(c_str(), length(), _char, with, start, count); }
 template <typename T> atStringBasic<T> atStringBasic<T>::replace(const T* str, const T* with, const int64_t start, int64_t count) const { return _replace(c_str(), length(), str, with, start, count); }

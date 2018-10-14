@@ -71,14 +71,28 @@ int64_t atScan::Hex(const char * str, int64_t * pLen) { return _scan_integer(str
 atString atScan::String(const char *str, int64_t *pLen)
 {
   int64_t len = strlen(str);
-  int64_t start = atString::_find_first_not(str, len, s_whitespace);
-  int64_t end = atString::_find_first_of(str, len, s_whitespace, start);
+  int64_t start = atString::_find_first_not(str, len, atString::Whitespace());
+  int64_t end = atString::_find_first_of(str, len, atString::Whitespace(), start);
   if (start < 0)
     return "";
   atString ret(str + start, end < 0 ? str + len : (str + end));
   if (pLen)
     *pLen = end;
   return ret;
+}
+
+bool atScan::String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen)
+{
+  if(!pOut || !str)
+    return false;
+
+  int64_t len = strlen(str);
+  int64_t start = atString::_find_first_not(str, len, atString::Whitespace());
+  int64_t end = atString::_find_first_of(str, len, atString::Whitespace(), start);
+  memcpy(pOut, str + start, atMin(end - start, maxLen));
+  if (pLen)
+    *pLen = end;
+  return true;
 }
 
 double atScan::Float(const char *str, int64_t *pLen)

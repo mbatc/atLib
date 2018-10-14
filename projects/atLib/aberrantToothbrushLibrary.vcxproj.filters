@@ -121,6 +121,24 @@
     <Filter Include="Header Files\Math\Geometry">
       <UniqueIdentifier>{52df6770-8f07-4880-9287-04a2071731f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Parsers">
+      <UniqueIdentifier>{ea4edf55-5ce7-4e14-b850-c6fbcfddb7a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Parsers\OBJ">
+      <UniqueIdentifier>{50a9dcb2-eb9e-49aa-a86f-0e85804cebf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry\Parsers">
+      <UniqueIdentifier>{35522be1-cbf7-4527-8e2b-7299fda5dd48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry\Parsers\OBJ">
+      <UniqueIdentifier>{ed3d9255-592a-4868-9b7a-d105f0e26e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry\Parsers\MTL">
+      <UniqueIdentifier>{d47b2a49-c765-4b8c-9f0a-1dd071286e52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Parsers\MTL">
+      <UniqueIdentifier>{7a3bc708-d08c-4806-b890-a2e64c863865}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -215,6 +233,21 @@
     </ClCompile>
     <ClCompile Include="source\atHardwareTexture.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMeshReader.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMTLReader.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMTLWriter.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atOBJReader.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers\MTL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atOBJWriter.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers\MTL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +395,18 @@
     <ClInclude Include="source\atAABB.h">
       <Filter>Header Files\Math\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="source\atMeshParser.h">
+      <Filter>Header Files\Graphics\Geometry\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atOBJParser.h">
+      <Filter>Header Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atMTLParser.h">
+      <Filter>Header Files\Graphics\Geometry\Parsers\MTL</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atIterator.h">
+      <Filter>Header Files\Containers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -398,6 +443,9 @@
       <Filter>Header Files\Math\Geometry</Filter>
     </None>
     <None Include="source\atVector.inl">
+      <Filter>Header Files\Containers</Filter>
+    </None>
+    <None Include="source\atIterator.inl">
       <Filter>Header Files\Containers</Filter>
     </None>
   </ItemGroup>
