@@ -29,6 +29,19 @@
 #include "atFilename.h"
 #include "atMath.h"
 
+enum atMaterialIlluminationFlags
+{
+  atMIM_Colour = 1,
+  atMIM_Ambient = 1 << 2,
+  atMIM_Highlights = 1 << 3,
+  atMIM_Reflections = 1 << 4,
+  atMIM_RayTrace = 1 << 5,
+  atMIM_Transparency = 1 << 6,
+  atMIM_ReflectionFresnel = 1 << 7,
+  atMIM_ReflectionRayTrace = 1 << 8,
+  atMIM_Refraction = 1 << 9
+};
+
 class atMaterial
 {
 public:
@@ -36,13 +49,24 @@ public:
 
   bool DiscoverResources(const atFilename &dir);
 
-  atVec4F m_cDiffuse;
-  atVec4F m_cSpecular;
-  atVec4F m_cAmbient;
+  atString m_name;
 
+  atVec4F64 m_cDiffuse;
+  atVec4F64 m_cSpecular;
+  atVec4F64 m_cAmbient;
+
+  double m_alpha;
+  double m_specularPower;
+
+  atVector<atFilename> m_tAmbient;
   atVector<atFilename> m_tDiffuse;
+  atVector<atFilename> m_tAlpha;
   atVector<atFilename> m_tSpecular;
+  atVector<atFilename> m_tSpecularHigh;
   atVector<atFilename> m_tBump;
+  atVector<atFilename> m_tDisplacement;
+
+  int64_t m_illumFlags;
 };
 
 #endif

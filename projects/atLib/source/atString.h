@@ -29,6 +29,12 @@
 #include "atVector.h"
 #include "atMath.h"
 
+enum atStringCompareOptions
+{
+  atSCO_None,
+  atSCO_MatchCase,
+};
+
 template <typename T> class atStringBasic
 {
 public:
@@ -45,9 +51,16 @@ public:
   atStringBasic(const atVector<T> &str);
   atStringBasic(atVector<T> &&move);
   
+  static atStringBasic<T> _to_lower(const T *str, const int64_t len);
+  static atStringBasic<T> _to_upper(const T *str, const int64_t len);
+
+  atStringBasic<T> to_lower();
+  atStringBasic<T> to_upper();
+
   //******************
   // Compare functions
-  bool compare(const T *str) const;
+  bool compare(const T *str, const atStringCompareOptions options = atSCO_MatchCase) const;
+  static bool compare(const T *lhs, const T *rhs, const atStringCompareOptions options = atSCO_MatchCase);
 
   //******************
   // Replace functions

@@ -52,35 +52,35 @@ bool atMesh::MakeValid()
     bool calcNormal = false;
     for (int64_t v = 0; v < 3; ++v)
     {
-      if (tri.vert[v].color == AT_INVALID_INDEX)
+      if (tri.verts[v].color == AT_INVALID_INDEX)
       {
         if (m_default.color == AT_INVALID_INDEX)
         {
           m_default.color = m_colors.size();
           m_colors.push_back(atVec4F64(1.0, 1.0, 1.0, 1.0));
         }
-        tri.vert[v].color = m_default.color;
+        tri.verts[v].color = m_default.color;
       }
 
-      if (tri.vert[v].position == AT_INVALID_INDEX)
+      if (tri.verts[v].position == AT_INVALID_INDEX)
       {
         if (m_default.position == AT_INVALID_INDEX)
         {
           m_default.position = m_positions.size();
           m_positions.push_back(atVec3F64(0.0, 0.0, 0.0));
         }
-        tri.vert[v].position = m_default.position;
+        tri.verts[v].position = m_default.position;
       }
-      calcNormal |= tri.vert[v].normal == AT_INVALID_INDEX;
+      calcNormal |= tri.verts[v].normal == AT_INVALID_INDEX;
     }
 
     // calculate missing normals
     for (int64_t v = 0; v < 3; ++v)
-      if (tri.vert[v].normal == AT_INVALID_INDEX)
+      if (tri.verts[v].normal == AT_INVALID_INDEX)
       {
-        tri.vert[v].normal = m_normals.size();
-        m_normals.push_back(atVectorMath::Cross(m_positions[tri.vert[v].position] - m_positions[tri.vert[(v - 1) % 3].position],
-          m_positions[tri.vert[v].position] - m_positions[tri.vert[(v + 1) % 3].position]));
+        tri.verts[v].normal = m_normals.size();
+        m_normals.push_back(atVectorMath::Cross(m_positions[tri.verts[v].position] - m_positions[tri.verts[(v - 1) % 3].position],
+          m_positions[tri.verts[v].position] - m_positions[tri.verts[(v + 1) % 3].position]));
       }
 
     if (tri.mat == AT_INVALID_INDEX)

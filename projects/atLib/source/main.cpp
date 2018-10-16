@@ -37,25 +37,21 @@
 #include "atHardwareTexture.h"
 #include "atImage.h"
 #include "atIntersects.h"
+#include "atOBJParser.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-
-  atRay<double> rayA(atVec3F64(0, 0, 0), atVec3F64(0, 0, 1));
-  atRay<double> rayB(atVec3F64(1, 0, 0), atVec3F64(0, 1, 0));
-  double dist = 0;
-  atVec3F64 closestToB;
-  rayA.GetClosestPoint(rayB, &closestToB, nullptr, &dist);
+  atMesh mesh;
+  atOBJReader::Read(atFilename("assets/test/models/suzan.obj"), &mesh);
 
   atWindow wnd("My window");
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
 
   atRenderable ro;
-
   ro.SetShader("assets/shaders/color");
   ro.SetChannel("samplerType", 0, atRRT_Sampler);
   ro.SetChannel("diffuseTexture", atString("assets/test/images/brick.jpg"), atRRT_Texture);
@@ -65,7 +61,6 @@ int main(int argc, char **argv)
   ro.SetChannel("idxBuffer", { 0u, 1u, 2u }, atRRT_Indices);
 
   float col = 66.f;
-
   atRenderState::Bind();
   while (atInput::Update())
   {
@@ -75,6 +70,5 @@ int main(int argc, char **argv)
     wnd.Swap();
     cam.Update(1);
   }
-
   return atWindow_GetResult();
 }
