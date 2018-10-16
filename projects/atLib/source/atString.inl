@@ -71,8 +71,7 @@ template<typename T> atStringBasic<T> atStringBasic<T>::_replace(const T *str, c
     return str;
 
   atStringBasic<T> ret;
-  ret.vector().reserve(ret.length());
-  ret.vector().push_back('\0');
+  ret.vector().reserve(len);;
   ret.vector().insert(0, str, str + start);
 
   const int64_t matchLen = strlen(find);
@@ -80,7 +79,7 @@ template<typename T> atStringBasic<T> atStringBasic<T>::_replace(const T *str, c
   int64_t found = 0;
   while ((found = _find(str, len, find, pos)) >= 0 && count != 0)
   {
-    ret.vector().insert(pos, str + pos, str + found);
+    ret.vector().insert(ret.vector().size() - 1, str + pos, str + found);
     ret.append(with);
     pos = found + matchLen;
     --count;

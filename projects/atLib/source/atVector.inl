@@ -1,3 +1,4 @@
+#include "atVector.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -57,8 +58,8 @@ template <class T> void atVector<T>::insert(const int64_t index, vector_const_it
   if (start >= end)
     return;
 
+  int64_t startIndex = m_size;
   grow_reserve(m_size + (end - start));
-  const int64_t startIndex = m_size;
   for (int64_t i = 0; start + i < end; i++)
     emplace_back(*(start + i));
   move_to_index(startIndex, index, end - start);
@@ -274,6 +275,7 @@ template <class T> atVector<T>::atVector(const std::vector<T> &copy) { assign(co
 template <class T> T* atVector<T>::data() { return m_pData; }
 template <class T> T& atVector<T>::back() { return at(m_size - 1); }
 template <class T> T& atVector<T>::front() { return at(0); }
+template <class T> void atVector<T>::push_back(const atVector<T>& item) { for (const T &i : item) push_back(i); }
 template <class T> void atVector<T>::push_back(const T &item) { emplace_back(item); }
 template <class T> void atVector<T>::pop_back() { resize(m_size - 1); }
 template <class T> void atVector<T>::insert(const int64_t index, const T &item) { emplace(index, item); }

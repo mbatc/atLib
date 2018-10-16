@@ -5,6 +5,9 @@
 
 enum atOBJKeyword
 {
+  atOBJObject, // unsupported
+  atOBJGroup, // unsupported
+  atOBJSmoothShading, // unsupported
   atOBJVertex,
   atOBJNormal,
   atOBJTexCoord,
@@ -12,6 +15,7 @@ enum atOBJKeyword
   atOBJFace,
   atOBJMatLib,
   atOBJMatRef,
+  atOBJComment,
   atOBJNone
 };
 
@@ -22,8 +26,6 @@ class atOBJReader
 public:
   atOBJReader() = delete;
   static bool Read(const atFilename &file, atMesh *pMesh);
-
-protected:
   template <typename T> static T ParseVector(char **ppSrc, const int64_t srcLen, int64_t *pLen = nullptr);
 };
 

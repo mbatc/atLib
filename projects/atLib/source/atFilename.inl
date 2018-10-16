@@ -34,6 +34,7 @@ template <typename c> void atFilenameBasic<c>::assign(const atStringBasic<c> &pa
 {
   m_fullpath = path;
   m_fullpath = m_fullpath.replace('\\', '/');
+  m_fullpath = m_fullpath.replace("//", "/");
 
   const int64_t lastDot = m_fullpath.find_last('.');
   const int64_t lastSlash = m_fullpath.find_last('/');
@@ -49,7 +50,7 @@ template <typename c> bool atFilenameBasic<c>::operator==(const atFilenameBasic<
 template <typename c> bool atFilenameBasic<c>::operator!=(const atFilenameBasic<c> &fn) const { return !(*this == fn); }
 template <typename c> bool atFilenameBasic<c>::operator==(const atStringBasic<c> &fn) const { return m_fullpath == fn.replace('\\', '/'); }
 template <typename c> bool atFilenameBasic<c>::operator!=(const atStringBasic<c> &fn) const { return !(*this == fn); }
-template <typename c> const char * atFilenameBasic<c>::c_str() const { return m_fullpath.c_str(); }
+template <typename c> const char* atFilenameBasic<c>::c_str() const { return m_fullpath.c_str(); }
 template <typename c> atFilenameBasic<c>::atFilenameBasic(const atStringBasic<c> &path) { assign(path); }
 template <typename c> atFilenameBasic<c>::atFilenameBasic(const atFilenameBasic<c> &copy) { assign(copy.m_fullpath); }
 template <typename c> atStringBasic<c> atFilenameBasic<c>::Path(const bool withExtension) const { return withExtension ? m_fullpath : m_directory + "/" + m_name; }

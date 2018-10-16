@@ -136,9 +136,9 @@ public:
   static VecType<T> Normalize(const VecType<T> &rhs) { return atVectorMath::Normalize(rhs); }
 
   T* begin() { return data(); }
-  T* end() { return data()[element_count - 1]; }
+  T* end() { return data() + element_count; }
   const T* begin() const { return data(); }
-  const T* end() const { return data()[element_count - 1]; }
+  const T* end() const { return data() + element_count; }
 
   T* data() { return &x; }
   const T* data() const { return &x; }

@@ -80,7 +80,7 @@ public:
   atHashMap(atHashMap<Key, Value> &&move);
 
   void Clear();
-  int64_t Size();
+  int64_t Size() const;
 
   void Add(const Key &key, const Value &val = Value());
   void Add(const KVP &kvp);

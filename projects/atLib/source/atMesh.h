@@ -38,12 +38,19 @@ public:
     int64_t position = AT_INVALID_INDEX;
     int64_t normal = AT_INVALID_INDEX;
     int64_t color = AT_INVALID_INDEX;
+    int64_t texCoord = AT_INVALID_INDEX;
   };
 
   struct Triangle
   {
     int64_t mat;
-    Vertex vert[3];
+    Vertex verts[3];
+  };
+
+  struct Face
+  {
+    int64_t mat;
+    atVector<Vertex> verts;
   };
     
   atMesh();

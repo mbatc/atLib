@@ -33,12 +33,20 @@ class atScan
 public:
   atScan() = delete;
 
-  static int64_t Int(const char *str, int64_t *pLen = nullptr);
+  static int64_t Int(const char *pStr, int64_t *pLen = nullptr);
   static int64_t Hex(const char *str, int64_t *pLen = nullptr);
   static double Float(const char *str, int64_t *pLen = nullptr);
   static atString String(const char *str, int64_t *pLen = nullptr);
 
+  static int64_t Int(const char **pStr, int64_t *pLen = nullptr);
+  static int64_t Hex(const char **pStr, int64_t *pLen = nullptr);
+  static double Float(const char **pStr, int64_t *pLen = nullptr);
+  static atString String(const char **pStr, int64_t *pLen = nullptr);
+
   static bool String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen = nullptr);
+  static bool String(char *pOut, const int64_t maxLen, const char **str, int64_t *pLen = nullptr);
+  static bool String(char *pOut, const int64_t maxLen, const char *str, int64_t strLen, int64_t *pLen = nullptr);
+  static bool String(char *pOut, const int64_t maxLen, const char **pStr, int64_t strLen, int64_t * pLen = nullptr);
 };
 
 #endif // atScan_h__

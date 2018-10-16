@@ -66,6 +66,7 @@ public:
   void set_data(T* pBuffer, int64_t size);
   T* take_data();
 
+  void push_back(const atVector<T> &item);
   void push_back(const T &item);
   void pop_back();
   

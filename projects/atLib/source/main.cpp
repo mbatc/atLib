@@ -37,12 +37,16 @@
 #include "atHardwareTexture.h"
 #include "atImage.h"
 #include "atIntersects.h"
+#include "atOBJParser.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
+  atMesh mesh;
+  atOBJReader::Read(atFilename("assets/test/models/suzan.obj"), &mesh);
+
   atWindow wnd("My window");
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
