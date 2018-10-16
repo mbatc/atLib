@@ -185,12 +185,8 @@ template <typename T> int64_t atStringBasic<T>::_find_first_not(const T *str, co
   int64_t nChecks = strlen(find);
   bool found = false;
   for (int64_t i = start; i < end; ++i, found = false)
-  {
-    for (int64_t j = 0; j < nChecks && !found; ++j)
-      found |= str[i] == find[j];
-    if (!found)
+    if (memchr(set, str[i], nChecks) == nullptr)
       return i;
-  }
   return end == len ? end : AT_INVALID_INDEX;
 }
 
@@ -213,12 +209,8 @@ template <typename T> int64_t atStringBasic<T>::_find_last_not(const T *str, con
   int64_t nChecks = strlen(find);
   bool found = false;
   for (int64_t i = end - 1; i >= start; --i, found = false)
-  {
-    for (int64_t j = 0; j < nChecks && !found; ++j)
-      found |= str[i] == find[j];
-    if (!found)
+    if (memchr(set, str[i], nChecks) == nullptr)
       return i;
-  }
   return AT_INVALID_INDEX;
 }
 
@@ -226,23 +218,18 @@ template <typename T> int64_t atStringBasic<T>::_find_first_of(const T *str, con
 {
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len);
-
-  for (int64_t i = start; i < end; ++i)
-    if (str[i] == _char)
-      return i;
-  return AT_INVALID_INDEX;
+  T *pFound = memchr(str + start, _char, end);
+  return pFound ? pFound - str : AT_INVALID_INDEX;
 }
 
 template <typename T> int64_t atStringBasic<T>::_find_first_of(const T *str, const int64_t len, const T *set, int64_t start, int64_t end)
 {
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len);
-
   int64_t nChecks = strlen(set);
   for (int64_t i = start; i < end; ++i)
-    for (int64_t j = 0; j < nChecks; ++j)
-      if (str[i] == set[j])
-        return i;
+    if (memchr(set, str[i], nChecks) != nullptr)
+      return i;
   return AT_INVALID_INDEX;
 }
 
@@ -250,11 +237,8 @@ template <typename T> int64_t atStringBasic<T>::_find_last_of(const T *str, cons
 {
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len);
-
-  for (int64_t i = end - 1; i >= start; --i)
-    if (str[i] == _char)
-      return i;
-  return AT_INVALID_INDEX;
+  T* pFound = strrchr(str, _char);
+  return pFound ? pFound - str : AT_INVALID_INDEX;
 }
 
 template <typename T> int64_t atStringBasic<T>::_find_last_of(const T *str, const int64_t len, const T* find, int64_t start, int64_t end)
@@ -264,9 +248,8 @@ template <typename T> int64_t atStringBasic<T>::_find_last_of(const T *str, cons
 
   int64_t nChecks = strlen(find);
   for (int64_t i = end - 1; i >= start; --i)
-    for (int64_t j = 0; j < nChecks; ++j)
-      if (str[i] == find[j])
-        return i;
+    if (memchr(set, str[i], nChecks) != nullptr)
+      return i;
   return AT_INVALID_INDEX;
 }
 
