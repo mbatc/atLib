@@ -26,7 +26,8 @@
 #ifndef atMatrix_h__
 #define atMatrix_h__
 
-#include "atVector.h"
+#include <minmax.h>
+#include "atTypes.h"
 
 template <typename T, int64_t col, int64_t row> class atMatrix
 {
@@ -76,45 +77,6 @@ public:
 
 protected:
   template <int64_t dim> atMatrix<T, dim, dim> LowOrderMatrix(const int64_t x, const int64_t y) const;
-};
-
-template <typename T, int64_t row, int64_t col> class atHeapMatrix
-{
-public:
-  atHeapMatrix();
-  atHeapMatrix(const std::initializer_list<T> &list);
-  atHeapMatrix(const atHeapMatrix<T, row, col> &copy);
-  atHeapMatrix(atHeapMatrix<T, row, col> &&move);
-
-  static atHeapMatrix<T, row, col> Identity();
-  atHeapMatrix<T, col, row> Transpose();
-  atHeapMatrix<T, row, col> Cofactors();
-  atHeapMatrix<T, row, col> Inverse();
-
-  T Determinate();
-
-  template <typename T2, int64_t col2> atHeapMatrix<T, col, col2> Mult(const atHeapMatrix<T2, col, col2> &rhs);
-  template <typename T2> atHeapMatrix<T, row, col> Add(const atHeapMatrix<T2, row, col> &rhs);
-  template <typename T2> atHeapMatrix<T, row, col> Subtract(const atHeapMatrix<T2, row, col> &rhs);
-
-  atHeapMatrix<T, row, col> Mult(const T &rhs);
-  atHeapMatrix<T, row, col> Subtract(const T &rhs);
-  atHeapMatrix<T, row, col> Add(const T &rhs);
-
-  bool operator==(const atHeapMatrix<T, row, col> &rhs);
-  bool operator!=(const atHeapMatrix<T, row, col> &rhs);
-  const atHeapMatrix<T, row, col> &operator=(const atHeapMatrix<T, row, col> &copy);
-
-  const int64_t m_rows = row;
-  const int64_t m_columns = col;
-
-  T& operator[](const int64_t index);
-  const T& operator[](const int64_t index) const;
-
-  atVector<T> m_data;
-
-protected:
-  template <int64_t dim> atHeapMatrix<T, dim, dim> LowOrderMatrix(const int64_t x, const int64_t y);
 };
 
 #include "atMatrix.inl"

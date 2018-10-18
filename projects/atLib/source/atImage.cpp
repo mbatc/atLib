@@ -26,7 +26,7 @@
 #include "atImage.h"
 
 atImage::atImage() {}
-atImage::atImage(const atFilename &file) { m_pixels = atImageHelper::LoadImage(file, &m_size); }
+atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::LoadImage(file, &m_size)); }
 atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
 atVector<atCol>& atImage::Pixels() { return m_pixels; }
 const atVector<atCol>& atImage::Pixels() const { return m_pixels; }

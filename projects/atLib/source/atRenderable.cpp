@@ -43,11 +43,32 @@ atRenderable::atRenderable(atRenderable &&move)
   m_pVertBuffer = move.m_pVertBuffer;
   m_nVerts = move.m_nVerts;
   m_nIndices = move.m_nIndices;
-
+  m_shaderRound = move.m_shaderRound;
+  m_layoutID = move.m_layoutID;
+  m_layout = std::move(move.m_layout);
+  m_resource = std::move(move.m_resource);
+  m_shader = std::move(move.m_shader);
+  m_shaderID = std::move(move.m_shaderID);
+  move.m_layoutID = AT_INVALID_ID;
+  move.m_shaderID = AT_INVALID_ID;
+  move.m_shaderRound = AT_INVALID_ID;
   move.m_nIndices = 0;
   move.m_nVerts = 0;
   move.m_pIndexBuffer = nullptr;
   move.m_pVertBuffer = nullptr;
+}
+
+atRenderable::atRenderable(const atRenderable &copy)
+  : m_pVertBuffer(nullptr)
+  , m_pIndexBuffer(nullptr)
+  , m_nIndices(0)
+  , m_nVerts(0)
+  , m_shaderID(AT_INVALID_ID)
+  , m_layoutID(AT_INVALID_ID)
+{
+  for (auto &res : copy.m_resource)
+    m_resource.Add(res.m_key, res.m_val);
+  m_shader = copy.m_shader;
 }
 
 atRenderable::~atRenderable() { Clear(); }
@@ -94,6 +115,7 @@ bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type
     case atRRT_Variable: atShaderPool::SetVariable(m_shaderID, kvp.m_val.loc, kvp.m_val.data.data(), kvp.m_val.data.size()); break;
     }
   }
+
   atShaderPool::SetVariable(m_shaderID, "mvp", (void*)mvp.Transpose().m_data, atGetTypeDesc<float>().size * 16);
 
   // Bind Shader to DX Context

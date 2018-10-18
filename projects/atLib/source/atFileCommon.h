@@ -42,13 +42,15 @@ enum atFileSeek
 {
   atFS_Invalid = -1,
   atFS_Start = 0,
-  atFS_End = -2
+  atFS_End = 1,
+  atFS_Current = 2
 };
 
 enum atFileExtension
 {
   atFE_Txt,
   atFE_Obj,
+  atFE_Unknown
 };
 
 class atFileCommon

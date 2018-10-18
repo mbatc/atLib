@@ -27,9 +27,10 @@
 #define _atMath_h__
 
 #include "atTypes.h"
-#include "atVector4.h"
 #include "atMatrix.h"
-#include <math.h>
+#include "atVector4.h"
+#include "atReadStream.h"
+#include "atWriteStream.h"
 
 #define atE 2.71828182845904523536   // e
 #define atLog2e 1.44269504088896340736   // log2(e)
@@ -73,21 +74,21 @@ typedef atMatrix<float, 2, 2> atMat2;
 typedef atMatrix<float, 3, 3> atMat3;
 typedef atMatrix<float, 4, 4> atMat4;
 
-template <> atTypeDesc atGetTypeDesc<atVec2F>();
-template <> atTypeDesc atGetTypeDesc<atVec3F>();
-template <> atTypeDesc atGetTypeDesc<atVec4F>();
+template <> atTypeDesc atGetTypeDesc<atVector2<float>>();
+template <> atTypeDesc atGetTypeDesc<atVector3<float>>();
+template <> atTypeDesc atGetTypeDesc<atVector4<float>>();
 
-template <> atTypeDesc atGetTypeDesc<atVec2F64>();
-template <> atTypeDesc atGetTypeDesc<atVec3F64>();
-template <> atTypeDesc atGetTypeDesc<atVec4F64>();
+template <> atTypeDesc atGetTypeDesc<atVector2<double>>();
+template <> atTypeDesc atGetTypeDesc<atVector3<double>>();
+template <> atTypeDesc atGetTypeDesc<atVector4<double>>();
 
-template <> atTypeDesc atGetTypeDesc<atVec2I>();
-template <> atTypeDesc atGetTypeDesc<atVec3I>();
-template <> atTypeDesc atGetTypeDesc<atVec4I>();
+template <> atTypeDesc atGetTypeDesc<atVector2<int32_t>>();
+template <> atTypeDesc atGetTypeDesc<atVector3<int32_t>>();
+template <> atTypeDesc atGetTypeDesc<atVector4<int32_t>>();
 
-template <> atTypeDesc atGetTypeDesc<atVec2I64>();
-template <> atTypeDesc atGetTypeDesc<atVec3I64>();
-template <> atTypeDesc atGetTypeDesc<atVec4I64>();
+template <> atTypeDesc atGetTypeDesc<atVector2<int64_t>>();
+template <> atTypeDesc atGetTypeDesc<atVector3<int64_t>>();
+template <> atTypeDesc atGetTypeDesc<atVector4<int64_t>>();
 
 template <> atTypeDesc atGetTypeDesc<atVector2<int8_t>>();
 template <> atTypeDesc atGetTypeDesc<atVector3<int8_t>>();
@@ -143,6 +144,10 @@ template <typename T> atVector2<T> operator*(const T &lhs, const atVector2<T> &r
 template <typename T> atVector4<T> operator/(const T &lhs, const atVector4<T> &rhs);
 template <typename T> atVector3<T> operator/(const T &lhs, const atVector3<T> &rhs);
 template <typename T> atVector2<T> operator/(const T &lhs, const atVector2<T> &rhs);
+
+template <typename T> atTrivialStreamWrite(atVector2<T>)
+template <typename T> atTrivialStreamWrite(atVector3<T>)
+template <typename T> atTrivialStreamWrite(atVector4<T>)
 
 #include "atMath.inl"
 #endif // _atMath_h__

@@ -23,11 +23,23 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount) { m_buckets.resize(max(bucketCount, 1)); m_size = 0; }
+template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount) 
+{ 
+  m_buckets.resize(max(bucketCount, 1)); 
+  m_size = 0; 
+}
+
 template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
-template<class Key, class Value> atHashMap<Key, Value>::atHashMap(atHashMap<Key, Value> &&move) { m_buckets = std::move(move.m_buckets); m_size = move.m_size; move.m_size = 0; }
 template<class Key, class Value> void atHashMap<Key, Value>::Clear() { m_buckets.resize(1); m_buckets[0].clear(); m_size = 0; }
 template<class Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
+
+template<class Key, class Value> atHashMap<Key, Value>::atHashMap(atHashMap<Key, Value> &&move)
+{
+  m_buckets = std::move(move.m_buckets);
+  m_size = move.m_size;
+  move.m_size = 0;
+  move.m_buckets.resize(1);
+}
 
 template<class Key, class Value> bool atHashMap<Key, Value>::TryAdd(const KVP &kvp)
 {

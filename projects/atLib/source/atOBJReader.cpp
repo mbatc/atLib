@@ -146,10 +146,10 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
   char *pSrc = (char*)data.data();
 
   // Reserve memory based on file size to reduce allocations
-  pMesh->m_normals.reserve(data.size() / 48);
-  pMesh->m_triangles.reserve(data.size() / 48);
-  pMesh->m_positions.reserve(data.size() / 48);
-  pMesh->m_texCoords.reserve(data.size() / 32);
+  pMesh->m_normals.reserve(data.size() / 60);
+  pMesh->m_triangles.reserve(data.size() / 180);
+  pMesh->m_positions.reserve(data.size() / 60);
+  pMesh->m_texCoords.reserve(data.size() / 60);
 
   atString mtlFile = "";
   atString curMat = "";
@@ -163,7 +163,7 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
     case atOBJComment: pSrc += atString::_find_end(pSrc, data.end() - (uint8_t*)pSrc, "\n"); break;
     case atOBJFace: _ParseFace(&pSrc, data.end() - (uint8_t*)pSrc, &pMesh->m_triangles, matNames[curMat]); break;
     case atOBJVertex: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atOBJNormal: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atOBJNormal: pMesh->m_normals.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
     case atOBJTexCoord: pMesh->m_texCoords.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc).xy()); break;
     case atOBJLine: pSrc += atString::_find_first_of(pSrc, data.end() - (uint8_t*)pSrc, "\n\r"); break;
     case atOBJMatLib: mtlFile = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc); break;
@@ -174,6 +174,21 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
     case atOBJNone: ++pSrc;
     }
   }
+
+  for(atMesh::Triangle &tri : pMesh->m_triangles)
+    for (int64_t i = 0; i < 3; ++i)
+    {
+      tri.verts[i].position = tri.verts[i].position > 0 ? tri.verts[i].position - 1 : pMesh->m_positions.size() + tri.verts[i].position;
+      tri.verts[i].texCoord = tri.verts[i].texCoord > 0 ? tri.verts[i].texCoord - 1 : pMesh->m_texCoords.size() + tri.verts[i].texCoord;
+      tri.verts[i].normal = tri.verts[i].normal > 0 ? tri.verts[i].normal - 1 : pMesh->m_normals.size() + tri.verts[i].normal;
+      tri.verts[i].color = tri.verts[i].color > 0 ? tri.verts[i].color - 1 : pMesh->m_colors.size() + tri.verts[i].color;
+    }
+
+  pMesh->m_normals.shrink_to_fit();
+  pMesh->m_triangles.shrink_to_fit();
+  pMesh->m_positions.shrink_to_fit();
+  pMesh->m_texCoords.shrink_to_fit();
+
   atMTLReader::Read(file.Directory() + "/" + mtlFile, pMesh, matNames);
   return true;
 }

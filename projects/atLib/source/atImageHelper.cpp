@@ -43,6 +43,7 @@ static atVector<atCol> _LoadFromMemory(const uint8_t *pData, const atVec2I &size
   if (nChannels == 3) load_func = _LoadChannel3;
   if (nChannels == 4) load_func = _LoadChannel4;
   if (!load_func) return data;
+  data.reserve(size.x * size.y);
   for (int64_t y = 0; y < size.y; ++y)
     for (int64_t x = 0; x < size.y; ++x)
       data.push_back(load_func(pData + (x * nChannels + y * size.x * nChannels)));

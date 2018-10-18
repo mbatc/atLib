@@ -26,7 +26,7 @@
 #ifndef atFileInfo_h__
 #define atFileInfo_h__
 
-#include "atFilename.h"
+#include "atFileCommon.h"
 #include "atDateTime.h"
 #include <sys/stat.h>
 

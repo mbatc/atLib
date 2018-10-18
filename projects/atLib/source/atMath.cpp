@@ -25,21 +25,21 @@
 
 #include "atMath.h"
 
-template <> atTypeDesc atGetTypeDesc<atVec2F>() { return{ atGetType<float>(), 2 }; }
-template <> atTypeDesc atGetTypeDesc<atVec3F>() { return{ atGetType<float>(), 3 }; }
-template <> atTypeDesc atGetTypeDesc<atVec4F>() { return{ atGetType<float>(), 4 }; }
+template <> atTypeDesc atGetTypeDesc<atVector2<float>>() { return{ atGetType<float>(), 2 }; }
+template <> atTypeDesc atGetTypeDesc<atVector3<float>>() { return{ atGetType<float>(), 3 }; }
+template <> atTypeDesc atGetTypeDesc<atVector4<float>>() { return{ atGetType<float>(), 4 }; }
 
-template <> atTypeDesc atGetTypeDesc<atVec2F64>() { return{ atGetType<double>(), 2 }; }
-template <> atTypeDesc atGetTypeDesc<atVec3F64>() { return{ atGetType<double>(), 3 }; }
-template <> atTypeDesc atGetTypeDesc<atVec4F64>() { return{ atGetType<double>(), 4 }; }
+template <> atTypeDesc atGetTypeDesc<atVector2<double>>() { return{ atGetType<double>(), 2 }; }
+template <> atTypeDesc atGetTypeDesc<atVector3<double>>() { return{ atGetType<double>(), 3 }; }
+template <> atTypeDesc atGetTypeDesc<atVector4<double>>() { return{ atGetType<double>(), 4 }; }
 
-template <> atTypeDesc atGetTypeDesc<atVec2I>() { return{ atGetType<int32_t>(), 2 }; }
-template <> atTypeDesc atGetTypeDesc<atVec3I>() { return{ atGetType<int32_t>(), 3 }; }
-template <> atTypeDesc atGetTypeDesc<atVec4I>() { return{ atGetType<int32_t>(), 4 }; }
+template <> atTypeDesc atGetTypeDesc<atVector2<int32_t>>() { return{ atGetType<int32_t>(), 2 }; }
+template <> atTypeDesc atGetTypeDesc<atVector3<int32_t>>() { return{ atGetType<int32_t>(), 3 }; }
+template <> atTypeDesc atGetTypeDesc<atVector4<int32_t>>() { return{ atGetType<int32_t>(), 4 }; }
 
-template <> atTypeDesc atGetTypeDesc<atVec2I64>() { return{ atGetType<int64_t>(), 2 }; }
-template <> atTypeDesc atGetTypeDesc<atVec3I64>() { return{ atGetType<int64_t>(), 3 }; }
-template <> atTypeDesc atGetTypeDesc<atVec4I64>() { return{ atGetType<int64_t>(), 4 }; }
+template <> atTypeDesc atGetTypeDesc<atVector2<int64_t>>() { return{ atGetType<int64_t>(), 2 }; }
+template <> atTypeDesc atGetTypeDesc<atVector3<int64_t>>() { return{ atGetType<int64_t>(), 3 }; }
+template <> atTypeDesc atGetTypeDesc<atVector4<int64_t>>() { return{ atGetType<int64_t>(), 4 }; }
 
 template <> atTypeDesc atGetTypeDesc<atVector2<int8_t>>() { return{ atGetType<int8_t>(), 2 }; }
 template <> atTypeDesc atGetTypeDesc<atVector3<int8_t>>() { return{ atGetType<int8_t>(), 3 }; }

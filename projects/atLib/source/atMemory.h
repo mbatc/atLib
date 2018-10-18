@@ -96,6 +96,8 @@ template <class T, typename... Args> typename std::enable_if<std::is_constructib
     atConstruct<T, Args...>(pVal + i, std::forward<Args>(args)...);
 }
 
+template <class T> inline typename std::enable_if<std::is_fundamental<T>::value>::type atConstructArray(T* pVal, int64_t count, T val) { while (count-- > 0) memcpy(pVal++, &val, sizeof(T)); }
+template <class T> inline typename std::enable_if<std::is_fundamental<T>::value>::type atConstruct(T* pVal, T val) { memcpy(pVal, &val, sizeof(T)); }
 template <class T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
 template <class T> inline T* atNewArray(const int64_t size) { return atInternal_New(size); }
 template <class T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New(size, copy); }

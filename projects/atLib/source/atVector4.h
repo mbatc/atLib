@@ -38,13 +38,10 @@ public:
   atVector4(const T _x = { 0 }, const T _y = { 0 }, const T _z = { 0 }, const T _w = { 0 }) : x(_x), y(_y), z(_z), w(_w) {}
   atVector4(const VecType<T> &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {}
 
-  atVector4(VecType<T> &&move)  
-    : x(move.x), y(move.y), z(move.z), w(move.w)
+  atVector4(VecType<T> &&move)
   {
-    move.x = { 0 };
-    move.y = { 0 };
-    move.z = { 0 };
-    move.w = { 0 };
+    memcpy(data(), move.data(), sizeof(T) * 4);
+    memset(move.data(), 0, sizeof(T) * 4);
   }
 
   // Approaching Template Town

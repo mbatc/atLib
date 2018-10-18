@@ -55,6 +55,7 @@ template<typename T> atStringBasic<T> atStringBasic<T>::_to_upper(const T *str, 
 
 template<typename T> atStringBasic<T> atStringBasic<T>::_replace(const T *str, const int64_t len, const T _char, const T with, const int64_t start, int64_t count)
 {
+  atUnused(len);
   atString ret = str;
   int64_t pos = start;
   while ((pos = ret.find(_char, pos)) >= 0 && count != 0)

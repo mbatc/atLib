@@ -25,7 +25,7 @@
 
 #include "atFileCommon.h"
 
-const char * atFileCommon::FileMode(const atFileMode mode)
+const char* atFileCommon::FileMode(const atFileMode mode)
 {
   switch (mode)
   {
@@ -36,4 +36,21 @@ const char * atFileCommon::FileMode(const atFileMode mode)
   case atFM_Append: return "a";
   default: return "r";
   };
+}
+
+const char* atFileCommon::FileExtension(const atFileExtension ext)
+{
+  switch (ext)
+  {
+  case atFE_Obj: return "obj";
+  case atFE_Txt: return "txt";
+  case atFE_Unknown: default: return "";
+  }
+}
+
+atFileExtension atFileCommon::FileExtension(const char* ext)
+{
+  if (atString::compare(ext, "obj", atSCO_None)) return atFE_Obj;
+  if (atString::compare(ext, "txt", atSCO_None)) return atFE_Txt;
+  return atFE_Unknown;
 }

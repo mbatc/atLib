@@ -29,6 +29,7 @@
 #include "atMesh.h"
 #include "atHashMap.h"
 #include "atGraphics.h"
+#include "atMath.h"
 
 enum atRenderable_PrimitiveType
 {
@@ -75,6 +76,7 @@ public:
 
   atRenderable();
   atRenderable(atRenderable &&move);
+  atRenderable(const atRenderable &copy);
   ~atRenderable();
   
   void SetShader(const atString &name);
@@ -108,7 +110,6 @@ protected:
   int64_t m_nIndices;
   int64_t m_nVerts;
   int64_t m_shaderRound;
-
 };
 
 #include "atRenderable.inl"
