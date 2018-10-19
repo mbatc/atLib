@@ -50,11 +50,11 @@ void atRenderState::Bind()
   SetDefaults();
   if (m_blendDirty)
   {
-    // atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
-    // atGraphics::SafeRelease(m_pBlendState);
-    // atGraphics::GetDevice()->CreateBlendState(&m_blendDesc, &m_pBlendState);
-    // atGraphics::GetContext()->OMSetBlendState(m_pBlendState, 0, 0x00);
-    // m_blendDirty = false;
+    atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
+    atGraphics::SafeRelease(m_pBlendState);
+    atGraphics::GetDevice()->CreateBlendState(&m_blendDesc, &m_pBlendState);
+    atGraphics::GetContext()->OMSetBlendState(0, 0, 0xFFFFFF);
+    m_blendDirty = false;
   }
 
   if (m_depthDirty)

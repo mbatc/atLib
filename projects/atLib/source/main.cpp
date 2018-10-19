@@ -23,36 +23,24 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include <DirectXMath.h>
-#include "atWindow.h"
 #include "atInput.h"
-#include "atRenderable.h"
-#include <time.h>
-#include <stdio.h>
 #include "atRenderState.h"
 #include "atCamera.h"
-#include "atScan.h"
-#include "atShaderParser.h"
-#include "atGraphics.h"
-#include "atHardwareTexture.h"
-#include "atImage.h"
-#include "atIntersects.h"
-#include "atOBJParser.h"
-#include "atMemoryWriter.h"
 #include "atGraphicsModel.h"
+#include "atFile.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-
+  atFile file;
   atGraphicsModel model(atFilename("assets/test/models/suzan.obj"));
-  atWindow wnd("My window");
+  atWindow wnd("My window", { 1800, 980 });
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
   
-  float col = 66.f;
+  float col = 125.f;
   atRenderState::Bind();
   while (atInput::Update())
   {

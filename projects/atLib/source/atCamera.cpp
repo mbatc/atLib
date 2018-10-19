@@ -31,7 +31,7 @@ atCamera::atCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &r
   , m_fov(FOV)
   , m_nearPlane(nearPlane)
   , m_farPlane(farPlane)
-  , m_aspect((double)wnd.GetSize().y / (double)wnd.GetSize().x)
+  , m_aspect((double)wnd.GetSize().x / (double)wnd.GetSize().y)
 {}
 
 void atCamera::Update(const double moveSpeed, const double dt)

@@ -35,6 +35,7 @@ atRenderable::atRenderable()
   , m_nVerts(0)
   , m_shaderID(AT_INVALID_ID)
   , m_layoutID(AT_INVALID_ID)
+  , m_shaderRound(-1)
 {}
 
 atRenderable::atRenderable(atRenderable &&move)
@@ -65,6 +66,7 @@ atRenderable::atRenderable(const atRenderable &copy)
   , m_nVerts(0)
   , m_shaderID(AT_INVALID_ID)
   , m_layoutID(AT_INVALID_ID)
+  , m_shaderRound(-1)
 {
   for (auto &res : copy.m_resource)
     m_resource.Add(res.m_key, res.m_val);
@@ -117,7 +119,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   }
 
   // Bind Shader to DX Context
-  atRenderState::SetShader(m_shaderID);
+  atRenderState::BindShader(m_shaderID);
   atShaderPool::BindInputLayout(m_layoutID);
 
   // Bind Vertex Buffer and Index Buffer (if not null) then Draw
