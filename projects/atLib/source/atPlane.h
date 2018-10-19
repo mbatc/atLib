@@ -23,21 +23,21 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atIntersects_h__
-#define atIntersects_h__
+#ifndef atPlane_h__
+#define atPlane_h__
 
-#include "atRay.h"
-#include "atAABB.h"
-#include "atTriangle.h"
+#include "atVector4.h"
 
-template <typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
-template <typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri, atVector3<T> *pPoint);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T* pTime);
+template <typename T> class atPlane
+{
+public:
+  atPlane(const atVector4<T> &coeff);
+  atPlane(const atVector3<T> &normal, const atVector3<T> &point);
+  atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
 
-#include "atIntersects.inl"
-#endif // atIntersects_h__
+  atVector4<T> m_coeffs;
+  atVector4<T> m_point;
+};
 
+#include "atPlane.inl"
+#endif // atPlane_h__

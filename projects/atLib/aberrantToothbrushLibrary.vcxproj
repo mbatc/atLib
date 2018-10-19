@@ -92,6 +92,7 @@
     <ClInclude Include="source\atMeshParser.h" />
     <ClInclude Include="source\atMTLParser.h" />
     <ClInclude Include="source\atOBJParser.h" />
+    <ClInclude Include="source\atPlane.h" />
     <ClInclude Include="source\atPool.h" />
     <ClInclude Include="source\atRay.h" />
     <ClInclude Include="source\atReadStream.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="source\atStreamSeekable.h" />
     <ClInclude Include="source\atString.h" />
     <ClInclude Include="source\atTransformable.h" />
+    <ClInclude Include="source\atTriangle.h" />
     <ClInclude Include="source\atTypes.h" />
     <ClInclude Include="source\atVector.h" />
     <ClInclude Include="source\atVector2.h" />
@@ -129,10 +131,12 @@
     <None Include="source\atMath.inl" />
     <None Include="source\atMatrix.inl" />
     <None Include="source\atOBJReader.inl" />
+    <None Include="source\atPlane.inl" />
     <None Include="source\atRay.inl" />
     <None Include="source\atRenderable.inl" />
     <None Include="source\atString.inl" />
     <None Include="source\atTransformable.inl" />
+    <None Include="source\atTriangle.inl" />
     <None Include="source\atVector.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

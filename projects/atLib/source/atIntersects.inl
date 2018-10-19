@@ -1,3 +1,4 @@
+#include "atIntersects.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -55,4 +56,50 @@ template <typename T> bool atIntersects(const atRay<T> &ray, const atAABB<T> &bo
   return intersects;
 }
 
-template<typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime) { return atIntersects<T, T>(a, b, pTime); }
+template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T *pTime)
+{
+  T time = 0;
+  if (!atIntersects(ray, atPlane<T>(tri.a, tri.m_b, tri.c), &time))
+    return false;
+  atVector3<T> point = ray.At(time);
+  T area = tri.Area();
+  T testArea = atTriangle<T>(point, tri.m_a, tri.m_b).Area() + atTriangle<T>(point, tri.m_b, tri.m_c).Area() + atTriangle<T>(point, tri.m_a, tri.m_c).Area();
+  return testArea <= area;
+}
+
+template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &plane, T *pTime) 
+{
+  const atVector3<T> &rayDir = ray.m_dir;
+  const atVector4<T> &plane = plane.m_coeffs;
+  const atVector3<T> &rayPos = ray.m_pos();
+
+  if (plane.m_coeffs.xyz().Dot(rayDir) == 0) return false;
+  if (pTime) *pTime = (plane.w - rayPos.x * plane.x - rayPos.y * plane.y - rayPos.z * plane.z) / (plane.x * rayDir.x + plane.y * rayDir.y + plane.z * rayDir.z);
+  return true;
+}
+
+template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint)
+{ 
+  T time = 0;
+  bool result = false;
+  if (atIntersects(atRay<T>(tri.m_a, tri.m_b - tri.m_a), tri2, &time))
+  {
+    if (pPoint) 
+      *pPoint = atRay<T>(tri.m_a, tri.m_b - tri.m_a).At(time);
+  }
+  else if (atIntersects(atRay<T>(tri.m_a, tri.m_c - tri.m_a), tri2, &time))
+  {
+    if (pPoint)
+      *pPoint = atRay<T>(tri.m_a, tri.m_c - tri.m_a).At(time);
+  }
+  else if (atIntersects(atRay<T>(tri.m_b, tri.m_c - tri.m_b), tri2, &time))
+  {
+    if (pPoint)
+      *pPoint = atRay<T>(tri.m_b, tri.m_c - tri.m_b).At(time);
+  }
+  else
+    return false;
+  return true;
+}
+
+template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime) { return atIntersects<T, T>(a, b, pTime); }

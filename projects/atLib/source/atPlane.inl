@@ -23,21 +23,6 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atIntersects_h__
-#define atIntersects_h__
-
-#include "atRay.h"
-#include "atAABB.h"
-#include "atTriangle.h"
-
-template <typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
-template <typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri, atVector3<T> *pPoint);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T* pTime);
-
-#include "atIntersects.inl"
-#endif // atIntersects_h__
-
+template <typename T> atPlane<T>::atPlane(const atVector4<T> &coeff) { m_coeffs = coeff; m_point = atVector4<T>(0, 0, m_coeffs.w); }
+template <typename T> atPlane<T>::atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c) : atPlane<T>((b - a).Cross(c - a), a) {}
+template <typename T> atPlane<T>::atPlane(const atVector3<T> &normal, const atVector3<T>&point) { m_coeffs = { normal, normal.x * point.x + normal.y * point.y + normal.z * point.z }; }

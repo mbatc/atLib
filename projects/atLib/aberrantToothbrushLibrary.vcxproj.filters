@@ -419,6 +419,12 @@
     <ClInclude Include="source\atGraphicsModel.h">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="source\atPlane.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atTriangle.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -465,6 +471,12 @@
     </None>
     <None Include="source\atRenderable.inl">
       <Filter>Header Files\Graphics\Geometry</Filter>
+    </None>
+    <None Include="source\atTriangle.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atPlane.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
     </None>
   </ItemGroup>
 </Project>

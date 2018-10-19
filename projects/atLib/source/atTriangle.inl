@@ -23,21 +23,11 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atIntersects_h__
-#define atIntersects_h__
+template <typename T> T atTriangle<T>::Area()
+{
+  atVector3<T> CtoA = m_a - m_c;
+  atVector3<T> CtoB = m_b - m_c;
+  return 0.5 * CtoB.Mag() * CtoA.Mag() * atSin(CtoA.Angle(CtoB));
+}
 
-#include "atRay.h"
-#include "atAABB.h"
-#include "atTriangle.h"
-
-template <typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
-template <typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
-template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri, atVector3<T> *pPoint);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T* pTime);
-
-#include "atIntersects.inl"
-#endif // atIntersects_h__
-
+template <typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}

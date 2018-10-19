@@ -1,4 +1,3 @@
-#include "atRay.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
+
+#include "atRay.h"
 
 template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
 {

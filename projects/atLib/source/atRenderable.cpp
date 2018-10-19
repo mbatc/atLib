@@ -117,7 +117,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   }
 
   // Bind Shader to DX Context
-  atRenderState::BindShader(m_shaderID);
+  atRenderState::SetShader(m_shaderID);
   atShaderPool::BindInputLayout(m_layoutID);
 
   // Bind Vertex Buffer and Index Buffer (if not null) then Draw
