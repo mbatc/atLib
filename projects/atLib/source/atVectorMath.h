@@ -83,6 +83,7 @@ public:
   template <template <typename> class VecCls, typename VecType> static VecType Dot(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Dot<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static bool Equals(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Equals<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Assign(VecCls<VecType> *pLhs, const VecCls<VecType> &rhs) { memcpy(pLhs, &rhs, sizeof(VecCls<VecType>)); return *pLhs; }
+  template <template <typename> class VecCls, typename VecType> static VecType Angle(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Angle<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
 
   template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Add(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)
   {
@@ -143,7 +144,9 @@ public:
   //----------------------
   // Vector Math Functions
 
-  template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecType1 Dot(const VecCls1<VecType2> &lhs, const VecCls2<VecType2> &rhs)
+  template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecType1 Angle(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs) { return atCos(Dot(lhs, rhs) / (Mag(lhs) * (VecType1)Mag(rhs))); }
+
+  template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecType1 Dot(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)
   {
     atAssert(lhs.element_count == rhs.element_count, "atVectorMath::Dot() - Vectors must have the same element count.");
     VecType1 ret = { 0 };
@@ -152,7 +155,7 @@ public:
     return ret;
   }
 
-  template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Cross(const VecCls1<VecType2> &lhs, const VecCls2<VecType2> &rhs)
+  template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Cross(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)
   {
     atAssert(lhs.element_count != 3 && rhs.element_count != 3,"atVectorMath::Cross() - Vectors must have an element count of 3.");
     return VecCls1<VecType1>(lhs[1] * rhs[2] - lhs[2] * rhs[1], lhs[2] * rhs[0] - lhs[0] * rhs[2], lhs[0] * rhs[1] - lhs[1] * rhs[0]);

@@ -23,32 +23,11 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atInput.h"
-#include "atRenderState.h"
-#include "atCamera.h"
-#include "atGraphicsModel.h"
-#include "atFile.h"
-
-// NOTE: This file is used for testing
-
-int main(int argc, char **argv)
+template <typename T> T atTriangle<T>::Area()
 {
-  atUnused(argc, argv);
-  atFile file;
-  atGraphicsModel model(atFilename("assets/test/models/suzan.obj"));
-  atWindow wnd("My window", { 1800, 980 });
-  atCamera cam(wnd, { 0,0, 5 });
-  atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
-  
-  float col = 125.f;
-  atRenderState::Bind();
-  while (atInput::Update())
-  {
-    atInput::LockMouse(true, wnd.GetSize() / 2);
-    wnd.Clear(atVec4F(col / 255.f, col / 255.f, col / 255.f, 1.0f));
-    model.Draw(cam.ProjectionMat() * cam.ViewMat());
-    wnd.Swap();
-    cam.Update(1);
-  }
-  return atWindow_GetResult();
+  atVector3<T> CtoA = m_a - m_c;
+  atVector3<T> CtoB = m_b - m_c;
+  return 0.5 * CtoB.Mag() * CtoA.Mag() * atSin(CtoA.Angle(CtoB));
 }
+
+template <typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}

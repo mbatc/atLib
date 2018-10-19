@@ -23,32 +23,6 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atInput.h"
-#include "atRenderState.h"
-#include "atCamera.h"
-#include "atGraphicsModel.h"
-#include "atFile.h"
-
-// NOTE: This file is used for testing
-
-int main(int argc, char **argv)
-{
-  atUnused(argc, argv);
-  atFile file;
-  atGraphicsModel model(atFilename("assets/test/models/suzan.obj"));
-  atWindow wnd("My window", { 1800, 980 });
-  atCamera cam(wnd, { 0,0, 5 });
-  atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
-  
-  float col = 125.f;
-  atRenderState::Bind();
-  while (atInput::Update())
-  {
-    atInput::LockMouse(true, wnd.GetSize() / 2);
-    wnd.Clear(atVec4F(col / 255.f, col / 255.f, col / 255.f, 1.0f));
-    model.Draw(cam.ProjectionMat() * cam.ViewMat());
-    wnd.Swap();
-    cam.Update(1);
-  }
-  return atWindow_GetResult();
-}
+template <typename T> atPlane<T>::atPlane(const atVector4<T> &coeff) { m_coeffs = coeff; m_point = atVector4<T>(0, 0, m_coeffs.w); }
+template <typename T> atPlane<T>::atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c) : atPlane<T>((b - a).Cross(c - a), a) {}
+template <typename T> atPlane<T>::atPlane(const atVector3<T> &normal, const atVector3<T>&point) { m_coeffs = { normal, normal.x * point.x + normal.y * point.y + normal.z * point.z }; }

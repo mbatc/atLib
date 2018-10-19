@@ -35,6 +35,7 @@ atRenderable::atRenderable()
   , m_nVerts(0)
   , m_shaderID(AT_INVALID_ID)
   , m_layoutID(AT_INVALID_ID)
+  , m_shaderRound(-1)
 {}
 
 atRenderable::atRenderable(atRenderable &&move)
@@ -65,6 +66,7 @@ atRenderable::atRenderable(const atRenderable &copy)
   , m_nVerts(0)
   , m_shaderID(AT_INVALID_ID)
   , m_layoutID(AT_INVALID_ID)
+  , m_shaderRound(-1)
 {
   for (auto &res : copy.m_resource)
     m_resource.Add(res.m_key, res.m_val);
