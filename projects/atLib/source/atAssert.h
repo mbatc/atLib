@@ -30,13 +30,7 @@
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
-
-#ifdef _DEBUG
 #define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
-#else
-#define atAssert(cond, message)
-#endif
-
 #define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
 
 #endif

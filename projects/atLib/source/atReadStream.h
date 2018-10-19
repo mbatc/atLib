@@ -44,19 +44,19 @@ int64_t atStreamRead(atReadStream *pStream, void *pData, const int64_t count);
 
 template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
 
-atTrivialStreamRead(int64_t);
-atTrivialStreamRead(int32_t);
-atTrivialStreamRead(int16_t);
-atTrivialStreamRead(int8_t);
+atTrivialStreamRead(int64_t)
+atTrivialStreamRead(int32_t)
+atTrivialStreamRead(int16_t)
+atTrivialStreamRead(int8_t)
 
-atTrivialStreamRead(uint64_t);
-atTrivialStreamRead(uint32_t);
-atTrivialStreamRead(uint16_t);
-atTrivialStreamRead(uint8_t);
+atTrivialStreamRead(uint64_t)
+atTrivialStreamRead(uint32_t)
+atTrivialStreamRead(uint16_t)
+atTrivialStreamRead(uint8_t)
 
-atTrivialStreamRead(char);
+atTrivialStreamRead(char)
 
-atTrivialStreamRead(double);
-atTrivialStreamRead(float);
+atTrivialStreamRead(double)
+atTrivialStreamRead(float)
 
 #endif // atReadStream_h__

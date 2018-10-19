@@ -23,15 +23,27 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atImage.h"
+#ifndef atGraphicsModel_h__
+#define atGraphicsModel_h__
 
-atImage::atImage() {}
-atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::LoadImage(file, &m_size)); }
-atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
-atVector<atCol>& atImage::Pixels() { return m_pixels; }
-const atVector<atCol>& atImage::Pixels() const { return m_pixels; }
-const atVec2I & atImage::Size() const { return m_size; }
-const int64_t atImage::Width() const { return m_size.x; }
-const int64_t atImage::Height() const { return m_size.y; }
+#include "atRenderable.h"
 
-void atImage::Resize(const atVec2I & size) {}
+class atGraphicsModel
+{
+public:
+  atGraphicsModel();
+  atGraphicsModel(const atMesh &mesh);
+  atGraphicsModel(const atFilename &filename);
+  atGraphicsModel(const atGraphicsModel &copy);
+  atGraphicsModel(atGraphicsModel &&move);
+  ~atGraphicsModel();
+
+  void Draw(const atMat4D &MVP);
+
+  bool Import(const atMesh &mesh);
+  bool Import(const atFilename &filename);
+
+  atVector<atRenderable> m_mesh;
+};
+
+#endif // atGraphicsModel_h__

@@ -38,7 +38,7 @@ void atCamera::Update(const double moveSpeed, const double dt)
 {
   atVec2F64 dMouse = atInput::MouseDelta();
   atVec3F64 rot;
-  const double speed = moveSpeed * dt * (atInput::KeyDown(atKC_LShift) ? 2 : 1) * (atInput::KeyDown(atKC_LControl) ? 0.5 : 1);
+  const double speed = moveSpeed * dt * (atInput::KeyDown(atKC_Shift) ? 2 : 1) * (atInput::KeyDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);

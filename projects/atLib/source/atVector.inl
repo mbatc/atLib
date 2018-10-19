@@ -36,12 +36,12 @@ template <class T> T& atVector<T>::at(const int64_t index)
   return m_pData[index];
 }
 
-template <class T> void atVector<T>::set_data(T* pBuffer, int64_t size)
+template <class T> void atVector<T>::set_data(T* pBuffer, const int64_t size, const int64_t capacity)
 {
   make_empty();
   m_pData = pBuffer;
   m_size = size;
-  m_capacity = size;
+  m_capacity = capacity;
 }
 
 template <class T> T* atVector<T>::take_data()
@@ -157,27 +157,32 @@ template <class T> const T& atVector<T>::at(const int64_t index) const
   return m_pData[index];
 }
 
+template <class T> const atVector<T> &atVector<T>::operator=(atVector<T> &&rhs)
+{
+  swap(rhs);
+  rhs.make_empty();
+  return *this;
+}
 
-template <class T> atVector<T> atVector<T>::operator=(const atVector<T> &rhs)
+template <class T> const atVector<T> &atVector<T>::operator=(const atVector<T> &rhs)
 {
   assign(rhs);
   return *this;
 }
 
-template <class T> atVector<T> atVector<T>::operator+=(const atVector<T> &rhs)
+template <class T> const atVector<T> &atVector<T>::operator+=(const atVector<T> &rhs)
 {
   insert(size(), rhs);
   return *this;
 }
 
-template <class T> atVector<T> atVector<T>::operator+(const atVector<T> &rhs)
+template <class T> const atVector<T> &atVector<T>::operator+(const atVector<T> &rhs)
 {
   atVector<T> ret(size() + rhs.size());
   ret += *this;
   ret += rhs;
   return ret;
 }
-
 
 template <class T> void atVector<T>::swap(atVector<T> &with) 
 {

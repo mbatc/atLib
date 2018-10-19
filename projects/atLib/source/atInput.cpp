@@ -132,5 +132,14 @@ const atVec2I& atInput::MousePos() { return s_mousePos; }
 const atVec2F& atInput::MouseVelocity() { return s_mouseVel; }
 atVec2F atInput::MouseDirection() { return s_mouseVel.Normalize(); }
 bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
-void atInput::RegisterWindow(HWND hWnd) { s_windows.TryAdd(hWnd);}
-void atInput::UnRegisterWindow(HWND hWnd) { if (s_windows.Contains(hWnd)) s_windows.Remove(hWnd); }
+
+void atInput::RegisterWindow(HWND hWnd) 
+{ 
+  s_windows.TryAdd(hWnd);
+}
+
+void atInput::UnRegisterWindow(HWND hWnd) 
+{ 
+  if (s_windows.Contains(hWnd)) 
+    s_windows.Remove(hWnd); 
+}

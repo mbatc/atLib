@@ -26,7 +26,6 @@
 #ifndef _atFile_h__
 #define _atFile_h__
 
-#include "atFileCommon.h"
 #include "atFileInfo.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"

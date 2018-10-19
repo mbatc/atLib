@@ -38,11 +38,9 @@ public:
   atVector3(const VecType<T> &copy) : x(copy.x), y(copy.y), z(copy.z) {}
 
   atVector3(VecType<T> &&move)
-    : x(move.x), y(move.y), z(move.z)
   {
-    move.x = { 0 };
-    move.y = { 0 };
-    move.z = { 0 };
+    memcpy(data(), move.data(), sizeof(T) * 3);
+    memset(move.data(), 0, sizeof(T) * 3);
   }
 
   // Approaching Template Town

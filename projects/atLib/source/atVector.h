@@ -63,7 +63,7 @@ public:
 
   // Retrieve a pointer to the internal memory block
   T* data();
-  void set_data(T* pBuffer, int64_t size);
+  void set_data(T* pBuffer, const int64_t size, const int64_t capacity);
   T* take_data();
 
   void push_back(const atVector<T> &item);
@@ -123,9 +123,10 @@ public:
   // Const access to the element at [index]
   // Debug assert on invalid index
 
-  atVector<T> operator=(const atVector<T> &rhs);
-  atVector<T> operator+=(const atVector<T> &rhs);
-  atVector<T> operator+(const atVector<T> &rhs);
+  const atVector<T> &operator=(atVector<T> &&rhs);
+  const atVector<T> &operator=(const atVector<T> &rhs); 
+  const atVector<T> &operator+=(const atVector<T> &rhs);
+  const atVector<T> &operator+(const atVector<T> &rhs);
   const T& operator[](const int64_t index) const;
   const T& operator[](const int32_t index) const;
   const T& operator[](const int16_t index) const;
@@ -185,7 +186,7 @@ template <typename T> _atStreamRead(atVector<T>)
   T* pBuffer = (T*)atAlloc(sizeof(T) * size);
   for (int64_t i = 0; i < size; ++i)
     ret += atStreamRead(pStream, pBuffer + i);
-  pData->set_data(pBuffer, size);
+  pData->set_data(pBuffer, size, size);
 
   return ret;
 }

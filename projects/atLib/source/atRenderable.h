@@ -29,6 +29,7 @@
 #include "atMesh.h"
 #include "atHashMap.h"
 #include "atGraphics.h"
+#include "atMath.h"
 
 enum atRenderable_PrimitiveType
 {
@@ -75,11 +76,12 @@ public:
 
   atRenderable();
   atRenderable(atRenderable &&move);
+  atRenderable(const atRenderable &copy);
   ~atRenderable();
   
   void SetShader(const atString &name);
   
-  bool Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type = atRPT_TriangleList);
+  bool Draw(const atRenderable_PrimitiveType type = atRPT_TriangleList);
   void Clear();
 
   template <typename T> void SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type);
@@ -108,7 +110,6 @@ protected:
   int64_t m_nIndices;
   int64_t m_nVerts;
   int64_t m_shaderRound;
-
 };
 
 #include "atRenderable.inl"

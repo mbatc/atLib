@@ -234,9 +234,6 @@
     <ClCompile Include="source\atMeshReader.cpp">
       <Filter>Source Files\Graphics\Geometry\Parsers</Filter>
     </ClCompile>
-    <ClCompile Include="source\atTriangulator.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="source\atHardwareTexture.cpp">
       <Filter>Source Files\Graphics\Material\Texture</Filter>
     </ClCompile>
@@ -251,6 +248,12 @@
     </ClCompile>
     <ClCompile Include="source\atOBJWriter.cpp">
       <Filter>Source Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atMemoryWriter.cpp">
+      <Filter>Source Files\IO\Streams</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atGraphicsModel.cpp">
+      <Filter>Source Files\Graphics\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -410,7 +413,10 @@
     <ClInclude Include="source\atIterator.h">
       <Filter>Header Files\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="source\atTriangulator.h">
+    <ClInclude Include="source\atMemoryWriter.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atGraphicsModel.h">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
@@ -456,6 +462,9 @@
     </None>
     <None Include="source\atOBJReader.inl">
       <Filter>Header Files\Graphics\Geometry\Parsers\OBJ</Filter>
+    </None>
+    <None Include="source\atRenderable.inl">
+      <Filter>Header Files\Graphics\Geometry</Filter>
     </None>
   </ItemGroup>
 </Project>

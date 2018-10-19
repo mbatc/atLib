@@ -28,16 +28,19 @@
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
-  if(!cond)
+  atUnused(cond, message, line, file, function);
+  if (!cond)
 #ifdef _DEBUG
     if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
 #endif
-      _CrtDbgBreak();
+  _CrtDbgBreak();
 }
 
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
 #ifdef _DEBUG
   _atRelAssert(cond, message, line, file, function);
+#else
+  atUnused(cond, message, line, file, function);
 #endif
 }

@@ -165,7 +165,7 @@ void atRenderState::SetDefaults()
   m_depthDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
   m_rasterDesc.AntialiasedLineEnable = false;
-  m_rasterDesc.CullMode = D3D11_CULL_BACK;
+  m_rasterDesc.CullMode = D3D11_CULL_NONE;
   m_rasterDesc.DepthBias = 0;
   m_rasterDesc.DepthBiasClamp = 0.0f;
   m_rasterDesc.DepthClipEnable = true;

@@ -39,10 +39,9 @@ public:
   atVector2(const VecType<T> &copy) : x(copy.x), y (copy.y) {}
 
   atVector2(VecType<T> &&move)
-    : x(move.x), y(move.y)
   {
-    move.x = { 0 };
-    move.y = { 0 };
+    memcpy(data(), move.data(), sizeof(T) * 2);
+    memset(move.data(), 0, sizeof(T) * 2);
   }
 
   // Approaching Template Town

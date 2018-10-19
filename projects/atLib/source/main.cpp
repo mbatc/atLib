@@ -38,35 +38,27 @@
 #include "atImage.h"
 #include "atIntersects.h"
 #include "atOBJParser.h"
+#include "atMemoryWriter.h"
+#include "atGraphicsModel.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  atMesh mesh;
-  atOBJReader::Read(atFilename("assets/test/models/suzan.obj"), &mesh);
 
+  atGraphicsModel model(atFilename("assets/test/models/suzan.obj"));
   atWindow wnd("My window");
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));
-
-  atRenderable ro;
-  ro.SetShader("assets/shaders/color");
-  ro.SetChannel("samplerType", 0, atRRT_Sampler);
-  ro.SetChannel("diffuseTexture", atString("assets/test/images/brick.jpg"), atRRT_Texture);
-  ro.SetChannel("POSITION", atVector<atVec3F>{ { -1, -1, -5 },{ 0, 1, -5 },{ 1, -1, -5 } }, atRRT_VertexData);
-  ro.SetChannel("COLOR", atVector<atVec4F>{ { 1, 1, 1, 1 },{ 1, 1, 1, 1 },{ 1, 1, 1, 1 } }, atRRT_VertexData);
-  ro.SetChannel("TEXCOORD", atVector<atVec2F>{ { 0, 1 },{ 0.5, 0 },{ 1, 1 } }, atRRT_VertexData);
-  ro.SetChannel("idxBuffer", { 0u, 1u, 2u }, atRRT_Indices);
-
+  
   float col = 66.f;
   atRenderState::Bind();
   while (atInput::Update())
   {
     atInput::LockMouse(true, wnd.GetSize() / 2);
     wnd.Clear(atVec4F(col / 255.f, col / 255.f, col / 255.f, 1.0f));
-    ro.Draw(cam.ProjectionMat() * cam.ViewMat());
+    model.Draw(cam.ProjectionMat() * cam.ViewMat());
     wnd.Swap();
     cam.Update(1);
   }
