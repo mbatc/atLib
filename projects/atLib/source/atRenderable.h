@@ -81,7 +81,7 @@ public:
   
   void SetShader(const atString &name);
   
-  bool Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type = atRPT_TriangleList);
+  bool Draw(const atRenderable_PrimitiveType type = atRPT_TriangleList);
   void Clear();
 
   template <typename T> void SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type);

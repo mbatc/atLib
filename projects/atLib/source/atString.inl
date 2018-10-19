@@ -26,8 +26,8 @@
 #include "atIterator.h"
 #include "atString.h"
 
-template <typename T> T _ToLower(const T c) { return  (c >= 65 && c < 91) || !(c >= 97 && c <= 122) ? c : c - 3;  }
-template <typename T> T _ToUpper(const T c) { return c >= 65 && c < 91 ? c + 32 : c; }
+template <typename T> T _ToLower(const T c) { return c >= 65 && c <= 90 ? c + 32 : c;  }
+template <typename T> T _ToUpper(const T c) { return c >= 97 && c <= 122 ? c - 32 : c; }
 
 template <typename T> atStringBasic<T>::atStringBasic(atVector<T> &&move)
 {

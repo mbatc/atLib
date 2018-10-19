@@ -252,6 +252,9 @@
     <ClCompile Include="source\atMemoryWriter.cpp">
       <Filter>Source Files\IO\Streams</Filter>
     </ClCompile>
+    <ClCompile Include="source\atGraphicsModel.cpp">
+      <Filter>Source Files\Graphics\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">
@@ -412,6 +415,9 @@
     </ClInclude>
     <ClInclude Include="source\atMemoryWriter.h">
       <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atGraphicsModel.h">
+      <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

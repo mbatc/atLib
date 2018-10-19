@@ -30,6 +30,7 @@
     <ClCompile Include="source\atFileInfo.cpp" />
     <ClCompile Include="source\atFormat.cpp" />
     <ClCompile Include="source\atGraphics.cpp" />
+    <ClCompile Include="source\atGraphicsModel.cpp" />
     <ClCompile Include="source\atHardwareTexture.cpp" />
     <ClCompile Include="source\atImage.cpp" />
     <ClCompile Include="source\atImageHelper.cpp" />
@@ -72,6 +73,7 @@
     <ClInclude Include="source\atFilename.h" />
     <ClInclude Include="source\atFormat.h" />
     <ClInclude Include="source\atGraphics.h" />
+    <ClInclude Include="source\atGraphicsModel.h" />
     <ClInclude Include="source\atHardwareTexture.h" />
     <ClInclude Include="source\atHashMap.h" />
     <ClInclude Include="source\atImage.h" />

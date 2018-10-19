@@ -67,13 +67,14 @@ public:
   const atMatrix<T, col, row> &operator=(const atMatrix<T, col, row> &copy);
   template <typename T2> const atMatrix<T, col, row>& operator=(const atMatrix<T2, col, row> &copy);
 
-  const int64_t m_rows = row;
-  const int64_t m_columns = col;
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
 
   T m_data[row * col];
+
+  const int64_t m_rows = row;
+  const int64_t m_columns = col;
 
 protected:
   template <int64_t dim> atMatrix<T, dim, dim> LowOrderMatrix(const int64_t x, const int64_t y) const;

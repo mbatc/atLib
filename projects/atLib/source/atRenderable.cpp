@@ -73,7 +73,7 @@ atRenderable::atRenderable(const atRenderable &copy)
 
 atRenderable::~atRenderable() { Clear(); }
 
-bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
+bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
 {
   Rebuild();
   if (m_shaderID == AT_INVALID_ID || m_shaderRound != atShaderPool::ShaderRound())
@@ -115,8 +115,6 @@ bool atRenderable::Draw(const atMat4 &mvp, const atRenderable_PrimitiveType type
     case atRRT_Variable: atShaderPool::SetVariable(m_shaderID, kvp.m_val.loc, kvp.m_val.data.data(), kvp.m_val.data.size()); break;
     }
   }
-
-  atShaderPool::SetVariable(m_shaderID, "mvp", (void*)mvp.Transpose().m_data, atGetTypeDesc<float>().size * 16);
 
   // Bind Shader to DX Context
   atRenderState::BindShader(m_shaderID);
