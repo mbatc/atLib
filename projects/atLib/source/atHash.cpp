@@ -23,32 +23,35 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atHash_h__
-#define atHash_h__
+#include "atHash.h"
 
-#include "atMemoryWriter.h"
+thread_local atMemoryWriter atHash::writer;
 
-
-class atHash
+int64_t atHash::Hash(const atMemoryWriter &mem)
 {
-public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
+  // One-at-a-Time hash
+  int64_t hash = 0;
 
-  template <typename T> static int64_t Hash(const T &o);
+  for (const uint8_t byte : mem.m_data)
+  {
+    hash += byte;
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
 
-protected:
-  static thread_local atMemoryWriter writer;
-};
+  hash += (hash << 3);
+  hash += (hash >> 11);
+  hash += (hash << 15);
+  return hash;
+}
 
-#include "atHash.inl"
-#endif // atHash_h__s
+int64_t atHash::Hash(const int64_t val) { return val; }
+int64_t atHash::Hash(const int32_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const int16_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const int8_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const uint64_t val) { return val; }
+int64_t atHash::Hash(const uint32_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const uint16_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const uint8_t val) { return (int64_t)val; }
+int64_t atHash::Hash(const double val) { return *(int64_t*)&val; }
+int64_t atHash::Hash(const float val) { return *(int64_t*)&val; }
