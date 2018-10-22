@@ -21,8 +21,9 @@ public:
   bool operator!=(const atMemoryWriter &rhs);
   bool operator==(const atMemoryWriter &rhs);
 
-protected:
   atVector<uint8_t> m_data;
+  
+protected:
   int64_t m_pos = 0;
 };
 

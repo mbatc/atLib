@@ -255,6 +255,9 @@
     <ClCompile Include="source\atGraphicsModel.cpp">
       <Filter>Source Files\Graphics\Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="source\atHash.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">
@@ -425,6 +428,9 @@
     <ClInclude Include="source\atTriangle.h">
       <Filter>Header Files\Math\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="source\atHash.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -477,6 +483,9 @@
     </None>
     <None Include="source\atPlane.inl">
       <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atHash.inl">
+      <Filter>Header Files\Math</Filter>
     </None>
   </ItemGroup>
 </Project>

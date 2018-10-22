@@ -32,6 +32,7 @@
     <ClCompile Include="source\atGraphics.cpp" />
     <ClCompile Include="source\atGraphicsModel.cpp" />
     <ClCompile Include="source\atHardwareTexture.cpp" />
+    <ClCompile Include="source\atHash.cpp" />
     <ClCompile Include="source\atImage.cpp" />
     <ClCompile Include="source\atImageHelper.cpp" />
     <ClCompile Include="source\atInput.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="source\atGraphics.h" />
     <ClInclude Include="source\atGraphicsModel.h" />
     <ClInclude Include="source\atHardwareTexture.h" />
+    <ClInclude Include="source\atHash.h" />
     <ClInclude Include="source\atHashMap.h" />
     <ClInclude Include="source\atImage.h" />
     <ClInclude Include="source\atImageHelper.h" />
@@ -125,6 +127,7 @@
     <None Include="source\atAABB.inl" />
     <None Include="source\atColor.inl" />
     <None Include="source\atFilename.inl" />
+    <None Include="source\atHash.inl" />
     <None Include="source\atHashMap.inl" />
     <None Include="source\atIntersects.inl" />
     <None Include="source\atIterator.inl" />

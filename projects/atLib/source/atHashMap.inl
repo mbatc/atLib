@@ -23,15 +23,19 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount) 
-{ 
-  m_buckets.resize(max(bucketCount, 1)); 
-  m_size = 0; 
-}
+#include "atHash.h"
 
-template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
-template<class Key, class Value> void atHashMap<Key, Value>::Clear() { m_buckets.resize(1); m_buckets[0].clear(); m_size = 0; }
-template<class Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
+template <class Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
+template <class Key, class Value> void atHashMap<Key, Value>::Clear() { m_buckets.resize(1); m_buckets[0].clear(); m_size = 0; }
+template <class Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
+
+template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount)
+{
+  m_buckets.resize(max(bucketCount, 1));
+  for (auto &bucket : m_buckets)
+    bucket.reserve(m_itemCount);
+  m_size = 0;
+}
 
 template<class Key, class Value> atHashMap<Key, Value>::atHashMap(atHashMap<Key, Value> &&move)
 {
@@ -49,6 +53,10 @@ template<class Key, class Value> bool atHashMap<Key, Value>::TryAdd(const KVP &k
       return false;
   bucket.push_back(kvp);
   ++m_size;
+
+  if (bucket.size() > m_itemCount)
+    Rehash((int64_t)(atMax(m_buckets.size() * 1.6, 2)));
+
   return true;
 }
 
@@ -131,6 +139,16 @@ template<class Key, class Value> const atHashMap<Key, Value>& atHashMap<Key, Val
   return *this;
 }
 
+template<class Key, class Value> bool atHashMap<Key, Value>::Rehash(const int64_t bucketCount) 
+{ 
+  atHashMap newMap(bucketCount);
+  for (auto &kvp : *this)
+    newMap.Add(kvp);
+  *this = std::move(newMap);
+  return true;
+}
+
+template<class Key, class Value> int64_t atHashMap<Key, Value>::FindBucket(const Key &key) const { return abs(atHash::Hash(key) % m_buckets.size()); }
 template<class Key, class Value> const typename atHashMap<Key, Value>::Bucket& atHashMap<Key, Value>::GetBucket(const Key & key) const { return m_buckets[m_buckets.size() > 1 ? FindBucket(key) : 0]; }
 template<class Key, class Value> typename atHashMap<Key, Value>::ConstIterator atHashMap<Key, Value>::begin() const { return ConstIterator(this, 0, m_buckets[0].data()); }
 template<class Key, class Value> typename atHashMap<Key, Value>::ConstIterator atHashMap<Key, Value>::end() const { return ConstIterator(this, m_buckets.size() - 1, m_buckets[m_buckets.size() - 1].end()); }
@@ -141,8 +159,6 @@ template<class Key, class Value> void atHashMap<Key, Value>::Add(const Key &key,
 template<class Key, class Value> bool atHashMap<Key, Value>::TryAdd(const Key &key, const Value &val) { return TryAdd(KVP(key, val)); }
 template<class Key, class Value> void atHashMap<Key, Value>::Add(const KVP &kvp) { atAssert(TryAdd(kvp), "Duplicate Key!"); }
 template<class Key, class Value> const Value& atHashMap<Key, Value>::operator[](const Key &key) const { return Get(key); }
-template<class Key, class Value> bool atHashMap<Key, Value>::Rehash(const int64_t bucketCount) { return false; }
-template<class Key, class Value> int64_t atHashMap<Key, Value>::FindBucket(const Key & key) const { return 0; }
 template<class Key, class Value> Value& atHashMap<Key, Value>::operator[](const Key &key) { return Get(key); }
 
 // -------------------------------------------------------

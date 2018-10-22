@@ -61,5 +61,17 @@ protected:
 typedef atFilenameBasic<char> atFilename;
 typedef atFilenameBasic<wchar_t> atWideFilename;
 
+
+template <typename T> _atStreamRead(atFilenameBasic<T>)
+{
+  atString path;
+  int64_t ret = atStreamRead(pStream, &path);
+  pData->assign(path);
+  return ret;
+}
+
+template <typename T> _atStreamWrite(atFilenameBasic<T>) { return atStreamWrite(pStream, data.Path()); }
+
+
 #include "atFilename.inl"
 #endif
