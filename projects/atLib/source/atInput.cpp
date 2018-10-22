@@ -34,7 +34,7 @@ static atVec2I s_lastMousePos;
 static atVec2F s_mouseVel;
 static atVec2I s_lockPos = { 0,0 };
 static bool s_mouseLocked = false;
-static atHashMap<HWND, bool> s_windows;
+static atHashMap<int64_t, bool> s_windows;
 
 bool s_mouseSet = false;
 
@@ -51,7 +51,7 @@ static HWND _GetFocus()
 {
   HWND focus = GetFocus();
   for (auto& kvp: s_windows)
-    if (focus == kvp.m_key)
+    if (focus == (HWND)kvp.m_key)
       return focus;
   return NULL;
 }
@@ -135,11 +135,11 @@ bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
 
 void atInput::RegisterWindow(HWND hWnd) 
 { 
-  s_windows.TryAdd(hWnd);
+  s_windows.TryAdd((int64_t)hWnd);
 }
 
 void atInput::UnRegisterWindow(HWND hWnd) 
 { 
-  if (s_windows.Contains(hWnd)) 
-    s_windows.Remove(hWnd); 
+  if (s_windows.Contains((int64_t)hWnd)) 
+    s_windows.Remove((int64_t)hWnd); 
 }

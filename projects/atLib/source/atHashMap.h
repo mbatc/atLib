@@ -32,6 +32,8 @@
 template <class Key, class Value> class atHashMap
 {
 public:
+  const int64_t m_itemCount = 16;
+
   typedef atKeyValue<Key, Value> KVP;
   typedef atVector<KVP> Bucket;
 

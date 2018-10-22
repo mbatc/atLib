@@ -28,7 +28,6 @@
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
-  atUnused(cond, message, line, file, function);
   if (!cond)
 #ifdef _DEBUG
     if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))

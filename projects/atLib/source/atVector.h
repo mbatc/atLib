@@ -183,11 +183,9 @@ template <typename T> _atStreamRead(atVector<T>)
 {
   int64_t size = 0;
   int64_t ret = atStreamRead(pStream, &size);
-  T* pBuffer = (T*)atAlloc(sizeof(T) * size);
+  pData->resize(size);
   for (int64_t i = 0; i < size; ++i)
-    ret += atStreamRead(pStream, pBuffer + i);
-  pData->set_data(pBuffer, size, size);
-
+    ret += atStreamRead(pStream, pData->data() + i);
   return ret;
 }
 

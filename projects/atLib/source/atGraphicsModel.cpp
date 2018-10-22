@@ -61,18 +61,26 @@ bool atGraphicsModel::Import(const atMesh &mesh)
 
   // Build vertex arrays
   for (const atMesh::Triangle &tri : mesh.m_triangles)
-    for (int64_t m = 0; m < 3; ++m)
+    for (int64_t v = 0; v < 3; ++v)
     {
-      positions[tri.mat].push_back(mesh.m_positions[tri.verts[m].position]);
-      texCoords[tri.mat].push_back(mesh.m_texCoords[tri.verts[m].texCoord]);
-      normals[tri.mat].push_back(mesh.m_normals[tri.verts[m].normal]);
-      colours[tri.mat].push_back(mesh.m_colors[tri.verts[m].color]);
+      positions[tri.mat].push_back(mesh.m_positions[tri.verts[v].position]);
+      texCoords[tri.mat].push_back(mesh.m_texCoords[tri.verts[v].texCoord]);
+      normals[tri.mat].push_back(mesh.m_normals[tri.verts[v].normal]);
+      colours[tri.mat].push_back(mesh.m_colors[tri.verts[v].color]);
     }
+
+
+  atVector<atVector<atVec3F>> optNorm(mesh.m_materials.size(), atVector<atVec3F>());
+  atVector<atVector<atVec4F>> optCol(mesh.m_materials.size(), atVector<atVec4F>());
+  atVector<atVector<atVec3F>> optPos(mesh.m_materials.size(), atVector<atVec3F>());
+  atVector<atVector<atVec2F>> optTex(mesh.m_materials.size(), atVector<atVec2F>());
+  atVector<atVector<uint32_t>> optInd(mesh.m_materials.size(), atVector<uint32_t>());
 
   // Build Index Buffer
   for (int64_t m = 0; m < mesh.m_materials.size(); ++m)
   {
-    atHashMap<atMemoryWriter, int64_t> m_vertices;
+    // Create all buckets needed
+    atHashMap<atMemoryWriter, int64_t> m_vertices(mesh.m_triangles.size() * 3 / 16);
     atMemoryWriter vertData;
     for (int64_t v = 0; v < positions[m].size(); ++v)
     {
@@ -81,22 +89,22 @@ bool atGraphicsModel::Import(const atMesh &mesh)
       vertData.Write(texCoords[m][v]);
       vertData.Write(normals[m][v]);
       vertData.Write(colours[m][v]);
-      if (!m_vertices.TryAdd(vertData, v))
+      int64_t curIndex = optPos[m].size();
+      if (m_vertices.TryAdd(vertData, curIndex))
       {
-        indices[m].push_back((uint32_t)m_vertices[vertData]);
-        positions[m].erase(v);
-        texCoords[m].erase(v);
-        normals[m].erase(v);
-        colours[m].erase(v);
-        --v;
+        indices[m].push_back((uint32_t)curIndex);
+        optPos[m].push_back(positions[m][v]);
+        optNorm[m].push_back(normals[m][v]);
+        optTex[m].push_back(texCoords[m][v]);
+        optCol[m].push_back(colours[m][v]);
       }
       else
-        indices[m].push_back((uint32_t)v);
+        indices[m].push_back((uint32_t)m_vertices[vertData]);
     }
 
     m_mesh[m].SetShader("assets/shaders/color");
     m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
-    m_mesh[m].SetChannel("COLOR", colours[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("COLOR", optCol[m], atRRT_VertexData);
 
     for (const atFilename &fn : mesh.m_materials[m].m_tDiffuse)
     {
@@ -104,8 +112,8 @@ bool atGraphicsModel::Import(const atMesh &mesh)
       break;
     }
 
-    m_mesh[m].SetChannel("POSITION", positions[m], atRRT_VertexData);
-    m_mesh[m].SetChannel("TEXCOORD", texCoords[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("POSITION", optPos[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("TEXCOORD", optTex[m], atRRT_VertexData);
     m_mesh[m].SetChannel("idxBuffer", indices[m], atRRT_Indices);
   }
   return true;
