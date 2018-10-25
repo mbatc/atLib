@@ -50,6 +50,8 @@ public:
   atStringBasic(atStringBasic &&move);
   atStringBasic(const atVector<T> &str);
   atStringBasic(atVector<T> &&move);
+
+  template <typename T1> atStringBasic(const T &o);
   
   static atStringBasic<T> _to_lower(const T *str, const int64_t len);
   static atStringBasic<T> _to_upper(const T *str, const int64_t len);
@@ -175,11 +177,12 @@ protected:
   atVector<T> m_data;
 };
 
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const atStringBasic<T> &rhs) { return lhs.operator+(rhs); }
-template <typename T> atStringBasic<T> operator+(const T &_char, const atStringBasic<T> &rhs) { return atString(lhs).operator+(rhs); }
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, const T &_char) { return lhs.operator+(rhs); }
-template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs) { return atString(lhs).operator+(rhs); }
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs) { return lhs.operator+(rhs); }
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const atStringBasic<T> &rhs);
+template <typename T> atStringBasic<T> operator+(const T &_char, const atStringBasic<T> &rhs);
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, const T &_char);
+template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs);
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs);
+template <typename T, typename T2> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T2 &rhs);
 
 template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str);
 template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str);
@@ -187,8 +190,13 @@ template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str);
 typedef atStringBasic<wchar_t> atWideString;
 typedef atStringBasic<char> atString;
 
-atWideString ToWideString(const atString &str);
-atString ToString(const atWideString &str);
+atWideString atToWideString(const atString &str);
+atString atToString(const atWideString &str);
+
+atString atToString(const int64_t val);
+atString atToString(const int32_t val);
+atString atToString(const double val);
+atString atToString(const float val);
 
 template <typename T> _atStreamRead(atStringBasic<T>)
 { 
