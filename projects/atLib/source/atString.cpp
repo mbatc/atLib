@@ -26,24 +26,36 @@
 #include "atString.h"
 #include <string.h>
 
-atWideString ToWideString(const atString &str) { return atWideString(str); }
-atString ToString(const atWideString &str) { return atString(str); }
+atWideString atToWideString(const atString &str) { return atWideString(str); }
+atString atToString(const atWideString &str) { return atString(str); }
 
-template <> const char* atStringBasic<char>::Numerals() { return "0123456789"; }
-template <> const char* atStringBasic<char>::Whitespace() { return " \n\t\r"; }
-template <> const char* atStringBasic<char>::Hex() { return "0x0123456789ABCDEF"; }
-template <> const char* atStringBasic<char>::Binary() { return "01"; }
-template <> const char* atStringBasic<char>::AlphabetUpper() { return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
-template <> const char* atStringBasic<char>::AlphabetLower() { return "abcdefghijklmnopqrstuvwxyz"; }
-template <> const char* atStringBasic<char>::AlphabetAll() { return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; }
+atString atToString(const int64_t val)
+{
+  char buffer[45];
+  sprintf(buffer, "%lld", val);
+  return atString(buffer);
+}
 
-template <> const wchar_t* atStringBasic<wchar_t>::Numerals() { return L"0123456789"; }
-template <> const wchar_t* atStringBasic<wchar_t>::Whitespace() { return L" \n\t\r"; }
-template <> const wchar_t* atStringBasic<wchar_t>::Hex() { return L"0x0123456789ABCDEF"; }
-template <> const wchar_t* atStringBasic<wchar_t>::Binary() { return L"01"; }
-template <> const wchar_t* atStringBasic<wchar_t>::AlphabetUpper() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
-template <> const wchar_t* atStringBasic<wchar_t>::AlphabetLower() { return L"abcdefghijklmnopqrstuvwxyz"; }
-template <> const wchar_t* atStringBasic<wchar_t>::AlphabetAll() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; }
+atString atToString(const int32_t val)
+{
+  char buffer[45];
+  sprintf(buffer, "%d", val);
+  return atString(buffer);
+}
+
+atString atToString(const double val)
+{
+  char buffer[45];
+  sprintf(buffer, "%f", val);
+  return atString(buffer);
+}
+
+atString atToString(const float val)
+{
+  char buffer[45];
+  sprintf(buffer, "%f", val);
+  return atString(buffer);
+}
 
 template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str)
 {
@@ -60,3 +72,19 @@ template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str)
   ret.size = atSize(ret.type) * ret.count;
   return ret;
 }
+
+template <> const char* atStringBasic<char>::Numerals() { return "0123456789"; }
+template <> const char* atStringBasic<char>::Whitespace() { return " \n\t\r"; }
+template <> const char* atStringBasic<char>::Hex() { return "0x0123456789ABCDEF"; }
+template <> const char* atStringBasic<char>::Binary() { return "01"; }
+template <> const char* atStringBasic<char>::AlphabetUpper() { return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
+template <> const char* atStringBasic<char>::AlphabetLower() { return "abcdefghijklmnopqrstuvwxyz"; }
+template <> const char* atStringBasic<char>::AlphabetAll() { return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; }
+
+template <> const wchar_t* atStringBasic<wchar_t>::Numerals() { return L"0123456789"; }
+template <> const wchar_t* atStringBasic<wchar_t>::Whitespace() { return L" \n\t\r"; }
+template <> const wchar_t* atStringBasic<wchar_t>::Hex() { return L"0x0123456789ABCDEF"; }
+template <> const wchar_t* atStringBasic<wchar_t>::Binary() { return L"01"; }
+template <> const wchar_t* atStringBasic<wchar_t>::AlphabetUpper() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
+template <> const wchar_t* atStringBasic<wchar_t>::AlphabetLower() { return L"abcdefghijklmnopqrstuvwxyz"; }
+template <> const wchar_t* atStringBasic<wchar_t>::AlphabetAll() { return L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; }

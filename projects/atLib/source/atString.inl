@@ -349,11 +349,19 @@ template<typename T> bool atStringBasic<T>::compare(const T * lhs, const T * rhs
   return true;
 }
 
+
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const atStringBasic<T> &rhs) { return lhs.operator+(rhs); }
+template <typename T> atStringBasic<T> operator+(const T &_char, const atStringBasic<T> &rhs) { return atString(lhs).operator+(rhs); }
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, const T &_char) { return lhs.operator+(rhs); }
+template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs) { return atString(lhs).operator+(rhs); }
+template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs) { return lhs.operator+(rhs); }
+template <typename T, typename T2> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T2 &rhs) { return lhs.operator+(atToString(rhs)); }
 template <typename T> bool atStringBasic<T>::compare(const T *str, const atStringCompareOptions options) const { return compare(c_str(), str, options); }
-template<typename T> atStringBasic<T> atStringBasic<T>::to_lower() { return _to_lower(c_str(), length()); }
-template<typename T> atStringBasic<T> atStringBasic<T>::to_upper() { return _to_upper(c_str(), length()); }
+template <typename T> atStringBasic<T> atStringBasic<T>::to_lower() { return _to_lower(c_str(), length()); }
+template <typename T> atStringBasic<T> atStringBasic<T>::to_upper() { return _to_upper(c_str(), length()); }
 template <typename T> template <class T1> atStringBasic<T>::atStringBasic(const T1 *pStart, const T1 *pEnd) { m_data.assign(pStart, pEnd); validate(); }
 template <typename T> template <class T1> atStringBasic<T>::atStringBasic(const atStringBasic<T1> &str) { m_data.assign(str.begin(), str.end()); validate(); }
+template <typename T> template <typename T1> atStringBasic<T>::atStringBasic(const T &o) : atStringBasic<T>(atToString(o)) {}
 template <typename T> atStringBasic<T>::atStringBasic() { set_string("", 0); }
 template <typename T> atStringBasic<T>::atStringBasic(const T *str) { set_string(str, strlen(str)); }
 template <typename T> atStringBasic<T>::atStringBasic(const atStringBasic &copy) { set_string(copy.m_data); }

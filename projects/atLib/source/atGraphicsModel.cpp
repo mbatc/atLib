@@ -98,11 +98,27 @@ bool atGraphicsModel::Import(const atMesh &mesh)
     m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
     m_mesh[m].SetChannel("COLOR", colours[m], atRRT_VertexData);
 
-    for (const atFilename &fn : mesh.m_materials[m].m_tDiffuse)
-    {
-      m_mesh[m].SetChannel("diffuseTexture", fn.Path(), atRRT_Texture);
-      break;
-    }
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tAmbient.size(); ++i)
+      m_mesh[m].SetChannel(atString("ambientTex") + i, mesh.m_materials[m].m_tAmbient[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tDiffuse.size(); ++i)
+      m_mesh[m].SetChannel(atString("diffuseTex") + i, mesh.m_materials[m].m_tDiffuse[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tAlpha.size(); ++i)
+      m_mesh[m].SetChannel(atString("alphaMap") + i, mesh.m_materials[m].m_tAlpha[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tSpecular.size(); ++i)
+      m_mesh[m].SetChannel(atString("specularMap") + i, mesh.m_materials[m].m_tSpecular[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tSpecularHigh.size(); ++i)
+      m_mesh[m].SetChannel(atString("specularHiMap") + i, mesh.m_materials[m].m_tSpecularHigh[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tDisplacement.size(); ++i)
+      m_mesh[m].SetChannel(atString("displacementMap") + i, mesh.m_materials[m].m_tDisplacement[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mesh.m_materials[m].m_tBump.size(); ++i)
+      m_mesh[m].SetChannel(atString("bumpMap") + i, mesh.m_materials[m].m_tBump[i].Path(), atRRT_Texture);
+
 
     m_mesh[m].SetChannel("POSITION", positions[m], atRRT_VertexData);
     m_mesh[m].SetChannel("TEXCOORD", texCoords[m], atRRT_VertexData);
