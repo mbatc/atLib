@@ -66,6 +66,7 @@
     <ClInclude Include="source\atAlloc.h" />
     <ClInclude Include="source\atAssert.h" />
     <ClInclude Include="source\atButtonState.h" />
+    <ClInclude Include="source\atBVH.h" />
     <ClInclude Include="source\atCamera.h" />
     <ClInclude Include="source\atDateTime.h" />
     <ClInclude Include="source\atFile.h" />
@@ -125,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="source\atAABB.inl" />
+    <None Include="source\atBVH.inl" />
     <None Include="source\atColor.inl" />
     <None Include="source\atFilename.inl" />
     <None Include="source\atHash.inl" />

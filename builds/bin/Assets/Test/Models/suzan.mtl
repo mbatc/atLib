@@ -9,7 +9,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd E:\\blender\\AbarrentToothbrush\\models\\weapons\\m14\\textures\\m14barrel_ao.png
+map_Kd textures/m14barrel_ao.png
 
 newmtl Testmaterial
 Ns 96.078431
@@ -19,4 +19,4 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd E:\\blender\\AbarrentToothbrush\\models\\weapons\\m14\\textures\\m14Clip_dif.jpg
+map_Kd textures/m14Clip_dif.jpg

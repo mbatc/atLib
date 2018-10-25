@@ -10,12 +10,13 @@ struct vsOutput
 {
   float4 position : SV_Position;
   float4 color : COLOR;
+  float3 normal : NORMAL;
   float2 texCoord : TEXCOORD;
 };
 
 psOutput main(vsOutput In) : SV_Target
 {
   psOutput Out;
-  Out.color = In.color * diffuseTexture.Sample(samplerType, In.texCoord);
+  Out.color = In.color * diffuseTex0.Sample(samplerType, In.texCoord);
   return Out;
 }

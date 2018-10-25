@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 {
   atUnused(argc, argv);
   atFile file;
-  atGraphicsModel model(atFilename("assets/test/models/suzan.obj"));
+  atGraphicsModel model(atFilename("assets/test/models/level.obj"));
   atWindow wnd("My window", { 1800, 980 });
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));

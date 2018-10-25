@@ -33,7 +33,7 @@ class atGraphicsModel
 public:
   atGraphicsModel();
   atGraphicsModel(const atMesh &mesh);
-  atGraphicsModel(const atFilename &filename);
+  atGraphicsModel(const atFilename &filename, const bool genTangents = true);
   atGraphicsModel(const atGraphicsModel &copy);
   atGraphicsModel(atGraphicsModel &&move);
   ~atGraphicsModel();
@@ -41,7 +41,7 @@ public:
   void Draw(const atMat4D &MVP);
 
   bool Import(const atMesh &mesh);
-  bool Import(const atFilename &filename);
+  bool Import(const atFilename &filename, const bool genTangents = true);
 
   atVector<atRenderable> m_mesh;
 };

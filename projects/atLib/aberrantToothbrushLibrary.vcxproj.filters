@@ -431,6 +431,9 @@
     <ClInclude Include="source\atHash.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="source\atBVH.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -486,6 +489,9 @@
     </None>
     <None Include="source\atHash.inl">
       <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="source\atBVH.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
     </None>
   </ItemGroup>
 </Project>

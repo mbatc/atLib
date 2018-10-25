@@ -1,3 +1,4 @@
+#include "atAABB.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -60,6 +61,19 @@ template <typename T> void atAABB<T>::ShrinkToFit(const atAABB<T> &box)
   }
 }
 
+template<typename T> bool atAABB<T>::Contains(const Vec3 &point) const
+{
+  if (point.x < m_min.x) return false;
+  if (point.y < m_min.y) return false;
+  if (point.z < m_min.z) return false;
+  if (point.x > m_max.x) return false;
+  if (point.y > m_max.y) return false;
+  if (point.z > m_max.z) return false;
+  return true;
+}
+
+template <typename T> Vec3 atAABB<T>::Center() const { return (m_min + m_max) / (T)2; }
+template <typename T> Vec3 atAABB<T>::Dimensions() const { return m_max - m_min; }
 template <typename T> template<typename Type> void atAABB<T>::atBounds(const Type &type) { atAssert(false, "Bounds are not defined for this type"); return atAABB<T>(); }
 template <typename T> template<typename Type> void atAABB<T>::GrowToContain(const Type &type) { GrowToContain(atBounds(type)); }
 template <typename T> atAABB<T>::atAABB(const Vec3 &min, const Vec3 &max) : m_min(min), m_max(max) {}

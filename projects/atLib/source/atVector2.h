@@ -65,6 +65,7 @@ public:
   T& operator[](const int64_t index) { return data()[index]; }
   const T& operator[](const int64_t index) const { return data()[index]; }
 
+  VecType<T> operator-() const { return atVectorMath::Subtract(VecType<T>::zero(), *this); }
   VecType<T> operator+(const VecType<T> &rhs) const { return atVectorMath::Add(*this, rhs); }
   VecType<T> operator-(const VecType<T> &rhs) const { return atVectorMath::Subtract(*this, rhs); }
   VecType<T> operator*(const VecType<T> &rhs) const { return atVectorMath::Multiply(*this, rhs); }

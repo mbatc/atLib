@@ -39,6 +39,8 @@ public:
     int64_t normal = AT_INVALID_INDEX;
     int64_t color = AT_INVALID_INDEX;
     int64_t texCoord = AT_INVALID_INDEX;
+    int64_t tangent = AT_INVALID_INDEX;
+    int64_t bitanget = AT_INVALID_INDEX;
   };
 
   struct Triangle
@@ -65,13 +67,36 @@ public:
     int64_t mat = AT_INVALID_INDEX;
   } m_default;
 
+  // Fills missing data with default values
+  // This should be called before using a mesh
   bool MakeValid();
 
+  // Apply transforms to the mesh
+  void SpatialTransform(const atMat4D &transform);
+  void PositionTransform(const atMat4D &transform);
+  void NormalTransform(const atMat4D &transform);
+
+  // Generate Tangents and Bi-tangents
+  void GenTangents();
+
+  // Generate Normals
+  void RegenNormals();
+
+  // If the dot product of two normals is < threshold they will not be blended
+  void GenSmoothNormals(const double threshold = 0.3, const bool regenNormals = true);
+
+  // Flip all normals
+  void FlipTextures(const bool u, const bool v);
+  void FlipNormals();
+
   atVector<Triangle> m_triangles;
+
   atVector<atVec3F64> m_positions;
   atVector<atVec3F64> m_normals;
   atVector<atVec4F64> m_colors;
   atVector<atVec2F64> m_texCoords;
+  atVector<atVec3F64> m_tangents;
+  atVector<atVec3F64> m_binormals;
 
   atVector<atMaterial> m_materials;
 };

@@ -24,9 +24,9 @@
 // -----------------------------------------------------------------------------
 
 #include "atMesh.h"
+#include "atHashMap.h"
 
-atMesh::atMesh()
-{}
+atMesh::atMesh() {}
 
 atMesh::atMesh(const atMesh &copy)
 {
@@ -91,6 +91,95 @@ bool atMesh::MakeValid()
       }
   }
 
+  GenTangents();
+
   // If there are no triangles this mesh cannot be made valid
   return m_triangles.size() != 0;
 }
+
+void atMesh::SpatialTransform(const atMat4D &transform)
+{
+  PositionTransform(transform);
+  NormalTransform(transform);
+}
+
+void atMesh::PositionTransform(const atMat4D &transform)
+{
+  for (atVec3F64 &pos : m_positions)
+    pos = transform * pos;
+}
+
+void atMesh::NormalTransform(const atMat4D &transform)
+{
+  atMat4D nMat = transform.Inverse().Transpose();
+  for (atVec3F64 &norm : m_normals)
+    norm = transform * norm;
+}
+
+void atMesh::GenTangents()
+{
+  m_tangents.resize(m_positions.size());
+  m_binormals.resize(m_positions.size());
+  memset(m_tangents.data(), 0, m_tangents.size() * sizeof(atVec3F64));
+  memset(m_binormals.data(), 0, m_binormals.size() * sizeof(atVec3F64));
+
+  for (Triangle &tri : m_triangles)
+  {
+    const atVec3F64 &v1 = m_positions[tri.verts[0].position];
+    const atVec3F64 &v2 = m_positions[tri.verts[1].position];
+    const atVec3F64 &v3 = m_positions[tri.verts[2].position];
+    const atVec2F64 &t1 = m_texCoords[tri.verts[0].texCoord];
+    const atVec2F64 &t2 = m_texCoords[tri.verts[1].texCoord];
+    const atVec2F64 &t3 = m_texCoords[tri.verts[2].texCoord];
+
+    const atVec3F64 AB = v2 - v1;
+    const atVec3F64 AC = v3 - v1;
+    const atVec2F64 tAB = t2 - t1;
+    const atVec2F64 tAC = t3 - t1;
+
+    double r = 1.0 / (tAB.x * tAC.y - tAC.x * tAB.y);
+    atVec3F64 uDir = atVec3F64{ (tAC.y * AB.x - tAB.y * AC.x), (tAC.y * AB.y - tAB.y * AC.y), (tAC.y * AB.z - tAB.y * AC.z) } * r;
+    atVec3F64 vDir = atVec3F64{ (tAB.x * AC.x - tAC.x * AB.x), (tAB.x * AC.y - tAC.x * AB.y), (tAB.x * AC.z - tAC.x * AB.z) } * r;
+
+    for (int64_t i = 0; i < 3; ++i)
+    {
+      tri.verts[i].tangent = tri.verts[i].position;
+      tri.verts[i].bitanget = tri.verts[i].position;
+      m_tangents[tri.verts[i].position] += uDir;
+      m_binormals[tri.verts[i].position] += vDir;
+    }
+  }
+
+  for (int64_t i = 0; i < m_positions.size(); ++i)
+  {
+    m_tangents[i] = m_tangents[i].Normalize();
+    m_binormals[i] = m_binormals[i].Normalize();
+  }
+}
+
+void atMesh::RegenNormals()
+{
+  m_normals.clear();
+  atHashMap<atVec3F64, int64_t> normMap;
+  for (Triangle &tri : m_triangles)
+  {
+    atVec3F64 n = (m_positions[tri.verts[0].position] - m_positions[tri.verts[1].position]).Cross(m_positions[tri.verts[2].position] - m_positions[tri.verts[1].position]);
+    int64_t normIndex = m_normals.size();
+    if (!normMap.TryAdd(n, normIndex))
+    {
+      normIndex = normMap[n];
+      m_normals.push_back(n);
+    }
+    for (int64_t i = 0; i < 3; ++i)
+      tri.verts[i].normal = normIndex;
+  }
+}
+
+void atMesh::GenSmoothNormals(const double threshold, const bool regenNormals)
+{
+  if (regenNormals)
+    RegenNormals();
+}
+
+void atMesh::FlipNormals() { for (atVec3F64 &norm : m_normals) norm = -norm; }
+void atMesh::FlipTextures(const bool u, const bool v) { if (!(u || v)) return; for (atVec2F64 &texCoord : m_texCoords) texCoord = { u ? 1.0 - texCoord.x : texCoord.x, v ? 1.0 - texCoord.y : texCoord.y }; }
