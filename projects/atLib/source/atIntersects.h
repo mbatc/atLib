@@ -27,6 +27,7 @@
 #define atIntersects_h__
 
 #include "atRay.h"
+#include "atBVH.h"
 #include "atAABB.h"
 #include "atTriangle.h"
 
@@ -37,6 +38,8 @@ template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &t
 template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
 template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint);
 template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T* pTime);
+template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2> &b, T* pTime);
+template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2>::Node &b, T* pTime);
 
 #include "atIntersects.inl"
 #endif // atIntersects_h__

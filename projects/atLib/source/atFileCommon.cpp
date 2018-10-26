@@ -25,16 +25,16 @@
 
 #include "atFileCommon.h"
 
-const char* atFileCommon::FileMode(const atFileMode mode)
+const char* atFileCommon::FileMode(const int64_t mode)
 {
-  switch (mode)
+  bool binary = (mode & atFM_Binary) > 0;
+  switch (mode & (~atFM_Binary))
   {
-  case atFM_ReadWrite: return "r+";
-  case atFM_WriteRead: return "w+";
-  case atFM_Read: return "r";
-  case atFM_Write: return "w";
-  case atFM_Append: return "a";
-  default: return "r";
+  case atFM_ReadWrite: return binary ? "rb+" : "r+";
+  case atFM_Read: return binary ? "rb" : "r";
+  case atFM_Write: return binary ? "wb" : "w";
+  case atFM_Append: return binary ? "ab" : "a";
+  default: return binary ? "rb" : "r";
   };
 }
 
@@ -44,13 +44,15 @@ const char* atFileCommon::FileExtension(const atFileExtension ext)
   {
   case atFE_Obj: return "obj";
   case atFE_Txt: return "txt";
+  case atFE_Atm: return "atm";
   case atFE_Unknown: default: return "";
   }
 }
 
 atFileExtension atFileCommon::FileExtension(const char* ext)
 {
-  if (atString::compare(ext, "obj", atSCO_None)) return atFE_Obj;
-  if (atString::compare(ext, "txt", atSCO_None)) return atFE_Txt;
+  if (atString::compare(ext, FileExtension(atFE_Obj), atSCO_None)) return atFE_Obj;
+  if (atString::compare(ext, FileExtension(atFE_Txt), atSCO_None)) return atFE_Txt;
+  if (atString::compare(ext, FileExtension(atFE_Atm), atSCO_None)) return atFE_Atm;
   return atFE_Unknown;
 }

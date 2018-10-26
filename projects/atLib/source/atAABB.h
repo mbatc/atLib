@@ -19,6 +19,11 @@ public:
   void GrowToContain(const atAABB<T> &box);
   void ShrinkToFit(const atAABB<T> &box);
 
+  bool Contains(const Vec3 &point) const;
+
+  Vec3 Center() const;
+  Vec3 Dimensions() const;
+
   template <typename Type> void GrowToContain(const Type &type);
   template <typename Type> void atBounds(const Type &type);
 

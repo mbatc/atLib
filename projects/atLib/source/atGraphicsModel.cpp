@@ -53,10 +53,13 @@ bool atGraphicsModel::Import(const atMesh &mesh)
   // Pre allocate memory
   m_mesh.clear();
   m_mesh.resize(mesh.m_materials.size());
+
   atVector<atVector<atVec3F>> normals(mesh.m_materials.size(), atVector<atVec3F>());
   atVector<atVector<atVec4F>> colours(mesh.m_materials.size(), atVector<atVec4F>());
   atVector<atVector<atVec3F>> positions(mesh.m_materials.size(), atVector<atVec3F>());
   atVector<atVector<atVec2F>> texCoords(mesh.m_materials.size(), atVector<atVec2F>());
+  atVector<atVector<atVec3F>> tangents(mesh.m_materials.size(), atVector<atVec3F>());
+  atVector<atVector<atVec3F>> binormal(mesh.m_materials.size(), atVector<atVec3F>());
   atVector<atVector<uint32_t>> indices(mesh.m_materials.size(), atVector<uint32_t>());
 
   // Build vertex arrays
@@ -67,6 +70,8 @@ bool atGraphicsModel::Import(const atMesh &mesh)
       texCoords[tri.mat].push_back(mesh.m_texCoords[tri.verts[v].texCoord]);
       normals[tri.mat].push_back(mesh.m_normals[tri.verts[v].normal]);
       colours[tri.mat].push_back(mesh.m_colors[tri.verts[v].color]);
+      tangents[tri.mat].push_back(mesh.m_tangents[tri.verts[v].tangent]);
+      binormal[tri.mat].push_back(mesh.m_binormals[tri.verts[v].bitanget]);
     }
 
 
@@ -74,6 +79,8 @@ bool atGraphicsModel::Import(const atMesh &mesh)
   atVector<atVector<atVec4F>> optCol(mesh.m_materials.size(), atVector<atVec4F>());
   atVector<atVector<atVec3F>> optPos(mesh.m_materials.size(), atVector<atVec3F>());
   atVector<atVector<atVec2F>> optTex(mesh.m_materials.size(), atVector<atVec2F>());
+  atVector<atVector<atVec3F>> optTan(mesh.m_materials.size(), atVector<atVec3F>());
+  atVector<atVector<atVec3F>> optBiNorm(mesh.m_materials.size(), atVector<atVec3F>());
   atVector<atVector<uint32_t>> optInd(mesh.m_materials.size(), atVector<uint32_t>());
 
   // Build Index Buffer
@@ -89,6 +96,9 @@ bool atGraphicsModel::Import(const atMesh &mesh)
       vertData.Write(texCoords[m][v]);
       vertData.Write(normals[m][v]);
       vertData.Write(colours[m][v]);
+      vertData.Write(tangents[m][v]);
+      vertData.Write(binormal[m][v]);
+
       int64_t curIndex = optPos[m].size();
       if (m_vertices.TryAdd(vertData, curIndex))
       {
@@ -97,6 +107,8 @@ bool atGraphicsModel::Import(const atMesh &mesh)
         optNorm[m].push_back(normals[m][v]);
         optTex[m].push_back(texCoords[m][v]);
         optCol[m].push_back(colours[m][v]);
+        optTan[m].push_back(tangents[m][v]);
+        optBiNorm[m].push_back(binormal[m][v]);
       }
       else
         indices[m].push_back((uint32_t)m_vertices[vertData]);
@@ -104,7 +116,6 @@ bool atGraphicsModel::Import(const atMesh &mesh)
 
     m_mesh[m].SetShader("assets/shaders/color");
     m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
-    m_mesh[m].SetChannel("COLOR", optCol[m], atRRT_VertexData);
 
     for (int64_t i = 0; i < mesh.m_materials[m].m_tAmbient.size(); ++i)
       m_mesh[m].SetChannel(atString("ambientTex") + i, mesh.m_materials[m].m_tAmbient[i].Path(), atRRT_Texture);
@@ -128,8 +139,12 @@ bool atGraphicsModel::Import(const atMesh &mesh)
       m_mesh[m].SetChannel(atString("bumpMap") + i, mesh.m_materials[m].m_tBump[i].Path(), atRRT_Texture);
 
 
+    m_mesh[m].SetChannel("COLOR", optCol[m], atRRT_VertexData);
     m_mesh[m].SetChannel("POSITION", optPos[m], atRRT_VertexData);
     m_mesh[m].SetChannel("TEXCOORD", optTex[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("NORMAL", optNorm[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("TANGENT", optTan[m], atRRT_VertexData);
+    m_mesh[m].SetChannel("BINORMAL", optBiNorm[m], atRRT_VertexData);
     m_mesh[m].SetChannel("idxBuffer", indices[m], atRRT_Indices);
   }
   return true;
@@ -142,6 +157,8 @@ bool atGraphicsModel::Import(const atFilename &filename)
     return false;
   
   mesh.MakeValid();
+  mesh.FlipTextures(false, true);
+  mesh.DiscoverTextures();
 
   return Import(mesh);
 }

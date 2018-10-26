@@ -25,9 +25,6 @@
     <Filter Include="Source Files\Memory">
       <UniqueIdentifier>{1128773b-0262-41c1-851a-c6fd9f83554f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Containers">
-      <UniqueIdentifier>{74d36408-70b6-4309-9121-b0cf6351e3e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Platform">
       <UniqueIdentifier>{31ce893c-f910-4e97-b617-277932683d35}</UniqueIdentifier>
     </Filter>
@@ -63,9 +60,6 @@
     </Filter>
     <Filter Include="Source Files\Graphics\Geometry">
       <UniqueIdentifier>{985069d8-ee02-40b0-95c5-764e2120cc44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\Material">
-      <UniqueIdentifier>{94efa33c-b006-4ea8-bf14-4639c6b886db}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Graphics\Material">
       <UniqueIdentifier>{9651c3c5-4b3a-4d4b-ba00-ffb29283a7f2}</UniqueIdentifier>
@@ -103,12 +97,6 @@
     <Filter Include="Source Files\String">
       <UniqueIdentifier>{750293a0-1d88-4364-9153-31b501646f53}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics\Material\Texture">
-      <UniqueIdentifier>{0e6f3424-1d32-4e08-a1b8-b7e74b04d4b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\Material\Texture\Image">
-      <UniqueIdentifier>{b32bd39d-9608-49b1-946c-6743dc50c97a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Graphics\Material\Texture">
       <UniqueIdentifier>{3245365b-737c-4f9c-bc41-464f4733b111}</UniqueIdentifier>
     </Filter>
@@ -139,6 +127,15 @@
     <Filter Include="Header Files\Graphics\Geometry\Parsers\MTL">
       <UniqueIdentifier>{7a3bc708-d08c-4806-b890-a2e64c863865}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Material">
+      <UniqueIdentifier>{94efa33c-b006-4ea8-bf14-4639c6b886db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Material\Texture">
+      <UniqueIdentifier>{0e6f3424-1d32-4e08-a1b8-b7e74b04d4b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Material\Texture\Image">
+      <UniqueIdentifier>{b32bd39d-9608-49b1-946c-6743dc50c97a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -164,9 +161,6 @@
     </ClCompile>
     <ClCompile Include="source\atShader.cpp">
       <Filter>Source Files\Graphics\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="source\atFile.cpp">
-      <Filter>Source Files\Containers</Filter>
     </ClCompile>
     <ClCompile Include="source\atShaderPool.cpp">
       <Filter>Source Files\Graphics\Shader</Filter>
@@ -258,6 +252,18 @@
     <ClCompile Include="source\atHash.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="source\atMeshWriter.cpp">
+      <Filter>Source Files\Graphics\Geometry\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFile.cpp">
+      <Filter>Source Files\IO\Streams</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFilename.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFileSystem.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">
@@ -305,9 +311,6 @@
     <ClInclude Include="source\atPool.h">
       <Filter>Header Files\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="source\atFile.h">
-      <Filter>Header Files\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="source\atShaderPool.h">
       <Filter>Header Files\Graphics\Shader</Filter>
     </ClInclude>
@@ -318,7 +321,7 @@
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="source\atMaterial.h">
-      <Filter>Header Files\Graphics\Material</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material</Filter>
     </ClInclude>
     <ClInclude Include="source\atVector3.h">
       <Filter>Header Files\Math\Vectors</Filter>
@@ -378,13 +381,13 @@
       <Filter>Header Files\String</Filter>
     </ClInclude>
     <ClInclude Include="source\atImage.h">
-      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material\Texture\Image</Filter>
     </ClInclude>
     <ClInclude Include="source\atColor.h">
-      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material\Texture\Image</Filter>
     </ClInclude>
     <ClInclude Include="source\atImageHelper.h">
-      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material\Texture\Image</Filter>
     </ClInclude>
     <ClInclude Include="source\3rdParty\stb\stb_image.h">
       <Filter>Header Files\3rdParty</Filter>
@@ -393,7 +396,7 @@
       <Filter>Header Files\3rdParty</Filter>
     </ClInclude>
     <ClInclude Include="source\atHardwareTexture.h">
-      <Filter>Header Files\Graphics\Material\Texture</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material\Texture</Filter>
     </ClInclude>
     <ClInclude Include="source\atIntersects.h">
       <Filter>Header Files\Math\Geometry</Filter>
@@ -431,6 +434,15 @@
     <ClInclude Include="source\atHash.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="source\atBVH.h">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFile.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFileSystem.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -455,7 +467,7 @@
       <Filter>Header Files\String</Filter>
     </None>
     <None Include="source\atColor.inl">
-      <Filter>Header Files\Graphics\Material\Texture\Image</Filter>
+      <Filter>Header Files\Graphics\Geometry\Material\Texture\Image</Filter>
     </None>
     <None Include="source\atIntersects.inl">
       <Filter>Header Files\Math\Geometry</Filter>
@@ -482,6 +494,9 @@
       <Filter>Header Files\Math\Geometry</Filter>
     </None>
     <None Include="source\atPlane.inl">
+      <Filter>Header Files\Math\Geometry</Filter>
+    </None>
+    <None Include="source\atBVH.inl">
       <Filter>Header Files\Math\Geometry</Filter>
     </None>
     <None Include="source\atHash.inl">

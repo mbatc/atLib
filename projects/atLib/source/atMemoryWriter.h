@@ -16,6 +16,7 @@ public:
 
   int64_t Write(void *pData, const int64_t len);
   template<typename T> int64_t Write(const T &data);
+  template<typename T> int64_t Write(const T *pData, const int64_t count);
 
 
   bool operator!=(const atMemoryWriter &rhs);
@@ -27,6 +28,7 @@ protected:
   int64_t m_pos = 0;
 };
 
-template<typename T> int64_t atMemoryWriter::Write(const T & data) { return atStreamWrite(this, data); }
+template<typename T> int64_t atMemoryWriter::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
+template<typename T> int64_t atMemoryWriter::Write(const T &data) { return Write(&data, 1); }
 
 #endif // atMemoryWriter_h__

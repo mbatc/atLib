@@ -28,6 +28,8 @@
     <ClCompile Include="source\atFile.cpp" />
     <ClCompile Include="source\atFileCommon.cpp" />
     <ClCompile Include="source\atFileInfo.cpp" />
+    <ClCompile Include="source\atFilename.cpp" />
+    <ClCompile Include="source\atFileSystem.cpp" />
     <ClCompile Include="source\atFormat.cpp" />
     <ClCompile Include="source\atGraphics.cpp" />
     <ClCompile Include="source\atGraphicsModel.cpp" />
@@ -41,6 +43,7 @@
     <ClCompile Include="source\atMemoryWriter.cpp" />
     <ClCompile Include="source\atMesh.cpp" />
     <ClCompile Include="source\atMeshReader.cpp" />
+    <ClCompile Include="source\atMeshWriter.cpp" />
     <ClCompile Include="source\atMTLReader.cpp" />
     <ClCompile Include="source\atMTLWriter.cpp" />
     <ClCompile Include="source\atOBJReader.cpp" />
@@ -66,12 +69,14 @@
     <ClInclude Include="source\atAlloc.h" />
     <ClInclude Include="source\atAssert.h" />
     <ClInclude Include="source\atButtonState.h" />
+    <ClInclude Include="source\atBVH.h" />
     <ClInclude Include="source\atCamera.h" />
     <ClInclude Include="source\atDateTime.h" />
     <ClInclude Include="source\atFile.h" />
     <ClInclude Include="source\atFileCommon.h" />
     <ClInclude Include="source\atFileInfo.h" />
     <ClInclude Include="source\atFilename.h" />
+    <ClInclude Include="source\atFileSystem.h" />
     <ClInclude Include="source\atFormat.h" />
     <ClInclude Include="source\atGraphics.h" />
     <ClInclude Include="source\atGraphicsModel.h" />
@@ -125,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="source\atAABB.inl" />
+    <None Include="source\atBVH.inl" />
     <None Include="source\atColor.inl" />
     <None Include="source\atFilename.inl" />
     <None Include="source\atHash.inl" />

@@ -28,20 +28,21 @@
 
 #include "atTypes.h"
 
-#define _atStreamWrite(type) static int64_t atStreamWrite(atWriteStream *pStream, const type &data)
-#define atTrivialStreamWrite(type) static int64_t atStreamWrite(atWriteStream *pStream, const type &data) { return atStreamWrite(pStream, (void*)&data, sizeof(type)); }
+#define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (void*)pData, sizeof(type) * count); }
 
 class atWriteStream
 {
 public:
   // Writes pData to the file
   virtual int64_t Write(void *pData, const int64_t len) = 0;
+  template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T &data);
 };
 
-int64_t atStreamWrite(atWriteStream *pStream, void *pData, const int64_t size);
+int64_t atStreamWrite(atWriteStream *pStream, void *pData, const int64_t count);
 
-template<typename T> int64_t atWriteStream::Write(const T &data) { return atStreamWrite(this, data); }
+template<typename T> int64_t atWriteStream::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
+template<typename T> int64_t atWriteStream::Write(const T &data) { return Write(&data, 1); }
 
 atTrivialStreamWrite(int64_t);
 atTrivialStreamWrite(int32_t);
@@ -52,9 +53,8 @@ atTrivialStreamWrite(uint64_t);
 atTrivialStreamWrite(uint32_t);
 atTrivialStreamWrite(uint16_t);
 atTrivialStreamWrite(uint8_t);
-
 atTrivialStreamWrite(wchar_t);
-
+atTrivialStreamWrite(char);
 atTrivialStreamWrite(double);
 atTrivialStreamWrite(float);
 

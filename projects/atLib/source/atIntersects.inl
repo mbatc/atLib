@@ -32,6 +32,30 @@ template<typename T, typename T2> bool atIntersects(const atRay<T> &a, const atR
   return a.IsOnRay(point);
 }
 
+template<typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2>::Node &b, T *pTime)
+{
+  bool res = false;
+  T minDist = 0xFFFFFFFF;
+  
+  if (!atIntersects(a, b.bounds))
+    return false;
+
+  for (const atBVH<T2>::Node &node : b.children)
+  {
+    T dist = 0xFFFFFFFF;
+    bool hit = node.isLeaf ? atIntersects(a, node.primitive, &dist) : atIntersects(a, node, &dist);
+
+    if (hit && dist < minDist)
+    {
+      minDist = dist;
+      res = true;
+    }
+  }
+  if (pTime) 
+    *pTime = minDist;
+  return res;
+}
+
 template<typename T> bool atIntersects(const atAABB<T> &boxA, const atAABB<T> &boxB)
 {
   if (boxA.m_max.x < boxB.m_min.x) return false;
@@ -102,4 +126,5 @@ template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriang
   return true;
 }
 
+template<typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2> &b, T *pTime) { return atIntersects(a, b.m_root, pTime); }
 template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime) { return atIntersects<T, T>(a, b, pTime); }

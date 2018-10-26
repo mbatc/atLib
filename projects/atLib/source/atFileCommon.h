@@ -30,12 +30,12 @@
 
 enum atFileMode
 {
-  atFM_None,
-  atFM_Read,
-  atFM_Write,
-  atFM_Append,
-  atFM_ReadWrite,
-  atFM_WriteRead
+  atFM_None = 0,
+  atFM_Read = 1,
+  atFM_Write = 1 << 1,
+  atFM_Append = 1 << 2,
+  atFM_ReadWrite = atFM_Read | atFM_Write,
+  atFM_Binary = 1 << 5
 };
 
 enum atFileSeek
@@ -50,6 +50,7 @@ enum atFileExtension
 {
   atFE_Txt,
   atFE_Obj,
+  atFE_Atm,
   atFE_Unknown
 };
 
@@ -58,7 +59,7 @@ class atFileCommon
 public:
   atFileCommon() = delete;
 
-  static const char* FileMode(const atFileMode mode);
+  static const char* FileMode(const int64_t mode);
   static const char* FileExtension(const atFileExtension ext);
   static atFileExtension FileExtension(const char *ext);
 };

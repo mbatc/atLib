@@ -294,11 +294,11 @@ template <class T> T& atVector<T>::operator[](const int64_t index) { return at(i
 template <class T> T& atVector<T>::operator[](const int32_t index) { return at((int64_t)index); }
 template <class T> T& atVector<T>::operator[](const int16_t index) { return at((int64_t)index); }
 template <class T> T& atVector<T>::operator[](const int8_t index) { return at((int64_t)index); }
-template <class T> int64_t atVector<T>::size() const { return m_size; }
+template <class T> const int64_t& atVector<T>::size() const { return m_size; }
 template <class T> const T& atVector<T>::front() const { return at(0); }
 template <class T> const T* atVector<T>::data() const { return m_pData; }
 template <class T> bool atVector<T>::empty() const { return m_size == 0; }
-template <class T> int64_t atVector<T>::capacity() const { return m_capacity; }
+template <class T> const int64_t& atVector<T>::capacity() const { return m_capacity; }
 template <class T> const T& atVector<T>::back() const { return at(m_size - 1); }
 template <class T> void atVector<T>::assign(const atVector<T> &copy) { assign(copy.begin(), copy.end()); }
 template <class T> void atVector<T>::assign(const std::vector<T> &copy) { assign(copy.begin(), copy.end()); }

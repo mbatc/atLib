@@ -32,15 +32,46 @@ atMaterial::atMaterial()
   , m_cSpecular(atVec4F(1.0f, 1.0f, 1.0f, 1.0f))
 {}
 
-bool atMaterial::DiscoverResources(const atFilename &dir)
+int64_t atStreamRead(atReadStream *pStream, atMaterial *pData, const int64_t count)
 {
-  bool changed = false;
-  for(atFilename &file : m_tDiffuse)
-    if(!atFile::Exists(file))
-      if (atFile::Exists(dir.Directory() + "/" + file.Name()))
-      {
-        file = dir.Directory() + "/" + file.Name();
-        changed = true;
-      }
-  return true;
+  int64_t size = 0;
+  for (atMaterial &mat : atIterate(pData, count))
+  {
+    size += pStream->Read(&mat.m_name);
+    size += pStream->Read(&mat.m_alpha);
+    size += pStream->Read(&mat.m_specularPower);
+    size += pStream->Read(&mat.m_cAmbient);
+    size += pStream->Read(&mat.m_cDiffuse);
+    size += pStream->Read(&mat.m_cSpecular);
+    size += pStream->Read(&mat.m_tAmbient);
+    size += pStream->Read(&mat.m_tDiffuse);
+    size += pStream->Read(&mat.m_tSpecular);
+    size += pStream->Read(&mat.m_tSpecularHigh);
+    size += pStream->Read(&mat.m_tDisplacement);
+    size += pStream->Read(&mat.m_tBump);
+    size += pStream->Read(&mat.m_tAlpha);
+  }
+  return size;
+}
+
+int64_t atStreamWrite(atWriteStream *pStream, const atMaterial *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (const atMaterial &mat : atIterate(pData, count))
+  {
+    size += pStream->Write(mat.m_name);
+    size += pStream->Write(mat.m_alpha);
+    size += pStream->Write(mat.m_specularPower);
+    size += pStream->Write(mat.m_cAmbient);
+    size += pStream->Write(mat.m_cDiffuse);
+    size += pStream->Write(mat.m_cSpecular);
+    size += pStream->Write(mat.m_tAmbient);
+    size += pStream->Write(mat.m_tDiffuse);
+    size += pStream->Write(mat.m_tSpecular);
+    size += pStream->Write(mat.m_tSpecularHigh);
+    size += pStream->Write(mat.m_tDisplacement);
+    size += pStream->Write(mat.m_tBump);
+    size += pStream->Write(mat.m_tAlpha);
+  }
+  return size;
 }

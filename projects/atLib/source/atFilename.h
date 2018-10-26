@@ -40,6 +40,13 @@ public:
   atStringBasic<c> Extension() const;
   atStringBasic<c> Directory() const;
 
+  atFilenameBasic<c> ResolveFullPath() const;
+  static atFilenameBasic<c> ResolveFullPath(const atFilenameBasic<c> &path);
+
+  // Not Implemented!
+  atFilenameBasic<c> ResolveRelativePath(const atFilenameBasic<c> &to) const;
+  static atFilenameBasic<c> ResolveRelativePath(const atFilenameBasic<c> &to, const atFilenameBasic<c> &from);
+
   void assign(const atStringBasic<c> &path);
 
   const char* c_str() const;
@@ -61,17 +68,27 @@ protected:
 typedef atFilenameBasic<char> atFilename;
 typedef atFilenameBasic<wchar_t> atWideFilename;
 
+template <> atFilenameBasic<char> atFilenameBasic<char>::ResolveFullPath(const atFilenameBasic<char> &path);
 
-template <typename T> _atStreamRead(atFilenameBasic<T>)
+template <typename T> int64_t atStreamRead(atReadStream *pStream, atFilenameBasic<T> *pData, const int64_t count)
 {
   atString path;
-  int64_t ret = atStreamRead(pStream, &path);
-  pData->assign(path);
+  int64_t ret = 0;
+  for (atFilenameBasic<T> &fn : atIterate(pData, count))
+  {
+    ret += atStreamRead(pStream, &path, 1);
+    fn.assign(path);
+  }
   return ret;
 }
 
-template <typename T> _atStreamWrite(atFilenameBasic<T>) { return atStreamWrite(pStream, data.Path()); }
-
+template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atFilenameBasic<T> *pData, const int64_t count) 
+{
+  int64_t ret = 0;
+  for(const atFilenameBasic<T> &fn : atIterate(pData, count))
+    ret += atStreamWrite(pStream, &fn.Path(), 1);
+  return ret;
+}
 
 #include "atFilename.inl"
 #endif

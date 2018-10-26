@@ -41,7 +41,7 @@ public:
   ~atFile();
 
   // Open [file] in the specified [mode]
-  bool Open(const atFilename &file, const atFileMode mode);
+  bool Open(const atFilename &file, const int64_t mode = atFM_ReadWrite);
 
   // Close the file previously opened with Open()
   // Returns false if no file has been opened
@@ -64,8 +64,12 @@ public:
 
   const atFileInfo &Info();
 
-  atFileMode GetMode();
+  int64_t GetMode();
   bool IsOpen();
+
+  template<typename T> int64_t Read(T *pData, const int64_t count = 1);
+  template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
+  template<typename T> int64_t Write(const T &data);
 
   static bool Exists(const atFilename &fn);
   static bool Create(const atFilename &fn);
@@ -75,9 +79,13 @@ public:
 
 protected:
   FILE *m_pFile;
+  int64_t m_mode;
   atFilename m_fn;
-  atFileMode m_mode;
   atFileInfo m_info;
 };
+
+template<typename T> int64_t atFile::Read(T *pData, const int64_t count) { return atStreamRead(this, pData, count); }
+template<typename T> int64_t atFile::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
+template<typename T> int64_t atFile::Write(const T &data) { return Write(&data, 1); }
 
 #endif

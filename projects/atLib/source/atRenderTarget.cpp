@@ -25,6 +25,7 @@
 
 #include "atRenderTarget.h"
 #include "atWindow.h"
+#include "atRenderState.h"
 
 atRenderTarget::~atRenderTarget() { Destroy(); }
 
@@ -45,6 +46,8 @@ void atRenderTarget::Bind()
   GetDepthStencilView();
   GetRenderTarget();
   GetSwapChain();
+  if (!atRenderState::ViewportSet())
+    atRenderState::SetViewport({ 0, 0, m_size.x, m_size.y }, false);
   atGraphics::GetContext()->OMSetRenderTargets(1, &m_pRenderTarget, m_pDepthStencilView);
 }
 

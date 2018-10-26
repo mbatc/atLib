@@ -41,7 +41,7 @@ atFile::atFile(atFile &&move)
   move.m_fn = "";
 }
 
-bool atFile::Open(const atFilename &file, const atFileMode mode)
+bool atFile::Open(const atFilename &file, const int64_t mode)
 {
   if (file == m_fn)
     return file != "";
@@ -83,7 +83,6 @@ int64_t atFile::Write(void *pData, const int64_t len)
   return fwrite(pData, sizeof(uint8_t), len / sizeof(uint8_t), m_pFile);
 }
 
-
 bool atFile::Flush()
 {
   if (!IsOpen())
@@ -112,6 +111,6 @@ bool atFile::Create(const atFilename &fn) { return atFile(fn, atFM_Append).IsOpe
 bool atFile::Copy(const atFilename &fn) { atUnused(fn); return false; }
 bool atFile::Move(const atFilename &fn) { atUnused(fn); return false; }
 const atFileInfo& atFile::Info() { return m_info; }
-atFileMode atFile::GetMode() { return m_mode; }
+int64_t atFile::GetMode() { return m_mode; }
 bool atFile::IsOpen() { return m_mode != atFM_None; }
 bool atFile::Delete(const atFilename &fn) { return remove(fn.Path().c_str()) == 0; }

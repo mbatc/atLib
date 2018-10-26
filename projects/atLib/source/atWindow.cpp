@@ -76,10 +76,6 @@ static bool _BlitWindow(HWND hWnd, HBITMAP hBitmap, const atWindow::Pixel *pPixe
   return true;
 }
 
-atWindow::atWindow()
-  : m_dxTarget(this, m_size)
-{}
-
 atWindow::atWindow(const atString &title, const atVec2I &size, const bool hardware, const atVec2I &pos, const bool windowed, const int64_t style)
   : m_dxTarget(this, size)
   , m_hardware(hardware)
