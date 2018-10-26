@@ -32,7 +32,7 @@ atGraphicsModel::~atGraphicsModel() {}
 
 atGraphicsModel::atGraphicsModel(const atMesh &mesh) { Import(mesh); }
 
-atGraphicsModel::atGraphicsModel(const atFilename &filename, const bool genTangents) { Import(filename, genTangents); }
+atGraphicsModel::atGraphicsModel(const atFilename &filename) { Import(filename); }
 
 atGraphicsModel::atGraphicsModel(const atGraphicsModel &copy) { for (const atRenderable &ro : copy.m_mesh) m_mesh.push_back(ro); }
 
@@ -150,15 +150,15 @@ bool atGraphicsModel::Import(const atMesh &mesh)
   return true;
 }
 
-bool atGraphicsModel::Import(const atFilename &filename, const bool genTangents)
+bool atGraphicsModel::Import(const atFilename &filename)
 {
   atMesh mesh;
   if (!atMeshReader::Read(filename, &mesh))
     return false;
   
   mesh.MakeValid();
-  mesh.GenTangents();
   mesh.FlipTextures(false, true);
+  mesh.DiscoverTextures();
 
   return Import(mesh);
 }

@@ -258,6 +258,9 @@
     <ClCompile Include="source\atHash.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="source\atFilename.cpp">
+      <Filter>Header Files\IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">

@@ -25,4 +25,4 @@
 
 #include "atReadStream.h"
 
-int64_t atStreamRead(atReadStream *pStream, void *pData, const int64_t size) { return pStream->Read(pData, size); }
+int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t size) { return pStream->Read((void*)pData, size); }

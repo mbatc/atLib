@@ -28,6 +28,7 @@
     <ClCompile Include="source\atFile.cpp" />
     <ClCompile Include="source\atFileCommon.cpp" />
     <ClCompile Include="source\atFileInfo.cpp" />
+    <ClCompile Include="source\atFilename.cpp" />
     <ClCompile Include="source\atFormat.cpp" />
     <ClCompile Include="source\atGraphics.cpp" />
     <ClCompile Include="source\atGraphicsModel.cpp" />

@@ -23,27 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atGraphicsModel_h__
-#define atGraphicsModel_h__
+#include "atFilename.h"
+#include <windows.h>
 
-#include "atRenderable.h"
-
-class atGraphicsModel
+template <> atFilenameBasic<char> atFilenameBasic<char>::ResolveFullPath(const atFilenameBasic<char> &path)
 {
-public:
-  atGraphicsModel();
-  atGraphicsModel(const atMesh &mesh);
-  atGraphicsModel(const atFilename &filename);
-  atGraphicsModel(const atGraphicsModel &copy);
-  atGraphicsModel(atGraphicsModel &&move);
-  ~atGraphicsModel();
-
-  void Draw(const atMat4D &MVP);
-
-  bool Import(const atMesh &mesh);
-  bool Import(const atFilename &filename);
-
-  atVector<atRenderable> m_mesh;
-};
-
-#endif // atGraphicsModel_h__
+  char buffer[MAX_PATH] = { 0 };
+  _fullpath(buffer, path.Path(), MAX_PATH);
+  return atFilename(buffer);
+}

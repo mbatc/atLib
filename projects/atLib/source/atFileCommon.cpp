@@ -25,16 +25,16 @@
 
 #include "atFileCommon.h"
 
-const char* atFileCommon::FileMode(const atFileMode mode)
+const char* atFileCommon::FileMode(const int64_t mode)
 {
-  switch (mode)
+  bool binary = (mode & atFM_Binary) > 0;
+  switch (mode & (~atFM_Binary))
   {
-  case atFM_ReadWrite: return "r+";
-  case atFM_WriteRead: return "w+";
-  case atFM_Read: return "r";
-  case atFM_Write: return "w";
-  case atFM_Append: return "a";
-  default: return "r";
+  case atFM_ReadWrite: return binary ? "rb+" : "r+";
+  case atFM_Read: return binary ? "rb" : "r";
+  case atFM_Write: return binary ? "wb" : "w";
+  case atFM_Append: return binary ? "ab" : "a";
+  default: return binary ? "rb" : "r";
   };
 }
 

@@ -110,8 +110,8 @@ public:
   //***************************
   // Const Member functions
   bool empty() const;
-  int64_t size() const;
-  int64_t capacity() const;
+  const int64_t& size() const;
+  const int64_t& capacity() const;
 
   const T& back() const;
   const T& front() const;
@@ -171,21 +171,27 @@ protected:
   T *m_pData = nullptr;
 };
 
-template <typename T> _atStreamWrite(atVector<T>)
+template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atVector<T> *pData, const int64_t count)
 {
-  int64_t ret = atStreamWrite(pStream, data.size());
-  for (const T &val : data)
-    ret += atStreamWrite(pStream, val);
+  int64_t ret = 0;
+  for (const atVector<T> &vec : atIterate(pData, count))
+  {
+    ret += atStreamWrite(pStream, &vec.size(), 1);
+    ret += atStreamWrite(pStream, vec.data(), vec.size());
+  }
   return ret;
 }
 
-template <typename T> _atStreamRead(atVector<T>)
+template <typename T> int64_t atStreamRead(atReadStream *pStream, atVector<T> *pData, const int64_t count)
 {
-  int64_t size = 0;
-  int64_t ret = atStreamRead(pStream, &size);
-  pData->resize(size);
-  for (int64_t i = 0; i < size; ++i)
-    ret += atStreamRead(pStream, pData->data() + i);
+  int64_t ret = 0;
+  for (atVector<T> &vec : atIterate(pData, count))
+  {
+    int64_t size = 0;
+    ret += atStreamRead(pStream, &size, 1);
+    vec.resize(size);
+    ret += atStreamRead(pStream, vec.data(), size);
+  }
   return ret;
 }
 

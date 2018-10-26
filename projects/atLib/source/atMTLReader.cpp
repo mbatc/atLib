@@ -127,5 +127,7 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
     case atMTLNone: ++pSrc; break;
     }
   }
+
+  pMesh->m_resourceDir = file.Directory();
   return true;
 }

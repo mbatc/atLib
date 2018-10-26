@@ -78,6 +78,8 @@ static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Tria
     vertCount++;
     pos = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos);
     pos = atString::_find_first_of(*ppSrc, srcLen, atString::Whitespace(), pos);
+    if (pos < 0)
+      break;
   }
 
   int64_t faceCount = vertCount - 2;
@@ -189,6 +191,8 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
   pMesh->m_positions.shrink_to_fit();
   pMesh->m_texCoords.shrink_to_fit();
 
-  atMTLReader::Read(file.Directory() + "/" + mtlFile, pMesh, matNames);
+  pMesh->m_sourceFile = file.Path();
+  pMesh->m_resourceDir = file.Directory();
+  atMTLReader::Read(pMesh->TryDiscoverFile(mtlFile, ""), pMesh, matNames);
   return true;
 }

@@ -198,15 +198,25 @@ atString atToString(const int32_t val);
 atString atToString(const double val);
 atString atToString(const float val);
 
-template <typename T> _atStreamRead(atStringBasic<T>)
+template <typename T> int64_t atStreamRead(atReadStream *pStream, atStringBasic<T> *pData, const int64_t count)
 { 
   atVector<T> bytes;
-  int64_t ret = atStreamRead(pStream, &bytes);
-  pData->set_string(bytes);
+  int64_t ret = 0;
+  for (atStringBasic<T> &str : atIterate(pData, count))
+  {
+    ret += atStreamRead(pStream, &bytes, 1);
+    str.set_string(bytes);
+  }
   return ret;
 }
 
-template <typename T> _atStreamWrite(atStringBasic<T>) { return atStreamWrite(pStream, data.vector()); }
+template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atStringBasic<T> *pData, const int64_t count) 
+{
+  int64_t ret = 0;
+  for(const atStringBasic<T> &str : atIterate(pData, count))
+   ret += atStreamWrite(pStream, &str.vector(), 1);
+  return ret;
+}
 
 #include "atString.inl"
 #endif

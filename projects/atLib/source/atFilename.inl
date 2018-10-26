@@ -1,3 +1,4 @@
+#include "atFilename.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -57,3 +58,6 @@ template <typename c> atStringBasic<c> atFilenameBasic<c>::Path(const bool withE
 template <typename c> atStringBasic<c> atFilenameBasic<c>::Name(const bool withExtension) const { return withExtension ? m_name + "." + m_extension : m_name; }
 template <typename c> atStringBasic<c> atFilenameBasic<c>::Extension() const { return m_extension; }
 template <typename c> atStringBasic<c> atFilenameBasic<c>::Directory() const { return m_directory; }
+template<typename c> atFilenameBasic<c> atFilenameBasic<c>::ResolveFullPath() const { return ResolveFullPath(*this); }
+template<typename c> atFilenameBasic<c> atFilenameBasic<c>::ResolveRelativePath(const atFilenameBasic<c> &to) const { return ResolveRelativePath(to, *this); }
+template<typename c> atFilenameBasic<c> atFilenameBasic<c>::ResolveRelativePath(const atFilenameBasic<c> &to, const atFilenameBasic<c> &from) { return atFilenameBasic<c>(); }

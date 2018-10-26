@@ -25,31 +25,17 @@
 
 #include "atMesh.h"
 #include "atHashMap.h"
+#include "atFile.h"
 
 atMesh::atMesh() {}
 
-atMesh::atMesh(const atMesh &copy)
-{
-  m_positions = copy.m_positions;
-  m_normals = copy.m_normals;
-  m_colors = copy.m_colors;
-  m_triangles = copy.m_triangles;
-  m_default = copy.m_default;
-}
-
-atMesh::atMesh(const atMesh &&move)
-  : m_positions(std::move(move.m_positions))
-  , m_triangles(std::move(move.m_triangles))
-  , m_default(std::move(move.m_default))
-  , m_normals(std::move(move.m_normals))
-  , m_colors(std::move(move.m_colors))
-{}
+atMesh::atMesh(const atMesh &copy) { *this = copy; }
+atMesh::atMesh(atMesh &&move) { *this = move; }
 
 bool atMesh::MakeValid()
 {
   for (Triangle &tri : m_triangles)
   {
-    bool calcNormal = false;
     for (int64_t v = 0; v < 3; ++v)
     {
       if (tri.verts[v].color == AT_INVALID_INDEX)
@@ -71,7 +57,16 @@ bool atMesh::MakeValid()
         }
         tri.verts[v].position = m_default.position;
       }
-      calcNormal |= tri.verts[v].normal == AT_INVALID_INDEX;
+
+      if (tri.verts[v].texCoord == AT_INVALID_INDEX)
+      {
+        if (m_default.texCoord == AT_INVALID_INDEX)
+        {
+          m_default.texCoord = m_texCoords.size();
+          m_texCoords.push_back(atVec2F64(0.0, 0.0));
+        }
+        tri.verts[v].texCoord = m_default.texCoord;
+      }
     }
 
     // calculate missing normals
@@ -84,9 +79,9 @@ bool atMesh::MakeValid()
       }
 
     if (tri.mat == AT_INVALID_INDEX)
-      if (m_default.mat == AT_INVALID_INDEX)
+      if (m_defaultMat == AT_INVALID_INDEX)
       {
-        m_default.mat = m_materials.size();
+        m_defaultMat = m_materials.size();
         m_materials.push_back(atMaterial());
       }
   }
@@ -114,6 +109,25 @@ void atMesh::NormalTransform(const atMat4D &transform)
   atMat4D nMat = transform.Inverse().Transpose();
   for (atVec3F64 &norm : m_normals)
     norm = transform * norm;
+}
+
+void atMesh::DiscoverTextures(const atString &initialPath)
+{
+  for (atMaterial &mat : m_materials)
+  {
+    for (atFilename &path : mat.m_tDiffuse)
+      path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tAmbient)
+      path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tSpecular)
+      path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tAlpha)
+      path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tDisplacement)
+      path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tSpecularHigh)
+      path = TryDiscoverFile(path.Path(), initialPath);
+  }
 }
 
 void atMesh::GenTangents()
@@ -179,6 +193,147 @@ void atMesh::GenSmoothNormals(const double threshold, const bool regenNormals)
 {
   if (regenNormals)
     RegenNormals();
+}
+
+atString atMesh::TryDiscoverFile(const atString &file, const atString &initialDir)
+{
+  // Check if the path is already valid
+  if (atFile::Exists(file))
+    return file;
+
+  // Check if the path is relative to the initialDir
+  atString path;
+  if (initialDir.length() != 0)
+  {
+    path = initialDir + "/" + file;
+    if (atFile::Exists(path))
+      return path;
+  }
+
+  // Check if the path is relative to the resource directory
+  path = m_resourceDir + "/" + file;
+  if (atFile::Exists(path))
+    return path;
+
+  // Check if the path is relative to the source file
+  path = atFilename(m_sourceFile).Directory() + "/" + file;
+  if (atFile::Exists(path))
+    return path;
+
+  // Check if the texture is next to the source file
+  path = atFilename(m_sourceFile).Directory() + "/" + atFilename(file).Name();
+  if (atFile::Exists(path))
+    return path;
+
+  // Check if the texture is in a sub folder with the same name as the source file
+  path = atFilename(m_sourceFile).Directory() + "/" + atFilename(m_sourceFile).Name(false) + atFilename(file).Name();
+  if (atFile::Exists(path))
+    return path;
+
+  return file;
+}
+
+const atMesh& atMesh::operator=(const atMesh &rhs)
+{
+  m_sourceFile = rhs.m_sourceFile;
+  m_resourceDir = rhs.m_resourceDir;
+  m_positions = rhs.m_positions;
+  m_normals = rhs.m_normals;
+  m_colors = rhs.m_colors;
+  m_texCoords = rhs.m_texCoords;
+  m_tangents = rhs.m_tangents;
+  m_binormals = rhs.m_binormals;
+  m_materials = rhs.m_materials;
+  m_default = rhs.m_default;
+  m_defaultMat = rhs.m_defaultMat;
+  m_triangles = rhs.m_triangles;
+  return *this;
+}
+
+const atMesh& atMesh::operator=(atMesh && rhs)
+{
+  m_sourceFile = std::move(rhs.m_sourceFile);
+  m_resourceDir = std::move(rhs.m_resourceDir);
+  m_positions = std::move(rhs.m_positions);
+  m_normals = std::move(rhs.m_normals);
+  m_colors = std::move(rhs.m_colors);
+  m_texCoords = std::move(rhs.m_texCoords);
+  m_tangents = std::move(rhs.m_tangents);
+  m_binormals = std::move(rhs.m_binormals);
+  m_materials = std::move(rhs.m_materials);
+  m_default = std::move(rhs.m_default);
+  m_defaultMat = std::move(rhs.m_defaultMat);
+  m_triangles = std::move(rhs.m_triangles);
+  rhs.m_default = Vertex();
+  rhs.m_defaultMat = AT_INVALID_INDEX;
+  return *this;
+}
+
+int64_t atStreamRead(atReadStream *pStream, atMesh::Face *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (atMesh::Face &face : atIterate(pData, count))
+  {
+    size += pStream->Read(&face.mat);
+    size += pStream->Read(&face.verts);
+  }
+  return size;
+}
+
+int64_t atStreamWrite(atWriteStream *pStream, const atMesh::Face *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (const atMesh::Face &face : atIterate(pData, count))
+  {
+    pStream->Write(face.mat);
+    size += pStream->Write(face.verts);
+  }
+  return size;
+}
+
+int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (atMesh &mesh : atIterate(pData, count))
+  {
+    size += pStream->Read(&mesh.m_sourceFile);
+    size += pStream->Read(&mesh.m_resourceDir);
+    size += pStream->Read(&mesh.m_default);
+
+    size += pStream->Read(&mesh.m_triangles);
+    size += pStream->Read(&mesh.m_positions);
+    size += pStream->Read(&mesh.m_normals);
+    size += pStream->Read(&mesh.m_colors);
+    size += pStream->Read(&mesh.m_tangents);
+    size += pStream->Read(&mesh.m_binormals);
+    size += pStream->Read(&mesh.m_texCoords);
+
+    size += pStream->Read(&mesh.m_materials);
+  }
+  return size;
+}
+
+
+int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (const atMesh &mesh : atIterate(pData, count))
+  {
+    size += pStream->Write(mesh.m_sourceFile);
+    size += pStream->Write(mesh.m_resourceDir);
+    size += pStream->Write(mesh.m_default);
+
+    size += pStream->Write(mesh.m_triangles);
+    size += pStream->Write(mesh.m_positions);
+    size += pStream->Write(mesh.m_normals);
+    size += pStream->Write(mesh.m_colors);
+    size += pStream->Write(mesh.m_tangents);
+    size += pStream->Write(mesh.m_binormals);
+    size += pStream->Write(mesh.m_texCoords);
+
+    size += pStream->Write(mesh.m_materials);
+  }
+  return size;
 }
 
 void atMesh::FlipNormals() { for (atVec3F64 &norm : m_normals) norm = -norm; }

@@ -51,6 +51,10 @@ void atCamera::Update(const double moveSpeed, const double dt)
   if (atInput::KeyDown(atKC_A)) move.x -= speed;
   if (atInput::KeyDown(atKC_E)) move.y += speed;
   if (atInput::KeyDown(atKC_X)) move.y -= speed;
+  if (atInput::KeyDown(atKC_Left)) rot.y += speed;
+  if (atInput::KeyDown(atKC_Right)) rot.y -= speed;
+  if (atInput::KeyDown(atKC_Up)) rot.x += speed;
+  if (atInput::KeyDown(atKC_Down)) rot.x -= speed;
   m_translation += (RotationMat().Inverse() * move);
   m_rotation += rot;
 }

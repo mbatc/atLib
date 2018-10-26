@@ -57,15 +57,11 @@ public:
     
   atMesh();
   atMesh(const atMesh &copy);
-  atMesh(const atMesh &&move);
+  atMesh(atMesh &&move);
 
   // These values will be used to fill in missing data when processing the mesh
-  struct
-  {
-    int64_t color = AT_INVALID_INDEX;
-    int64_t position = AT_INVALID_INDEX;
-    int64_t mat = AT_INVALID_INDEX;
-  } m_default;
+  Vertex m_default;
+  int64_t m_defaultMat = AT_INVALID_INDEX;
 
   // Fills missing data with default values
   // This should be called before using a mesh
@@ -75,6 +71,10 @@ public:
   void SpatialTransform(const atMat4D &transform);
   void PositionTransform(const atMat4D &transform);
   void NormalTransform(const atMat4D &transform);
+
+  // Attempt to make texture paths valid full paths
+  void DiscoverTextures(const atString &initialPath = "");
+  atString TryDiscoverFile(const atString &file, const atString &initialDir);
 
   // Generate Tangents and Bi-tangents
   void GenTangents();
@@ -89,6 +89,9 @@ public:
   void FlipTextures(const bool u, const bool v);
   void FlipNormals();
 
+  atString m_sourceFile;
+  atString m_resourceDir;
+
   atVector<Triangle> m_triangles;
 
   atVector<atVec3F64> m_positions;
@@ -99,6 +102,20 @@ public:
   atVector<atVec3F64> m_binormals;
 
   atVector<atMaterial> m_materials;
+
+  const atMesh& operator=(const atMesh &rhs);
+  const atMesh& operator=(atMesh &&rhs);
+protected:
 };
+
+atTrivialStreamRead(atMesh::Triangle);
+atTrivialStreamRead(atMesh::Vertex);
+atTrivialStreamWrite(atMesh::Triangle);
+atTrivialStreamWrite(atMesh::Vertex);
+
+int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count);
+int64_t atStreamRead(atReadStream *pStream, atMesh::Face *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const atMesh::Face *pData, const int64_t count);
 
 #endif

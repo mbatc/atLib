@@ -28,14 +28,30 @@
 #include "atCamera.h"
 #include "atGraphicsModel.h"
 #include "atFile.h"
+#include "atMeshParser.h"
 
 // NOTE: This file is used for testing
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
+ 
+  atMesh mesh;
+  atMeshReader::Read(atFilename("assets/test/models/level.obj"), &mesh);
+
+  mesh.MakeValid();
+  mesh.FlipTextures(false, true);
+  mesh.DiscoverTextures();
+
   atFile file;
-  atGraphicsModel model(atFilename("assets/test/models/level.obj"));
+  file.Open(atFilename("level.atm"), atFM_Write | atFM_Binary);
+  atStreamWrite(&file, &mesh, 1);
+  file.Close();
+  mesh = atMesh();
+  file.Open(atFilename("level.atm"), atFM_Read | atFM_Binary);
+  atStreamRead(&file, &mesh, 1);
+
+  atGraphicsModel model(mesh);
   atWindow wnd("My window", { 1800, 980 });
   atCamera cam(wnd, { 0,0, 5 });
   atRenderState::SetViewport(atVec4I(0, 0, wnd.GetSize()));

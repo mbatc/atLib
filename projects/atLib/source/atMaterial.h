@@ -46,9 +46,7 @@ class atMaterial
 {
 public:
   atMaterial();
-
-  bool DiscoverResources(const atFilename &dir);
-
+  
   atString m_name;
 
   atVec4F64 m_cDiffuse;
@@ -68,5 +66,8 @@ public:
 
   int64_t m_illumFlags;
 };
+
+int64_t atStreamRead(atReadStream *pStream, atMaterial *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const atMaterial *pData, const int64_t count);
 
 #endif

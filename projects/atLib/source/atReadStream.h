@@ -28,8 +28,7 @@
 
 #include "atTypes.h"
 
-#define _atStreamRead(type) int64_t atStreamRead(atReadStream *pStream, type *pData)
-#define atTrivialStreamRead(type) static int64_t atStreamRead(atReadStream *pStream, type *pData) { return atStreamRead(pStream, (void*)pData, sizeof(type)); }
+#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (uint8_t*)pData, sizeof(type) * count); }
 
 class atReadStream
 {
@@ -37,10 +36,10 @@ public:
   // Read data into pBuffer. 
   // Returns the number of bytes read
   virtual int64_t Read(void *pBuffer, const int64_t size) = 0;
-  template<typename T> int64_t Read(T * pBuffer, const int64_t count);
+  template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
 };
 
-int64_t atStreamRead(atReadStream *pStream, void *pData, const int64_t count);
+int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t count);
 
 template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
 
@@ -48,14 +47,10 @@ atTrivialStreamRead(int64_t)
 atTrivialStreamRead(int32_t)
 atTrivialStreamRead(int16_t)
 atTrivialStreamRead(int8_t)
-
 atTrivialStreamRead(uint64_t)
 atTrivialStreamRead(uint32_t)
 atTrivialStreamRead(uint16_t)
-atTrivialStreamRead(uint8_t)
-
 atTrivialStreamRead(char)
-
 atTrivialStreamRead(double)
 atTrivialStreamRead(float)
 
