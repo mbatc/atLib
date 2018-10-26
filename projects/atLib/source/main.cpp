@@ -46,7 +46,7 @@
 
 // -----------------------------------------------------------
 // Demonstrates loading and rendering a model with simple user 
-// input given by atCamera
+// input provided by atCamera
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600})
 {
