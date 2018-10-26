@@ -23,6 +23,27 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atFileSystem.h"
+#include "atMeshParser.h"
 #include "atOBJParser.h"
+#include "atFile.h"
 
-bool atOBJWriter::Write(const atFilename &file, const atMesh &mesh) { return false; }
+static bool _WriteATM(const atFilename &filename, const atMesh &mesh)
+{
+  atFile file;
+  if (!file.Open(filename, atFM_Write | atFM_Binary))
+    return false;
+  return file.Write(mesh) != 0;
+}
+
+bool atMeshWriter::Write(const atFilename &file, const atMesh &mesh)
+{
+  atFileSystem::CreateFolders(file.Directory());
+  atFileExtension ext = atFileCommon::FileExtension(file.Extension());
+  switch (ext)
+  {
+  case atFE_Obj: return atOBJWriter::Write(file, mesh);
+  case atFE_Atm: return _WriteATM(file, mesh);
+  }
+  return false;
+}

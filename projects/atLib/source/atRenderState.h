@@ -38,7 +38,7 @@ public:
   static void Bind();
   static void BindShader(const int64_t id);
 
-  static void SetViewport(const atVec4I &viewport);
+  static void SetViewport(const atVec4I &viewport, const bool updateFlag = true);
   static void SetDepthRange(const float min, const float max);
 
   static void EnableDepthTest(const bool enable);
@@ -48,6 +48,9 @@ public:
   static void EnableAA(const bool enable);
   static void EnableMultisample(const bool enable);
 
+  static bool ViewportSet();
+  static bool ScissorSet();
+
 protected:
   static void SetDefaults();
 
@@ -55,7 +58,10 @@ protected:
   static bool m_depthDirty;
   static bool m_rasterDirty;
   static bool m_viewDirty;
+
   static bool m_defaultSet;
+  static bool m_scissorSet;
+  static bool m_viewportSet;
 
   static ID3D11DepthStencilState *m_pDepthState;
   static ID3D11RasterizerState *m_pRasterState;

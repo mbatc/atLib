@@ -44,6 +44,8 @@ bool atRenderState::m_depthDirty = true;
 bool atRenderState::m_rasterDirty = true;
 bool atRenderState::m_defaultSet = false;
 bool atRenderState::m_viewDirty = true;
+bool atRenderState::m_viewportSet = false;
+bool atRenderState::m_scissorSet = false;
 
 void atRenderState::Bind()
 {
@@ -88,14 +90,20 @@ void atRenderState::BindShader(const int64_t id)
   m_shader = id;
 }
 
-void atRenderState::SetViewport(const atVec4I &viewport)
+void atRenderState::SetViewport(const atVec4I &viewport, const bool updateFlag)
 {
   SetDefaults();
-  m_viewport.Height = (FLOAT)(viewport.w - viewport.y);
-  m_viewport.Width = (FLOAT)(viewport.z - viewport.x);
-  m_viewport.TopLeftX = (FLOAT)viewport.x;
-  m_viewport.TopLeftY = (FLOAT)viewport.y;
-  m_viewDirty = true;
+  if (viewport.x != m_viewport.TopLeftX || viewport.y != m_viewport.TopLeftY ||
+    viewport.z != m_viewport.Width || viewport.w != m_viewport.Height)
+  {
+    m_viewport.Height = (FLOAT)(viewport.w - viewport.y);
+    m_viewport.Width = (FLOAT)(viewport.z - viewport.x);
+    m_viewport.TopLeftX = (FLOAT)viewport.x;
+    m_viewport.TopLeftY = (FLOAT)viewport.y;
+
+    m_viewportSet |= updateFlag;
+    m_viewDirty = true;
+  }
 }
 
 void atRenderState::SetDepthRange(const float min, const float max)
@@ -200,3 +208,6 @@ void atRenderState::EnableDepthTest(const bool enable)
   m_depthDirty = m_depthDesc.DepthEnable != (BOOL)enable;
   m_depthDesc.DepthEnable = enable;
 }
+
+bool atRenderState::ViewportSet() { return m_viewportSet; }
+bool atRenderState::ScissorSet() { return m_scissorSet; }

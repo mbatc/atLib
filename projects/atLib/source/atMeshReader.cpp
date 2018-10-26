@@ -25,10 +25,23 @@
 
 #include "atMeshParser.h"
 #include "atOBJParser.h"
+#include "atFile.h"
+
+static bool _ReadATM(const atFilename &filename, atMesh *pMesh)
+{
+  atFile file;
+  if (!file.Open(filename, atFM_Read | atFM_Binary))
+    return false;
+  return file.Read(pMesh) != 0;
+}
 
 bool atMeshReader::Read(const atFilename& file, atMesh *pMesh)
 {
-  atString ext = file.Extension().to_lower();
-  if (ext == "obj") return atOBJReader::Read(file, pMesh);
+  atFileExtension ext = atFileCommon::FileExtension(file.Extension());
+  switch (ext)
+  {
+  case atFE_Obj: return atOBJReader::Read(file, pMesh);
+  case atFE_Atm: return _ReadATM(file, pMesh);
+  }
   return false;
 }

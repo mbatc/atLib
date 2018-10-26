@@ -26,6 +26,10 @@
 #include "atMesh.h"
 #include "atHashMap.h"
 #include "atFile.h"
+#include "atMeshParser.h"
+
+bool atMesh::Import(const atString &path) { return atMeshReader::Read(path, this); }
+bool atMesh::Export(const atString &path) { return atMeshWriter::Write(path, *this); }
 
 atMesh::atMesh() {}
 

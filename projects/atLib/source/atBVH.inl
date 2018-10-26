@@ -92,9 +92,13 @@ template<typename T> void atBVH<T>::ConstructRecursive(Node *pRoot, atVector<Nod
 template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, const T2 *pTime) 
 { 
   atMat4D invModel = modelMat.Inverse();
-  atVec3F64 startPos = ray.m_pos * invModel;
-  atVec3F64 endPos = startPos + ray.m_dir * invModel;
-  atIntersects(atRay(startPos, endPos), 
-  for()
-  return false; 
+  atVec3F64 startPos = invModel * ray.m_pos;
+  atVec3F64 endPos = invModel * (startPos + ray.m_dir);
+  double invRayLen = (endPos - startPos).Length();
+  double time = 0.0;
+  bool result = atIntersects(atRay(startPos, endPos - startPos), *this, time);
+  time /= invRayLen;
+  if (pTime)
+    *pTime = time;
+  return result; 
 }

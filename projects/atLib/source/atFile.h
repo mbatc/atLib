@@ -67,8 +67,8 @@ public:
   int64_t GetMode();
   bool IsOpen();
 
-  template<typename T> int64_t Read(T *pData, const int64_t count);
-  template<typename T> int64_t Write(const T *pData, const int64_t count);
+  template<typename T> int64_t Read(T *pData, const int64_t count = 1);
+  template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T &data);
 
   static bool Exists(const atFilename &fn);

@@ -50,6 +50,7 @@ enum atFileExtension
 {
   atFE_Txt,
   atFE_Obj,
+  atFE_Atm,
   atFE_Unknown
 };
 

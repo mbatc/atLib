@@ -137,6 +137,8 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   }
 
   bool indexed = type == atRPT_TriangleList || type == atRPT_LineList || type == atRPT_PointList;
+  
+  atRenderState::Bind();
   if (m_pIndexBuffer && indexed)
   {
     atGraphics::GetContext()->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

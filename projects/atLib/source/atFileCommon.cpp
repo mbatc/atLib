@@ -44,13 +44,15 @@ const char* atFileCommon::FileExtension(const atFileExtension ext)
   {
   case atFE_Obj: return "obj";
   case atFE_Txt: return "txt";
+  case atFE_Atm: return "atm";
   case atFE_Unknown: default: return "";
   }
 }
 
 atFileExtension atFileCommon::FileExtension(const char* ext)
 {
-  if (atString::compare(ext, "obj", atSCO_None)) return atFE_Obj;
-  if (atString::compare(ext, "txt", atSCO_None)) return atFE_Txt;
+  if (atString::compare(ext, FileExtension(atFE_Obj), atSCO_None)) return atFE_Obj;
+  if (atString::compare(ext, FileExtension(atFE_Txt), atSCO_None)) return atFE_Txt;
+  if (atString::compare(ext, FileExtension(atFE_Atm), atSCO_None)) return atFE_Atm;
   return atFE_Unknown;
 }

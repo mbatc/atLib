@@ -54,4 +54,5 @@ protected:
 
 template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2> &b);
 
+#include "atBVH.inl"
 #endif // atBVH_h__

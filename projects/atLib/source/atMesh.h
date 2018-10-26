@@ -33,6 +33,9 @@
 class atMesh
 {
 public:
+  bool Import(const atString &path);
+  bool Export(const atString &path);
+
   struct Vertex
   {
     int64_t position = AT_INVALID_INDEX;
