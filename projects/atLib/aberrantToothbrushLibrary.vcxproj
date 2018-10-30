@@ -24,6 +24,7 @@
     <ClCompile Include="source\atButtonState.cpp" />
     <ClCompile Include="source\atCamera.cpp" />
     <ClCompile Include="source\atColor.cpp" />
+    <ClCompile Include="source\atConnection.cpp" />
     <ClCompile Include="source\atDateTime.cpp" />
     <ClCompile Include="source\atFile.cpp" />
     <ClCompile Include="source\atFileCommon.cpp" />
@@ -56,6 +57,7 @@
     <ClCompile Include="source\atShader.cpp" />
     <ClCompile Include="source\atShaderParser.cpp" />
     <ClCompile Include="source\atShaderPool.cpp" />
+    <ClCompile Include="source\atSocket.cpp" />
     <ClCompile Include="source\atString.cpp" />
     <ClCompile Include="source\atTypes.cpp" />
     <ClCompile Include="source\atWindow.cpp" />
@@ -71,6 +73,7 @@
     <ClInclude Include="source\atButtonState.h" />
     <ClInclude Include="source\atBVH.h" />
     <ClInclude Include="source\atCamera.h" />
+    <ClInclude Include="source\atConnection.h" />
     <ClInclude Include="source\atDateTime.h" />
     <ClInclude Include="source\atFile.h" />
     <ClInclude Include="source\atFileCommon.h" />
@@ -110,6 +113,7 @@
     <ClInclude Include="source\atShader.h" />
     <ClInclude Include="source\atShaderParser.h" />
     <ClInclude Include="source\atShaderPool.h" />
+    <ClInclude Include="source\atSocket.h" />
     <ClInclude Include="source\atStreamSeekable.h" />
     <ClInclude Include="source\atString.h" />
     <ClInclude Include="source\atTransformable.h" />

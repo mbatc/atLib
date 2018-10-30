@@ -145,6 +145,10 @@ public:
   vector_iterator end();
   vector_const_iterator begin() const;
   vector_const_iterator end() const;
+
+  const bool operator==(const atVector<T> &rhs) const;
+  const bool operator!=(const atVector<T> &rhs) const;
+
 protected:
 
   // Vector will only resize if [capacity] > [m_capacity]

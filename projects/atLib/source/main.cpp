@@ -27,8 +27,6 @@
 #include "atRenderState.h"
 #include "atCamera.h"
 #include "atGraphicsModel.h"
-#include "atFile.h"
-#include "atMeshParser.h"
 
 
 //---------------------------------------------------------------------------------
@@ -115,10 +113,34 @@ void ExampleImportExportMesh()
   // mesh.Export(outPath3);
 }
 
+#include "atConnection.h"
+
+void ExampleConnections()
+{
+  atConnection host("localhost", "1234", true);
+  host.Listen();
+  atConnection client("localhost", "1234");
+  host.Accept();
+  
+  atVector<uint8_t> msg = { 'H', 'e','l','l','o',' ', 'H','o','s','t' };
+  atVector<uint8_t> recvMsg;
+  client.Send(msg);
+  host.Recieve(&recvMsg);
+  
+  atAssert(msg == recvMsg, "Host Recieved message does not match sent");
+
+  msg = { 'H', 'e','l','l','o',' ', 'C','l','i','e', 'n', 't' };
+  host.Send(msg);
+  client.Recieve(&recvMsg);
+
+  atAssert(msg == recvMsg, "Client Recieved message does not match sent");
+}
+
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
   // ExampleRenderMesh({1820, 820});
   // ExampleImportExportMesh();
+  ExampleConnections();
   return atWindow_GetResult();
 }

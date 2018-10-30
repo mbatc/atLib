@@ -26,6 +26,10 @@
 #ifndef _atInput_h__
 #define _atInput_h__
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <Windows.h>
 #include "atButtonState.h"
 #include "atMath.h"

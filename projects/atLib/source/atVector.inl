@@ -265,6 +265,8 @@ template <class T> typename atVector<T>::vector_iterator atVector<T>::begin() { 
 template <class T> typename atVector<T>::vector_iterator atVector<T>::end() { return m_pData + m_size; }
 template <class T> typename atVector<T>::vector_const_iterator atVector<T>::begin() const { return m_pData; }
 template <class T> typename atVector<T>::vector_const_iterator atVector<T>::end() const { return m_pData + m_size; }
+template <class T> const bool atVector<T>::operator==(const atVector<T>& rhs) const { return size() == rhs.size() && memcmp(rhs.data(), data(), size()) == 0; }
+template<class T> const bool atVector<T>::operator!=(const atVector<T>& rhs) const { return !(rhs == *this); }
 template <class T> const T& atVector<T>::operator[](const int64_t index) const { return at(index); }
 template <class T> const T& atVector<T>::operator[](const int32_t index) const { return at((int64_t)index); }
 template <class T> const T& atVector<T>::operator[](const int16_t index) const { return at((int64_t)index); }
