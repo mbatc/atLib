@@ -23,35 +23,33 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atReadStream_h__
-#define atReadStream_h__
+#include "atNetworkWriter.h"
+#include <time.h>
 
-#include "atTypes.h"
+atNetworkWriter::atNetworkWriter() : m_pConn(nullptr) {}
+atNetworkWriter::atNetworkWriter(const atString &addr, const atString &port, const int64_t timeout) : m_pConn(nullptr) { Open(addr, port, timeout); }
+atNetworkWriter::~atNetworkWriter() { Close(); }
 
-#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (uint8_t*)pData, sizeof(type) * count); }
-
-class atReadStream
+bool atNetworkWriter::Open(const atString &addr, const atString &port, const int64_t timeout)
 {
-public:
-  // Read data into pBuffer. 
-  // Returns the number of bytes read
-  virtual int64_t Read(void *pBuffer, const int64_t size) = 0;
-  template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
-};
+  m_pConn = atNew<atSocket>(atSocket::Connect(addr, port));
+  int64_t start = clock();
+  while (!CanWrite() && (clock() - start) < timeout) Sleep((DWORD)atMin(timeout - (clock() - start), 10));
+  return CanWrite();
+}
 
-atTrivialStreamRead(int64_t)
-atTrivialStreamRead(int32_t)
-atTrivialStreamRead(int16_t)
-atTrivialStreamRead(int8_t)
-atTrivialStreamRead(uint64_t)
-atTrivialStreamRead(uint32_t)
-atTrivialStreamRead(uint16_t)
-atTrivialStreamRead(char)
-atTrivialStreamRead(double)
-atTrivialStreamRead(float)
+void atNetworkWriter::Close()
+{
+  if(m_pConn)
+    atDelete(m_pConn);
+  m_pConn = nullptr;
+}
 
-int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t count);
+int64_t atNetworkWriter::Write(void *pData, const int64_t len)
+{
+  if (!CanWrite())
+    return 0;
+  return m_pConn->Write((uint8_t*)pData, len);
+}
 
-template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
-
-#endif // atReadStream_h__
+bool atNetworkWriter::CanWrite() { return m_pConn && m_pConn->CanWrite(); }

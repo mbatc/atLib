@@ -46,6 +46,8 @@
     <ClCompile Include="source\atMeshWriter.cpp" />
     <ClCompile Include="source\atMTLReader.cpp" />
     <ClCompile Include="source\atMTLWriter.cpp" />
+    <ClCompile Include="source\atNetworkReader.cpp" />
+    <ClCompile Include="source\atNetworkWriter.cpp" />
     <ClCompile Include="source\atOBJReader.cpp" />
     <ClCompile Include="source\atOBJWriter.cpp" />
     <ClCompile Include="source\atReadStream.cpp" />
@@ -56,6 +58,7 @@
     <ClCompile Include="source\atShader.cpp" />
     <ClCompile Include="source\atShaderParser.cpp" />
     <ClCompile Include="source\atShaderPool.cpp" />
+    <ClCompile Include="source\atSocket.cpp" />
     <ClCompile Include="source\atString.cpp" />
     <ClCompile Include="source\atTypes.cpp" />
     <ClCompile Include="source\atWindow.cpp" />
@@ -98,6 +101,8 @@
     <ClInclude Include="source\atColor.h" />
     <ClInclude Include="source\atMeshParser.h" />
     <ClInclude Include="source\atMTLParser.h" />
+    <ClInclude Include="source\atNetworkReader.h" />
+    <ClInclude Include="source\atNetworkWriter.h" />
     <ClInclude Include="source\atOBJParser.h" />
     <ClInclude Include="source\atPlane.h" />
     <ClInclude Include="source\atPool.h" />
@@ -110,6 +115,7 @@
     <ClInclude Include="source\atShader.h" />
     <ClInclude Include="source\atShaderParser.h" />
     <ClInclude Include="source\atShaderPool.h" />
+    <ClInclude Include="source\atSocket.h" />
     <ClInclude Include="source\atStreamSeekable.h" />
     <ClInclude Include="source\atString.h" />
     <ClInclude Include="source\atTransformable.h" />

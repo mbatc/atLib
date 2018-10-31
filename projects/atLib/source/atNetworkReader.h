@@ -23,35 +23,51 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atReadStream_h__
-#define atReadStream_h__
+#ifndef atNetworkReader_h__
+#define atNetworkReader_h__
 
-#include "atTypes.h"
+#include "atReadStream.h"
+#include "atSocket.h"
+#include "atString.h"
 
-#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (uint8_t*)pData, sizeof(type) * count); }
-
-class atReadStream
+class atNetworkReader : public atReadStream
 {
 public:
-  // Read data into pBuffer. 
-  // Returns the number of bytes read
-  virtual int64_t Read(void *pBuffer, const int64_t size) = 0;
-  template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
+  atNetworkReader();
+
+  // See Open() for more information
+
+  atNetworkReader(const atString &port, const int64_t timeout = -1);
+  ~atNetworkReader();
+
+  // Open() will return true if the target is readable
+  //
+  // if timeout == -1, 
+  //  - Open() will not wait until the target is readable
+  //  - CanWrite() can be used to check if the target is readable, allowing Open() to be a non-blocking action
+  //
+  // if timeout > 0, 
+  //  - Open() will return when the target is readable or after [timeout] milliseconds
+  //  - Open() will return false if the timeout was reached
+
+  bool Open(const atString &port, const int64_t timeout = -1);
+
+  // Close the connection
+  void Close();
+
+  // if TRUE the target can be read from
+  // if FALSE all calls to Read() will fail
+
+  bool CanRead();
+
+  int64_t Read(void *pBuffer, const int64_t size);
+  template <typename T> Read(T *pData, const int64_t count = 1);
+
+protected:
+  atSocket *m_pHost;
+  atSocket *m_pConn;
 };
 
-atTrivialStreamRead(int64_t)
-atTrivialStreamRead(int32_t)
-atTrivialStreamRead(int16_t)
-atTrivialStreamRead(int8_t)
-atTrivialStreamRead(uint64_t)
-atTrivialStreamRead(uint32_t)
-atTrivialStreamRead(uint16_t)
-atTrivialStreamRead(char)
-atTrivialStreamRead(double)
-atTrivialStreamRead(float)
+template<typename T> atNetworkReader::Read(T * pData, const int64_t count) { return this->Read(pData, count); }
 
-int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t count);
-
-template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
-
-#endif // atReadStream_h__
+#endif // atNetworkReader_h__

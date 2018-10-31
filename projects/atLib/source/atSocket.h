@@ -23,35 +23,52 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atReadStream_h__
-#define atReadStream_h__
+#ifndef atSocket_h__
+#define atSocket_h__
 
-#include "atTypes.h"
+#include "atString.h"
+#include <WinSock2.h>
 
-#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (uint8_t*)pData, sizeof(type) * count); }
+#pragma comment(lib, "Ws2_32.lib")
 
-class atReadStream
+#define atWSAMajorVer 2
+#define atWSAMinorVer 2
+
+typedef SOCKET atSocketHandle;
+
+class atSocket
 {
+  atSocket();
 public:
-  // Read data into pBuffer. 
-  // Returns the number of bytes read
-  virtual int64_t Read(void *pBuffer, const int64_t size) = 0;
-  template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
+  atSocket(atSocket &&move);
+  ~atSocket();
+
+  static atSocket Host(const atString &port);
+  static atSocket Connect(const atString &addr, const atString &port);
+
+  bool IsHost() const;
+  bool IsValid() const;
+
+  bool CanAccept() const;
+  bool CanRead() const;
+  bool CanWrite() const;
+  
+  atSocket Accept() const;
+  int64_t Read(uint8_t *pData, const int64_t maxLen) const;
+  int64_t Write(const uint8_t *pData, const int64_t len) const;
+
+  const atSocketHandle &Handle() const;
+  const atString &Port() const;
+  const atString &Address() const;
+
+protected:
+  atSocketHandle m_handle;
+  atString m_addr;
+  atString m_port;
+  bool m_isHost;
+
+
+  static int64_t s_nSockets;
 };
 
-atTrivialStreamRead(int64_t)
-atTrivialStreamRead(int32_t)
-atTrivialStreamRead(int16_t)
-atTrivialStreamRead(int8_t)
-atTrivialStreamRead(uint64_t)
-atTrivialStreamRead(uint32_t)
-atTrivialStreamRead(uint16_t)
-atTrivialStreamRead(char)
-atTrivialStreamRead(double)
-atTrivialStreamRead(float)
-
-int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t count);
-
-template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
-
-#endif // atReadStream_h__
+#endif // atSocket_h__
