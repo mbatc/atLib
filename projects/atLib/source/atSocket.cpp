@@ -27,22 +27,66 @@
 #include <WS2tcpip.h>
 #include "atSocket.h"
 
+enum atSocketState
+{
+  atSS_Read = 1,
+  atSS_Write = 1 << 1,
+  atSS_Error = 1 << 2,
+  atSS_Timeout = 1 << 3,
+};
+
 int64_t atSocket::s_nSockets = 0;
 
 static void _InitialiseSockets() { WSAData wsaData; atAssert(WSAStartup(MAKEWORD(atWSAMajorVer, atWSAMinorVer), &wsaData) == 0, "WSAStartup Failed()"); }
 static void _DeInitSockets() { atAssert(WSACleanup() == 0, "WSACleanup Failed()"); }
 
-static SOCKET _CreateSocket(const atString &addr, const atString &port, const bool host)
+static int64_t _Status(atSocketHandle handle, const int64_t timeout = -1)
+{
+  if (handle == INVALID_SOCKET)
+    return 0;
+  TIMEVAL tVal;
+  tVal.tv_sec = timeout < 0 ? 0 : (long)timeout / 1000;
+  tVal.tv_usec = timeout < 0 ? 10 : (long)timeout % 1000;
+
+  FD_SET fdRead;
+  FD_SET fdWrite;
+  FD_SET fdExcept;
+
+  FD_ZERO(&fdRead);
+  FD_ZERO(&fdWrite);
+  FD_ZERO(&fdExcept);
+
+  FD_SET(handle, &fdRead);
+  FD_SET(handle, &fdWrite);
+  FD_SET(handle, &fdExcept);
+
+  int64_t res = select((int)(handle + 1), &fdRead, &fdWrite, &fdExcept, &tVal);
+  if (res == -1)
+    return 0;
+
+  int64_t state = 0;
+  if (res == 0)
+    state |= atSS_Timeout;
+  else
+  {
+    if (FD_ISSET(handle, &fdRead)) state |= atSS_Read;
+    if (FD_ISSET(handle, &fdWrite)) state |= atSS_Write;
+    if (FD_ISSET(handle, &fdExcept)) state |= atSS_Error;
+  }
+  return state;
+}
+
+static SOCKET _CreateSocket(const char *addr, const char *port, const bool host)
 {
   addrinfo *pInfo = nullptr;
   addrinfo hints = { 0 };
 
-  hints.ai_flags = host ? AI_PASSIVE: 0;
-  hints.ai_family = host ? AF_INET : AF_UNSPEC;
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
 
-  if (getaddrinfo(addr.c_str(), port.c_str(), &hints, &pInfo) != 0)
+  if (getaddrinfo(addr, port, &hints, &pInfo) != 0)
     return INVALID_SOCKET;
 
   SOCKET handle = INVALID_SOCKET;
@@ -63,6 +107,12 @@ static SOCKET _CreateSocket(const atString &addr, const atString &port, const bo
     break;
   }
 
+  if (host)
+    listen(handle, SOMAXCONN);
+
+  unsigned long mode = 0;
+  ioctlsocket(handle, FIONBIO, &mode);
+
   freeaddrinfo(pInfo);
   return handle;
 }
@@ -72,7 +122,6 @@ static void _CloseSocket(SOCKET handle)
   shutdown(handle, SD_SEND);
   closesocket(handle);
 }
-
 
 atSocket::~atSocket()
 {
@@ -84,16 +133,46 @@ atSocket::~atSocket()
     _DeInitSockets();
 }
 
-atSocket::atSocket(const atString &addr, const atString &port, const bool host /*= false*/)
-  : m_addr(addr)
-  , m_port(port)
-  , m_isHost(host)
-  , m_handle(INVALID_SOCKET)
+atSocket atSocket::Host(const atString &port) 
 {
-  if(s_nSockets == 0)
-    _InitialiseSockets();
-  ++s_nSockets;
-  m_handle = _CreateSocket(addr, port, host);
+  atSocket sock;
+  sock.m_handle = _CreateSocket(nullptr, port, true);
+  sock.m_addr = "localhost";
+  sock.m_port = port;
+  sock.m_isHost = true;
+  return sock;
+}
+
+atSocket atSocket::Connect(const atString &addr, const atString &port) 
+{ 
+  atSocket sock;
+  sock.m_handle = _CreateSocket(addr, port, false);
+  sock.m_addr = addr;
+  sock.m_port = port;
+  sock.m_isHost = false;
+  return sock;
+}
+
+atSocket atSocket::Accept() const
+{
+  atSocket sock;
+  sockaddr addr = { 0 };
+  int addrlen = sizeof(sockaddr);
+  sock.m_handle = accept(Handle(), &addr, &addrlen);
+  sock.m_isHost = false;
+  sock.m_port = m_port;
+
+  static const int64_t buflen = max(INET_ADDRSTRLEN, INET6_ADDRSTRLEN);
+  char buffer[buflen] = { 0 };
+
+  // Get Connection Address
+  sockaddr_in* ipv4Addr = addr.sa_family == AF_INET ? (sockaddr_in*)&addr : nullptr;
+  sockaddr_in6* ipv6Addr = addr.sa_family == AF_INET6 ? (sockaddr_in6*)&addr : nullptr;
+  if (ipv4Addr) inet_ntop(AF_INET, &ipv4Addr->sin_addr, buffer, buflen);
+  if (ipv6Addr) inet_ntop(AF_INET6, &ipv6Addr->sin6_addr, buffer, buflen);
+  sock.m_addr = buffer;
+
+  return sock;
 }
 
 atSocket::atSocket(atSocket &&move)
@@ -101,12 +180,21 @@ atSocket::atSocket(atSocket &&move)
   , m_port(move.m_port)
   , m_isHost(move.m_isHost)
   , m_handle(move.m_handle)
-{ move.m_handle = INVALID_SOCKET; }
+{
+  ++s_nSockets;
+  move.m_handle = INVALID_SOCKET; 
+}
 
-bool atSocket::IsHost() const { return m_isHost; }
-bool atSocket::IsConnected() const { return m_handle != INVALID_SOCKET; }
+atSocket::atSocket() : m_handle(INVALID_SOCKET) { if(++s_nSockets == 1) _InitialiseSockets(); }
+
 const atString& atSocket::Port() const { return m_port; }
 const atString& atSocket::Address() const { return m_addr; }
 const atSocketHandle& atSocket::Handle() const { return m_handle; }
-atSocket::atSocket(const atSocket &copy) : atSocket(copy.m_addr, copy.m_port, copy.m_isHost) {}
-atSocket::atSocket(atSocketHandle handle) : m_handle(handle) {}
+
+bool atSocket::IsHost() const { return m_isHost; }
+bool atSocket::CanAccept() const { return IsHost() && CanRead(); }
+bool atSocket::IsValid() const { return m_handle != INVALID_SOCKET; }
+bool atSocket::CanRead() const { return (_Status(m_handle, -1) & atSS_Read) > 0; }
+bool atSocket::CanWrite() const { return (_Status(m_handle, -1) & atSS_Write) > 0; }
+int64_t atSocket::Read(uint8_t *pData, const int64_t maxLen) const { return recv(Handle(), (char*)pData, (int)maxLen, 0); }
+int64_t atSocket::Write(const uint8_t *pData, const int64_t len) const { return send(Handle(), (char*)pData, (int)len, 0); }

@@ -317,7 +317,6 @@ int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count)
   return size;
 }
 
-
 int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count)
 {
   int64_t size = 0;

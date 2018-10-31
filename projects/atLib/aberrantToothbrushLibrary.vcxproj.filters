@@ -139,6 +139,9 @@
     <Filter Include="Header Files\Networking">
       <UniqueIdentifier>{74351a29-34d7-447e-9a18-458620cd5391}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Networking">
+      <UniqueIdentifier>{8cc8d6fa-b0cf-4f20-bbb0-ab3bb2a79158}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -268,9 +271,12 @@
       <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="source\atSocket.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Networking</Filter>
     </ClCompile>
-    <ClCompile Include="source\atConnection.cpp">
+    <ClCompile Include="source\atNetworkReader.cpp">
+      <Filter>Source Files\IO\Streams</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atNetworkWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -455,8 +461,11 @@
     <ClInclude Include="source\atSocket.h">
       <Filter>Header Files\Networking</Filter>
     </ClInclude>
-    <ClInclude Include="source\atConnection.h">
-      <Filter>Header Files\Networking</Filter>
+    <ClInclude Include="source\atNetworkReader.h">
+      <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atNetworkWriter.h">
+      <Filter>Header Files\IO\Streams</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

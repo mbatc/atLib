@@ -24,7 +24,6 @@
     <ClCompile Include="source\atButtonState.cpp" />
     <ClCompile Include="source\atCamera.cpp" />
     <ClCompile Include="source\atColor.cpp" />
-    <ClCompile Include="source\atConnection.cpp" />
     <ClCompile Include="source\atDateTime.cpp" />
     <ClCompile Include="source\atFile.cpp" />
     <ClCompile Include="source\atFileCommon.cpp" />
@@ -47,6 +46,8 @@
     <ClCompile Include="source\atMeshWriter.cpp" />
     <ClCompile Include="source\atMTLReader.cpp" />
     <ClCompile Include="source\atMTLWriter.cpp" />
+    <ClCompile Include="source\atNetworkReader.cpp" />
+    <ClCompile Include="source\atNetworkWriter.cpp" />
     <ClCompile Include="source\atOBJReader.cpp" />
     <ClCompile Include="source\atOBJWriter.cpp" />
     <ClCompile Include="source\atReadStream.cpp" />
@@ -73,7 +74,6 @@
     <ClInclude Include="source\atButtonState.h" />
     <ClInclude Include="source\atBVH.h" />
     <ClInclude Include="source\atCamera.h" />
-    <ClInclude Include="source\atConnection.h" />
     <ClInclude Include="source\atDateTime.h" />
     <ClInclude Include="source\atFile.h" />
     <ClInclude Include="source\atFileCommon.h" />
@@ -101,6 +101,8 @@
     <ClInclude Include="source\atColor.h" />
     <ClInclude Include="source\atMeshParser.h" />
     <ClInclude Include="source\atMTLParser.h" />
+    <ClInclude Include="source\atNetworkReader.h" />
+    <ClInclude Include="source\atNetworkWriter.h" />
     <ClInclude Include="source\atOBJParser.h" />
     <ClInclude Include="source\atPlane.h" />
     <ClInclude Include="source\atPool.h" />

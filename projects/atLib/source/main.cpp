@@ -80,9 +80,90 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600})
   }
 }
 
+// -----------------------------------------------------------
+// Sample code demonstrating how to Send and Receive data 
+// using atSocket
+
+#include "atSocket.h"
+
+void ExampleSocketUsage()
+{
+  // Create a host socket to listen for connection requests
+  atSocket host = atSocket::Host("1234");
+
+  // Attempt to connect to the host
+  atSocket client = atSocket::Connect("localhost", "1234");
+
+  // Wait until the connection is available
+  while (!host.CanAccept());
+
+  // Accept the connection request from the client socket
+  // and store the new connection
+  atSocket con = host.Accept();
+
+  atVector<uint8_t> msg = { 'H', 'e','l','l','o',' ', 'H','o','s','t' };
+  atVector<uint8_t> recvMsg(msg.size() * 2, 0);
+
+  // Send the host the message
+  client.Write(msg.data(), msg.size());
+
+  // Receive the client's message using the connection socket
+  con.Read(recvMsg.data(), recvMsg.size());
+
+  msg = { 'H', 'e','l','l','o',' ', 'C','l','i','e', 'n', 't' };
+
+  // Send a response to the client
+  con.Write(msg.data(), msg.size());
+
+  // Read the host's response
+  client.Read(recvMsg.data(), recvMsg.size());
+}
+
+// -----------------------------------------------------------
+// Sample code demonstrating how to Send and Receive 
+// streamable objects using atNetworkReader and 
+// atNetworkWriter
+//
+// This example can be extended to stream any object in atLib
+// that overloads the atStreamRead() and atStreamWrite()
+// functions. 
+//
+// Some of these objects are:
+//  - Most Primitive Types (see atReadStream.h and atWriteStream.h)
+//  - atVector
+//  - atString
+//  - atFilename
+//  - atHashMap
+//  - atMesh
+//  - atMaterial
+
+#include "atNetworkReader.h"
+#include "atNetworkWriter.h"
+
+void ExampleNetworkStreaming()
+{
+  atString sendString = "Hello Read Stream";
+  atString recvString;
+  // Create a Network reader on Port 1234
+  atNetworkReader reader("1234");
+
+  // Create a Network writer connected to localhost on Port 1234
+  atNetworkWriter writer("localhost", "1234");
+
+  // Write "Hello Read Stream" using the Network Writer
+  writer.Write(sendString);
+
+  // Read "Hello Read Stream" using the Network Reader
+  reader.Read(&recvString);
+}
+
+
+
 // -----------------------------------------------
 // BELOW HERE IS GUARANTEED TO BE AN ABSOLUTE MESS
 // -----------------------------------------------
+
+
 
 // -------------------------------------------------------------
 // Demonstrates simple imports/exports between different formats
@@ -113,34 +194,12 @@ void ExampleImportExportMesh()
   // mesh.Export(outPath3);
 }
 
-#include "atConnection.h"
-
-void ExampleConnections()
-{
-  atConnection host("localhost", "1234", true);
-  host.Listen();
-  atConnection client("localhost", "1234");
-  host.Accept();
-  
-  atVector<uint8_t> msg = { 'H', 'e','l','l','o',' ', 'H','o','s','t' };
-  atVector<uint8_t> recvMsg;
-  client.Send(msg);
-  host.Recieve(&recvMsg);
-  
-  atAssert(msg == recvMsg, "Host Recieved message does not match sent");
-
-  msg = { 'H', 'e','l','l','o',' ', 'C','l','i','e', 'n', 't' };
-  host.Send(msg);
-  client.Recieve(&recvMsg);
-
-  atAssert(msg == recvMsg, "Client Recieved message does not match sent");
-}
-
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
   // ExampleRenderMesh({1820, 820});
   // ExampleImportExportMesh();
-  ExampleConnections();
+  // ExampleSocketUsage();
+  // ExampleNetworkStreaming();
   return atWindow_GetResult();
 }

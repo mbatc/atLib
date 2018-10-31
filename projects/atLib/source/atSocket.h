@@ -38,15 +38,24 @@ typedef SOCKET atSocketHandle;
 
 class atSocket
 {
+  atSocket();
 public:
-  atSocket(atSocketHandle handle);
-  atSocket(const atString &addr, const atString &port, const bool host = false);
-  atSocket(const atSocket &copy);
   atSocket(atSocket &&move);
   ~atSocket();
 
+  static atSocket Host(const atString &port);
+  static atSocket Connect(const atString &addr, const atString &port);
+
   bool IsHost() const;
-  bool IsConnected() const;
+  bool IsValid() const;
+
+  bool CanAccept() const;
+  bool CanRead() const;
+  bool CanWrite() const;
+  
+  atSocket Accept() const;
+  int64_t Read(uint8_t *pData, const int64_t maxLen) const;
+  int64_t Write(const uint8_t *pData, const int64_t len) const;
 
   const atSocketHandle &Handle() const;
   const atString &Port() const;
