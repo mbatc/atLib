@@ -29,6 +29,7 @@
 #include "atVector.h"
 #include "atMath.h"
 #include "atMaterial.h"
+#include "atTriangle.h"
 
 class atMesh
 {
@@ -91,6 +92,8 @@ public:
   // Flip all normals
   void FlipTextures(const bool u, const bool v);
   void FlipNormals();
+
+  atVector<atTriangle<double>> GetTriangles();
 
   atString m_sourceFile;
   atString m_resourceDir;

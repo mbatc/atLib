@@ -27,19 +27,19 @@ template <typename T> atBVH<T>::atBVH(const atVector<T> &primitives) { Construct
 
 template <typename T> void atBVH<T>::Construct(const atVector<T> &primitives)
 {
-  atVector<Node> leaves(primitives.size());
-  for (T &prim : primitives)
+  atVector<atBVHNode<T>> leaves(primitives.size());
+  for (const T &prim : primitives)
   {
-    Node leaf;
+    atBVHNode<T> leaf;
     leaf.bounds.GrowToContain(prim);
     leaf.primitive = prim;
     leaves.push_back(leaf);
     m_root.bounds.GrowToContain(leaf.bounds);
   }
-  ConstructRecursive(m_root, &leaves);
+  ConstructRecursive(&m_root, &leaves);
 }
 
-template<typename T> void atBVH<T>::ConstructRecursive(Node *pRoot, atVector<Node> *pLeaves)
+template<typename T> void atBVH<T>::ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves)
 {
   pRoot->children.resize(8);
   atVec3F64 halfSize = pRoot->bounds.Dimensions() / 2;
@@ -58,10 +58,10 @@ template<typename T> void atBVH<T>::ConstructRecursive(Node *pRoot, atVector<Nod
     int64_t nPrims = 0;
     int64_t lastPrim = 0;
     atAABB<double> actualBounds;
-    Node &child = pRoot->children[c];
-    for (T &prim : *pLeaves)
+    atBVHNode<T> &child = pRoot->children[c];
+    for (atBVHNode<T> &prim : *pLeaves)
     {
-      atVector3<double> center = prim.bounds.Center();
+      atVector3<double> center = prim.primitive.Center();
       if (!child.bounds.Contains(center))
         continue;
       actualBounds.GrowToContain(prim.bounds);
@@ -78,25 +78,28 @@ template<typename T> void atBVH<T>::ConstructRecursive(Node *pRoot, atVector<Nod
     else if (nPrims == 1)
     {
       child.isLeaf = true;
-      child.primitive = pLeaves[lastPrim];
+      child.primitive = (*pLeaves)[lastPrim].primitive;
       pLeaves->erase(lastPrim);
     }
-    child.bounds = actualBounds;
-  }
+    else
+    {
+      child.isLeaf = false;
+    }
 
-  for (Node &child : pRoot->children)
     if(!child.isLeaf)
       ConstructRecursive(&child, pLeaves);
+    child.bounds = actualBounds;
+  }
 }
 
-template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, const T2 *pTime) 
+template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime) 
 { 
   atMat4D invModel = modelMat.Inverse();
   atVec3F64 startPos = invModel * ray.m_pos;
   atVec3F64 endPos = invModel * (startPos + ray.m_dir);
   double invRayLen = (endPos - startPos).Length();
   double time = 0.0;
-  bool result = atIntersects(atRay(startPos, endPos - startPos), *this, time);
+  bool result = atIntersects(atRay<T2>(startPos, endPos - startPos), *this, &time);
   time /= invRayLen;
   if (pTime)
     *pTime = time;

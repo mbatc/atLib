@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atAssert.h"
+
 template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Identity()
 {
   atAssert(row == col, "rows and col must be equal!");

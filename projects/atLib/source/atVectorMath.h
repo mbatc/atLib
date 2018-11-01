@@ -108,7 +108,7 @@ public:
     const int64_t maxElem = atMin(lhs.element_count, rhs.element_count);
     VecCls1<VecType1> ret = lhs;
     for (int64_t i = 0; i < maxElem; ++i)
-      ret[i] = (VecType1)lhs[i] / (VecType1)rhs[i];
+      ret[i] = (VecType1)lhs[i] * (VecType1)rhs[i];
     return ret;
   }
   
@@ -117,7 +117,7 @@ public:
     const int64_t maxElem = atMin(lhs.element_count, rhs.element_count);
     VecCls1<VecType1> ret = lhs;
     for (int64_t i = 0; i < maxElem; ++i)
-      ret[i] = (VecType1)lhs[i] * (VecType1)rhs[i];
+      ret[i] = (VecType1)lhs[i] / (VecType1)rhs[i];
     return ret;
   }
 
@@ -157,7 +157,7 @@ public:
 
   template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Cross(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)
   {
-    atAssert(lhs.element_count != 3 && rhs.element_count != 3,"atVectorMath::Cross() - Vectors must have an element count of 3.");
+    atAssert(lhs.element_count == 3 && rhs.element_count == 3,"atVectorMath::Cross() - Vectors must have an element count of 3.");
     return VecCls1<VecType1>(lhs[1] * rhs[2] - lhs[2] * rhs[1], lhs[2] * rhs[0] - lhs[0] * rhs[2], lhs[0] * rhs[1] - lhs[1] * rhs[0]);
   }
 

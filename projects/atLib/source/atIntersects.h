@@ -30,6 +30,7 @@
 #include "atBVH.h"
 #include "atAABB.h"
 #include "atTriangle.h"
+#include "atMath.h"
 
 template <typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
 template <typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
@@ -37,9 +38,9 @@ template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T 
 template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
 template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
 template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atRay<T2> &b, T* pTime);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2> &b, T* pTime);
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2>::Node &b, T* pTime);
+template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atRay<T> &b, T2* pTime);
+template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2* pTime);
+template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVHNode<T> &b, T2* pTime);
 
 #include "atIntersects.inl"
 #endif // atIntersects_h__

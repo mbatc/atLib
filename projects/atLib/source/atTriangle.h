@@ -28,18 +28,31 @@
 
 #include "atVector3.h"
 #include "atPlane.h"
+#include "atAABB.h"
 
 template <typename T> class atTriangle
 {
 public:
+  atTriangle();
   atTriangle(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
+
+  atVector3<T> Center();
 
   atVector3<T> m_a;
   atVector3<T> m_b;
   atVector3<T> m_c;
 
-  T Area();
+  T Area() const;
 };
+
+template <typename T> atAABB<T> atBounds(const atTriangle<T> &tri) 
+{ 
+  atAABB<T> ret;
+  ret.GrowToContain(tri.m_a);
+  ret.GrowToContain(tri.m_b);
+  ret.GrowToContain(tri.m_c);
+  return ret;
+}
 
 #include "atTriangle.inl"
 #endif // atTriangle_h__

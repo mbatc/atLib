@@ -27,6 +27,7 @@
 #include "atRenderState.h"
 #include "atCamera.h"
 #include "atGraphicsModel.h"
+#include "atBVH.h"
 
 
 //---------------------------------------------------------------------------------
@@ -194,6 +195,9 @@ void ExampleImportExportMesh()
   // mesh.Export(outPath3);
 }
 
+#include "atBVH.h"
+#include "atIntersects.h"
+
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
@@ -201,5 +205,14 @@ int main(int argc, char **argv)
   // ExampleImportExportMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
+
+  atMesh mesh;
+  mesh.Import("assets/test/models/cube.obj");
+
+  atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
+
+  double time = 0.0;
+  bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
+
   return atWindow_GetResult();
 }

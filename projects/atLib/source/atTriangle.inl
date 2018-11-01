@@ -1,3 +1,4 @@
+#include "atTriangle.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,11 +24,16 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> T atTriangle<T>::Area()
+template <typename T> T atTriangle<T>::Area() const
 {
-  atVector3<T> CtoA = m_a - m_c;
-  atVector3<T> CtoB = m_b - m_c;
-  return 0.5 * CtoB.Mag() * CtoA.Mag() * atSin(CtoA.Angle(CtoB));
+  const T CtoA = (m_a - m_c).Mag();
+  const T CtoB = (m_b - m_c).Mag();
+  const T AtoB = (m_b - m_a).Mag();
+  const T s = (CtoA + CtoB + AtoB) / 2;
+  return sqrt(s * (s - CtoA) * (s - CtoB) * (s - AtoB));
 }
 
+template <typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
 template <typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}
+
+template<typename T> atVector3<T> atTriangle<T>::Center() { return (m_a + m_b + m_c) / (T)3; }

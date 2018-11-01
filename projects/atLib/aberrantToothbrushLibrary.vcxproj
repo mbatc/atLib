@@ -38,6 +38,7 @@
     <ClCompile Include="source\atImage.cpp" />
     <ClCompile Include="source\atImageHelper.cpp" />
     <ClCompile Include="source\atInput.cpp" />
+    <ClCompile Include="source\atLimits.cpp" />
     <ClCompile Include="source\atMaterial.cpp" />
     <ClCompile Include="source\atMath.cpp" />
     <ClCompile Include="source\atMemoryWriter.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="source\atIntersects.h" />
     <ClInclude Include="source\atIterator.h" />
     <ClInclude Include="source\atKeyValue.h" />
+    <ClInclude Include="source\atLimits.h" />
     <ClInclude Include="source\atMaterial.h" />
     <ClInclude Include="source\atMath.h" />
     <ClInclude Include="source\atMatrix.h" />

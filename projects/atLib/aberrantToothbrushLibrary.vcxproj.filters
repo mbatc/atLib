@@ -279,6 +279,9 @@
     <ClCompile Include="source\atNetworkWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\atLimits.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="source\atNetworkWriter.h">
       <Filter>Header Files\IO\Streams</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atLimits.h">
+      <Filter>Header Files\Platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -27,32 +27,38 @@
 #define atBVH_h__
 
 #include "atRay.h"
+#include "atAABB.h"
+
+template <typename T> struct atBVHNode
+{
+  atBVHNode();
+  bool isLeaf = false;
+  T primitive;
+  atAABB<double> bounds;
+  atVector<atBVHNode<T>> children;
+};
+
+template <typename T> atBVHNode<T>::atBVHNode() {}
 
 template <typename T> class atBVH
 {
 public:
-  struct Node
-  {
-    bool isLeaf = false;
-    T primitive;
-    atAABB<double> bounds;
-    atVector<Node> children;
-  };
 
   atBVH(const atVector<T> &primitives);
 
   void Construct(const atVector<T> &primitives);
 
   // Recursively construct the tree - removes items from pPrimitives as they are assigned to tree node
-  void ConstructRecursive(Node *pRoot, atVector<Node> *pLeaves);
+  void ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves);
 
-  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, const T2 *pTime);
+  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime);
 
-protected:
-  Node m_root;
+  atBVHNode<T> m_root;
 };
 
-template <typename T, typename T2> bool atIntersects(const atRay<T> &a, const atBVH<T2> &b);
+
+template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
 
 #include "atBVH.inl"
 #endif // atBVH_h__
+

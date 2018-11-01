@@ -32,9 +32,8 @@ bool atMesh::Import(const atString &path) { return atMeshReader::Read(path, this
 bool atMesh::Export(const atString &path) { return atMeshWriter::Write(path, *this); }
 
 atMesh::atMesh() {}
-
-atMesh::atMesh(const atMesh &copy) { *this = copy; }
 atMesh::atMesh(atMesh &&move) { *this = move; }
+atMesh::atMesh(const atMesh &copy) { *this = copy; }
 
 bool atMesh::MakeValid()
 {
@@ -235,6 +234,17 @@ atString atMesh::TryDiscoverFile(const atString &file, const atString &initialDi
     return path;
 
   return file;
+}
+
+atVector<atTriangle<double>> atMesh::GetTriangles()
+{
+  atVector<atTriangle<double>> ret;
+  for (Triangle &tri : m_triangles)
+    ret.push_back(atTriangle<double>(
+      m_positions[tri.verts[0].position], 
+      m_positions[tri.verts[1].position], 
+      m_positions[tri.verts[2].position]));
+  return ret;
 }
 
 const atMesh& atMesh::operator=(const atMesh &rhs)
