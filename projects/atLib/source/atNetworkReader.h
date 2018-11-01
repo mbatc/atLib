@@ -61,13 +61,13 @@ public:
   bool CanRead();
 
   int64_t Read(void *pBuffer, const int64_t size);
-  template <typename T> Read(T *pData, const int64_t count = 1);
+  template <typename T> int64_t Read(T *pData, const int64_t count = 1);
 
 protected:
   atSocket *m_pHost;
   atSocket *m_pConn;
 };
 
-template<typename T> atNetworkReader::Read(T * pData, const int64_t count) { return this->Read(pData, count); }
+template<typename T> int64_t atNetworkReader::Read(T *pData, const int64_t count) { return atStreamRead(this, pData, count); }
 
 #endif // atNetworkReader_h__

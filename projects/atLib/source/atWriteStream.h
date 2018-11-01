@@ -28,7 +28,7 @@
 
 #include "atTypes.h"
 
-#define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (void*)pData, sizeof(type) * count); }
+#define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (void*)pData, (int64_t)sizeof(type) * count); }
 
 class atWriteStream
 {

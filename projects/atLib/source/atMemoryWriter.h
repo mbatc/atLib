@@ -28,7 +28,7 @@ protected:
   int64_t m_pos = 0;
 };
 
-template<typename T> int64_t atMemoryWriter::Write(const T *pData, const int64_t count) { return this->Write(pData, count); }
-template<typename T> int64_t atMemoryWriter::Write(const T &data) { return this->Write(data); }
+template<typename T> int64_t atMemoryWriter::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
+template<typename T> int64_t atMemoryWriter::Write(const T &data) { return Write(&data, 1); }
 
 #endif // atMemoryWriter_h__
