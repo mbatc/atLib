@@ -61,6 +61,7 @@
     <ClCompile Include="source\atShaderPool.cpp" />
     <ClCompile Include="source\atSocket.cpp" />
     <ClCompile Include="source\atString.cpp" />
+    <ClCompile Include="source\atTextureContext.cpp" />
     <ClCompile Include="source\atTypes.cpp" />
     <ClCompile Include="source\atWindow.cpp" />
     <ClCompile Include="source\atWriteStream.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="source\atSocket.h" />
     <ClInclude Include="source\atStreamSeekable.h" />
     <ClInclude Include="source\atString.h" />
+    <ClInclude Include="source\atTextureContext.h" />
     <ClInclude Include="source\atTransformable.h" />
     <ClInclude Include="source\atTriangle.h" />
     <ClInclude Include="source\atTypes.h" />

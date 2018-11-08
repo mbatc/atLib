@@ -282,6 +282,9 @@
     <ClCompile Include="source\atLimits.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
+    <ClCompile Include="source\atTextureContext.cpp">
+      <Filter>Source Files\Graphics\Material</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atAlloc.h">
@@ -472,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="source\atLimits.h">
       <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atTextureContext.h">
+      <Filter>Header Files\Graphics\Geometry\Material\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

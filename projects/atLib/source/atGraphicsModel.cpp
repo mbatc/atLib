@@ -118,10 +118,10 @@ bool atGraphicsModel::Import(const atMesh &mesh)
     m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
 
     for (int64_t i = 0; i < mesh.m_materials[m].m_tAmbient.size(); ++i)
-      m_mesh[m].SetChannel(atString("ambientTex") + i, mesh.m_materials[m].m_tAmbient[i].Path(), atRRT_Texture);
+      m_mesh[m].SetChannel(atString("ambientMap") + i, mesh.m_materials[m].m_tAmbient[i].Path(), atRRT_Texture);
 
     for (int64_t i = 0; i < mesh.m_materials[m].m_tDiffuse.size(); ++i)
-      m_mesh[m].SetChannel(atString("diffuseTex") + i, mesh.m_materials[m].m_tDiffuse[i].Path(), atRRT_Texture);
+      m_mesh[m].SetChannel(atString("diffuseMap") + i, mesh.m_materials[m].m_tDiffuse[i].Path(), atRRT_Texture);
 
     for (int64_t i = 0; i < mesh.m_materials[m].m_tAlpha.size(); ++i)
       m_mesh[m].SetChannel(atString("alphaMap") + i, mesh.m_materials[m].m_tAlpha[i].Path(), atRRT_Texture);

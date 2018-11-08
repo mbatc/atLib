@@ -1,4 +1,4 @@
-Texture2D diffuseTex0;
+Texture2D diffuseMap0;
 SamplerState samplerType;
 
 struct psOutput
@@ -17,6 +17,6 @@ struct vsOutput
 psOutput main(vsOutput In) : SV_Target
 {
   psOutput Out;
-  Out.color = In.color * diffuseTex0.Sample(samplerType, In.texCoord);
+  Out.color = In.color * diffuseMap0.Sample(samplerType, In.texCoord);
   return Out;
 }

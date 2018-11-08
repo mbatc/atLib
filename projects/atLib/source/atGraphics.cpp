@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atGraphics.h"
+#include "atTextureContext.h"
 #include <stdlib.h>
 
 atVector<DXGI_MODE_DESC> atGraphics::m_displayModeList;
@@ -160,14 +161,14 @@ void atGraphics::CreateFactory()
     m_pFactory = nullptr;
 }
 
-bool atGraphics::BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void * pResource)
+bool atGraphics::BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void *pResource)
 {
-  if (slot < 0)
+  if (slot < 0 || !pResource)
     return false;
 
   ID3D11Buffer *pBuffer;
+  atTextureContext *pTexture;
   ID3D11SamplerState *pSampler;
-  ID3D11ShaderResourceView *pTexture;
   switch (resType)
   {
   case atSRT_Buffer:
@@ -197,15 +198,15 @@ bool atGraphics::BindShaderResource(const atShaderType shader, const atShader_Re
     }
     break;
   case atSRT_Texture:
-    pTexture = (ID3D11ShaderResourceView*)pResource;
+    pTexture = (atTextureContext*)pResource;
     switch (shader)
     {
-    case atST_Vertex: m_pContext->VSSetShaderResources((UINT)slot, 1, &pTexture); break;
-    case atST_Pixel: m_pContext->PSSetShaderResources((UINT)slot, 1, &pTexture); break;
-    case atST_Domain: m_pContext->DSSetShaderResources((UINT)slot, 1, &pTexture); break;
-    case atST_Hull: m_pContext->HSSetShaderResources((UINT)slot, 1, &pTexture); break;
-    case atST_Compute: m_pContext->CSSetShaderResources((UINT)slot, 1, &pTexture); break;
-    case atST_Geometry: m_pContext->GSSetShaderResources((UINT)slot, 1, &pTexture); break;
+    case atST_Vertex: m_pContext->VSSetShaderResources((UINT)slot, 1, *pTexture); break;
+    case atST_Pixel: m_pContext->PSSetShaderResources((UINT)slot, 1, *pTexture); break;
+    case atST_Domain: m_pContext->DSSetShaderResources((UINT)slot, 1, *pTexture); break;
+    case atST_Hull: m_pContext->HSSetShaderResources((UINT)slot, 1, *pTexture); break;
+    case atST_Compute: m_pContext->CSSetShaderResources((UINT)slot, 1, *pTexture); break;
+    case atST_Geometry: m_pContext->GSSetShaderResources((UINT)slot, 1, *pTexture); break;
     default: return false;
     }
     break;

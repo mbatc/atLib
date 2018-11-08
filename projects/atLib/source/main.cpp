@@ -201,18 +201,17 @@ void ExampleImportExportMesh()
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  // ExampleRenderMesh({1820, 820});
+  ExampleRenderMesh({1820, 820});
   // ExampleImportExportMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 
-  atMesh mesh;
-  mesh.Import("assets/test/models/cube.obj");
-
-  atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
-
-  double time = 0.0;
-  bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
-
+  // atMesh mesh;
+  // mesh.Import("assets/test/models/cube.obj");
+  // 
+  // atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
+  // 
+  // double time = 0.0;
+  // bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
   return atWindow_GetResult();
 }

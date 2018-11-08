@@ -55,10 +55,13 @@ public:
   atHardwareTexture() = delete;
 
   static int64_t CreateSampler(const int64_t filter = 21 /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/, const atTexCoordMode uMode = atTCM_Wrap, const atTexCoordMode vMode = atTCM_Wrap, const atTexCoordMode wMode = atTCM_Wrap, const float mipLodBias = 0, const atComparison compFunc = atComp_Never, const atVec4F &borderCol = { 0,0,0,0 }, const float minLOD = 0.f, const float maxLOD = FLT_MAX);
-
   static int64_t UploadTexture(const atFilename &file);
+
   static void* GetTexture(const int64_t id);
   static void* GetSampler(const int64_t id);
+
+  static void DeleteTexture(const int64_t id);
+  static void DeleteSampler(const int64_t id);
 };
 
 #endif // atHardwareTexture_h__
