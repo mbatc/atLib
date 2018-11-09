@@ -196,6 +196,7 @@ public:
 
   static bool MouseMoved();
 
+  static void SetDT(const double dt);
 protected:
   static void RegisterWindow(HWND hWnd);
   static void UnRegisterWindow(HWND hWnd);

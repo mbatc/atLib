@@ -46,11 +46,21 @@
 // -----------------------------------------------------------
 // Demonstrates loading and rendering a model with simple user 
 // input provided by atCamera
+//
+// Press 'L' to toggle lighting effects
+//
+// W - Forward
+// S - Backward
+// A - Left
+// D - Right
+// Alt - Slow Down
+// Shift - Speed up
+// Right Mouse + Mouse Move - Look
 
-void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = false)
+void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
   // Set the model being loaded
-  const atString path = "assets/test/models/level.obj";
+  const atString path = "assets/test/models/bumpMap.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -76,11 +86,10 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = false)
     window.Clear(clearColor);
 
     // Set Lighting Data
-    if (useLighting)
-    {
-      model.SetLighting(light);
-      model.SetCamera(camera.m_translation);
-    }
+    model.SetLighting(light);
+    model.EnableLighting(useLighting);
+    model.SetCamera(camera.m_translation);
+    useLighting = atInput::KeyPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());

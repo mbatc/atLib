@@ -51,7 +51,7 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   switch (msg)
   {
   case WM_CLOSE:  PostQuitMessage(0); break;
-  case WM_DESTROY: PostQuitMessage(0); break;
+  case WM_DESTROY: PostQuitMessage(0); break; 
   case WM_KEYUP: atInput::OnKeyUp(wParam, dt); break;
   case WM_KEYDOWN: atInput::OnKeyDown(wParam, dt); break;
   case WM_LBUTTONUP: atInput::OnMouseUp(atMB_Left, dt); break;
@@ -63,6 +63,7 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   case WM_MOUSEMOVE: atInput::OnMouseMove({ ((int)(short)LOWORD(lParam)), ((int)(short)HIWORD(lParam)) }, dt); break;
   default: return DefWindowProc(hWnd, msg, wParam, lParam);
   }
+  atInput::SetDT(dt);
   return 0;
 }
 

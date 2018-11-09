@@ -65,9 +65,9 @@ psOutput main(vsOutput In) : SV_Target
   float3 vNorm = In.normal;
 
   float3 lNorm = normalize(-lightDir0);
-  float3 lDif = lightDiffuse0.xyz * lightDiffuse0.w;
-  float3 lSpec = lightSpecular0.xyz * lightSpecular0.w;
-  float3 lAmb = lightAmbient0.xyz * lightAmbient0.w;
+  float3 lDif = 1;
+  float3 lSpec = 0;
+  float3 lAmb = 0;
 
   float alpha = alpha0;
   float lambertian = 1.0;
@@ -84,6 +84,10 @@ psOutput main(vsOutput In) : SV_Target
   // Calculate Lighting
   if(hasLighting > 0)
   {
+    lDif = lightDiffuse0.xyz * lightDiffuse0.w;
+    lSpec = lightSpecular0.xyz * lightSpecular0.w;
+    lAmb = lightAmbient0.xyz * lightAmbient0.w;
+
     lambertian = max(0.0, dot(lNorm, vNorm));
 
     if(lambertian > 0)
@@ -131,6 +135,5 @@ psOutput main(vsOutput In) : SV_Target
 
   psOutput Out;
   Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
-  //Out.color = float4(aCol + dCol * lambertian * lDif + sCol * sIntensity, 1.0);
   return Out;
 }

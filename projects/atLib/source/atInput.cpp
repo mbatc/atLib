@@ -26,6 +26,7 @@
 #include "atInput.h"
 #include "atWindow.h"
 #include "atHashMap.h"
+#include "atIterator.h"
 
 static atButtonState s_keyState[atKC_Count];
 static atButtonState s_mouseState[atMB_Count];
@@ -33,6 +34,7 @@ static atVec2I s_mousePos;
 static atVec2I s_lastMousePos;
 static atVec2F s_mouseVel;
 static atVec2I s_lockPos = { 0,0 };
+static double s_dt = 0.0;
 static bool s_mouseLocked = false;
 static atHashMap<int64_t, bool> s_windows;
 
@@ -45,6 +47,15 @@ static void _UpdateMouse()
   if (s_mouseLocked)
     if (GetFocus())
       atInput::SetMousePos(s_lockPos);
+}
+
+static void _UpdateKeyboard()
+{
+  for (atButtonState &bt : atIterate(s_keyState, atKC_Count))
+    if (bt.IsDown()) 
+      bt.OnDown(s_dt);
+    else if (bt.IsUp()) 
+      bt.OnUp(s_dt);
 }
 
 static HWND _GetFocus()
@@ -69,6 +80,7 @@ void atInput::OnMouseMove(const atVec2I &pos, const double dt)
 bool atInput::Update(const bool escExit) 
 {
   _UpdateMouse();
+  _UpdateKeyboard();
   bool res = atWindow_PumpMessage() && (!escExit || !KeyDown(atKC_Escape));
   return res;
 }
@@ -132,6 +144,7 @@ const atVec2I& atInput::MousePos() { return s_mousePos; }
 const atVec2F& atInput::MouseVelocity() { return s_mouseVel; }
 atVec2F atInput::MouseDirection() { return s_mouseVel.Normalize(); }
 bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
+void atInput::SetDT(const double dt) { s_dt = dt; }
 
 void atInput::RegisterWindow(HWND hWnd) 
 { 
