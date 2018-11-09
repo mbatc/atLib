@@ -39,9 +39,6 @@ D3D11_VIEWPORT atRenderState::m_viewport;
 D3D11_CULL_MODE atRenderState::m_lastCullMode;
 
 int64_t atRenderState::m_shader = AT_INVALID_ID;
-bool atRenderState::m_blendDirty = true;
-bool atRenderState::m_depthDirty = true;
-bool atRenderState::m_rasterDirty = true;
 bool atRenderState::m_defaultSet = false;
 bool atRenderState::m_viewDirty = true;
 bool atRenderState::m_viewportSet = false;
@@ -50,31 +47,31 @@ bool atRenderState::m_scissorSet = false;
 void atRenderState::Bind()
 {
   SetDefaults();
-  if (m_blendDirty)
+  if (m_lastBlendDesc != m_blendDesc || !m_pBlendState)
   {
     atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
     atGraphics::SafeRelease(m_pBlendState);
     atGraphics::GetDevice()->CreateBlendState(&m_blendDesc, &m_pBlendState);
     atGraphics::GetContext()->OMSetBlendState(0, 0, 0xFFFFFF);
-    m_blendDirty = false;
+    m_lastBlendDesc = m_blendDesc;
   }
 
-  if (m_depthDirty)
+  if (m_lastDepthDesc != m_depthDesc || !m_pDepthState)
   {
     atGraphics::GetContext()->OMSetDepthStencilState(nullptr, 0);
     atGraphics::SafeRelease(m_pDepthState);
     atGraphics::GetDevice()->CreateDepthStencilState(&m_depthDesc, &m_pDepthState);
     atGraphics::GetContext()->OMSetDepthStencilState(m_pDepthState, 0);
-    m_depthDirty = false;
+    m_lastDepthDesc = m_depthDesc;
   }
   
-  if (m_rasterDirty)
+  if (m_lastRasterDesc != m_rasterDesc || !m_pRasterState)
   {
     atGraphics::GetContext()->RSSetState(nullptr);
     atGraphics::SafeRelease(m_pRasterState);
     atGraphics::GetDevice()->CreateRasterizerState(&m_rasterDesc, &m_pRasterState);
     atGraphics::GetContext()->RSSetState(m_pRasterState);
-    m_rasterDirty = false;
+    m_lastRasterDesc = m_rasterDesc;
   }
 
   if (m_viewDirty)
@@ -109,7 +106,6 @@ void atRenderState::SetViewport(const atVec4I &viewport, const bool updateFlag)
 void atRenderState::SetDepthRange(const float min, const float max)
 {
   SetDefaults();
-  m_viewDirty = m_viewport.MinDepth != min || m_viewport.MaxDepth != max;
   m_viewport.MinDepth = (FLOAT)min;
   m_viewport.MaxDepth = (FLOAT)max;
 }
@@ -117,7 +113,6 @@ void atRenderState::SetDepthRange(const float min, const float max)
 void atRenderState::EnableCulling(const bool enable)
 {
   SetDefaults();
-  m_rasterDirty = m_rasterDesc.CullMode != (enable ? m_lastCullMode : D3D11_CULL_NONE);
   m_rasterDesc.CullMode = enable ? m_lastCullMode : D3D11_CULL_NONE;
   m_lastCullMode = enable ? m_rasterDesc.CullMode : m_lastCullMode;
 }
@@ -125,28 +120,24 @@ void atRenderState::EnableCulling(const bool enable)
 void atRenderState::EnableBlend(const bool enable)
 {
   SetDefaults();
-  m_blendDirty = m_blendDesc.RenderTarget[0].BlendEnable != (BOOL)enable;
   m_blendDesc.RenderTarget[0].BlendEnable = (BOOL)enable;
 }
 
 void atRenderState::EnableScissor(const bool enable)
 {
   SetDefaults();
-  m_rasterDirty = m_rasterDesc.ScissorEnable != (BOOL)enable;
   m_rasterDesc.ScissorEnable = (BOOL)enable;
 }
 
 void atRenderState::EnableAA(const bool enable)
 {
   SetDefaults();
-  m_rasterDirty = m_rasterDesc.AntialiasedLineEnable != (BOOL)enable;
   m_rasterDesc.AntialiasedLineEnable = (BOOL)enable;
 }
 
 void atRenderState::EnableMultisample(const bool enable)
 {
   SetDefaults();
-  m_rasterDirty = m_rasterDesc.MultisampleEnable != (BOOL)enable;
   m_rasterDesc.MultisampleEnable = (BOOL)enable;
 }
 
@@ -154,6 +145,10 @@ void atRenderState::SetDefaults()
 {
   if (m_defaultSet)
     return;
+
+  ZeroMemory(&m_lastRasterDesc, sizeof(D3D11_RASTERIZER_DESC)); 
+  m_lastBlendDesc = { 0 };
+  m_lastDepthDesc = { 0 };
 
   m_depthDesc.DepthEnable = true;
   m_depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -172,14 +167,14 @@ void atRenderState::SetDefaults()
   m_depthDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
   m_depthDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-  m_rasterDesc.AntialiasedLineEnable = false;
+  m_rasterDesc.AntialiasedLineEnable = true;
   m_rasterDesc.CullMode = D3D11_CULL_NONE;
   m_rasterDesc.DepthBias = 0;
   m_rasterDesc.DepthBiasClamp = 0.0f;
   m_rasterDesc.DepthClipEnable = true;
   m_rasterDesc.FillMode = D3D11_FILL_SOLID;
   m_rasterDesc.FrontCounterClockwise = false;
-  m_rasterDesc.MultisampleEnable = false;
+  m_rasterDesc.MultisampleEnable = true;
   m_rasterDesc.ScissorEnable = false;
   m_rasterDesc.SlopeScaledDepthBias = 0.0f;
 
@@ -196,18 +191,8 @@ void atRenderState::SetDefaults()
 
   m_viewport.MinDepth = 0.0f;
   m_viewport.MaxDepth = 1.0f;
-
-  m_blendDirty = true;
-  m_depthDirty = true;
-  m_rasterDirty = true;
-  m_viewDirty = true;
 }
 
-void atRenderState::EnableDepthTest(const bool enable)
-{
-  m_depthDirty = m_depthDesc.DepthEnable != (BOOL)enable;
-  m_depthDesc.DepthEnable = enable;
-}
-
+void atRenderState::EnableDepthTest(const bool enable) { SetDefaults(); m_depthDesc.DepthEnable = enable; }
 bool atRenderState::ViewportSet() { return m_viewportSet; }
 bool atRenderState::ScissorSet() { return m_scissorSet; }

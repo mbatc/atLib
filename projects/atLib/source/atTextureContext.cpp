@@ -29,7 +29,15 @@
 static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture)
 {
   ID3D11ShaderResourceView *pView = nullptr;
-  atGraphics::GetDevice()->CreateShaderResourceView(pTexture, nullptr, &pView);
+
+  D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
+  desc.Texture2D.MipLevels = -1;
+  desc.Texture2D.MostDetailedMip = 0;
+  desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+  atGraphics::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pView);
+  atGraphics::GetContext()->GenerateMips(pView);
   return pView;
 }
 
@@ -58,32 +66,21 @@ atTextureContext::atTextureContext(const atFilename &file)
   : m_pTexture(nullptr)
 {
   atImage image(file);
-
-  D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  desc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
-  desc.Texture2D.MipLevels = 1;
-  desc.Texture2D.MostDetailedMip = 0;
-
-  D3D11_TEXTURE2D_DESC texDesc;
-  texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+  
+  D3D11_TEXTURE2D_DESC texDesc{};
+  texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
   texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   texDesc.Height = (UINT)image.Height();
   texDesc.Width = (UINT)image.Width();
   texDesc.Usage = D3D11_USAGE_DEFAULT;
   texDesc.SampleDesc.Quality = 0;
   texDesc.SampleDesc.Count = 1;
-  texDesc.CPUAccessFlags = 0;
   texDesc.ArraySize = 1;
-  texDesc.MipLevels = 1;
-  texDesc.MiscFlags = 0;
+  texDesc.MipLevels = 0;
+  texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-  D3D11_SUBRESOURCE_DATA data;
-  data.pSysMem = image.Pixels().data();
-  data.SysMemPitch = (UINT)(image.Width() * sizeof(atCol));
-  data.SysMemSlicePitch = 0;
-
-  atGraphics::GetDevice()->CreateTexture2D(&texDesc, &data, &m_pTexture);
+  atGraphics::GetDevice()->CreateTexture2D(&texDesc, nullptr, &m_pTexture);
+  atGraphics::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, image.Pixels().data(), (UINT)(image.Width() * sizeof(atCol)), 0);
 }
 
 atTextureContext::atTextureContext(const atTextureContext &copy)

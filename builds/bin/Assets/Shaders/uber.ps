@@ -1,0 +1,136 @@
+Texture2D diffuseMap0;
+Texture2D ambientMap0;
+Texture2D alphaMap0;
+Texture2D specularMap0;
+Texture2D specularHiMap0;
+Texture2D bumpMap0;
+SamplerState samplerType;
+
+cbuffer Flags
+{
+  int hasDiffuseMap;
+  int hasSpecularMap;
+  int hasSpecularHiMap;
+  int hasAmbientMap;
+  int hasAlphaMap;
+  int hasBumpMap;
+  int hasLighting;
+  int hasCamPos;
+};
+
+cbuffer Material
+{
+  float4 diffuseColour0;
+  float4 ambientColour0;
+  float4 specularColour0;
+  float specularPower0;
+  float alpha0;
+};
+
+cbuffer Lighting
+{
+  float4 lightAmbient0;
+  float4 lightDiffuse0;
+  float4 lightSpecular0;
+  float3 lightDir0;
+};
+
+cbuffer Camera
+{
+  float3 camPos;
+};
+
+struct psOutput
+{
+  float4 color : COLOR;
+};
+
+struct vsOutput
+{
+  float4 position : SV_Position;
+  float3 worldPos : COLOR0;
+  float4 color : COLOR1;
+  float3 normal : NORMAL;
+  float3 tangent : TANGENT;
+  float3 bitangent : BINORMAL;
+  float2 texCoord : TEXCOORD;
+};
+
+psOutput main(vsOutput In) : SV_Target
+{
+  float3 dCol = diffuseColour0.xyz * diffuseColour0.w;
+  float3 aCol = ambientColour0.xyz * ambientColour0.w;
+  float3 sCol = specularColour0.xyz * specularColour0.w;
+  float4 tCol = float4(1, 1, 1, 1);
+  float3 vNorm = In.normal;
+
+  float3 lNorm = normalize(-lightDir0);
+  float3 lDif = lightDiffuse0.xyz * lightDiffuse0.w;
+  float3 lSpec = lightSpecular0.xyz * lightSpecular0.w;
+  float3 lAmb = lightAmbient0.xyz * lightAmbient0.w;
+
+  float alpha = alpha0;
+  float lambertian = 1.0;
+  float sIntensity = 0.0;
+
+  // Bump Mapping
+  if(hasBumpMap > 0)
+  {
+    float3x3 TBN = float3x3(In.tangent, In.bitangent, In.normal);
+    vNorm = normalize(bumpMap0.Sample(samplerType, In.texCoord).xyz * 2.0 - 1);
+    vNorm = mul(vNorm, TBN);
+  }
+
+  // Calculate Lighting
+  if(hasLighting > 0)
+  {
+    lambertian = max(0.0, dot(lNorm, vNorm));
+
+    if(lambertian > 0)
+    {
+      float3 fragToEye = normalize(camPos - In.worldPos);
+      float3 reflected = normalize(reflect(lightDir0, vNorm));
+      sIntensity =  max(0.0, dot(fragToEye, reflected));
+      sIntensity = pow(sIntensity, specularPower0);
+    }
+  }
+
+  // Diffuse Mapping
+  if(hasDiffuseMap > 0)
+  {
+    tCol = diffuseMap0.Sample(samplerType, In.texCoord);
+    dCol *= tCol.xyz * tCol.w;
+  }
+
+  // Specular Mapping
+  if(hasSpecularMap > 0)
+  {
+    tCol = specularMap0.Sample(samplerType, In.texCoord);
+    sCol *= tCol.xyz * tCol.w;
+  }
+
+  if(hasSpecularHiMap > 0)
+  {
+    tCol = specularHiMap0.Sample(samplerType, In.texCoord);
+    sIntensity *= (tCol.x + tCol.y + tCol.z) * tCol.w / 3;
+  }
+
+  // Ambient Mapping
+  if(hasAmbientMap > 0)
+  {
+    tCol = ambientMap0.Sample(samplerType, In.texCoord);
+    aCol *= tCol.xyz * tCol.w;
+  }
+
+  // Alpha Mapping
+  if(hasAlphaMap > 0)
+  {
+    tCol = alphaMap0.Sample(samplerType, In.texCoord);
+    alpha *= (tCol.x + tCol.y + tCol.z) * tCol.w / 3;
+  }
+
+  psOutput Out;
+  Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
+  //Out.color = float4(aCol + dCol * lambertian * lDif + sCol * sIntensity, 1.0);
+  return Out;
+}

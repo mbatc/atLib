@@ -240,7 +240,7 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
     m_bufDirty.push_back(true);
 
     ResourceDesc &rd = m_resource[m_resource.size() - 1];
-    rd.data = atVector<uint8_t>(buffer.m_val.actualSize, 0);
+    rd.data = atVector<uint8_t>(buffer.m_val.actualSize % 16 == 0 ? buffer.m_val.actualSize : (buffer.m_val.actualSize / 16 + 1) * 16, 0);
     rd.offsets = buffer.m_val.packingOffsets;
     rd.vars = buffer.m_val.packingOrder;
     rd.reg = buffer.m_val.reg;

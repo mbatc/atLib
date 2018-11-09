@@ -27,6 +27,7 @@
 #define atGraphicsModel_h__
 
 #include "atRenderable.h"
+#include "atLight.h"
 
 class atGraphicsModel
 {
@@ -38,8 +39,13 @@ public:
   atGraphicsModel(atGraphicsModel &&move);
   ~atGraphicsModel();
 
-  void Draw(const atMat4D &MVP);
+  void Draw(const atMat4D &VP, const atMat4D &modelMat = atMat4D::Identity());
 
+  void SetCamera(const atVec3F &pos);
+  void SetLighting(const atLight &light);
+  void SetMaterials(const atVector<atMaterial> &materials, const int64_t start = 0);
+  void EnableLighting(const bool enable);
+  
   bool Import(const atMesh &mesh);
   bool Import(const atFilename &filename);
 

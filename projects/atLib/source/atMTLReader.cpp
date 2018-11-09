@@ -35,22 +35,22 @@ static atMTLKeyword _ScanKeyword(char *pSrc, int64_t srcLen, int64_t *pLen = nul
 {
   if (!atScan::String(s_buffer, s_bufSize, pSrc, srcLen, pLen))
     return atMTLNone;
-  if (atString::compare(s_buffer, "Ka")) return atMTLAmbientColour;
-  else if (atString::compare(s_buffer, "Kd")) return atMTLDiffuseColour;
-  else if (atString::compare(s_buffer, "Ks")) return atMTLSpecularColour;
-  else if (atString::compare(s_buffer, "Ns")) return atMTLSpecularPower;
-  else if (atString::compare(s_buffer, "Tr")) return atMTLAlphaInv;
-  else if (atString::compare(s_buffer, "d")) return atMTLAlpha;
-  else if (atString::compare(s_buffer, "illum")) return atMTLIllumModel;
-  else if (atString::compare(s_buffer, "map_Ka")) return atMTLAmbientMap;
-  else if (atString::compare(s_buffer, "map_Kd")) return atMTLDiffuseMap;
-  else if (atString::compare(s_buffer, "map_Ks")) return atMTLSpecularColourMap;
-  else if (atString::compare(s_buffer, "map_Ns")) return atMTLSpecularHighlightMap;
-  else if (atString::compare(s_buffer, "map_d")) return atMTLAlphaMap;
-  else if (atString::compare(s_buffer, "map_bump")) return atMTLBumpMap;
-  else if (atString::compare(s_buffer, "bump")) return atMTLBumpMap;
-  else if (atString::compare(s_buffer, "disp")) return atMTLDisplacementMap;
-  else if (atString::compare(s_buffer, "newmtl")) return atMTLNew;
+  if (atString::compare(s_buffer, "Ka", atSCO_None)) return atMTLAmbientColour;
+  else if (atString::compare(s_buffer, "Kd", atSCO_None)) return atMTLDiffuseColour;
+  else if (atString::compare(s_buffer, "Ks", atSCO_None)) return atMTLSpecularColour;
+  else if (atString::compare(s_buffer, "Ns", atSCO_None)) return atMTLSpecularPower;
+  else if (atString::compare(s_buffer, "Tr", atSCO_None)) return atMTLAlphaInv;
+  else if (atString::compare(s_buffer, "d", atSCO_None)) return atMTLAlpha;
+  else if (atString::compare(s_buffer, "illum", atSCO_None)) return atMTLIllumModel;
+  else if (atString::compare(s_buffer, "map_Ka", atSCO_None)) return atMTLAmbientMap;
+  else if (atString::compare(s_buffer, "map_Kd", atSCO_None)) return atMTLDiffuseMap;
+  else if (atString::compare(s_buffer, "map_Ks", atSCO_None)) return atMTLSpecularColourMap;
+  else if (atString::compare(s_buffer, "map_Ns", atSCO_None)) return atMTLSpecularHighlightMap;
+  else if (atString::compare(s_buffer, "map_d", atSCO_None)) return atMTLAlphaMap;
+  else if (atString::compare(s_buffer, "map_bump", atSCO_None)) return atMTLBumpMap;
+  else if (atString::compare(s_buffer, "bump", atSCO_None)) return atMTLBumpMap;
+  else if (atString::compare(s_buffer, "disp", atSCO_None)) return atMTLDisplacementMap;
+  else if (atString::compare(s_buffer, "newmtl", atSCO_None)) return atMTLNew;
   return atMTLNone;
 }
 
@@ -112,7 +112,7 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
     case atMTLNew: pMat = _GetMaterial(pMesh, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc), loadAll); break;
     case atMTLAmbientColour: pMat->m_cAmbient = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
     case atMTLDiffuseColour: pMat->m_cDiffuse = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLSpecularColour: pMat->m_cAmbient = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
+    case atMTLSpecularColour: pMat->m_cSpecular = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
     case atMTLSpecularPower: pMat->m_specularPower = atScan::Float((const char**)&pSrc); break;
     case atMTLAlpha: pMat->m_alpha = atScan::Float((const char**)&pSrc); break;
     case atMTLAlphaInv: pMat->m_alpha = 1.0 - atScan::Float((const char**)&pSrc); break;

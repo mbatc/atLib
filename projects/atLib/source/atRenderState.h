@@ -54,11 +54,7 @@ public:
 protected:
   static void SetDefaults();
 
-  static bool m_blendDirty;
-  static bool m_depthDirty;
-  static bool m_rasterDirty;
   static bool m_viewDirty;
-
   static bool m_defaultSet;
   static bool m_scissorSet;
   static bool m_viewportSet;

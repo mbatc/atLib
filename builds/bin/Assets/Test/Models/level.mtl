@@ -2,7 +2,7 @@
 # Material Count: 4
 
 newmtl None
-Ns 0
+Ns 32
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
@@ -11,7 +11,7 @@ illum 2
 map_Kd Textures\Marble.jpg
 
 newmtl None_Metal.jpg
-Ns 0
+Ns 32
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
@@ -20,7 +20,7 @@ illum 2
 map_Kd Textures\Metal.jpg
 
 newmtl None_Metal_1.jpg
-Ns 0
+Ns 32
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
@@ -29,7 +29,7 @@ illum 2
 map_Kd Textures\Metal_1.jpg
 
 newmtl None_Wood_1.jpg
-Ns 0
+Ns 32
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8

@@ -49,12 +49,12 @@ public:
   
   atString m_name;
 
-  atVec4F64 m_cDiffuse;
-  atVec4F64 m_cSpecular;
-  atVec4F64 m_cAmbient;
+  atVec4F64 m_cDiffuse = atVec4F64::one();
+  atVec4F64 m_cSpecular = atVec4F64::one();
+  atVec4F64 m_cAmbient = atVec4F64::zero();
 
-  double m_alpha;
-  double m_specularPower;
+  double m_alpha = 1.0;
+  double m_specularPower = 32.0;
 
   atVector<atFilename> m_tAmbient;
   atVector<atFilename> m_tDiffuse;

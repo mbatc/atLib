@@ -107,7 +107,7 @@ void atRenderTarget::CreateSwapChain()
   desc.BufferDesc.Height = m_size.y;
   desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
   desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-  desc.SampleDesc.Count = 1;
+  desc.SampleDesc.Count = 4;
   desc.SampleDesc.Quality = 0;
   desc.OutputWindow = m_pWindow->GetHandle();
   desc.BufferCount = 1;
@@ -132,7 +132,7 @@ void atRenderTarget::CreateDepthStencil()
     desc.MipLevels = 1;
     desc.ArraySize = 1;
     desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Count = 4;
     desc.SampleDesc.Quality = 0;
     desc.Usage = D3D11_USAGE_DEFAULT;
     desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -147,7 +147,7 @@ void atRenderTarget::CreateDepthStencil()
     //atGraphics::SafeRelease(m_pDepthStencilView);
     D3D11_DEPTH_STENCIL_VIEW_DESC desc;
     desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
     desc.Texture2D.MipSlice = 0;
     desc.Flags = 0;
     if (FAILED(atGraphics::GetDevice()->CreateDepthStencilView(m_pDepthStencilBuffer, &desc, &m_pDepthStencilView)))

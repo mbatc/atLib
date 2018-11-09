@@ -127,6 +127,19 @@ static int64_t _ParseDataLayout(atHLSLBufferDesc *pLayout, const char *src, int6
     if (token.find('}') != -1)
       break;
 
+    if (token == "{")
+    {
+      int64_t depth = 1;
+      while (depth > 0 && offset < len)
+      {
+        offset += dist;
+        token = atScan::String(src + offset, &dist);
+        depth -= token.find('}') != -1;
+        depth += token.find('{') != -1;
+      }
+      continue;
+    }
+
     int64_t structCount = pLayout->structs.Size();
     int64_t memberCount = pLayout->members.Size();
 

@@ -84,6 +84,8 @@ public:
   template <template <typename> class VecCls, typename VecType> static bool Equals(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Equals<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
   template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Assign(VecCls<VecType> *pLhs, const VecCls<VecType> &rhs) { memcpy(pLhs, &rhs, sizeof(VecCls<VecType>)); return *pLhs; }
   template <template <typename> class VecCls, typename VecType> static VecType Angle(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs) { return Angle<VecCls, VecType, VecCls, VecType>(lhs, rhs); }
+  template <template <typename> class VecCls, typename VecType, typename VecType2> static VecCls<VecType> Reflect(const VecCls<VecType> &dir, const VecCls<VecType2> &norm) { return Subtract(dir, Multiply(norm, Dot(dir, norm) * 2)); }
+  template <template <typename> class VecCls, typename VecType> static VecCls<VecType> Reflect(const VecCls<VecType> &dir, const VecCls<VecType> &norm) { return Reflect<VecCls, VecType, VecType>(dir, norm); }
 
   template <template <typename> class VecCls1, typename VecType1, template <typename> class VecCls2, typename VecType2> static VecCls1<VecType1> Add(const VecCls1<VecType1> &lhs, const VecCls2<VecType2> &rhs)
   {
