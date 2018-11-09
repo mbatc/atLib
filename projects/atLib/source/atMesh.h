@@ -111,7 +111,6 @@ public:
 
   const atMesh& operator=(const atMesh &rhs);
   const atMesh& operator=(atMesh &&rhs);
-protected:
 };
 
 atTrivialStreamRead(atMesh::Triangle);

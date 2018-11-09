@@ -38,14 +38,95 @@ atGraphicsModel::atGraphicsModel(const atGraphicsModel &copy) { for (const atRen
 
 atGraphicsModel::atGraphicsModel(atGraphicsModel &&move) { for (atRenderable &ro : move.m_mesh) m_mesh.push_back(std::move(ro)); }
 
-void atGraphicsModel::Draw(const atMat4D &MVP)
+void atGraphicsModel::Draw(const atMat4D &VP, const atMat4D &modelMat)
 {
-  atMat4 mvpf = MVP;
+  atMat4 mvpf = VP * modelMat;
+  atMat4 mf = modelMat;
   for (atRenderable &ro : m_mesh)
   {
     ro.SetChannel("mvp", mvpf.Transpose(), atRRT_Variable);
+    ro.SetChannel("modelMat", mf.Transpose(), atRRT_Variable);
     ro.Draw();
   }
+}
+
+void atGraphicsModel::SetCamera(const atVec3F &pos)
+{
+  for (atRenderable &ro : m_mesh)
+  {
+    ro.SetChannel("camPos", pos, atRRT_Variable);
+    ro.SetChannel("hasCamPos", (int32_t)1, atRRT_Variable);
+  }
+}
+
+void atGraphicsModel::SetLighting(const atLight &light)
+{
+  for (atRenderable &ro : m_mesh)
+  {
+    ro.SetChannel("lightDiffuse0", atVec4F(light.m_diffuseColor), atRRT_Variable);
+    ro.SetChannel("lightAmbient0", atVec4F(light.m_ambientColor), atRRT_Variable);
+    ro.SetChannel("lightSpecular0", atVec4F(light.m_specularColor), atRRT_Variable);
+    ro.SetChannel("lightDir0", atVec3F(light.m_direction), atRRT_Variable);
+  }
+  EnableLighting(true);
+}
+
+void atGraphicsModel::SetMaterials(const atVector<atMaterial>& materials, const int64_t start)
+{
+  for(int64_t i = 0; i < materials.size() && i + start < m_mesh.size(); ++i)
+  {
+    const atMaterial &mat = materials[i];
+    atRenderable &mesh = m_mesh[start + i];
+
+    bool hasAmbientMap = mat.m_tAmbient.size() > 0;
+    bool hasDiffuseMap = mat.m_tDiffuse.size() > 0;
+    bool hasAlphaMap = mat.m_tAlpha.size() > 0;
+    bool hasSpecularMap = mat.m_tSpecular.size() > 0;
+    bool hasSpecularHiMap = mat.m_tSpecularHigh.size() > 0;
+    bool hasDisplacementMap = mat.m_tDisplacement.size() > 0;
+    bool hasBumpMap = mat.m_tBump.size() > 0;
+
+    for (int64_t i = 0; i < mat.m_tAmbient.size(); ++i)
+      mesh.SetChannel(atString("ambientMap") + i, mat.m_tAmbient[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tDiffuse.size(); ++i)
+      mesh.SetChannel(atString("diffuseMap") + i, mat.m_tDiffuse[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tAlpha.size(); ++i)
+      mesh.SetChannel(atString("alphaMap") + i, mat.m_tAlpha[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tSpecular.size(); ++i)
+      mesh.SetChannel(atString("specularMap") + i, mat.m_tSpecular[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tSpecularHigh.size(); ++i)
+      mesh.SetChannel(atString("specularHiMap") + i, mat.m_tSpecularHigh[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tDisplacement.size(); ++i)
+      mesh.SetChannel(atString("displacementMap") + i, mat.m_tDisplacement[i].Path(), atRRT_Texture);
+
+    for (int64_t i = 0; i < mat.m_tBump.size(); ++i)
+      mesh.SetChannel(atString("bumpMap") + i, mat.m_tBump[i].Path(), atRRT_Texture);
+
+    mesh.SetChannel("diffuseColour0", atVec4F(mat.m_cDiffuse), atRRT_Variable);
+    mesh.SetChannel("ambientColour0", atVec4F(mat.m_cAmbient), atRRT_Variable);
+    mesh.SetChannel("specularColour0", atVec4F(mat.m_cSpecular), atRRT_Variable);
+    mesh.SetChannel("alpha0", (float)mat.m_alpha, atRRT_Variable);
+    mesh.SetChannel("specularPower0", (float)mat.m_specularPower, atRRT_Variable);
+
+    mesh.SetChannel("hasAmbientMap", (int32_t)hasAmbientMap, atRRT_Variable);
+    mesh.SetChannel("hasDiffuseMap", (int32_t)hasDiffuseMap, atRRT_Variable);
+    mesh.SetChannel("hasAlphaMap", (int32_t)hasAlphaMap, atRRT_Variable);
+    mesh.SetChannel("hasSpecularMap", (int32_t)hasSpecularMap, atRRT_Variable);
+    mesh.SetChannel("hasSpecularHiMap", (int32_t)hasSpecularHiMap, atRRT_Variable);
+    mesh.SetChannel("hasDisplacementMap", (int32_t)hasDisplacementMap, atRRT_Variable);
+    mesh.SetChannel("hasBumpMap", (int32_t)hasBumpMap, atRRT_Variable);
+  }
+}
+
+void atGraphicsModel::EnableLighting(const bool enable)
+{
+  for (atRenderable &ro : m_mesh)
+    ro.SetChannel("hasLighting", (int32_t)enable, atRRT_Variable);
 }
 
 bool atGraphicsModel::Import(const atMesh &mesh)
@@ -114,31 +195,8 @@ bool atGraphicsModel::Import(const atMesh &mesh)
         indices[m].push_back((uint32_t)m_vertices[vertData]);
     }
 
-    m_mesh[m].SetShader("assets/shaders/color");
+    m_mesh[m].SetShader("assets/shaders/uber");
     m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tAmbient.size(); ++i)
-      m_mesh[m].SetChannel(atString("ambientMap") + i, mesh.m_materials[m].m_tAmbient[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tDiffuse.size(); ++i)
-      m_mesh[m].SetChannel(atString("diffuseMap") + i, mesh.m_materials[m].m_tDiffuse[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tAlpha.size(); ++i)
-      m_mesh[m].SetChannel(atString("alphaMap") + i, mesh.m_materials[m].m_tAlpha[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tSpecular.size(); ++i)
-      m_mesh[m].SetChannel(atString("specularMap") + i, mesh.m_materials[m].m_tSpecular[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tSpecularHigh.size(); ++i)
-      m_mesh[m].SetChannel(atString("specularHiMap") + i, mesh.m_materials[m].m_tSpecularHigh[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tDisplacement.size(); ++i)
-      m_mesh[m].SetChannel(atString("displacementMap") + i, mesh.m_materials[m].m_tDisplacement[i].Path(), atRRT_Texture);
-
-    for (int64_t i = 0; i < mesh.m_materials[m].m_tBump.size(); ++i)
-      m_mesh[m].SetChannel(atString("bumpMap") + i, mesh.m_materials[m].m_tBump[i].Path(), atRRT_Texture);
-
-
     m_mesh[m].SetChannel("COLOR", optCol[m], atRRT_VertexData);
     m_mesh[m].SetChannel("POSITION", optPos[m], atRRT_VertexData);
     m_mesh[m].SetChannel("TEXCOORD", optTex[m], atRRT_VertexData);
@@ -147,6 +205,10 @@ bool atGraphicsModel::Import(const atMesh &mesh)
     m_mesh[m].SetChannel("BINORMAL", optBiNorm[m], atRRT_VertexData);
     m_mesh[m].SetChannel("idxBuffer", indices[m], atRRT_Indices);
   }
+  SetMaterials(mesh.m_materials);
+  SetLighting(atLight());
+  EnableLighting(false);
+  
   return true;
 }
 

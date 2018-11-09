@@ -119,6 +119,7 @@ public:
   T Angle(const VecType<T> &rhs) const { return Angle(*this, rhs); }
 
   VecType<T> Normalize() const { return Normalize(*this); }
+  VecType<T> Reflect(const VecType<T> &norm) { return Reflect(*this, norm); }
   VecType<T> Cross(const VecType<T> &rhs) const { return atVectorMath::Cross(*this, rhs); }
 
   static T Mag(const VecType<T> &rhs) { return atVectorMath::Mag(rhs); }
@@ -128,6 +129,7 @@ public:
 
   static VecType<T> Normalize(const VecType<T> &rhs) { return atVectorMath::Normalize(rhs); }
   static VecType<T> Cross(const VecType<T> &lhs, const VecType<T> &rhs) { return atVectorMath::Cross(lhs, rhs); }
+  static VecType<T> Reflect(const VecType<T> &dir, const VecType<T> &norm) { return atVectorMath::Reflect(dir, norm); }
 
   T* begin() { return data(); }
   T* end() { return data() + element_count; }

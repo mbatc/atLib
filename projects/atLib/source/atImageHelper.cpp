@@ -50,7 +50,7 @@ static atVector<atCol> _LoadFromMemory(const uint8_t *pData, const atVec2I &size
   return data;
 }
 
-atVector<atCol> atImageHelper::LoadImage(const atFilename & file, atVec2I *pSize)
+atVector<atCol> atImageHelper::LoadImage(const atFilename &file, atVec2I *pSize)
 {
   atVec2I size;
   int nChannels = 0;

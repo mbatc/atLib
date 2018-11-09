@@ -130,6 +130,8 @@ void atMesh::DiscoverTextures(const atString &initialPath)
       path = TryDiscoverFile(path.Path(), initialPath);
     for (atFilename &path : mat.m_tSpecularHigh)
       path = TryDiscoverFile(path.Path(), initialPath);
+    for (atFilename &path : mat.m_tBump)
+      path = TryDiscoverFile(path.Path(), initialPath);
   }
 }
 

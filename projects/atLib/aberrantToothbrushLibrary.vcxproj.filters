@@ -142,6 +142,9 @@
     <Filter Include="Source Files\Networking">
       <UniqueIdentifier>{8cc8d6fa-b0cf-4f20-bbb0-ab3bb2a79158}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{60a6a6d4-27b2-4ec9-ae41-6984306c1dfd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -284,6 +287,9 @@
     </ClCompile>
     <ClCompile Include="source\atTextureContext.cpp">
       <Filter>Source Files\Graphics\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atLight.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -478,6 +484,9 @@
     </ClInclude>
     <ClInclude Include="source\atTextureContext.h">
       <Filter>Header Files\Graphics\Geometry\Material\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atLight.h">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

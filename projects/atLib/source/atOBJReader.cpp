@@ -36,15 +36,15 @@ static atOBJKeyword _ScanKeyword(char *pSrc, int64_t srcLen, int64_t *pLen = nul
 {
   if (!atScan::String(s_buffer, s_bufSize, pSrc, srcLen, pLen))
     return atOBJNone;
-  if (atString::compare(s_buffer, "v")) return atOBJVertex;
-  else if (atString::compare(s_buffer, "vn")) return atOBJNormal;
-  else if (atString::compare(s_buffer, "vt")) return atOBJTexCoord;
-  else if (atString::compare(s_buffer, "mtllib")) return atOBJMatLib;
-  else if (atString::compare(s_buffer, "usemtl")) return atOBJMatRef;
-  else if (atString::compare(s_buffer, "s")) return atOBJSmoothShading;
-  else if (atString::compare(s_buffer, "f")) return atOBJFace;
-  else if (atString::compare(s_buffer, "l")) return atOBJLine;
-  else if (atString::compare(s_buffer, "#")) return atOBJComment;
+  if (atString::compare(s_buffer, "v", atSCO_None)) return atOBJVertex;
+  else if (atString::compare(s_buffer, "vn", atSCO_None)) return atOBJNormal;
+  else if (atString::compare(s_buffer, "vt", atSCO_None)) return atOBJTexCoord;
+  else if (atString::compare(s_buffer, "mtllib", atSCO_None)) return atOBJMatLib;
+  else if (atString::compare(s_buffer, "usemtl", atSCO_None)) return atOBJMatRef;
+  else if (atString::compare(s_buffer, "s", atSCO_None)) return atOBJSmoothShading;
+  else if (atString::compare(s_buffer, "f", atSCO_None)) return atOBJFace;
+  else if (atString::compare(s_buffer, "l", atSCO_None)) return atOBJLine;
+  else if (atString::compare(s_buffer, "#", atSCO_None)) return atOBJComment;
   return atOBJNone;
 }
 

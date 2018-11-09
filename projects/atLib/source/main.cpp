@@ -47,7 +47,7 @@
 // Demonstrates loading and rendering a model with simple user 
 // input provided by atCamera
 
-void ExampleRenderMesh(atVec2I wndSize = {800, 600})
+void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = false)
 {
   // Set the model being loaded
   const atString path = "assets/test/models/level.obj";
@@ -55,6 +55,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600})
   // Set the windows clear colour
   const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
 
+  atLight light;
+  
   // Import the model
   atGraphicsModel model(path);
 
@@ -62,7 +64,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600})
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atCamera camera(window);
+  atCamera camera(window, { 0, 1, 5 });
 
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
@@ -72,7 +74,14 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600})
 
     // Clear window
     window.Clear(clearColor);
-    
+
+    // Set Lighting Data
+    if (useLighting)
+    {
+      model.SetLighting(light);
+      model.SetCamera(camera.m_translation);
+    }
+
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
@@ -201,7 +210,7 @@ void ExampleImportExportMesh()
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  ExampleRenderMesh({1820, 820});
+  ExampleRenderMesh();
   // ExampleImportExportMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
