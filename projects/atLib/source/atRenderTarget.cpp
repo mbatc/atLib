@@ -59,11 +59,11 @@ void atRenderTarget::Clear(const atVec4F &color)
 
 bool atRenderTarget::Resize()
 {
-  if (m_size == m_pWindow->GetSize() && m_windowed == m_pWindow->IsWindowed())
+  if (m_size == m_pWindow->Size() && m_windowed == m_pWindow->IsWindowed())
     return false;
   Destroy();
 
-  m_size = m_pWindow->GetSize();
+  m_size = m_pWindow->Size();
   m_windowed = m_pWindow->IsWindowed();
   return true;
 }

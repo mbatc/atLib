@@ -107,6 +107,7 @@ bool atFile::Exists(const atFilename &fn)
       errorCode == ERROR_BAD_PATHNAME || errorCode == ERROR_BAD_NETPATH));
 }
 
+int64_t atFile::WriteText(const atString &text) { return Write(text.c_str(), text.length()); }
 bool atFile::Create(const atFilename &fn) { return atFile(fn, atFM_Append).IsOpen(); }
 bool atFile::Copy(const atFilename &fn) { atUnused(fn); return false; }
 bool atFile::Move(const atFilename &fn) { atUnused(fn); return false; }

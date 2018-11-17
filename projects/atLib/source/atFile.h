@@ -56,6 +56,9 @@ public:
   // Writes pData to the file
   int64_t Write(void *pData, const int64_t len);
 
+  // Writes pData to the file
+  int64_t WriteText(const atString &text);
+
   bool Flush();
 
   // Read data into pBuffer. 

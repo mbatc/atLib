@@ -43,6 +43,18 @@ template<typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const 
   };
 }
 
+template<typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane)
+{
+  const T f_fn = farPlane / (farPlane - nearPlane);
+  return
+  {
+    2 / width,  0,          0,                                               0,
+    0,          2 / height, 0,                                               0,
+    0,          0,         -2 / (farPlane - nearPlane),                      0,
+    -1,         1,          (farPlane + nearPlane) / (farPlane - nearPlane), 1
+  };
+}
+
 template<typename T> atMatrix<T, 4, 4> atMatrixRotationX(const T rads)
 {
   const T c = atCos(rads);

@@ -145,6 +145,18 @@
     <Filter Include="Header Files\Scene">
       <UniqueIdentifier>{60a6a6d4-27b2-4ec9-ae41-6984306c1dfd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI\Windows">
+      <UniqueIdentifier>{6fad48b8-826a-444e-b095-aed79eb12aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\Font">
+      <UniqueIdentifier>{b1eaef28-6e59-48c1-b9dd-1442419fc549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Font">
+      <UniqueIdentifier>{287dd0d2-2e15-4d57-84a6-b98d14b92e05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{da0efdbb-c62b-44eb-8bc0-341be1b5fe37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\atAlloc.cpp">
@@ -279,16 +291,22 @@
     <ClCompile Include="source\atNetworkReader.cpp">
       <Filter>Source Files\IO\Streams</Filter>
     </ClCompile>
-    <ClCompile Include="source\atNetworkWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\atLimits.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="source\atTextureContext.cpp">
       <Filter>Source Files\Graphics\Material</Filter>
     </ClCompile>
+    <ClCompile Include="source\atFont.cpp">
+      <Filter>Source Files\UI\Font</Filter>
+    </ClCompile>
     <ClCompile Include="source\atLight.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atNetworkWriter.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atFontRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -488,6 +506,30 @@
     <ClInclude Include="source\atLight.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="source\atPrint.h">
+      <Filter>Header Files\String</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atUIWindow.h">
+      <Filter>Header Files\UI\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atUIActiveRect.h">
+      <Filter>Header Files\UI\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atGUI.h">
+      <Filter>Header Files\UI\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFont.h">
+      <Filter>Header Files\UI\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="source\3rdParty\stb\stb_image_resize.h">
+      <Filter>Header Files\3rdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="source\3rdParty\stb\stb_truetype.h">
+      <Filter>Header Files\3rdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atFontRenderer.h">
+      <Filter>Header Files\UI\Font</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />
@@ -546,6 +588,9 @@
     </None>
     <None Include="source\atHash.inl">
       <Filter>Header Files\Math</Filter>
+    </None>
+    <None Include="source\atPrint.inl">
+      <Filter>Header Files\String</Filter>
     </None>
   </ItemGroup>
 </Project>

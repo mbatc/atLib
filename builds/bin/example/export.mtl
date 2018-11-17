@@ -1,0 +1,35 @@
+# atLib MTL File
+# Material Count: 4
+# https://github.com/mbatc/atLib
+
+newmtl None
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ka 0.000000 0.000000 0.000000
+d 1.000000
+Ns 32.000000
+map_Ks Textures/Marble.jpg
+
+newmtl None_Wood_1.jpg
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ka 0.000000 0.000000 0.000000
+d 1.000000
+Ns 32.000000
+map_Ks Textures/Wood_1.jpg
+
+newmtl None_Metal_1.jpg
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ka 0.000000 0.000000 0.000000
+d 1.000000
+Ns 32.000000
+map_Ks Textures/Metal_1.jpg
+
+newmtl None_Metal.jpg
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ka 0.000000 0.000000 0.000000
+d 1.000000
+Ns 32.000000
+map_Ks Textures/Metal.jpg

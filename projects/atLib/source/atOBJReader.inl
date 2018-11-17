@@ -33,7 +33,7 @@ template <typename T> static T atOBJReader::ParseVector(char **ppSrc, const int6
   {
     if (pos >= newLine)
       break;
-    val = atScan::Float(*ppSrc, &scanLen);
+    val = atScan::Float(*ppSrc, &scanLen, srcLen);
     *ppSrc += scanLen;
     pos += scanLen;
   }

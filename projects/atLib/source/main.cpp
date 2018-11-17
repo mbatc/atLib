@@ -28,7 +28,7 @@
 #include "atCamera.h"
 #include "atGraphicsModel.h"
 #include "atBVH.h"
-
+#include "atFontRenderer.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -60,7 +60,7 @@
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
   // Set the model being loaded
-  const atString path = "assets/test/models/bumpMap.obj";
+  const atString path = "assets/test/models/level.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -75,6 +75,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
+
+  atFontRenderer::SetFont(atFilename("assets/ProggyClean.ttf"));
 
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
@@ -93,6 +95,9 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
+
+    atFontRenderer::Bake(10, 10, "Test Text");
+    atFontRenderer::Draw(window);
 
     // Display rendered frame
     window.Swap();
@@ -203,14 +208,14 @@ void ExampleImportExportMesh()
   mesh.Import(path);
 
   // OBJ Writing isn't supported yet but will be shortly
-  // mesh.Export(outPath1);
+  mesh.Export(outPath1);
 
   // Write to a AT's binary mesh format
   mesh.Export(outPath2);
 
   // Import AT's binary mesh format and export to .obj
   mesh.Import(outPath2);
-  // mesh.Export(outPath3);
+  mesh.Export(outPath3);
 }
 
 #include "atBVH.h"
@@ -220,7 +225,9 @@ int main(int argc, char **argv)
 {
   atUnused(argc, argv);
   ExampleRenderMesh();
-  // ExampleImportExportMesh();
+  // for(int64_t i = 0; i < 1000; ++i)
+  //   ExampleImportExportMesh();
+
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 
