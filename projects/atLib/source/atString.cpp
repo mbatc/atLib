@@ -25,8 +25,17 @@
 
 #include "atString.h"
 #include <string.h>
+// #include <xlocbuf>
+#include <codecvt>
 
-atWideString atToWideString(const atString &str) { return atWideString(str); }
+
+
+atWideString atToWideString(const atString &str) 
+{
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  std::wstring wstr = converter.from_bytes(str);
+  return atWideString(wstr.c_str(), wstr.c_str() + wstr.length() + 1);
+}
 atString atToString(const atWideString &str) { return atString(str); }
 
 atString atToString(const int64_t val)

@@ -50,9 +50,7 @@ public:
   atStringBasic(atStringBasic &&move);
   atStringBasic(const atVector<T> &str);
   atStringBasic(atVector<T> &&move);
-
-  template <typename T1> atStringBasic(const T &o);
-  
+    
   static atStringBasic<T> _to_lower(const T *str, const int64_t len);
   static atStringBasic<T> _to_upper(const T *str, const int64_t len);
 
@@ -183,6 +181,8 @@ template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, co
 template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs);
 template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs);
 template <typename T, typename T2> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T2 &rhs);
+template <typename T, typename T2> atStringBasic<T> operator+(const T2 &rhs, const atStringBasic<T> &lhs);
+template <typename T, typename T2> atStringBasic<T> operator+=(const atStringBasic<T> &lhs, const T2 &rhs);
 
 template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str);
 template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str);

@@ -24,9 +24,6 @@
 // -----------------------------------------------------------------------------
 
 #include "atInput.h"
-#include "atRenderState.h"
-#include "atCamera.h"
-#include "atGraphicsModel.h"
 #include "atBVH.h"
 
 
@@ -57,10 +54,17 @@
 // Shift - Speed up
 // Right Mouse + Mouse Move - Look
 
+#include "atFontRenderer.h"
+#include "atGraphicsModel.h"
+#include "atRenderState.h"
+#include "atCamera.h"
+
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
+  DirectX::XMMATRIX dxMat;
+  dxMat = DirectX::XMMatrixOrthographicLH(800, 600, -1.0, 1.0);
   // Set the model being loaded
-  const atString path = "assets/test/models/bumpMap.obj";
+  const atString path = "assets/test/models/level.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -75,6 +79,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
+
+  atFontRenderer::SetFont(atFilename("assets/RomanSerif.ttf"));
 
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
@@ -93,6 +99,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
+
+    atFontRenderer::Bake(0, 0, "{ 0, 0 }\n{ New Line }\nAnother New Line to test the text renderer!!?");
+    atFontRenderer::Bake(800, 600, "{ 800, 600 }");
+    atFontRenderer::Bake(0, 600, "{ 0, 600 }");
+    atFontRenderer::Bake(800, 0, "{ 800, 0 }");
+    atFontRenderer::Draw(window);
 
     // Display rendered frame
     window.Swap();

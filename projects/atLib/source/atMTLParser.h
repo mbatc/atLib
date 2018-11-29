@@ -60,7 +60,7 @@ class atMTLWriter
 {
 public:
   atMTLWriter() = delete;
-  static bool Write(const atFilename &file, const atMesh &mesh);
+  static bool Write(const atFilename &file, const atVector<atMaterial> &materials);
 };
 
 #endif // atMTLParser_h__

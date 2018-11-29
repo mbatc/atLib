@@ -23,46 +23,24 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atTextureContext_h__
-#define atTextureContext_h__
+#ifndef atPrint_h__
+#define atPrint_h__
 
-#include "atGraphics.h"
-#include "atImage.h"
+#include "atString.h"
 
-class atTextureContext
+class atPrint
 {
 public:
-  atTextureContext(ID3D11Texture2D *pTexture);
-  atTextureContext(const atImage &file);
-  atTextureContext(const atFilename &file);
-  atTextureContext(const atTextureContext &copy);
-  atTextureContext(atTextureContext &&move);
-  ~atTextureContext();
-
-  void Release();
-
-  void UpdateTexture(const atImage &image);
-
-  operator ID3D11Texture2D *();
-  operator ID3D11ShaderResourceView *();
-  operator ID3D11RenderTargetView *();
-  operator ID3D11DepthStencilView *();
-  operator ID3D11UnorderedAccessView *();
-  operator ID3D11Texture2D **();
-  operator ID3D11ShaderResourceView **();
-  operator ID3D11RenderTargetView **();
-  operator ID3D11DepthStencilView **();
-  operator ID3D11UnorderedAccessView **();
-
-  const atTextureContext &operator=(const atTextureContext &rhs);
-  const atTextureContext &operator=(atTextureContext &&rhs);
-protected:
+  atPrint() = delete;
   
-  ID3D11Texture2D *m_pTexture = nullptr;
-  ID3D11ShaderResourceView *m_pShaderView = nullptr;
-  ID3D11RenderTargetView *m_pRenderView = nullptr;
-  ID3D11DepthStencilView *m_pDepthView = nullptr;
-  ID3D11UnorderedAccessView *m_pUAView = nullptr;
+  template <typename T> static atString Print(const T &object);
+  template <typename T> static atString Float(const T &val);
+  template <typename T> static atString Int(const T &val);
+
+  template <typename T> static atString Vector(const atVector2<T> &vec, const char *separator = " ");
+  template <typename T> static atString Vector(const atVector3<T> &vec, const char *separator = " ");
+  template <typename T> static atString Vector(const atVector4<T> &vec, const char *separator = " ");
 };
 
-#endif // atTextureContext_h__
+#include "atPrint.inl"
+#endif // atPrint_h__

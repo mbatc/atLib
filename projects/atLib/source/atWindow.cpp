@@ -229,9 +229,9 @@ void atWindow::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
 void atWindow::SetParent(const atWindow &window) { m_hWnd = window.GetHandle(); }
 void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
 HWND atWindow::GetHandle() const { return m_hWnd; }
-const atVec2I& atWindow::GetSize() const { return m_size; }
-int32_t atWindow::GetWidth() const { return m_size.x; }
-int32_t atWindow::GetHeight() const { return m_size.y; }
+const atVec2I& atWindow::Size() const { return m_size; }
+int32_t atWindow::Width() const { return m_size.x; }
+int32_t atWindow::Height() const { return m_size.y; }
 const atVec2I& atWindow::GetPos() const { return m_pos; }
 int32_t atWindow::GetX() const { return m_pos.x; }
 int32_t atWindow::GetY() const { return m_pos.y; }

@@ -67,9 +67,23 @@ int64_t atHardwareTexture::UploadTexture(const atFilename &file)
   int64_t *pID = s_imageID.TryGet(file);
   if (pID)
     return *pID;
-  s_textures.Add(s_imageCounter, atNew<atTextureContext>(file));
   s_imageID.Add(file, s_imageCounter);
+  return UploadTexture(atImage(file));
+}
+
+int64_t atHardwareTexture::UploadTexture(const atImage &image)
+{
+  s_textures.Add(s_imageCounter, atNew<atTextureContext>(image));
   return s_imageCounter++;
+}
+
+bool atHardwareTexture::UpdateTexture(const int64_t id, const atImage &image)
+{
+  atTextureContext **ppTex = s_textures.TryGet(id);
+  if(!ppTex)
+    return false;
+  (*ppTex)->UpdateTexture(image);
+  return true;
 }
 
 void atHardwareTexture::DeleteTexture(const int64_t id)

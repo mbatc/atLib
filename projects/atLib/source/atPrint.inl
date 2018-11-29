@@ -23,46 +23,10 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atTextureContext_h__
-#define atTextureContext_h__
+template<typename T> atString atPrint::Print(const T &object) { return atToString(object); }
+template<typename T> atString atPrint::Float(const T &val) { return atToString((double)val); }
+template<typename T> atString atPrint::Int(const T &val) { return atToString((int64_t)val); }
+template<typename T> atString atPrint::Vector(const atVector2<T> &vec, const char *separator) { return atToString(vec.x) + separator + atToString(vec.y); }
+template<typename T> atString atPrint::Vector(const atVector3<T> &vec, const char *separator) { return Vector(vec.xy()) + separator + atToString(vec.z); }
+template<typename T> atString atPrint::Vector(const atVector4<T> &vec, const char *separator) { return Vector(vec.xyz()) + separator + atToString(vec.w); }
 
-#include "atGraphics.h"
-#include "atImage.h"
-
-class atTextureContext
-{
-public:
-  atTextureContext(ID3D11Texture2D *pTexture);
-  atTextureContext(const atImage &file);
-  atTextureContext(const atFilename &file);
-  atTextureContext(const atTextureContext &copy);
-  atTextureContext(atTextureContext &&move);
-  ~atTextureContext();
-
-  void Release();
-
-  void UpdateTexture(const atImage &image);
-
-  operator ID3D11Texture2D *();
-  operator ID3D11ShaderResourceView *();
-  operator ID3D11RenderTargetView *();
-  operator ID3D11DepthStencilView *();
-  operator ID3D11UnorderedAccessView *();
-  operator ID3D11Texture2D **();
-  operator ID3D11ShaderResourceView **();
-  operator ID3D11RenderTargetView **();
-  operator ID3D11DepthStencilView **();
-  operator ID3D11UnorderedAccessView **();
-
-  const atTextureContext &operator=(const atTextureContext &rhs);
-  const atTextureContext &operator=(atTextureContext &&rhs);
-protected:
-  
-  ID3D11Texture2D *m_pTexture = nullptr;
-  ID3D11ShaderResourceView *m_pShaderView = nullptr;
-  ID3D11RenderTargetView *m_pRenderView = nullptr;
-  ID3D11DepthStencilView *m_pDepthView = nullptr;
-  ID3D11UnorderedAccessView *m_pUAView = nullptr;
-};
-
-#endif // atTextureContext_h__

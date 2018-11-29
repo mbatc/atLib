@@ -25,9 +25,9 @@
 
 #include "atScan.h"
 
-static int64_t _scan_integer(const char *str, int64_t *pLen, const char *candidates)
+static int64_t _scan_integer(const char *str, int64_t *pLen, const char *candidates, const int64_t srcLen)
 {
-  const int64_t len = strlen(str);
+  const int64_t len = srcLen < 0 ? strlen(str) : srcLen;
   const int64_t nextChar = atString::_find_first_not(str, len, atString::Whitespace());
   const bool isNegative = str[nextChar] == '-';
   const int64_t nCandidates = strlen(candidates);
@@ -46,11 +46,11 @@ static int64_t _scan_integer(const char *str, int64_t *pLen, const char *candida
   return isNegative ? -res : res;
 }
 
-atString atScan::String(const char *str, int64_t *pLen)
+atString atScan::String(const char *str, int64_t *pLen, int64_t srcLen)
 {
-  int64_t len = strlen(str);
-  int64_t start = atString::_find_first_not(str, len, atString::Whitespace());
-  int64_t end = atString::_find_first_of(str, len, atString::Whitespace(), start);
+  const int64_t len = srcLen < 0 ? strlen(str) : srcLen;
+  const int64_t start = atString::_find_first_not(str, len, atString::Whitespace());
+  const int64_t end = atString::_find_first_of(str, len, atString::Whitespace(), start);
   if (start < 0)
     return "";
   atString ret(str + start, end < 0 ? str + len : (str + end));
@@ -59,37 +59,37 @@ atString atScan::String(const char *str, int64_t *pLen)
   return ret;
 }
 
-int64_t atScan::Int(const char **pStr, int64_t *pLen)
+int64_t atScan::Int(const char **pStr, int64_t *pLen, int64_t srclen)
 {
   int64_t len = 0;
-  int64_t res = Int(*pStr, &len);
+  int64_t res = Int(*pStr, &len, srclen);
   if (pLen) *pLen = len;
   *pStr += len;
   return res;
 }
 
-int64_t atScan::Hex(const char **pStr, int64_t *pLen)
+int64_t atScan::Hex(const char **pStr, int64_t *pLen, int64_t srclen)
 {
   int64_t len = 0;
-  int64_t res = Hex(*pStr, &len);
+  int64_t res = Hex(*pStr, &len, srclen);
   if (pLen) *pLen = len;
   *pStr += len;
   return res;
 }
 
-double atScan::Float(const char **pStr, int64_t *pLen)
+double atScan::Float(const char **pStr, int64_t *pLen, int64_t srclen)
 {
   int64_t len = 0;
-  double res = Float(*pStr, &len);
+  double res = Float(*pStr, &len, srclen);
   if (pLen) *pLen = len;
   *pStr += len;
   return res;
 }
 
-atString atScan::String(const char **pStr, int64_t *pLen)
+atString atScan::String(const char **pStr, int64_t *pLen, int64_t srclen)
 {
   int64_t len = 0;
-  atString res = String(*pStr, &len);
+  atString res = String(*pStr, &len, srclen);
   if (pLen) *pLen = len;
   *pStr += len;
   return res;
@@ -109,7 +109,7 @@ bool atScan::String(char *pOut, const int64_t maxLen, const char *str, int64_t s
   return true;
 }
 
-bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t strLen, int64_t * pLen)
+bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t strLen, int64_t *pLen)
 {
   int64_t len = 0;
   bool res = String(pOut, maxLen, *pStr, strLen, &len);
@@ -118,9 +118,9 @@ bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t
   return res;
 }
 
-double atScan::Float(const char *str, int64_t *pLen)
+double atScan::Float(const char *str, int64_t *pLen, int64_t srclen)
 {
-  const int64_t len = strlen(str);
+  const int64_t len = srclen < 0 ? strlen(str) : srclen;
   const int64_t nextChar = atString::_find_first_not(str, len, atString::Whitespace());
   const int64_t firstNum = atString::_find_first_of(str, len, "-0123456789.", nextChar);
   bool isNegative = str[firstNum] == '-';
@@ -149,7 +149,7 @@ double atScan::Float(const char *str, int64_t *pLen)
   return value * pow(10, -exponent) * (isNegative ? -1 : 1);
 }
 
-int64_t atScan::Int(const char *str, int64_t *pLen) { return _scan_integer(str, pLen, atString::Numerals()); }
-int64_t atScan::Hex(const char * str, int64_t * pLen) { return _scan_integer(str, pLen, atString::Hex()); }
+int64_t atScan::Int(const char *str, int64_t *pLen, const int64_t srcLen) { return _scan_integer(str, pLen, atString::Numerals(), srcLen); }
+int64_t atScan::Hex(const char * str, int64_t * pLen, const int64_t srcLen) { return _scan_integer(str, pLen, atString::Hex(), srcLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen) { return String(pOut, maxLen, str, strlen(str), pLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t *pLen) { return String(pOut, maxLen, pStr, strlen(*pStr), pLen); }

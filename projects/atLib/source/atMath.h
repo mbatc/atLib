@@ -122,6 +122,7 @@ template <typename T> T atATan2(const atVector2<T> pos) { return atATan2(pos.x, 
 template <typename T> T atATan2(const T y, const T x);
 
 template <typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
+template <typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
 template <typename T> atMatrix<T, 4, 4> atMatrixRotationX(const T rads);
 template <typename T> atMatrix<T, 4, 4> atMatrixRotationY(const T rads);
 template <typename T> atMatrix<T, 4, 4> atMatrixRotationZ(const T rads);

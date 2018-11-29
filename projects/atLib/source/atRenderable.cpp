@@ -97,8 +97,22 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
 
     switch (kvp.m_val.type)
     {
-    case atRRT_Texture: kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); break;
-    case atRRT_Sampler: kvp.m_val.id = atHardwareTexture::CreateSampler(); break;
+    case atRRT_Texture: 
+      
+      if(kvp.m_val.desc.type == atType_Uint8) 
+        kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); 
+      else if (kvp.m_val.desc.type == atType_Int64) 
+        kvp.m_val.id = *(int64_t*)kvp.m_val.data.data();
+      else atAssert(false, 
+"Texture Resource Type data must be a c-string or int64 texture id.");
+      break;
+    case atRRT_Sampler: 
+    {
+      atAssert(kvp.m_val.desc.type == atType_Int64, "Sampler Resource Type data must be an int64 sample id (AT_INVALID_ID is a valid parameter - default sample will be used).");
+      kvp.m_val.id = *(int64_t*)kvp.m_val.data.data();
+      if(kvp.m_val.id == AT_INVALID_ID)
+        kvp.m_val.id = atHardwareTexture::CreateSampler(); break;
+    }
     case atRRT_Variable: kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); break;
     }
     if (kvp.m_val.id == AT_INVALID_ID) kvp.m_val.id = 0;

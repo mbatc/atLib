@@ -39,7 +39,8 @@ static bool _CompileShader(const atFilename &file, const atString &shadertype, v
 
   ID3D10Blob *pShaderBlob = nullptr;
   ID3D10Blob *pError = nullptr;
-  if (FAILED(D3DCompileFromFile(atWideString(file.Path()).c_str(), NULL, NULL, "main", shadertype, D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
+  atWideString wFile = atWideString(file.Path());
+  if (FAILED(D3DCompileFromFile(wFile.c_str(), NULL, NULL, "main", shadertype, D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
   {
     atAssert(false, (char*)pError->GetBufferPointer());
     return false;
@@ -112,6 +113,7 @@ atShader::atShader(const atString &name)
   atString computePath = filepath.Path(false) + ".cs";
   atString domainPath = filepath.Path(false) + ".ds";
   SetShaders(vertPath, pixelPath, hullPath, geomPath, computePath, domainPath);
+  m_name = name;
 }
 
 void atShader::Reload()

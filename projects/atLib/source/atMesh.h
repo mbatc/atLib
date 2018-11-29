@@ -31,6 +31,16 @@
 #include "atMaterial.h"
 #include "atTriangle.h"
 
+enum atVertexElement
+{
+  atVE_Position = 1,
+  atVE_Normal = 1 << 1,
+  atVE_TexCoord = 1 << 2,
+  atVE_Tangent = 1 << 3,
+  atVE_Bitangent = 1 << 4,
+  atVE_Color = 1 << 5
+};
+
 class atMesh
 {
 public:
@@ -95,6 +105,7 @@ public:
 
   atVector<atTriangle<double>> GetTriangles();
 
+  atString m_name;
   atString m_sourceFile;
   atString m_resourceDir;
 

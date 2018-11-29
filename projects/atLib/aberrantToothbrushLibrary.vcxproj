@@ -30,6 +30,8 @@
     <ClCompile Include="source\atFileInfo.cpp" />
     <ClCompile Include="source\atFilename.cpp" />
     <ClCompile Include="source\atFileSystem.cpp" />
+    <ClCompile Include="source\atFont.cpp" />
+    <ClCompile Include="source\atFontRenderer.cpp" />
     <ClCompile Include="source\atFormat.cpp" />
     <ClCompile Include="source\atGraphics.cpp" />
     <ClCompile Include="source\atGraphicsModel.cpp" />
@@ -70,7 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\3rdParty\stb\stb_image.h" />
+    <ClInclude Include="source\3rdParty\stb\stb_image_resize.h" />
     <ClInclude Include="source\3rdParty\stb\stb_image_write.h" />
+    <ClInclude Include="source\3rdParty\stb\stb_truetype.h" />
     <ClInclude Include="source\atAABB.h" />
     <ClInclude Include="source\atAlloc.h" />
     <ClInclude Include="source\atAssert.h" />
@@ -83,6 +87,8 @@
     <ClInclude Include="source\atFileInfo.h" />
     <ClInclude Include="source\atFilename.h" />
     <ClInclude Include="source\atFileSystem.h" />
+    <ClInclude Include="source\atFont.h" />
+    <ClInclude Include="source\atFontRenderer.h" />
     <ClInclude Include="source\atFormat.h" />
     <ClInclude Include="source\atGraphics.h" />
     <ClInclude Include="source\atGraphicsModel.h" />
@@ -111,6 +117,7 @@
     <ClInclude Include="source\atOBJParser.h" />
     <ClInclude Include="source\atPlane.h" />
     <ClInclude Include="source\atPool.h" />
+    <ClInclude Include="source\atPrint.h" />
     <ClInclude Include="source\atRay.h" />
     <ClInclude Include="source\atReadStream.h" />
     <ClInclude Include="source\atRenderable.h" />
@@ -127,6 +134,9 @@
     <ClInclude Include="source\atTransformable.h" />
     <ClInclude Include="source\atTriangle.h" />
     <ClInclude Include="source\atTypes.h" />
+    <ClInclude Include="source\atGUI.h" />
+    <ClInclude Include="source\atUIActiveRect.h" />
+    <ClInclude Include="source\atUIWindow.h" />
     <ClInclude Include="source\atVector.h" />
     <ClInclude Include="source\atVector2.h" />
     <ClInclude Include="source\atVector3.h" />
@@ -153,6 +163,7 @@
     <None Include="source\atMatrix.inl" />
     <None Include="source\atOBJReader.inl" />
     <None Include="source\atPlane.inl" />
+    <None Include="source\atPrint.inl" />
     <None Include="source\atRay.inl" />
     <None Include="source\atRenderable.inl" />
     <None Include="source\atString.inl" />

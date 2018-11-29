@@ -28,21 +28,38 @@
 
 #include "atImageHelper.h"
 
+enum atSampleType
+{
+  atST_Nearest,
+  atST_Bilinear
+};
+
 class atImage
 {
 public:
   atImage();
+  atImage(const atVec2I &size);
   atImage(const atFilename &file);
   atImage(const atVector<atCol> &data, const atVec2I &size);
+  atImage(atImage &&move);
+  atImage(const atImage &copy);
 
   atVector<atCol>& Pixels();
   const atVector<atCol>& Pixels() const;
+  
+  atCol& Get(const int64_t x, const int64_t y);
 
   const atVec2I& Size() const;
   const int64_t Width() const;
   const int64_t Height() const;
 
-  void Resize(const atVec2I &size);
+  atImage Resize(const atVec2I &size, const atSampleType sampler);
+  atImage Pad(const int64_t top, const int64_t left, const int64_t bottom, const int64_t right);
+
+  atCol Sample(const atVec2F &uv, const atSampleType type = atST_Bilinear);
+
+  const atImage& operator=(const atImage &copy);
+  const atImage& operator=(atImage &&move);
 
 protected:
   atVec2I m_size;

@@ -56,9 +56,9 @@ public:
   void SetStyle(const int64_t style);
   void SetWindowed(const bool windowed);
 
-  const atVec2I &GetSize() const;
-  int32_t GetWidth() const;
-  int32_t GetHeight() const;
+  const atVec2I &Size() const;
+  int32_t Width() const;
+  int32_t Height() const;
 
   const atVec2I &GetPos() const;
   int32_t GetX() const;
