@@ -196,7 +196,7 @@ bool atGraphicsModel::Import(const atMesh &mesh)
     }
 
     m_mesh[m].SetShader("assets/shaders/uber");
-    m_mesh[m].SetChannel("samplerType", 0, atRRT_Sampler);
+    m_mesh[m].SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
     m_mesh[m].SetChannel("COLOR", optCol[m], atRRT_VertexData);
     m_mesh[m].SetChannel("POSITION", optPos[m], atRRT_VertexData);
     m_mesh[m].SetChannel("TEXCOORD", optTex[m], atRRT_VertexData);

@@ -62,11 +62,8 @@ static ID3D11UnorderedAccessView *_CreateUAView(ID3D11Texture2D *pTexture)
   return pView;
 }
 
-atTextureContext::atTextureContext(const atFilename &file)
-  : m_pTexture(nullptr)
+atTextureContext::atTextureContext(const atImage &image)
 {
-  atImage image(file);
-  
   D3D11_TEXTURE2D_DESC texDesc{};
   texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
   texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -208,7 +205,9 @@ atTextureContext::operator ID3D11UnorderedAccessView**()
   return &m_pUAView;
 }
 
+void atTextureContext::UpdateTexture(const atImage &image) { *this = atTextureContext(image); }
 atTextureContext::~atTextureContext() { Release(); }
 atTextureContext::operator ID3D11Texture2D*() { return m_pTexture; }
 atTextureContext::operator ID3D11Texture2D**() { return &m_pTexture; }
 atTextureContext::atTextureContext(ID3D11Texture2D *pTexture) : m_pTexture(pTexture) {}
+atTextureContext::atTextureContext(const atFilename &file) : atTextureContext(atImage(file)) {}

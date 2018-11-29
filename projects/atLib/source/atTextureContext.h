@@ -27,18 +27,21 @@
 #define atTextureContext_h__
 
 #include "atGraphics.h"
-#include "atFilename.h"
+#include "atImage.h"
 
 class atTextureContext
 {
 public:
   atTextureContext(ID3D11Texture2D *pTexture);
+  atTextureContext(const atImage &file);
   atTextureContext(const atFilename &file);
   atTextureContext(const atTextureContext &copy);
   atTextureContext(atTextureContext &&move);
   ~atTextureContext();
 
   void Release();
+
+  void UpdateTexture(const atImage &image);
 
   operator ID3D11Texture2D *();
   operator ID3D11ShaderResourceView *();

@@ -31,9 +31,9 @@
 #include <stdarg.h>
 #include <tuple>
 
-#define AT_INVALID_ID -1
-#define AT_INVALID_INDEX -1
-#define AT_INVALID_LOC -1
+#define AT_INVALID_ID (int64_t)-1
+#define AT_INVALID_INDEX (int64_t)-1
+#define AT_INVALID_LOC (int64_t)-1
 
 void atUnused();
 template <typename T, typename... Args> void atUnused(const T &first, Args... args) { (void)first; atUnused(args...); }

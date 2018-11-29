@@ -41,6 +41,8 @@ public:
   atImage(const atVec2I &size);
   atImage(const atFilename &file);
   atImage(const atVector<atCol> &data, const atVec2I &size);
+  atImage(atImage &&move);
+  atImage(const atImage &copy);
 
   atVector<atCol>& Pixels();
   const atVector<atCol>& Pixels() const;
@@ -56,9 +58,21 @@ public:
 
   atCol Sample(const atVec2F &uv, const atSampleType type = atST_Bilinear);
 
+  const atImage& operator=(const atImage &copy);
+  const atImage& operator=(atImage &&move);
+
 protected:
   atVec2I m_size;
   atVector<atCol> m_pixels;
+};
+
+template<typename T, int64_t nChannels> class atImageGeneric
+{
+public:
+
+protected:
+  atVec2I m_size;
+  atVector<T> m_pixels;
 };
 
 #endif // atImage_h__

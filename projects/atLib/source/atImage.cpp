@@ -45,7 +45,7 @@ static atCol _SampleBilinear(const atVec2F &uv, const atVector<atCol> &pixels, c
 }
 
 atImage::atImage() {}
-atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y), m_size(size) {}
+atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y, 0), m_size(size) {}
 atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::LoadImage(file, &m_size)); }
 atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
 atCol& atImage::Get(const int64_t x, const int64_t y) { return m_pixels[x + y * Width()]; }
@@ -54,6 +54,18 @@ atVector<atCol>& atImage::Pixels() { return m_pixels; }
 const atVec2I& atImage::Size() const { return m_size; }
 const int64_t atImage::Width() const { return m_size.x; }
 const int64_t atImage::Height() const { return m_size.y; }
+
+atImage::atImage(atImage &&move)
+  : m_pixels(std::move(move.m_pixels))
+  , m_size(move.m_size)
+{
+  move.m_size = atVec2I::zero();
+}
+
+atImage::atImage(const atImage &copy)
+  : m_pixels(copy.m_pixels)
+  , m_size(copy.m_size)
+{}
 
 atImage atImage::Resize(const atVec2I &size, const atSampleType sampler) 
 {
@@ -81,4 +93,19 @@ atCol atImage::Sample(const atVec2F &uv, const atSampleType type)
   case atST_Bilinear: return _SampleBilinear(uv, m_pixels, Width(), Height());
   }
   return 0;
+}
+
+const atImage &atImage::operator=(const atImage &copy)
+{
+  m_pixels = copy.m_pixels;
+  m_size = copy.m_size;
+  return *this;
+}
+
+const atImage & atImage::operator=(atImage &&move)
+{
+  m_pixels = std::move(move.m_pixels);
+  m_size = move.m_size;
+  move.m_size = atVec2I::zero();
+  return *this;
 }
