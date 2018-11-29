@@ -11,6 +11,8 @@ public:
   static void SetFont(const atFilename &font);
   static void Bake(const int64_t x, const int64_t y, const atString &text);
   static void Draw(const atWindow &wnd);
+  static atVec2I TextSize(const atString &text);
+  static atVec4I TextRect(const int64_t x, const int64_t y, const atString &text);
 };
 
 #endif // atFontRenderer_h__

@@ -13,8 +13,8 @@ public:
   {
     atVec2F tl;       // Top left UV of the character (0-1)
     atVec2F br;       // Bottom right UV of the character (0-1)
-    float xOff;       // Horizontal offset to apply when drawing character in UV space (0-1)
-    float yOff;       // Vertical offset to apply when drawing character in UV space (0-1)
+    float xOff;       // Horizontal offset to apply when drawing character in Pixels
+    float yOff;       // Vertical offset to apply when drawing character in Pixels
     int64_t advance;  // Distance to move cursor horizontally 
     int64_t width;    // Width of the glyph in pixels
     int64_t height;   // Height of the glyph in pixels
@@ -41,7 +41,9 @@ public:
 
   // This value should not be stored as a call to GetTextureID() will 
   // also update the Texture if new glyphs are loaded
-  int64_t GetTextureID();
+  int64_t GetTextureID(const bool updateTexture = true);
+
+  int64_t Height() const;
 
 protected:
   Glyph LoadGlyph(const uint32_t codepoint);
@@ -55,9 +57,9 @@ protected:
   atFilename m_filename;
   stbtt_fontinfo m_font = { 0 };
   float m_scale = 0;
+  int64_t m_height = 0;
 
   int64_t m_texID = AT_INVALID_ID;
-
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();
 };

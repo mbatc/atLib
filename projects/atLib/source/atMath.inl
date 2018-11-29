@@ -45,13 +45,12 @@ template<typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const 
 
 template<typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane)
 {
-  const T f_fn = farPlane / (farPlane - nearPlane);
   return
   {
-    2 / width,  0,          0,                                               0,
-    0,          2 / height, 0,                                               0,
-    0,          0,         -2 / (farPlane - nearPlane),                      0,
-    -1,         1,          (farPlane + nearPlane) / (farPlane - nearPlane), 1
+    (T)2 / width,   0,             0,                                  0,
+     0,            (T)2 / height,  0,                                  0,
+     0,             0,            -1 / (farPlane - nearPlane),         0,
+     -1,            1,            -nearPlane / (farPlane - nearPlane), 1
   };
 }
 
@@ -107,7 +106,7 @@ template<typename T> atMatrix<T, 4, 4> atMatrixRotation(const atVector3<T> &axis
     c + atSquare(axis.x) * (1 - c),         axis.x * axis.y * (1 - c) - axis.z * s, axis.x * axis.z * (1 - c) + axis.y * s, 0,
     axis.y * axis.x * (1 - c) + axis.z * s, c + atSquare(axis.y) * (1 - c),         axis.y * axis.z * (1 - c) - axis.x * s, 0,
     axis.z * axis.x * (1 - c) - axis.y * s, axis.z * axis.y * (1 - c) + axis.x * s, c + atSquare(axis.z) * (1 - c),         0,
-    ,                                       0,                                      0,                                      1
+    0,                                      0,                                      0,                                      1
   };
 }
 

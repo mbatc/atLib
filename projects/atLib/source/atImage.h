@@ -66,13 +66,4 @@ protected:
   atVector<atCol> m_pixels;
 };
 
-template<typename T, int64_t nChannels> class atImageGeneric
-{
-public:
-
-protected:
-  atVec2I m_size;
-  atVector<T> m_pixels;
-};
-
 #endif // atImage_h__

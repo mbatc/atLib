@@ -52,7 +52,7 @@ void atRenderState::Bind()
     atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
     atGraphics::SafeRelease(m_pBlendState);
     atGraphics::GetDevice()->CreateBlendState(&m_blendDesc, &m_pBlendState);
-    atGraphics::GetContext()->OMSetBlendState(0, 0, 0xFFFFFF);
+    atGraphics::GetContext()->OMSetBlendState(m_pBlendState, 0, 0xFFFFFF);
     m_lastBlendDesc = m_blendDesc;
   }
 
@@ -187,7 +187,7 @@ void atRenderState::SetDefaults()
   m_blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
   m_blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
   m_blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-  m_blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0F;
+  m_blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
   m_viewport.MinDepth = 0.0f;
   m_viewport.MaxDepth = 1.0f;
