@@ -37,3 +37,7 @@ The following files were used in atImageHelper.cpp
   
 * stb_image_write.h
 * stb_image.h
+
+The following files were used in atFont.h and atFont.cpp
+
+* stb_truetype.h
