@@ -39,6 +39,7 @@ public:
   static void BindShader(const int64_t id);
 
   static void SetViewport(const atVec4I &viewport, const bool updateFlag = true);
+  static void SetScissor(const atVec4I &scissor);
   static void SetDepthRange(const float min, const float max);
 
   static void EnableDepthTest(const bool enable);
@@ -55,6 +56,7 @@ protected:
   static void SetDefaults();
 
   static bool m_viewDirty;
+  static bool m_scissorDirty;
   static bool m_defaultSet;
   static bool m_scissorSet;
   static bool m_viewportSet;
@@ -71,6 +73,7 @@ protected:
   static D3D11_RASTERIZER_DESC m_lastRasterDesc;
   static D3D11_BLEND_DESC m_lastBlendDesc;
   static D3D11_VIEWPORT m_viewport;
+  static D3D11_RECT m_scissor;
 
   static D3D11_CULL_MODE m_lastCullMode;
   static int64_t m_shader;

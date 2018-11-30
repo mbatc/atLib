@@ -13,8 +13,8 @@ public:
   {
     atVec2F tl;       // Top left UV of the character (0-1)
     atVec2F br;       // Bottom right UV of the character (0-1)
-    float xOff;       // Horizontal offset to apply when drawing character in Pixels
-    float yOff;       // Vertical offset to apply when drawing character in Pixels
+    int32_t xOff;       // Horizontal offset to apply when drawing character in Pixels
+    int32_t yOff;       // Vertical offset to apply when drawing character in Pixels
     int64_t advance;  // Distance to move cursor horizontally 
     int64_t width;    // Width of the glyph in pixels
     int64_t height;   // Height of the glyph in pixels

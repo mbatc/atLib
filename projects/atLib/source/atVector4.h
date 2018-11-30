@@ -53,10 +53,11 @@ public:
   }
 
   template <typename T2> atVector4(const T2 _x = { 0 }, const T2 _y = { 0 }, const T2 _z = { 0 }, const T2 _w = { 0 }) : x((T)_x), y((T)_y), z((T)_z), w((T)_w) {}
-  template <typename T2> atVector4(const VecType<T2> &copy) { assign(copy); } 
+  template <typename T2> atVector4(const VecType<T2> &copy) { assign(copy); }
   template <typename T2> atVector4(const atVector2<T2> &vec2, const T2 _z, const T2 _w) { assign(vec2.x, vec2.y, _z, _w); }
   template <typename T2> atVector4(const T2 _x, const atVector2<T2> &vec2, const T2 _w) { assign(_x, vec2.x, vec2.y, _w); }
   template <typename T2> atVector4(const T2 _x, const T2 _y, const atVector2<T2> &vec2) { assign(_x, _y, vec2.x, vec2.y); }
+  template <typename T2> atVector4(const atVector2<T2> &vec, const atVector2<T2> &vec2) { assign(vec.x, vec.y, vec2.x, vec2.y); }
   template <typename T2> atVector4(const atVector3<T2> &vec3, const T2 _w) { assign(vec3.x, vec3.y, vec3.z, _w); }
   template <typename T2> atVector4(const T2 _x, const atVector3<T2> &vec3) { assign(_x, vec3.x, vec3.y, vec3.z); }
 

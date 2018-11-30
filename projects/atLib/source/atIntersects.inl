@@ -68,6 +68,15 @@ template<typename T> bool atIntersects(const atAABB<T> &boxA, const atAABB<T> &b
   return true;
 }
 
+template<typename T> bool atIntersects(const atVector4<T> &a, const atVector4<T> &b)
+{
+  if (a.z < b.x) return false;
+  if (a.w < b.y) return false;
+  if (a.x > b.z) return false;
+  if (a.y > b.w) return false;
+  return true;
+}
+
 template <typename T> bool atIntersects(const atRay<T> &ray, const atAABB<T> &box, T* pTime)
 {
   atVector3<T> invDir = (T)1 / ray.m_dir;

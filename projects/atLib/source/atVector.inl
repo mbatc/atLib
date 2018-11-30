@@ -117,10 +117,10 @@ template <class T> void atVector<T>::erase(const int64_t index)
   pop_back();
 }
 
-template <class T> void atVector<T>::erase(const int64_t index, const int64_t end)
+template <class T> void atVector<T>::erase(const int64_t start, const int64_t end)
 {
-  move_to_back(index, end - index);
-  resize(size() - (end - index));
+  move_to_back(start, end - start);
+  resize(size() - (end - start));
 }
 
 
