@@ -88,7 +88,7 @@ public:
   void clear();
   void make_empty();
   void erase(const int64_t index);
-  void erase(const int64_t index, const int64_t end);
+  void erase(const int64_t start, const int64_t end);
   void erase(vector_iterator start, vector_iterator end);
   void assign(const T &item, const int64_t count);
   void assign(vector_const_iterator start, vector_const_iterator end);

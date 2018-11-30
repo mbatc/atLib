@@ -33,6 +33,7 @@
 #include "atMath.h"
 
 template <typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
+template <typename T> bool atIntersects(const atVector4<T> &a, const atVector4<T> &b);
 template <typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
 template <typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime);
 template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);

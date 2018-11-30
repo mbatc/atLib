@@ -43,14 +43,16 @@ template<typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const 
   };
 }
 
-template<typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane)
+template<typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane) { return atMatrixOrtho<T>((T)0, width, (T)0, height, nearPlane, farPlane); }
+
+template<typename T> atMatrix<T, 4, 4> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane)
 {
   return
   {
-    (T)2 / width,   0,             0,                                  0,
-     0,            (T)2 / height,  0,                                  0,
-     0,             0,            -1 / (farPlane - nearPlane),         0,
-     -1,            1,            -nearPlane / (farPlane - nearPlane), 1
+    (T)2 / (right - left),                0,                                0,                                               0,
+    0,                                 (T)2 / (top - bottom),               0,                                               0,
+    0,                                    0,                                2 / (farPlane - nearPlane),                      0,
+    -(right + left) / (right - left),    -(top + bottom) / (top - bottom), -(farPlane + nearPlane) / (farPlane - nearPlane), 1
   };
 }
 

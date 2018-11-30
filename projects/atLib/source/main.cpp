@@ -61,8 +61,6 @@
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
-  DirectX::XMMATRIX dxMat;
-  dxMat = DirectX::XMMatrixOrthographicLH(800, 600, -1.0, 1.0);
   // Set the model being loaded
   const atString path = "assets/test/models/level.obj";
 
@@ -79,9 +77,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
-
-  atFontRenderer::SetFont(atFilename("assets/RomanSerif.ttf"));
-
+  
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
   {
@@ -100,13 +96,64 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
-    atFontRenderer::Bake(0, 0, "{ 0, 0 }\n{ New Line }\nAnother New Line to test the text renderer!!?");
-    atFontRenderer::Bake(800, 600, "{ 800, 600 }");
-    atFontRenderer::Bake(0, 600, "{ 0, 600 }");
-    atFontRenderer::Bake(800, 0, "{ 800, 0 }");
+    // Display rendered frame
+    window.Swap();
+  }
+}
+
+// -----------------------------------------------------------
+// Demonstrates usage of atFontRenderer to draw text
+//
+// Press 'P' to toggle the use of Pivots
+//
+// atFontRenderer::Bake() is used to generate text draw data
+//
+// atFontRenderer::Draw() draws the text using the windows
+// dimensions to build the orthographic projection matrix
+//
+// atFontRenderer provides TextSize() and TextWidth()
+// to calculate the dimensions or on screen rectangle 
+// of a piece of text.
+//
+
+void ExampleRenderText()
+{
+  const atString fontPath = "Assets/Fonts/RomanSerif.ttf";
+
+  atWindow window("Font Renderer Example");
+
+  // Set/Load a font (.ttf files)
+  atFontRenderer::SetFont(fontPath);
+  
+  while (atInput::Update())
+  {
+    window.Clear({ 0.3f, 0.3f, 0.3f, 1.0f });
+
+    // Enable/Disable pivots
+    static bool usePivot = true;
+    usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+    
+    // Bake Text
+    if (usePivot)
+    {
+      atFontRenderer::Bake(0, 0, "Top Left (Pivot: 0.0, 0.0)");
+      atFontRenderer::Bake(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
+      atFontRenderer::Bake(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
+      atFontRenderer::Bake(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+      atFontRenderer::Bake(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
+    }
+    else
+    {
+      atFontRenderer::Bake(0, 0, "Top Left");
+      atFontRenderer::Bake(window.Width(), 0, "Top Right");
+      atFontRenderer::Bake(0, window.Height(), "Bottom Left");
+      atFontRenderer::Bake(window.Width(), window.Height(), "Bottom Right");
+      atFontRenderer::Bake(window.Width() / 2, window.Height() / 2, "Center");
+    }
+
+    // Render Text
     atFontRenderer::Draw(window);
 
-    // Display rendered frame
     window.Swap();
   }
 }
@@ -231,7 +278,8 @@ void ExampleImportExportMesh()
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  ExampleRenderMesh();
+  ExampleRenderText();
+  // ExampleRenderMesh();
   // ExampleImportExportMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

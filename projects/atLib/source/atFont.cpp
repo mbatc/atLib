@@ -110,8 +110,8 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
     }
 
   glyph.advance = (int64_t)(advance * m_scale);
-  glyph.xOff = (float)x0;
-  glyph.yOff = (float)y0;
+  glyph.xOff = x0;
+  glyph.yOff = y0;
   glyph.width = (int64_t)(x1 - x0);
   glyph.height = (int64_t)(y1 - y0);
   glyph.tl = atVec2I{ m_nextPos.x, m_nextPos.y + (int32_t)glyph.height };

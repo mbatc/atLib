@@ -37,10 +37,12 @@ D3D11_RASTERIZER_DESC atRenderState::m_lastRasterDesc;
 D3D11_BLEND_DESC atRenderState::m_lastBlendDesc;
 D3D11_VIEWPORT atRenderState::m_viewport;
 D3D11_CULL_MODE atRenderState::m_lastCullMode;
+D3D11_RECT atRenderState::m_scissor;
 
 int64_t atRenderState::m_shader = AT_INVALID_ID;
 bool atRenderState::m_defaultSet = false;
 bool atRenderState::m_viewDirty = true;
+bool atRenderState::m_scissorDirty = false;
 bool atRenderState::m_viewportSet = false;
 bool atRenderState::m_scissorSet = false;
 
@@ -79,6 +81,12 @@ void atRenderState::Bind()
     atGraphics::GetContext()->RSSetViewports(1, &m_viewport);
     m_viewDirty = false;
   }
+
+  if (m_scissorDirty)
+  {
+    atGraphics::GetContext()->RSSetScissorRects(1, &m_scissor);
+    m_scissorDirty = false;
+  }
 }
 
 void atRenderState::BindShader(const int64_t id) 
@@ -100,6 +108,19 @@ void atRenderState::SetViewport(const atVec4I &viewport, const bool updateFlag)
 
     m_viewportSet |= updateFlag;
     m_viewDirty = true;
+  }
+}
+
+void atRenderState::SetScissor(const atVec4I &scissor)
+{
+  SetDefaults();
+  if (m_scissor.left != scissor.x || m_scissor.right != scissor.z || m_scissor.bottom != scissor.w || m_scissor.top != scissor.y)
+  {
+    m_scissor.left = scissor.x;
+    m_scissor.right = scissor.z;
+    m_scissor.bottom = scissor.w;
+    m_scissor.top = scissor.y;
+    m_scissorDirty = true;
   }
 }
 
@@ -175,7 +196,7 @@ void atRenderState::SetDefaults()
   m_rasterDesc.FillMode = D3D11_FILL_SOLID;
   m_rasterDesc.FrontCounterClockwise = false;
   m_rasterDesc.MultisampleEnable = true;
-  m_rasterDesc.ScissorEnable = false;
+  m_rasterDesc.ScissorEnable = true;
   m_rasterDesc.SlopeScaledDepthBias = 0.0f;
 
   m_blendDesc.AlphaToCoverageEnable = false;

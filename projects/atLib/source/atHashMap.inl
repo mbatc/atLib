@@ -26,8 +26,13 @@
 #include "atHash.h"
 
 template <class Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
-template <class Key, class Value> void atHashMap<Key, Value>::Clear() { m_buckets.resize(1); m_buckets[0].clear(); m_size = 0; }
 template <class Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
+template <class Key, class Value> void atHashMap<Key, Value>::Clear() 
+{
+  for(Bucket &bucket : m_buckets)
+    bucket.clear(); 
+  m_size = 0; 
+}
 
 template<class Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount)
 {
@@ -118,7 +123,7 @@ template<class Key, class Value> atVector<Key> atHashMap<Key, Value>::GetKeys() 
 {
   atVector<Key> ret;
   for (const Bucket &bucket : m_buckets)
-    for (KVP &kvp : bucket)
+    for (const KVP &kvp : bucket)
       ret.push_back(kvp.m_key);
   return ret;
 }
