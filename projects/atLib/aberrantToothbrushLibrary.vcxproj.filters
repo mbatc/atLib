@@ -145,9 +145,6 @@
     <Filter Include="Header Files\Scene">
       <UniqueIdentifier>{60a6a6d4-27b2-4ec9-ae41-6984306c1dfd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\UI\Windows">
-      <UniqueIdentifier>{6fad48b8-826a-444e-b095-aed79eb12aaf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\UI\Font">
       <UniqueIdentifier>{b1eaef28-6e59-48c1-b9dd-1442419fc549}</UniqueIdentifier>
     </Filter>
@@ -508,15 +505,6 @@
     </ClInclude>
     <ClInclude Include="source\atPrint.h">
       <Filter>Header Files\String</Filter>
-    </ClInclude>
-    <ClInclude Include="source\atUIWindow.h">
-      <Filter>Header Files\UI\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="source\atUIActiveRect.h">
-      <Filter>Header Files\UI\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="source\atGUI.h">
-      <Filter>Header Files\UI\Windows</Filter>
     </ClInclude>
     <ClInclude Include="source\atFont.h">
       <Filter>Header Files\UI\Font</Filter>

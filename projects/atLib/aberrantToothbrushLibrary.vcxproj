@@ -134,9 +134,6 @@
     <ClInclude Include="source\atTransformable.h" />
     <ClInclude Include="source\atTriangle.h" />
     <ClInclude Include="source\atTypes.h" />
-    <ClInclude Include="source\atGUI.h" />
-    <ClInclude Include="source\atUIActiveRect.h" />
-    <ClInclude Include="source\atUIWindow.h" />
     <ClInclude Include="source\atVector.h" />
     <ClInclude Include="source\atVector2.h" />
     <ClInclude Include="source\atVector3.h" />
