@@ -54,7 +54,7 @@
 // Shift - Speed up
 // Right Mouse + Mouse Move - Look
 
-#include "atFontRenderer.h"
+#include "atPrimitiveRenderer.h"
 #include "atGraphicsModel.h"
 #include "atRenderState.h"
 #include "atCamera.h"
@@ -77,7 +77,11 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
-  
+
+  const atString fontPath = "Assets/Fonts/RomanSerif.ttf";
+  // Set/Load a font (.ttf files)
+  atPrimitiveRenderer::SetFont(fontPath);
+
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
   {
@@ -86,6 +90,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Clear window
     window.Clear(clearColor);
+    atRenderState::EnableDepthTest(true);
 
     // Set Lighting Data
     model.SetLighting(light);
@@ -95,6 +100,34 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
+
+    // Enable/Disable pivots
+    static bool usePivot = true;
+    usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+    atRenderState::EnableDepthTest(false);
+    // Bake Text
+    if (usePivot)
+    {
+      atPrimitiveRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
+      atPrimitiveRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
+      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
+      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+      atPrimitiveRenderer::AddText(0, window.Height() / 2, "abcdefghijklmnopqrstuvwxyz1234567890-=+_.,/?'\";:[]{}\\|`~!@#$%^&*<>", { 0.f, .5f });
+    }
+    else
+    {
+      atPrimitiveRenderer::AddText(0, 0, "Top Left");
+      atPrimitiveRenderer::AddText(window.Width(), 0, "Top Right");
+      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left");
+      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
+      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("Center"));
+      atPrimitiveRenderer::PopColour();
+      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
+    }
+
+    // Render Text
+    atPrimitiveRenderer::Draw(window);
 
     // Display rendered frame
     window.Swap();
@@ -123,7 +156,7 @@ void ExampleRenderText()
   atWindow window("Font Renderer Example");
 
   // Set/Load a font (.ttf files)
-  atFontRenderer::SetFont(fontPath);
+  atPrimitiveRenderer::SetFont(fontPath);
   
   while (atInput::Update())
   {
@@ -132,27 +165,34 @@ void ExampleRenderText()
     // Enable/Disable pivots
     static bool usePivot = true;
     usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
-    
+    atRenderState::EnableDepthTest(false);
     // Bake Text
     if (usePivot)
     {
-      atFontRenderer::Bake(0, 0, "Top Left (Pivot: 0.0, 0.0)");
-      atFontRenderer::Bake(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
-      atFontRenderer::Bake(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
-      atFontRenderer::Bake(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
-      atFontRenderer::Bake(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
+      atPrimitiveRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
+      atPrimitiveRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
+      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
+      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+
+      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
+      atPrimitiveRenderer::PopColour();
+      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
     }
     else
     {
-      atFontRenderer::Bake(0, 0, "Top Left");
-      atFontRenderer::Bake(window.Width(), 0, "Top Right");
-      atFontRenderer::Bake(0, window.Height(), "Bottom Left");
-      atFontRenderer::Bake(window.Width(), window.Height(), "Bottom Right");
-      atFontRenderer::Bake(window.Width() / 2, window.Height() / 2, "Center");
+      atPrimitiveRenderer::AddText(0, 0, "Top Left");
+      atPrimitiveRenderer::AddText(window.Width(), 0, "Top Right");
+      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left");
+      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
+      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("Center"), { .5f, .5f });
+      atPrimitiveRenderer::PopColour();
+      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
     }
-
+    
     // Render Text
-    atFontRenderer::Draw(window);
+    atPrimitiveRenderer::Draw(window);
 
     window.Swap();
   }
@@ -278,8 +318,8 @@ void ExampleImportExportMesh()
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  ExampleRenderText();
-  // ExampleRenderMesh();
+  // ExampleRenderText();
+  ExampleRenderMesh();
   // ExampleImportExportMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

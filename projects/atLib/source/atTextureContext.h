@@ -32,16 +32,16 @@
 class atTextureContext
 {
 public:
-  atTextureContext(ID3D11Texture2D *pTexture);
-  atTextureContext(const atImage &file);
-  atTextureContext(const atFilename &file);
+  atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps = true);
+  atTextureContext(const atImage &file, const bool genMipmaps = true);
+  atTextureContext(const atFilename &file, const bool genMipmaps = true);
   atTextureContext(const atTextureContext &copy);
   atTextureContext(atTextureContext &&move);
   ~atTextureContext();
 
   void Release();
 
-  void UpdateTexture(const atImage &image);
+  void UpdateTexture(const atImage &image, const bool genMipmaps = true);
 
   operator ID3D11Texture2D *();
   operator ID3D11ShaderResourceView *();
@@ -57,7 +57,8 @@ public:
   const atTextureContext &operator=(const atTextureContext &rhs);
   const atTextureContext &operator=(atTextureContext &&rhs);
 protected:
-  
+  bool m_genMipmaps;
+
   ID3D11Texture2D *m_pTexture = nullptr;
   ID3D11ShaderResourceView *m_pShaderView = nullptr;
   ID3D11RenderTargetView *m_pRenderView = nullptr;

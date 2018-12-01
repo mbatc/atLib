@@ -29,16 +29,30 @@
 #include "atFilename.h"
 #include "atWindow.h"
 
-class atFontRenderer
+class atPrimitiveRenderer
 {
 public:
-  atFontRenderer() = delete;
+  atPrimitiveRenderer() = delete;
+
+  // TODO: Add a font resolution and font scale
+  // - Resolution being the quality of each character
+  // - Scale being how large the font is when displayed at scale 1.0
   static void SetFont(const atFilename &font);
-  static void Bake(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot = {0, 0});
   static void Draw(const atWindow &wnd);
+
   static atVec2I TextSize(const atString &text);
   static atVec4I TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot = { 0, 0 });
 
+  // TODO: Add a scale parameter
+  static void AddText(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot = { 0, 0 });
+
+  // TODO: Add textured versions of these functions
+  static void AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs);
+  static void AddRectangle(const atVec2I &topLeft, const atVec2I &topRight);
+  static void AddRectangle(const int64_t x, const int64_t y, const atVec2I &dimensions, const atVec2F &pivot = { 0, 0 });
+  static void AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments = 16, double phase = 0.0);
+
+  // TODO: Create a global state to contain different rendering properties that may be added
   static void PushColour(const atVec4F &color);
   static void PopColour(const int64_t count = 1);
   static void PushClipRect(const atVec4I &rect);

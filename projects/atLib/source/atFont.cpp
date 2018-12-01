@@ -37,10 +37,10 @@ const atFilename &atFont::Filename() const { return m_filename; }
 int64_t atFont::GetTextureID(const bool updateTexture)
 {
   if (m_texID == AT_INVALID_ID)
-    m_texID = atHardwareTexture::UploadTexture(m_bitmap);
+    m_texID = atHardwareTexture::UploadTexture(m_bitmap, false);
   else if (m_stale && updateTexture)
   {
-    atHardwareTexture::UpdateTexture(m_texID, m_bitmap);
+    atHardwareTexture::UpdateTexture(m_texID, m_bitmap, false);
     m_stale = false;
   }
   return m_texID;
@@ -63,6 +63,13 @@ atFont::atFont(const atFilename &filename, const int64_t scale)
     return;
   m_height = scale;
   m_scale = stbtt_ScaleForPixelHeight(&m_font, (float)scale);
+
+  for (int64_t y = 0; y < 4; ++y)
+    for (int64_t x = 0; x < 4; ++x)
+      m_bitmap[x + y * m_bitmap.Width()] = 0xFFFFFFFF;
+  m_nextPos.x = 4;
+  m_lastSize = 4;
+  m_lastWhiteUV = 0.f;
 }
 
 atFont::atFont(const atFont &copy)
@@ -78,6 +85,9 @@ atFont::atFont(const atFont &copy)
   m_scale = copy.m_scale;
   m_stale = true;
   m_height = copy.m_height;
+  m_nextPos = copy.m_nextPos;
+  m_lastWhiteUV = copy.m_lastWhiteUV;
+  m_lastSize = copy.m_lastSize;
 }
 
 atFont::atFont(atFont &&move)
@@ -90,6 +100,9 @@ atFont::atFont(atFont &&move)
   , m_bitmap(std::move(move.m_bitmap))
   , m_scale(move.m_scale)
   , m_height(move.m_height)
+  , m_nextPos(move.m_nextPos)
+  , m_lastWhiteUV(move.m_lastWhiteUV)
+  , m_lastSize(move.m_lastSize)
 {
   move.m_texID = AT_INVALID_ID;
   move.m_stale = true;
@@ -102,9 +115,9 @@ atVec2F atFont::FindWhitePixel()
     bool found = false;
     for (int64_t y = 0; y < m_bitmap.Height() && !found; ++y)
       for (int64_t x = 0; x < m_bitmap.Width() && !found; ++x)
-        if (m_bitmap[x + y * m_bitmap.Width()] == 0xFFFFFFFF)
+        if (m_bitmap[x + y * m_bitmap.Width()] == atColor::Pack(255, 255, 255, 255))
         {
-          m_lastWhiteUV = { (float)x / (float)m_bitmap.Width(), (float)y / (float)m_bitmap.Height() };
+          m_lastWhiteUV = { (float)(x+1) / (float)m_bitmap.Width(), (float)(y+1) / (float)m_bitmap.Height() };
           found = true;
         }
   }
@@ -134,7 +147,8 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
 
   if (m_nextPos.x + width >= m_bitmap.Width())
   {
-    m_nextPos.y += (int32_t)m_scale;
+    m_nextPos.y += m_lastRowHeight;
+    m_lastRowHeight = 0;
     m_nextPos.x = m_nextPos.y > m_lastSize.y ? 0 : m_lastSize.x;
   }
   if (m_nextPos.y + height >= m_bitmap.Height())
@@ -159,6 +173,7 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
   glyph.br = atVec2I{ m_nextPos.x + (int32_t)glyph.width, m_nextPos.y  };
   m_stale = true;
   m_nextPos.x += (int32_t)glyph.width;
+  m_lastRowHeight = atMax(m_lastRowHeight, glyph.height);
   return glyph;
 }
 

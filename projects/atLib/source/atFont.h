@@ -88,6 +88,7 @@ protected:
   int64_t m_height = 0;
 
   int64_t m_texID = AT_INVALID_ID;
+  int32_t m_lastRowHeight = 0;
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();
   atVec2F m_lastWhiteUV = atVec2F::zero();
