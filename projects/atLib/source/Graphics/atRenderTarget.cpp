@@ -46,12 +46,19 @@ void atRenderTarget::Bind()
   GetDepthStencilView();
   GetRenderTarget();
   GetSwapChain();
-  if (!atRenderState::ViewportSet())
+  UINT vpCount = 0;
+  atGraphics::GetContext()->RSGetViewports(&vpCount, nullptr);
+  if (vpCount == 0)
   {
-    atRenderState::SetViewport(atVec4I(0, 0, m_size), false);
-    atRenderState::SetScissor(atVec4I(0, 0, m_size));
+    D3D11_VIEWPORT vp;
+    vp.TopLeftX = 0.f;
+    vp.TopLeftY = 0.f;
+    vp.Height = (float)m_size.y;
+    vp.Width = (float)m_size.x;
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    atGraphics::GetContext()->RSSetViewports(1, &vp);
   }
-
   atGraphics::GetContext()->OMSetRenderTargets(1, &m_pRenderTarget, m_pDepthStencilView);
 }
 

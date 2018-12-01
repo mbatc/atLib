@@ -43,3 +43,10 @@
 *.idb
 *.ilk
 *.log
+/aberrantToothbrushLibrary.sln
+/projects/atLib/*.vcxproj
+/projects/atLib/*.filters
+/projects/atLib/*.user
+*.vcxproj
+*.filters
+*.user

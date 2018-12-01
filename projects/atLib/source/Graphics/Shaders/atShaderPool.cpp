@@ -44,16 +44,16 @@ struct ShaderReference
 static int64_t s_shaderRound = 0;
 static atHashMap<int64_t, ShaderReference> s_shaders;
 
-int64_t atShaderPool::GetShader(const atString &name)
+int64_t atShaderPool::GetShader(const atString &filename)
 {
   for (auto &ref : s_shaders)
-    if (ref.m_val.pShader->GetName() == name)
+    if (ref.m_val.pShader->GetName() == filename)
     {
       ref.m_val.refCount++;
       return ref.m_key;
     }
 
-  s_shaders.Add(s_nextShaderID, ShaderReference(atNew<atShader>(name)));
+  s_shaders.Add(s_nextShaderID, ShaderReference(atNew<atShader>(filename)));
   s_shaders[s_nextShaderID].refCount++;
   return s_nextShaderID++;
 }
@@ -160,6 +160,7 @@ void atShaderPool::ReloadShaders()
   s_shaderRound++;
 }
 
+bool atShaderPool::IsValid(const int64_t id) { return s_shaders.Contains(id); }
 int64_t atShaderPool::ShaderRound() { return s_shaderRound; }
 
 // A hacky way of releasing resources when the program ends

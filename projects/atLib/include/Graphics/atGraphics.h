@@ -76,6 +76,9 @@ public:
 
   static bool BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void *pResource);
 
+  static void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0);
+  static void Draw(int64_t nVerts, int64_t startLocation = 0);
+
   // Should be called before exiting any application using atGraphics
   static void Shutdown();
 

@@ -32,51 +32,74 @@
 
 class atRenderState
 {
+  friend atGraphics;
+  atRenderState(int unused);
 public:
-  atRenderState() = delete;
+  struct State
+  {
+    atVec4I viewport = { -1, -1, -1, -1 };
+    atVec4I scissor = { 0, 0, 0, 0 };
+    atVec2F depthRange = { 0.0f, 1.0f };
 
-  static void Bind();
-  static void BindShader(const int64_t id);
+    int64_t shader = AT_INVALID_ID;
+    int64_t inputLayout = AT_INVALID_ID;
 
-  static void SetViewport(const atVec4I &viewport, const bool updateFlag = true);
-  static void SetScissor(const atVec4I &scissor);
-  static void SetDepthRange(const float min, const float max);
+    bool depthWriteEnabled = true;
+    bool depthReadEnabled = true;
+    bool stencilEnabled = false;
+    bool scissorEnabled = false;
+    bool cullEnabled = false;
+    bool blendEnabled = false;
+    bool msaaEnabled = true;
+    bool aaEnabled = true;
+  };
 
-  static void EnableDepthTest(const bool enable);
-  static void EnableCulling(const bool enable);
-  static void EnableBlend(const bool enable);
-  static void EnableScissor(const bool enable);
-  static void EnableAA(const bool enable);
-  static void EnableMultisample(const bool enable);
+  atRenderState();
+  ~atRenderState();
 
-  static bool ViewportSet();
-  static bool ScissorSet();
+  void Set(const State &state);
+
+  bool SetShader(const int64_t id, const int64_t inputLayoutID);
+  void SetViewport(const atVec4I &vp);
+  void SetScissor(const atVec4I &scissor);
+  void SetDepthRange(const float min, const float max);
+
+  void SetDepthWriteEnabled(const bool enabled);
+  void SetDepthReadEnabled(const bool enabled);
+  void SetStencilEnabled(const bool enabled);
+  void SetBlendEnabled(const bool enabled);
+  void SetMSAAEnabled(const bool enabled);
+  void SetCullEnabled(const bool enabled);
+  void SetAAEnabled(const bool enabled);
+
+  bool IsDepthWriteEnabled() const;
+  bool IsDepthReadEnabled() const;
+  bool IsStencilEnabled() const;
+  bool IsBlendEnabled() const;
+  bool IsMSAAEnabled() const;
+  bool IsCullEnabled() const;
+  bool IsAAEnabled() const;
+
+  const atVec4I &Viewport() const;
+  const atVec4I &Scissor() const;
+  const atVec2F &DepthRange() const;
+
+  static bool m_alwaysBind;
 
 protected:
-  static void SetDefaults();
+  void Init();
+  State &MyState();
+  const State &MyState() const;
 
-  static bool m_viewDirty;
-  static bool m_scissorDirty;
-  static bool m_defaultSet;
-  static bool m_scissorSet;
-  static bool m_viewportSet;
+private:
+  static void Bind();
 
-  static ID3D11DepthStencilState *m_pDepthState;
-  static ID3D11RasterizerState *m_pRasterState;
-  static ID3D11BlendState *m_pBlendState;
-
-  static D3D11_DEPTH_STENCIL_DESC m_depthDesc;
-  static D3D11_RASTERIZER_DESC m_rasterDesc;
-  static D3D11_BLEND_DESC m_blendDesc;
-
-  static D3D11_DEPTH_STENCIL_DESC m_lastDepthDesc;
-  static D3D11_RASTERIZER_DESC m_lastRasterDesc;
-  static D3D11_BLEND_DESC m_lastBlendDesc;
-  static D3D11_VIEWPORT m_viewport;
-  static D3D11_RECT m_scissor;
-
-  static D3D11_CULL_MODE m_lastCullMode;
   static int64_t m_shader;
+  static atVector<State> m_stack;
+  static State m_activeState;
+  static bool m_setViewport;
+
+  int64_t m_id;
 };
 
 #endif

@@ -25,6 +25,7 @@
 
 #include "atGraphics.h"
 #include "atTextureContext.h"
+#include "atRenderState.h"
 #include <stdlib.h>
 
 atVector<DXGI_MODE_DESC> atGraphics::m_displayModeList;
@@ -213,6 +214,18 @@ bool atGraphics::BindShaderResource(const atShaderType shader, const atShader_Re
   default: return false;
   }
   return true;
+}
+
+void atGraphics::DrawIndexed(int64_t nIndices, int64_t startLocation, int64_t baseVertIndex)
+{
+  atRenderState::Bind();
+  GetContext()->DrawIndexed((UINT)nIndices, (UINT)startLocation, (UINT)baseVertIndex);
+}
+
+void atGraphics::Draw(int64_t nVerts, int64_t startLocation)
+{
+  atRenderState::Bind();
+  GetContext()->Draw((UINT)nVerts, (UINT)startLocation);
 }
 
 int64_t atGraphics::RefreshRateNumerator(const bool vsync) { GetOutputDisplay(); return vsync ? RefreshRate::num : RefreshRate::defNum; }

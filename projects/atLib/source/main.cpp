@@ -63,7 +63,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atPrimitiveRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
   // Set the model being loaded
-  const atString path = "assets/test/models/level.obj";
+  const atString path = "assets/test/models/bumpmap.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -78,7 +78,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
-  
+
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
   {
@@ -99,12 +99,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Drawing Text - See ExampleRenderText() for more examples
     atPrimitiveRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
-    atRenderState::EnableDepthTest(false);
-    atRenderState::EnableBlend(true);
-    atPrimitiveRenderer::Draw(window);
-    atRenderState::EnableDepthTest(true);
-    atRenderState::EnableBlend(false);
-
+    {
+      atRenderState rs; // State changes are reverted when 'rs' falls out of scope
+      rs.SetDepthReadEnabled(false);
+      rs.SetBlendEnabled(true);
+      atPrimitiveRenderer::Draw(window);
+    }
     // Display rendered frame
     window.Swap();
   }
@@ -135,8 +135,9 @@ void ExampleRenderText()
   atPrimitiveRenderer::SetFont(fontPath);
 
   // Setup correct render state
-  atRenderState::EnableBlend(true);
-  atRenderState::EnableDepthTest(false);
+  atRenderState rs;
+  rs.SetBlendEnabled(true);
+  rs.SetDepthReadEnabled(false);
 
   while (atInput::Update())
   {
@@ -317,7 +318,7 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  // ExampleRenderMesh();
+  ExampleRenderMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 

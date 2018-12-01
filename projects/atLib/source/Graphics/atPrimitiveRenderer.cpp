@@ -115,6 +115,7 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
 void atPrimitiveRenderer::Draw(const atWindow &wnd)
 {
   atRenderable ro;
+  atRenderState rs;
   for (atFont &f : s_fonts)
     f.GetTextureID();
   for (DrawData &dd : s_drawList)
@@ -126,7 +127,7 @@ void atPrimitiveRenderer::Draw(const atWindow &wnd)
 
     for (const atVec4I64 key : dd.verts.GetKeys())
     {
-      atRenderState::SetScissor(key);
+      rs.SetScissor(key);
       ro.SetChannel("POSITION", dd.verts[key], atRRT_VertexData);
       ro.SetChannel("COLOR", dd.color[key], atRRT_VertexData);
       ro.SetChannel("TEXCOORD", dd.uvs[key], atRRT_VertexData);

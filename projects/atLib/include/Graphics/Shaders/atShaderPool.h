@@ -32,7 +32,7 @@
 class atShaderPool
 {
 public:
-  static int64_t GetShader(const atString &name);
+  static int64_t GetShader(const atString &filename);
   
   static void ReleaseShader(const int64_t id);
   static void ReloadShaders();
@@ -46,6 +46,8 @@ public:
   static bool SetVariable(const int64_t shader, const atString &name, void *pData, int64_t len);
   static bool SetVariable(const int64_t shader, const int64_t loc, void *pData, int64_t len);
   static int64_t GetVariableLoc(const int64_t shader, const atString &name);
+
+  static bool IsValid(const int64_t id);
 };
 
 #endif

@@ -26,195 +26,287 @@
 #include "atRenderState.h"
 #include "atShaderPool.h"
 
-ID3D11DepthStencilState *atRenderState::m_pDepthState;
-ID3D11RasterizerState *atRenderState::m_pRasterState;
-ID3D11BlendState *atRenderState::m_pBlendState;
-D3D11_DEPTH_STENCIL_DESC atRenderState::m_depthDesc;
-D3D11_RASTERIZER_DESC atRenderState::m_rasterDesc;
-D3D11_BLEND_DESC atRenderState::m_blendDesc;
-D3D11_DEPTH_STENCIL_DESC atRenderState::m_lastDepthDesc;
-D3D11_RASTERIZER_DESC atRenderState::m_lastRasterDesc;
-D3D11_BLEND_DESC atRenderState::m_lastBlendDesc;
-D3D11_VIEWPORT atRenderState::m_viewport;
-D3D11_CULL_MODE atRenderState::m_lastCullMode;
-D3D11_RECT atRenderState::m_scissor;
+static atRenderState *s_pGlobalState = nullptr;
 
-int64_t atRenderState::m_shader = AT_INVALID_ID;
-bool atRenderState::m_defaultSet = false;
-bool atRenderState::m_viewDirty = true;
-bool atRenderState::m_scissorDirty = false;
-bool atRenderState::m_viewportSet = false;
-bool atRenderState::m_scissorSet = false;
+// DX11 State objects
+static ID3D11DepthStencilState *s_pDepthState = nullptr;
+static ID3D11RasterizerState *s_pRasterState = nullptr;
+static ID3D11BlendState *s_pBlendState = nullptr;
+
+// Extract DX11 state descriptions from atRenderStateCore::State
+
+static D3D11_DEPTH_STENCIL_DESC _DX11DepthDesc(const atRenderState::State &state);
+static D3D11_RASTERIZER_DESC _DX11RasterDesc(const atRenderState::State &state);
+static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state);
+static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state);
+static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state);
+
+atVector<atRenderState::State> atRenderState::m_stack;
+atRenderState::State atRenderState::m_activeState;
+bool atRenderState::m_setViewport = false;
+bool atRenderState::m_alwaysBind = false;
+
+atRenderState::atRenderState()
+{
+  if (!s_pGlobalState)
+    s_pGlobalState = new atRenderState(0);
+  Init();
+}
+
+atRenderState::~atRenderState() 
+{
+  m_stack.pop_back();
+  if (m_alwaysBind && m_stack.size())
+    Set(m_stack.back());
+}
 
 void atRenderState::Bind()
 {
-  SetDefaults();
-  if (m_lastBlendDesc != m_blendDesc || !m_pBlendState)
+  State &top = m_stack.back();
+  D3D11_BLEND_DESC topBlend = _DX11BlendDesc(top);
+  D3D11_RASTERIZER_DESC topRaster = _DX11RasterDesc(top);
+  D3D11_DEPTH_STENCIL_DESC topDepth = _DX11DepthDesc(top);
+
+  if (_DX11BlendDesc(m_activeState) != topBlend || !s_pBlendState)
   {
     atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
-    atGraphics::SafeRelease(m_pBlendState);
-    atGraphics::GetDevice()->CreateBlendState(&m_blendDesc, &m_pBlendState);
-    atGraphics::GetContext()->OMSetBlendState(m_pBlendState, 0, 0xFFFFFF);
-    m_lastBlendDesc = m_blendDesc;
+    atGraphics::SafeRelease(s_pBlendState);
+    atGraphics::GetDevice()->CreateBlendState(&topBlend, &s_pBlendState);
+    atGraphics::GetContext()->OMSetBlendState(s_pBlendState, 0, 0xFFFFFF);
   }
 
-  if (m_lastDepthDesc != m_depthDesc || !m_pDepthState)
+  if (_DX11DepthDesc(m_activeState) != topDepth || !s_pDepthState)
   {
     atGraphics::GetContext()->OMSetDepthStencilState(nullptr, 0);
-    atGraphics::SafeRelease(m_pDepthState);
-    atGraphics::GetDevice()->CreateDepthStencilState(&m_depthDesc, &m_pDepthState);
-    atGraphics::GetContext()->OMSetDepthStencilState(m_pDepthState, 0);
-    m_lastDepthDesc = m_depthDesc;
+    atGraphics::SafeRelease(s_pDepthState);
+    atGraphics::GetDevice()->CreateDepthStencilState(&topDepth, &s_pDepthState);
+    atGraphics::GetContext()->OMSetDepthStencilState(s_pDepthState, 0);
   }
   
-  if (m_lastRasterDesc != m_rasterDesc || !m_pRasterState)
+  if (_DX11RasterDesc(m_activeState) != topRaster || !s_pRasterState)
   {
     atGraphics::GetContext()->RSSetState(nullptr);
-    atGraphics::SafeRelease(m_pRasterState);
-    atGraphics::GetDevice()->CreateRasterizerState(&m_rasterDesc, &m_pRasterState);
-    atGraphics::GetContext()->RSSetState(m_pRasterState);
-    m_lastRasterDesc = m_rasterDesc;
+    atGraphics::SafeRelease(s_pRasterState);
+    atGraphics::GetDevice()->CreateRasterizerState(&topRaster, &s_pRasterState);
+    atGraphics::GetContext()->RSSetState(s_pRasterState);
   }
 
-  if (m_viewDirty)
+  if (m_activeState.viewport != top.viewport || m_activeState.depthRange != top.depthRange)
   {
-    atGraphics::GetContext()->RSSetViewports(1, &m_viewport);
-    m_viewDirty = false;
+    D3D11_VIEWPORT vp = _DX11ViewportDesc(top);
+    atGraphics::GetContext()->RSSetViewports(1, &vp);
   }
 
-  if (m_scissorDirty)
+  if (m_activeState.scissor != top.scissor)
   {
-    atGraphics::GetContext()->RSSetScissorRects(1, &m_scissor);
-    m_scissorDirty = false;
+    D3D11_RECT sc = _DX11ScissorDesc(top);
+    atGraphics::GetContext()->RSSetScissorRects(1, &sc);
+  }
+
+  if (m_activeState.shader != top.shader)
+    atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
+
+  if (m_activeState.inputLayout != top.inputLayout)
+    atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
+
+  m_activeState = top;
+}
+
+bool atRenderState::SetShader(const int64_t id, const int64_t inputLayoutID)
+{
+#ifdef DEBUG
+  if (!atShaderPool::IsValid(id))
+  {
+    atAssert(false, "Invalid shader ID passed to atRenderStateCore::SetShader()");
+    return false;
+  }
+
+#endif
+  MyState().shader = id;
+  MyState().inputLayout = inputLayoutID;
+  return true;
+}
+
+void atRenderState::Init()
+{
+  m_id = m_stack.size();
+  m_stack.push_back(m_stack.size() ? m_stack.back() : State());
+  if (m_stack.size() == 1)
+  {
+    MyState().scissor = { -INT32_MAX, -INT32_MAX, INT32_MAX, INT32_MAX };
+    
+    UINT vpCount = 0;
+    D3D11_VIEWPORT vp;
+    atGraphics::GetContext()->RSGetViewports(&vpCount, nullptr);
+    if (vpCount > 0)
+    {
+      atGraphics::GetContext()->RSGetViewports(&vpCount, &vp);
+      MyState().viewport = { vp.TopLeftX, vp.TopLeftY, vp.Width, vp.Height };
+    }
   }
 }
 
-void atRenderState::BindShader(const int64_t id) 
-{
-  atShaderPool::BindShader(id);
-  m_shader = id;
+void atRenderState::SetViewport(const atVec4I &vp) 
+{ 
+  MyState().viewport = vp;
+  if (m_alwaysBind) Bind();
 }
 
-void atRenderState::SetViewport(const atVec4I &viewport, const bool updateFlag)
-{
-  SetDefaults();
-  if (viewport.x != m_viewport.TopLeftX || viewport.y != m_viewport.TopLeftY ||
-    viewport.z != m_viewport.Width || viewport.w != m_viewport.Height)
-  {
-    m_viewport.Height = (FLOAT)(viewport.w - viewport.y);
-    m_viewport.Width = (FLOAT)(viewport.z - viewport.x);
-    m_viewport.TopLeftX = (FLOAT)viewport.x;
-    m_viewport.TopLeftY = (FLOAT)viewport.y;
-
-    m_viewportSet |= updateFlag;
-    m_viewDirty = true;
-  }
-}
-
-void atRenderState::SetScissor(const atVec4I &scissor)
-{
-  SetDefaults();
-  if (m_scissor.left != scissor.x || m_scissor.right != scissor.z || m_scissor.bottom != scissor.w || m_scissor.top != scissor.y)
-  {
-    m_scissor.left = scissor.x;
-    m_scissor.right = scissor.z;
-    m_scissor.bottom = scissor.w;
-    m_scissor.top = scissor.y;
-    m_scissorDirty = true;
-  }
+void atRenderState::SetScissor(const atVec4I &scissor) 
+{ 
+  MyState().scissor = scissor; m_setViewport = true;
+  if (m_alwaysBind) Bind();
 }
 
 void atRenderState::SetDepthRange(const float min, const float max)
 {
-  SetDefaults();
-  m_viewport.MinDepth = (FLOAT)min;
-  m_viewport.MaxDepth = (FLOAT)max;
+  MyState().depthRange = atVec2F(min, max);
+  if (m_alwaysBind) Bind();
 }
 
-void atRenderState::EnableCulling(const bool enable)
+void atRenderState::SetDepthWriteEnabled(const bool enabled) 
+{ 
+  MyState().depthWriteEnabled = enabled;
+  if (m_alwaysBind) Bind();
+}
+
+void atRenderState::SetDepthReadEnabled(const bool enabled)
 {
-  SetDefaults();
-  m_rasterDesc.CullMode = enable ? m_lastCullMode : D3D11_CULL_NONE;
-  m_lastCullMode = enable ? m_rasterDesc.CullMode : m_lastCullMode;
+  MyState().depthReadEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
-
-void atRenderState::EnableBlend(const bool enable)
+void atRenderState::SetStencilEnabled(const bool enabled)
 {
-  SetDefaults();
-  m_blendDesc.RenderTarget[0].BlendEnable = (BOOL)enable;
+  MyState().stencilEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
-
-void atRenderState::EnableScissor(const bool enable)
+void atRenderState::SetBlendEnabled(const bool enabled)
 {
-  SetDefaults();
-  m_rasterDesc.ScissorEnable = (BOOL)enable;
+  MyState().blendEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
-
-void atRenderState::EnableAA(const bool enable)
+void atRenderState::SetMSAAEnabled(const bool enabled)
 {
-  SetDefaults();
-  m_rasterDesc.AntialiasedLineEnable = (BOOL)enable;
+  MyState().msaaEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
-
-void atRenderState::EnableMultisample(const bool enable)
+void atRenderState::SetCullEnabled(const bool enabled)
 {
-  SetDefaults();
-  m_rasterDesc.MultisampleEnable = (BOOL)enable;
+  MyState().cullEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
-
-void atRenderState::SetDefaults()
+void atRenderState::SetAAEnabled(const bool enabled)
 {
-  if (m_defaultSet)
-    return;
-
-  ZeroMemory(&m_lastRasterDesc, sizeof(D3D11_RASTERIZER_DESC)); 
-  m_lastBlendDesc = { 0 };
-  m_lastDepthDesc = { 0 };
-
-  m_depthDesc.DepthEnable = true;
-  m_depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-  m_depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
-  m_depthDesc.StencilEnable = false;
-  m_depthDesc.StencilReadMask = 0xFF;
-  m_depthDesc.StencilWriteMask = 0xFF;
-
-  m_depthDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-  m_depthDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-  m_depthDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-  m_depthDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-  m_depthDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-  m_depthDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-  m_depthDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-  m_depthDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-  m_rasterDesc.AntialiasedLineEnable = true;
-  m_rasterDesc.CullMode = D3D11_CULL_NONE;
-  m_rasterDesc.DepthBias = 0;
-  m_rasterDesc.DepthBiasClamp = 0.0f;
-  m_rasterDesc.DepthClipEnable = true;
-  m_rasterDesc.FillMode = D3D11_FILL_SOLID;
-  m_rasterDesc.FrontCounterClockwise = false;
-  m_rasterDesc.MultisampleEnable = true;
-  m_rasterDesc.ScissorEnable = true;
-  m_rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-  m_blendDesc.AlphaToCoverageEnable = false;
-  m_blendDesc.IndependentBlendEnable = true; 
-  m_blendDesc.RenderTarget[0].BlendEnable = false;
-  m_blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-  m_blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-  m_blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-  m_blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-  m_blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-  m_blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-  m_blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-
-  m_viewport.MinDepth = 0.0f;
-  m_viewport.MaxDepth = 1.0f;
-  m_defaultSet = true;
+  MyState().aaEnabled = enabled;
+  if (m_alwaysBind) Bind();
 }
 
-void atRenderState::EnableDepthTest(const bool enable) { SetDefaults(); m_depthDesc.DepthEnable = enable; }
-bool atRenderState::ViewportSet() { return m_viewportSet; }
-bool atRenderState::ScissorSet() { return m_scissorSet; }
+void atRenderState::Set(const State &state)
+{
+  m_stack[m_id] = state;
+  if (m_alwaysBind) Bind();
+}
+
+bool atRenderState::IsDepthWriteEnabled() const { return MyState().depthWriteEnabled; }
+bool atRenderState::IsDepthReadEnabled() const { return MyState().depthReadEnabled; }
+bool atRenderState::IsStencilEnabled() const { return MyState().stencilEnabled; }
+bool atRenderState::IsBlendEnabled() const { return MyState().blendEnabled; }
+bool atRenderState::IsMSAAEnabled() const { return MyState().msaaEnabled; }
+bool atRenderState::IsCullEnabled() const { return MyState().cullEnabled; }
+bool atRenderState::IsAAEnabled() const { return MyState().aaEnabled; }
+const atVec4I &atRenderState::Viewport() const { return MyState().viewport; }
+const atVec4I &atRenderState::Scissor() const { return MyState().scissor; }
+const atVec2F &atRenderState::DepthRange() const { return MyState().depthRange; }
+const atRenderState::State &atRenderState::MyState() const { return m_stack[m_id]; }
+atRenderState::State &atRenderState::MyState() { return m_stack[m_id]; }
+atRenderState::atRenderState(int unused) { Init(); }
+
+// ----------------------------------
+// INTERNAL USE SOURCE ONLY FUNCTIONS
+
+static D3D11_RASTERIZER_DESC _DX11RasterDesc(const atRenderState::State &state)
+{
+  D3D11_RASTERIZER_DESC desc;
+  memset(&desc, 0, sizeof(desc));
+  desc.AntialiasedLineEnable = true;
+  desc.CullMode = state.cullEnabled ? D3D11_CULL_BACK : D3D11_CULL_NONE;
+  desc.DepthBias = 0;
+  desc.DepthBiasClamp = 0.0f;
+  desc.DepthClipEnable = true;
+  desc.FillMode = D3D11_FILL_SOLID;
+  desc.FrontCounterClockwise = false;
+  desc.MultisampleEnable = state.msaaEnabled;
+  desc.ScissorEnable = state.scissorEnabled;
+  desc.SlopeScaledDepthBias = 0.0f;
+  return desc;
+}
+
+static D3D11_DEPTH_STENCIL_DESC _DX11DepthDesc(const atRenderState::State &state)
+{
+  D3D11_DEPTH_STENCIL_DESC desc = { 0 };
+  desc.DepthEnable = state.depthReadEnabled;
+  desc.DepthWriteMask = state.depthWriteEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+  desc.DepthFunc = D3D11_COMPARISON_LESS;
+  desc.StencilEnable = state.stencilEnabled;
+  desc.StencilReadMask = 0xFF;
+  desc.StencilWriteMask = 0xFF;
+  desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+  desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+  desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+  desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+  desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+  desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+  desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+  desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+  return desc;
+}
+
+static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state)
+{
+  D3D11_VIEWPORT desc;
+  desc.Height = (float)state.viewport.w;
+  desc.Width = (float)state.viewport.z;
+  desc.TopLeftX = (float)state.viewport.x;
+  desc.TopLeftY = (float)state.viewport.y;
+  desc.MinDepth = (float)state.depthRange.x;
+  desc.MaxDepth = (float)state.depthRange.y;
+  return desc;
+}
+
+static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state)
+{
+  D3D11_BLEND_DESC desc;
+  memset(&desc, 0, sizeof(desc));
+  desc.AlphaToCoverageEnable = false;
+  desc.IndependentBlendEnable = true; 
+  desc.RenderTarget[0].BlendEnable = state.blendEnabled;
+  desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+  desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+  desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+  desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+  desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  desc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+  return desc;
+}
+
+static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state)
+{
+  D3D11_RECT desc;
+  desc.left = state.scissor.x;
+  desc.top = state.scissor.y;
+  desc.right = state.scissor.z;
+  desc.bottom = state.scissor.w;
+  return desc;
+}
+
+struct CleanupStruct
+{
+  ~CleanupStruct()
+  {
+    delete s_pGlobalState;
+    s_pGlobalState = nullptr;
+  }
+};
+
+static CleanupStruct cleanup;

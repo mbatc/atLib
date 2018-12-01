@@ -77,6 +77,7 @@ atRenderable::~atRenderable() { Clear(); }
 
 bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
 {
+  atRenderState rs;
   Rebuild();
   if (m_shaderID == AT_INVALID_ID || m_shaderRound != atShaderPool::ShaderRound())
   {
@@ -133,8 +134,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   }
 
   // Bind Shader to DX Context
-  atRenderState::BindShader(m_shaderID);
-  atShaderPool::BindInputLayout(m_layoutID);
+  rs.SetShader(m_shaderID, m_layoutID);
 
   // Bind Vertex Buffer and Index Buffer (if not null) then Draw
   UINT offset = 0;
@@ -142,24 +142,23 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   atGraphics::GetContext()->IASetVertexBuffers(0, 1, &m_pVertBuffer, &stride, &offset);
   switch (type)
   {
-  case atRPT_TriangleList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
   case atRPT_LineList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
   case atRPT_PointList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-  case atRPT_TriangleListAdj: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
   case atRPT_LineListAdj: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
+  case atRPT_TriangleList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
   case atRPT_TriangleStrip: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+  case atRPT_TriangleListAdj: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
   }
 
   bool indexed = type == atRPT_TriangleList || type == atRPT_LineList || type == atRPT_PointList;
   
-  atRenderState::Bind();
   if (m_pIndexBuffer && indexed)
   {
     atGraphics::GetContext()->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    atGraphics::GetContext()->DrawIndexed((UINT)m_nIndices, 0, 0);
+    atGraphics::DrawIndexed((UINT)m_nIndices);
   }
   else
-    atGraphics::GetContext()->Draw((UINT)m_nVerts, 0);
+    atGraphics::Draw((UINT)m_nVerts);
   return true;
 }
 
