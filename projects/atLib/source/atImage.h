@@ -46,17 +46,20 @@ public:
 
   atVector<atCol>& Pixels();
   const atVector<atCol>& Pixels() const;
-  
+
+  const atCol& Get(const int64_t x, const int64_t y) const;
   atCol& Get(const int64_t x, const int64_t y);
+  const atCol& operator[](const int64_t i) const;
+  atCol& operator[](const int64_t i);
 
   const atVec2I& Size() const;
   const int64_t Width() const;
   const int64_t Height() const;
 
-  atImage Resize(const atVec2I &size, const atSampleType sampler);
-  atImage Pad(const int64_t top, const int64_t left, const int64_t bottom, const int64_t right);
+  atImage Resize(const atVec2I &size, const atSampleType sampler) const;
+  atImage Pad(const int64_t top, const int64_t left, const int64_t bottom, const int64_t right) const;
 
-  atCol Sample(const atVec2F &uv, const atSampleType type = atST_Bilinear);
+  atCol Sample(const atVec2F &uv, const atSampleType type = atST_Bilinear) const;
 
   const atImage& operator=(const atImage &copy);
   const atImage& operator=(atImage &&move);

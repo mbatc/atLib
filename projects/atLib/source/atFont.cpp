@@ -95,6 +95,22 @@ atFont::atFont(atFont &&move)
   move.m_stale = true;
 }
 
+atVec2F atFont::FindWhitePixel()
+{
+  if (m_stale)
+  {
+    bool found = false;
+    for (int64_t y = 0; y < m_bitmap.Height() && !found; ++y)
+      for (int64_t x = 0; x < m_bitmap.Width() && !found; ++x)
+        if (m_bitmap[x + y * m_bitmap.Width()] == 0xFFFFFFFF)
+        {
+          m_lastWhiteUV = { (float)x / (float)m_bitmap.Width(), (float)y / (float)m_bitmap.Height() };
+          found = true;
+        }
+  }
+  return m_lastWhiteUV;
+}
+
 atFont::Glyph atFont::GetGlyph(const uint32_t codepoint)
 {
   atAssert(m_font.data != nullptr, "Font is not initialised!");

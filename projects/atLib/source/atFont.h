@@ -70,6 +70,9 @@ public:
 
   int64_t Height() const;
 
+  // Returns the UV of a white pixel
+  atVec2F FindWhitePixel();
+
 protected:
   Glyph LoadGlyph(const uint32_t codepoint);
   void ResizeBitmap(const atVec2I &size);
@@ -87,6 +90,7 @@ protected:
   int64_t m_texID = AT_INVALID_ID;
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();
+  atVec2F m_lastWhiteUV = atVec2F::zero();
 };
 
 #endif // atFont_h__

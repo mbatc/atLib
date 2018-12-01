@@ -49,8 +49,11 @@ atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y, 0), m_size(siz
 atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::LoadImage(file, &m_size)); }
 atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
 atCol& atImage::Get(const int64_t x, const int64_t y) { return m_pixels[x + y * Width()]; }
-const atVector<atCol>& atImage::Pixels() const { return m_pixels; }
+atCol & atImage::operator[](const int64_t i) { return m_pixels[i]; }
 atVector<atCol>& atImage::Pixels() { return m_pixels; }
+const atCol & atImage::Get(const int64_t x, const int64_t y) const { return m_pixels[x + y * Width()]; }
+const atCol & atImage::operator[](const int64_t i) const { return m_pixels[i]; }
+const atVector<atCol>& atImage::Pixels() const { return m_pixels; }
 const atVec2I& atImage::Size() const { return m_size; }
 const int64_t atImage::Width() const { return m_size.x; }
 const int64_t atImage::Height() const { return m_size.y; }
@@ -67,7 +70,7 @@ atImage::atImage(const atImage &copy)
   , m_size(copy.m_size)
 {}
 
-atImage atImage::Resize(const atVec2I &size, const atSampleType sampler) 
+atImage atImage::Resize(const atVec2I &size, const atSampleType sampler) const 
 {
   atImage ret(size);
   for (int64_t y = 0; y < ret.Height(); ++y)
@@ -76,7 +79,7 @@ atImage atImage::Resize(const atVec2I &size, const atSampleType sampler)
   return ret;
 }
 
-atImage atImage::Pad(const int64_t top, const int64_t left, const int64_t bottom, const int64_t right)
+atImage atImage::Pad(const int64_t top, const int64_t left, const int64_t bottom, const int64_t right) const
 {
   atImage ret(atVec2I(Width() + left + right, Height() + top + bottom));
   for (int64_t y = 0; y < ret.Height(); ++y)
@@ -85,7 +88,7 @@ atImage atImage::Pad(const int64_t top, const int64_t left, const int64_t bottom
   return ret;
 }
 
-atCol atImage::Sample(const atVec2F &uv, const atSampleType type)
+atCol atImage::Sample(const atVec2F &uv, const atSampleType type) const
 {
   switch (type)
   {
