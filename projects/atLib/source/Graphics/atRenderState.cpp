@@ -103,11 +103,8 @@ void atRenderState::Bind()
     atGraphics::GetContext()->RSSetScissorRects(1, &sc);
   }
 
-  if (m_activeState.shader != top.shader)
-    atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
-
-  if (m_activeState.inputLayout != top.inputLayout)
-    atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
+  atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
+  atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
 
   m_activeState = top;
 }

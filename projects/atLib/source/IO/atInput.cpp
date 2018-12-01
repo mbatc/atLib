@@ -47,15 +47,19 @@ static void _UpdateMouse()
   if (s_mouseLocked)
     if (GetFocus())
       atInput::SetMousePos(s_lockPos);
+
+  for (atButtonState &mb : atIterate(s_mouseState, atMB_Count))
+  {
+    if (mb.IsPressed())
+      mb = mb;
+    mb.Update(s_dt);
+  }
 }
 
 static void _UpdateKeyboard()
 {
   for (atButtonState &bt : atIterate(s_keyState, atKC_Count))
-    if (bt.IsDown()) 
-      bt.OnDown(s_dt);
-    else if (bt.IsUp()) 
-      bt.OnUp(s_dt);
+    bt.Update(s_dt);
 }
 
 static HWND _GetFocus()

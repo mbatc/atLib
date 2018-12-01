@@ -295,6 +295,34 @@ void ExampleImportExportMesh()
   // mesh.Export(outPath3);
 }
 
+#include "atControl.h"
+
+void ExampleControlGUI()
+{
+  atPrimitiveRenderer::SetFont(atFilename("Assets/Fonts/RomanSerif.ttf"));
+  atWindow window("atControl Example Window");
+  atRenderState rs;
+  rs.SetDepthReadEnabled(false);
+  rs.SetBlendEnabled(true);
+  bool messageToggle = false;
+  while (atInput::Update())
+  {
+    window.Clear(atVec4F(.3f,.3f,.3f,1.f));
+    atControl::BeginFrame();
+    // if(atControl::Button(messageToggle ? atString("Test Button Toggled") : atString("Test Button"), 0))
+    //   messageToggle = !messageToggle;
+
+    atControl::Button("Button 2", window.Size() / 2);
+
+    atControl::EndFrame();
+    
+    atPrimitiveRenderer::AddRectangle(window.Width() - 1, window.Height() - 1, { 1, 1 });
+
+    atControl::Draw(window);
+    window.Swap();
+  }
+}
+
 void ExampleRayTraceMesh()
 {
   atMesh mesh;
@@ -317,8 +345,9 @@ int main(int argc, char **argv)
   
   // Functional
   
+  ExampleControlGUI();
   // ExampleRenderText();
-  ExampleRenderMesh();
+  // ExampleRenderMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 
