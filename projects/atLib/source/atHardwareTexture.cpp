@@ -62,27 +62,27 @@ int64_t atHardwareTexture::CreateSampler(const int64_t filter, const atTexCoordM
   return s_samplerCounter++;
 }
 
-int64_t atHardwareTexture::UploadTexture(const atFilename &file)
+int64_t atHardwareTexture::UploadTexture(const atFilename &file, const bool genMipmaps)
 {
   int64_t *pID = s_imageID.TryGet(file);
   if (pID)
     return *pID;
   s_imageID.Add(file, s_imageCounter);
-  return UploadTexture(atImage(file));
+  return UploadTexture(atImage(file), genMipmaps);
 }
 
-int64_t atHardwareTexture::UploadTexture(const atImage &image)
+int64_t atHardwareTexture::UploadTexture(const atImage &image, const bool genMipmaps)
 {
-  s_textures.Add(s_imageCounter, atNew<atTextureContext>(image));
+  s_textures.Add(s_imageCounter, atNew<atTextureContext>(image, genMipmaps));
   return s_imageCounter++;
 }
 
-bool atHardwareTexture::UpdateTexture(const int64_t id, const atImage &image)
+bool atHardwareTexture::UpdateTexture(const int64_t id, const atImage &image, const bool genMipmaps)
 {
   atTextureContext **ppTex = s_textures.TryGet(id);
   if(!ppTex)
     return false;
-  (*ppTex)->UpdateTexture(image);
+  (*ppTex)->UpdateTexture(image, genMipmaps);
   return true;
 }
 

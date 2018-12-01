@@ -212,6 +212,7 @@ void atRenderState::SetDefaults()
 
   m_viewport.MinDepth = 0.0f;
   m_viewport.MaxDepth = 1.0f;
+  m_defaultSet = true;
 }
 
 void atRenderState::EnableDepthTest(const bool enable) { SetDefaults(); m_depthDesc.DepthEnable = enable; }

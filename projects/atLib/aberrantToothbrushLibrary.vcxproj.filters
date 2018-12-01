@@ -303,7 +303,7 @@
     <ClCompile Include="source\atNetworkWriter.cpp">
       <Filter>Source Files\Networking</Filter>
     </ClCompile>
-    <ClCompile Include="source\atFontRenderer.cpp">
+    <ClCompile Include="source\atPrimitiveRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -515,7 +515,7 @@
     <ClInclude Include="source\3rdParty\stb\stb_truetype.h">
       <Filter>Header Files\3rdParty</Filter>
     </ClInclude>
-    <ClInclude Include="source\atFontRenderer.h">
+    <ClInclude Include="source\atPrimitiveRenderer.h">
       <Filter>Header Files\UI\Font</Filter>
     </ClInclude>
   </ItemGroup>

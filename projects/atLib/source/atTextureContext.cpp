@@ -26,18 +26,19 @@
 #include "atTextureContext.h"
 #include "atImage.h"
 
-static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture)
+static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture, const bool genMipmaps)
 {
   ID3D11ShaderResourceView *pView = nullptr;
 
   D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
-  desc.Texture2D.MipLevels = -1;
+  desc.Texture2D.MipLevels = genMipmaps ? -1 : 1;
   desc.Texture2D.MostDetailedMip = 0;
   desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
   desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
   atGraphics::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pView);
-  atGraphics::GetContext()->GenerateMips(pView);
+  if(genMipmaps)
+    atGraphics::GetContext()->GenerateMips(pView);
   return pView;
 }
 
@@ -62,7 +63,7 @@ static ID3D11UnorderedAccessView *_CreateUAView(ID3D11Texture2D *pTexture)
   return pView;
 }
 
-atTextureContext::atTextureContext(const atImage &image)
+atTextureContext::atTextureContext(const atImage &image, const bool genMipmaps) : m_genMipmaps(genMipmaps)
 {
   D3D11_TEXTURE2D_DESC texDesc{};
   texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
@@ -74,7 +75,7 @@ atTextureContext::atTextureContext(const atImage &image)
   texDesc.SampleDesc.Count = 1;
   texDesc.ArraySize = 1;
   texDesc.MipLevels = 0;
-  texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+  texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
 
   atGraphics::GetDevice()->CreateTexture2D(&texDesc, nullptr, &m_pTexture);
   atGraphics::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, image.Pixels().data(), (UINT)(image.Width() * sizeof(atCol)), 0);
@@ -82,6 +83,7 @@ atTextureContext::atTextureContext(const atImage &image)
 
 atTextureContext::atTextureContext(const atTextureContext &copy)
 {
+  m_genMipmaps = copy.m_genMipmaps;
   m_pTexture = copy.m_pTexture;
   m_pUAView = copy.m_pUAView;
   m_pDepthView = copy.m_pDepthView;
@@ -94,7 +96,7 @@ atTextureContext::atTextureContext(const atTextureContext &copy)
   if (m_pShaderView) m_pShaderView->AddRef();
 }
 
-atTextureContext::atTextureContext(atTextureContext &&move)
+atTextureContext::atTextureContext(atTextureContext &&move) : m_genMipmaps(move.m_genMipmaps)
 {
   m_pTexture = move.m_pTexture;
   m_pUAView = move.m_pUAView;
@@ -116,6 +118,7 @@ const atTextureContext &atTextureContext::operator=(const atTextureContext &rhs)
   m_pDepthView = rhs.m_pDepthView;
   m_pRenderView = rhs.m_pRenderView;
   m_pShaderView = rhs.m_pShaderView;
+  m_genMipmaps = rhs.m_genMipmaps;
   if (m_pTexture) m_pTexture->AddRef();
   if (m_pUAView) m_pUAView->AddRef();
   if (m_pDepthView) m_pDepthView->AddRef();
@@ -132,6 +135,7 @@ const atTextureContext &atTextureContext::operator=(atTextureContext &&rhs)
   m_pDepthView = rhs.m_pDepthView;
   m_pRenderView = rhs.m_pRenderView;
   m_pShaderView = rhs.m_pShaderView;
+  m_genMipmaps = rhs.m_genMipmaps;
   rhs.m_pTexture = nullptr;
   rhs.m_pUAView = nullptr;
   rhs.m_pDepthView = nullptr;
@@ -152,7 +156,7 @@ void atTextureContext::Release()
 atTextureContext::operator ID3D11ShaderResourceView*()
 {
   if (!m_pShaderView)
-    m_pShaderView = _CreateSRView(m_pTexture);
+    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps);
   return m_pShaderView;
 }
 
@@ -180,7 +184,7 @@ atTextureContext::operator ID3D11UnorderedAccessView*()
 atTextureContext::operator ID3D11ShaderResourceView**()
 {
   if (!m_pShaderView)
-    m_pShaderView = _CreateSRView(m_pTexture);
+    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps);
   return &m_pShaderView;
 }
 
@@ -205,9 +209,9 @@ atTextureContext::operator ID3D11UnorderedAccessView**()
   return &m_pUAView;
 }
 
-void atTextureContext::UpdateTexture(const atImage &image) { *this = atTextureContext(image); }
+void atTextureContext::UpdateTexture(const atImage &image, const bool genMipaps) { *this = atTextureContext(image, genMipaps); }
 atTextureContext::~atTextureContext() { Release(); }
 atTextureContext::operator ID3D11Texture2D*() { return m_pTexture; }
 atTextureContext::operator ID3D11Texture2D**() { return &m_pTexture; }
-atTextureContext::atTextureContext(ID3D11Texture2D *pTexture) : m_pTexture(pTexture) {}
-atTextureContext::atTextureContext(const atFilename &file) : atTextureContext(atImage(file)) {}
+atTextureContext::atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps) : m_pTexture(pTexture), m_genMipmaps(genMipmaps) {}
+atTextureContext::atTextureContext(const atFilename &file, const bool genMipmaps) : atTextureContext(atImage(file), genMipmaps) {}
