@@ -1,9 +1,0 @@
-Generic Hash function to be used with atHashMap
-
-Modify atVector<> to take an allocator as a template argument
-
-Block allocator to be used with atVector<> (to reduced memory fragmentation)
-
-Mesh importers (obj, stl and ply would be a good start)
-
-Generic threading pool to queue tasks

@@ -26,7 +26,6 @@
 #include "atInput.h"
 #include "atBVH.h"
 
-
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
 //       
@@ -61,6 +60,8 @@
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
+  atPrimitiveRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
+
   // Set the model being loaded
   const atString path = "assets/test/models/level.obj";
 
@@ -77,11 +78,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Create a camera
   atCamera camera(window, { 0, 1, 5 });
-
-  const atString fontPath = "Assets/Fonts/RomanSerif.ttf";
-  // Set/Load a font (.ttf files)
-  atPrimitiveRenderer::SetFont(fontPath);
-
+  
   // Main program loop
   while (atInput::Update(true)) // Process user inputs
   {
@@ -90,7 +87,6 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
     // Clear window
     window.Clear(clearColor);
-    atRenderState::EnableDepthTest(true);
 
     // Set Lighting Data
     model.SetLighting(light);
@@ -101,33 +97,13 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
-    // Enable/Disable pivots
-    static bool usePivot = true;
-    usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+    // Drawing Text - See ExampleRenderText() for more examples
+    atPrimitiveRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
     atRenderState::EnableDepthTest(false);
-    // Bake Text
-    if (usePivot)
-    {
-      atPrimitiveRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
-      atPrimitiveRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
-      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
-      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
-      atPrimitiveRenderer::AddText(0, window.Height() / 2, "abcdefghijklmnopqrstuvwxyz1234567890-=+_.,/?'\";:[]{}\\|`~!@#$%^&*<>", { 0.f, .5f });
-    }
-    else
-    {
-      atPrimitiveRenderer::AddText(0, 0, "Top Left");
-      atPrimitiveRenderer::AddText(window.Width(), 0, "Top Right");
-      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left");
-      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
-      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("Center"));
-      atPrimitiveRenderer::PopColour();
-      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
-    }
-
-    // Render Text
+    atRenderState::EnableBlend(true);
     atPrimitiveRenderer::Draw(window);
+    atRenderState::EnableDepthTest(true);
+    atRenderState::EnableBlend(false);
 
     // Display rendered frame
     window.Swap();
@@ -157,7 +133,11 @@ void ExampleRenderText()
 
   // Set/Load a font (.ttf files)
   atPrimitiveRenderer::SetFont(fontPath);
-  
+
+  // Setup correct render state
+  atRenderState::EnableBlend(true);
+  atRenderState::EnableDepthTest(false);
+
   while (atInput::Update())
   {
     window.Clear({ 0.3f, 0.3f, 0.3f, 1.0f });
@@ -165,7 +145,6 @@ void ExampleRenderText()
     // Enable/Disable pivots
     static bool usePivot = true;
     usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
-    atRenderState::EnableDepthTest(false);
     // Bake Text
     if (usePivot)
     {
@@ -177,6 +156,7 @@ void ExampleRenderText()
       atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
       atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
       atPrimitiveRenderer::PopColour();
+
       atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
     }
     else
@@ -185,9 +165,11 @@ void ExampleRenderText()
       atPrimitiveRenderer::AddText(window.Width(), 0, "Top Right");
       atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left");
       atPrimitiveRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
+
       atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
       atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("Center"), { .5f, .5f });
       atPrimitiveRenderer::PopColour();
+
       atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
     }
     
@@ -312,24 +294,37 @@ void ExampleImportExportMesh()
   // mesh.Export(outPath3);
 }
 
+void ExampleRayTraceMesh()
+{
+  atMesh mesh;
+  mesh.Import("assets/test/models/cube.obj");
+  
+  atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
+  
+  double time = 0.0;
+  bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
+  
+  // Uncomment Something!
+  
+  // Functional
+  
   // ExampleRenderText();
-  ExampleRenderMesh();
-  // ExampleImportExportMesh();
+  // ExampleRenderMesh();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 
-  // atMesh mesh;
-  // mesh.Import("assets/test/models/cube.obj");
-  // 
-  // atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
-  // 
-  // double time = 0.0;
-  // bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
+  // Not Quite Functional
+  
+  // ExampleImportExportMesh();
+  // ExampleRayTraceMesh();
+
   return atWindow_GetResult();
 }
