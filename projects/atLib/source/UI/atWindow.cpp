@@ -25,6 +25,7 @@
 
 #include "atWindow.h"
 #include "atInput.h"
+#include <Windowsx.h>
 #include <time.h>
 
 static MSG s_msg;
@@ -60,7 +61,7 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   case WM_LBUTTONDOWN: atInput::OnMouseDown(atMB_Left, dt); break;
   case WM_RBUTTONDOWN: atInput::OnMouseDown(atMB_Right, dt); break;
   case WM_MBUTTONDOWN: atInput::OnMouseDown(atMB_Middle, dt); break;
-  case WM_MOUSEMOVE: atInput::OnMouseMove({ ((int)(short)LOWORD(lParam)), ((int)(short)HIWORD(lParam)) }, dt); break;
+  case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
   default: return DefWindowProc(hWnd, msg, wParam, lParam);
   }
   atInput::SetDT(dt);
@@ -172,12 +173,26 @@ bool atWindow::WINRegister()
   return RegisterClassEx(&wce) != 0;
 }
 
-bool atWindow::WINCreate() 
+bool atWindow::WINCreate()
 {
   HINSTANCE hInstance = GetModuleHandle(NULL);
+  RECT rect = { m_pos.x, m_pos.y, m_pos.x + m_size.x, m_pos.y + m_size.y };
+  AdjustWindowRect(&rect, (DWORD)m_style, false);
+  m_clientSize = m_size;
+  m_size = { rect.right - rect.left, rect.bottom - rect.top };
   m_hWnd = CreateWindow(m_wndCls.c_str(), m_title.c_str(), (DWORD)m_style, m_pos.x, m_pos.y, m_size.x, m_size.y, m_hParent, m_hMenu, hInstance, NULL); 
   ResizePixels();
   return m_hWnd != nullptr;
+}
+
+void atWindow::UpdateWindowRect()
+{
+  RECT clientRect, wndRect;
+  GetClientRect(m_hWnd, &clientRect);
+  GetWindowRect(m_hWnd, &wndRect);
+  m_clientSize = atVec2I(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+  m_size = atVec2I(wndRect.right - wndRect.left, wndRect.bottom - wndRect.top);
+  m_pos = atVec2I(wndRect.left, wndRect.top);
 }
 
 void atWindow::SetWindowRect()
@@ -221,6 +236,18 @@ void atWindow::Destroy()
   m_pixels.clear();
 }
 
+const atVec2I& atWindow::Size() 
+{
+  UpdateWindowRect();
+  return m_clientSize; 
+}
+
+const atVec2I& atWindow::GetPos()
+{ 
+  UpdateWindowRect();
+  return m_pos;
+}
+
 void atWindow::SetStyle(const int64_t style) { m_style = style; }
 void atWindow::SetWindowed(const bool windowed) { m_windowed = windowed; }
 void atWindow::SetMenu(HMENU hMenu) { m_hMenu = hMenu; }
@@ -229,10 +256,14 @@ void atWindow::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
 void atWindow::SetParent(const atWindow &window) { m_hWnd = window.GetHandle(); }
 void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
 HWND atWindow::GetHandle() const { return m_hWnd; }
-const atVec2I& atWindow::Size() const { return m_size; }
-int32_t atWindow::Width() const { return m_size.x; }
-int32_t atWindow::Height() const { return m_size.y; }
+const atVec2I& atWindow::Size() const { return m_clientSize; }
 const atVec2I& atWindow::GetPos() const { return m_pos; }
-int32_t atWindow::GetX() const { return m_pos.x; }
-int32_t atWindow::GetY() const { return m_pos.y; }
+int32_t atWindow::Width() { return Size().x; }
+int32_t atWindow::Height() { return Size().y; }
+int32_t atWindow::GetX() { return GetPos().x; }
+int32_t atWindow::GetY() { return GetPos().y; }
+int32_t atWindow::Width() const { return Size().x; }
+int32_t atWindow::Height() const { return Size().y; }
+int32_t atWindow::GetX() const { return GetPos().x; }
+int32_t atWindow::GetY() const { return GetPos().y; }
 bool atWindow::IsWindowed() const { return m_windowed; }

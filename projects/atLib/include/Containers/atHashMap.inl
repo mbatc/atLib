@@ -109,6 +109,7 @@ template<class Key, class Value> const Value& atHashMap<Key, Value>::Get(const K
     if (kvp.m_key == key)
       return kvp.m_val;
   atAssert(false, "[Key] does not exists");
+  return (*m_buckets[0].data()).m_val;
 }
 
 template<class Key, class Value> const Value* atHashMap<Key, Value>::TryGet(const Key &key) const

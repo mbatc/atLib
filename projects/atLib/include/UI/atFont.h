@@ -51,7 +51,7 @@ public:
     int64_t height;   // Height of the glyph in pixels
   };
 
-  atFont(const atFilename &filename, const int64_t scale = 32);
+  atFont(const atFilename &filename, const int64_t scale = 32, const int64_t resolution = -1);
   atFont(const atFont &copy);
   atFont(atFont &&move);
   ~atFont();
@@ -75,6 +75,7 @@ public:
   int64_t GetTextureID(const bool updateTexture = true);
 
   int64_t Height() const;
+  int64_t Resolution() const;
 
   // Returns the UV of a white pixel
   atVec2F FindWhitePixel();
@@ -92,6 +93,7 @@ protected:
   stbtt_fontinfo m_font = { 0 };
   float m_scale = 0;
   int64_t m_height = 0;
+  int64_t m_resolution = 0;
 
   int64_t m_texID = AT_INVALID_ID;
   int32_t m_lastRowHeight = 0;

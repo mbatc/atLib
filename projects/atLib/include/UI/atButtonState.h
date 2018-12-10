@@ -44,6 +44,8 @@ public:
   double TimeDown() const;
   double TimeUp() const;
 
+  void Update(const double dt);
+
 protected:
   bool m_pressed = false;
   bool m_released = false;

@@ -43,7 +43,6 @@ template <typename T> atBVHNode<T>::atBVHNode() {}
 template <typename T> class atBVH
 {
 public:
-
   atBVH(const atVector<T> &primitives);
 
   void Construct(const atVector<T> &primitives);

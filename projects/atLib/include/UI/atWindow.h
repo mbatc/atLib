@@ -56,6 +56,14 @@ public:
   void SetStyle(const int64_t style);
   void SetWindowed(const bool windowed);
 
+  const atVec2I &Size();
+  int32_t Width();
+  int32_t Height();
+
+  const atVec2I &GetPos();
+  int32_t GetX();
+  int32_t GetY();
+
   const atVec2I &Size() const;
   int32_t Width() const;
   int32_t Height() const;
@@ -78,6 +86,7 @@ public:
   void Destroy();
 
 protected:
+  void UpdateWindowRect();
   void SetWindowRect();
   void LoadDefaultResources();
   void ResizePixels();
@@ -88,6 +97,7 @@ protected:
   atString m_title = "Main Window";
   atString m_wndCls = "atDefaultWndCls";
 
+  atVec2I m_clientSize = atVec2I(800, 600);
   atVec2I m_size = atVec2I(800, 600);
   atVec2I m_pos = atVec2I(0, 0);
 

@@ -34,6 +34,8 @@ class atCamera : public atTransformable<double>
 public:
   atCamera(const atWindow &wnd, const atVec3F64 &pos = { 0,0,0 }, const atVec3F64 &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
+  void SetProjection(const atWindow &wnd);
+
   atMat4D ProjectionMat() const;
   atMat4D ViewMat() const;
 

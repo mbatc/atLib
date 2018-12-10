@@ -74,6 +74,9 @@ struct atTypeDesc
   atType type;
   int64_t count;
   int64_t size;
+
+  bool operator==(const atTypeDesc &o) const;
+  bool operator!=(const atTypeDesc &o) const;
 };
 
 // Return an enum representing the type

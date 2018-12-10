@@ -79,28 +79,28 @@ bool atRenderTarget::Resize()
   return true;
 }
 
-ID3D11DepthStencilView * atRenderTarget::GetDepthStencilView()
+ID3D11DepthStencilView* atRenderTarget::GetDepthStencilView()
 {
   if (!m_pDepthStencilView)
     CreateDepthStencil();
   return m_pDepthStencilView;
 }
 
-ID3D11RenderTargetView * atRenderTarget::GetRenderTarget()
+ID3D11RenderTargetView* atRenderTarget::GetRenderTarget()
 {
   if (!m_pRenderTarget)
     CreateRenderTarget();
   return m_pRenderTarget;
 }
 
-ID3D11Texture2D * atRenderTarget::GetDepthStencilBuffer()
+ID3D11Texture2D* atRenderTarget::GetDepthStencilBuffer()
 {
   if (!m_pDepthStencilBuffer)
     CreateDepthStencil();
   return m_pDepthStencilBuffer;
 }
 
-IDXGISwapChain * atRenderTarget::GetSwapChain()
+IDXGISwapChain* atRenderTarget::GetSwapChain()
 {
   if (!m_pSwapChain)
     CreateSwapChain();
@@ -155,7 +155,6 @@ void atRenderTarget::CreateDepthStencil()
   }
   
   {
-    //atGraphics::SafeRelease(m_pDepthStencilView);
     D3D11_DEPTH_STENCIL_VIEW_DESC desc;
     desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
@@ -174,10 +173,6 @@ void atRenderTarget::CreateRenderTarget()
   ID3D11Texture2D *pBackbuffer = nullptr;
   if (FAILED(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackbuffer)))
     return;
-  //D3D11_RENDER_TARGET_VIEW_DESC desc;
-  //desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  //desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-  //desc.Texture2D.MipSlice = 0;
 
   if (FAILED(atGraphics::GetDevice()->CreateRenderTargetView(pBackbuffer, NULL, &m_pRenderTarget)))
     return;

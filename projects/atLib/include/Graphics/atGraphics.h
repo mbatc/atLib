@@ -26,7 +26,6 @@
 #ifndef _atGraphics_h__
 #define _atGraphics_h__
 
-#include "atTypes.h"
 #include "atString.h"
 
 #include <d3d.h>

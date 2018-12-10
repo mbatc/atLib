@@ -34,12 +34,13 @@ template<typename T> T atATan2(const T y, const T x)
 template<typename T> atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane)
 {
   const T f_fn = farPlane / (farPlane - nearPlane);
+  const T yScale = 1.0 / atTan(FOV / 2);
   return
   {
-    1.0 / atTan(FOV * aspect / 2), 0,                     0,     0,
-    0,                             1.0 / atTan(FOV / 2),  0,     0,
-    0,                             0,                    -f_fn, -nearPlane * f_fn,
-    0,                             0,                    -1,     0
+    yScale / aspect, 0,       0,     0,
+    0,               yScale,  0,     0,
+    0,               0,      -f_fn, -nearPlane * f_fn,
+    0,               0,      -1,     0
   };
 }
 

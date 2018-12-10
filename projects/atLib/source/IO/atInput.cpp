@@ -47,15 +47,19 @@ static void _UpdateMouse()
   if (s_mouseLocked)
     if (GetFocus())
       atInput::SetMousePos(s_lockPos);
+
+  for (atButtonState &mb : atIterate(s_mouseState, atMB_Count))
+  {
+    if (mb.IsPressed())
+      mb = mb;
+    mb.Update(s_dt);
+  }
 }
 
 static void _UpdateKeyboard()
 {
   for (atButtonState &bt : atIterate(s_keyState, atKC_Count))
-    if (bt.IsDown()) 
-      bt.OnDown(s_dt);
-    else if (bt.IsUp()) 
-      bt.OnUp(s_dt);
+    bt.Update(s_dt);
 }
 
 static HWND _GetFocus()
@@ -103,6 +107,17 @@ void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*
   SetCursorPos(sc.x, sc.y);
 }
 
+void atInput::RegisterWindow(HWND hWnd)
+{
+  s_windows.TryAdd((int64_t)hWnd);
+}
+
+void atInput::UnRegisterWindow(HWND hWnd)
+{
+  if (s_windows.Contains((int64_t)hWnd))
+    s_windows.Remove((int64_t)hWnd);
+}
+
 void atInput::OnKeyDown(const int64_t keyCode, const double dt) { s_keyState[keyCode].OnDown(dt); }
 void atInput::OnKeyUp(const int64_t keyCode, const double dt) { s_keyState[keyCode].OnUp(dt); }
 void atInput::OnMouseDown(const int64_t mb, const double dt) { s_mouseState[mb].OnDown(dt); }
@@ -145,14 +160,3 @@ const atVec2F& atInput::MouseVelocity() { return s_mouseVel; }
 atVec2F atInput::MouseDirection() { return s_mouseVel.Normalize(); }
 bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
 void atInput::SetDT(const double dt) { s_dt = dt; }
-
-void atInput::RegisterWindow(HWND hWnd) 
-{ 
-  s_windows.TryAdd((int64_t)hWnd);
-}
-
-void atInput::UnRegisterWindow(HWND hWnd) 
-{ 
-  if (s_windows.Contains((int64_t)hWnd)) 
-    s_windows.Remove((int64_t)hWnd); 
-}
