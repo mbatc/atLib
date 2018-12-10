@@ -60,3 +60,6 @@ template<> atType atGetType<float>() { return atType_Float32; }
 template<> atType atGetType<double>() { return atType_Float64; }
 
 void atUnused() {}
+
+bool atTypeDesc::operator==(const atTypeDesc &o) const { return type == o.type && size == o.size && count == o.count; }
+bool atTypeDesc::operator!=(const atTypeDesc &o) const { return !(o == *this); }

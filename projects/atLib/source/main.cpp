@@ -66,9 +66,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   const atString path = "assets/test/models/bumpmap.obj";
 
   // Set the windows clear colour
-  const atVec4F clearColor = {0.3f, 0.3f, 0.3f, 1.0f};
-
+  const atVec4F clearColor = atVec4F(.3f, .3f, .3f, 1.f);
+  
   atLight light;
+  light.m_diffuseColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
+  light.m_ambientColor = atVec4F(0.3f, 0.3f, 0.3f, 1.0f);
+  light.m_specularColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
   
   // Import the model
   atGraphicsModel model(path);
@@ -80,13 +83,17 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atCamera camera(window, { 0, 1, 5 });
 
   // Main program loop
+  atRenderState rs;
   while (atInput::Update(true)) // Process user inputs
   {
     // Update camera
     camera.Update(1.0);
+    camera.SetProjection(window);
 
     // Clear window
     window.Clear(clearColor);
+    rs.SetViewport(atVec4I(0, 0, window.Size()));
+    rs.SetScissor(atVec4I(0, 0, window.Size()));
 
     // Set Lighting Data
     model.SetLighting(light);
@@ -138,14 +145,18 @@ void ExampleRenderText()
   atRenderState rs;
   rs.SetBlendEnabled(true);
   rs.SetDepthReadEnabled(false);
+  rs.SetScissorEnabled(true);
 
   while (atInput::Update())
   {
     window.Clear({ 0.3f, 0.3f, 0.3f, 1.0f });
+    rs.SetViewport(atVec4I(0, 0, window.Size()));
+    rs.SetScissor(atVec4I(0, 0, window.Size()));
 
     // Enable/Disable pivots
     static bool usePivot = true;
     usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+
     // Bake Text
     if (usePivot)
     {
@@ -173,7 +184,7 @@ void ExampleRenderText()
 
       atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
     }
-    
+
     // Render Text
     atPrimitiveRenderer::Draw(window);
 
@@ -299,7 +310,7 @@ void ExampleImportExportMesh()
 
 void ExampleControlGUI()
 {
-  atPrimitiveRenderer::SetFont(atFilename("Assets/Fonts/RomanSerif.ttf"));
+  atPrimitiveRenderer::SetFont(atFilename("Assets/Fonts/RomanSerif.ttf"), 32, 32);
   atWindow window("atControl Example Window");
   atRenderState rs;
   rs.SetDepthReadEnabled(false);
@@ -307,17 +318,21 @@ void ExampleControlGUI()
   bool messageToggle = false;
   while (atInput::Update())
   {
-    window.Clear(atVec4F(.3f,.3f,.3f,1.f));
+    window.Clear({ 0, 0, 0, 1 });
+    rs.SetViewport(atVec4I(0, 0, window.Size()));
+    rs.SetScissor(atVec4I(0, 0, window.Size()));
+
     atControl::BeginFrame();
-    // if(atControl::Button(messageToggle ? atString("Test Button Toggled") : atString("Test Button"), 0))
-    //   messageToggle = !messageToggle;
+    atControl::SetCursor({ 10, 10 });
+    if (atControl::CollapsingHeader("This is a header"))
+    {
+      if (atControl::Button(messageToggle ? atString("Test Button Toggled") : atString("Test Button")))
+        messageToggle = !messageToggle;
+      atControl::Selectable("Selectable", true);
+    }
 
-    atControl::Button("Button 2", window.Size() / 2);
-
+    atPrimitiveRenderer::AddCircle(atInput::MousePos().x, atInput::MousePos().y, 10, 6, 0, { 0.5, 0.5 });
     atControl::EndFrame();
-    
-    atPrimitiveRenderer::AddRectangle(window.Width() - 1, window.Height() - 1, { 1, 1 });
-
     atControl::Draw(window);
     window.Swap();
   }

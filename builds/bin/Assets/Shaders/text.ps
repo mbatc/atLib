@@ -1,4 +1,4 @@
-Texture2D font0;
+Texture2D tex0;
 SamplerState samplerType;
 
 struct psOutput
@@ -16,6 +16,6 @@ struct vsOutput
 psOutput main(vsOutput In) : SV_Target
 {
   psOutput Out;
-  Out.color = In.color * font0.Sample(samplerType, In.texCoord);
+  Out.color = In.color * tex0.Sample(samplerType, In.texCoord);
   return Out;
 }

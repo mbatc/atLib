@@ -67,6 +67,7 @@ public:
   void SetDepthWriteEnabled(const bool enabled);
   void SetDepthReadEnabled(const bool enabled);
   void SetStencilEnabled(const bool enabled);
+  void SetScissorEnabled(const bool enabled);
   void SetBlendEnabled(const bool enabled);
   void SetMSAAEnabled(const bool enabled);
   void SetCullEnabled(const bool enabled);
@@ -75,6 +76,7 @@ public:
   bool IsDepthWriteEnabled() const;
   bool IsDepthReadEnabled() const;
   bool IsStencilEnabled() const;
+  bool IsScissorEnabled() const;
   bool IsBlendEnabled() const;
   bool IsMSAAEnabled() const;
   bool IsCullEnabled() const;

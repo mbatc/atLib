@@ -104,8 +104,8 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
         kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); 
       else if (kvp.m_val.desc.type == atType_Int64) 
         kvp.m_val.id = *(int64_t*)kvp.m_val.data.data();
-      else atAssert(false, 
-"Texture Resource Type data must be a c-string or int64 texture id.");
+      else 
+        atAssert(false, "Texture Resource Type data must be a c-string or int64 texture id.");
       break;
     case atRRT_Sampler: 
     {

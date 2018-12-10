@@ -34,6 +34,8 @@ atCamera::atCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &r
   , m_aspect((double)wnd.Size().x / (double)wnd.Size().y)
 {}
 
+void atCamera::SetProjection(const atWindow &wnd) { m_aspect = (double)wnd.Size().x / (double)wnd.Size().y; }
+
 void atCamera::Update(const double moveSpeed, const double dt)
 {
   atVec2F64 dMouse = atInput::MouseDelta();

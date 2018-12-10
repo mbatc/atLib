@@ -32,46 +32,67 @@
 
 struct DrawData
 {
-  int64_t texID;
-  atHashMap<atVec4I64, atVector<atVec4F>> color;
-  atHashMap<atVec4I64, atVector<atVec3F>> verts;
-  atHashMap<atVec4I64, atVector<atVec2F>> uvs;
-  atHashMap<atVec4I64, atVector<uint32_t>> indices;
+  atVec4F colour;
+  int64_t texture;
+  atVec4I clipRect;
+
+  atVector<atVec4F> color;
+  atVector<atVec3F> verts;
+  atVector<atVec2F> uvs;
+  atVector<uint32_t> indices;
 };
+
+struct DrawContext
+{
+  static atFont& Font() { return fonts[activeFont]; }
+  static const atVec4I Clip() { return clip.size() ? clip.back() : atVec4I(-INT32_MAX, -INT32_MAX, INT32_MAX, INT32_MAX);; }
+  static const atVec4F Colour() { return col.size() ? col.back() : atVec4F::one(); }
+  static const int64_t Texture() { return tex.size() ? tex.back() : Font().GetTextureID(false); }
+  static DrawData& Data() { return drawList.back(); }
+
+  static int64_t activeFont;
+  
+  static atVector<atFont> fonts;
+  static atVector<int64_t> tex;
+  static atVector<atVec4F> col;
+  static atVector<atVec4I> clip;
+
+  static atVector<DrawData> drawList;
+};
+
+int64_t DrawContext::activeFont;
+atVector<atFont> DrawContext::fonts;
+atVector<int64_t> DrawContext::tex;
+atVector<atVec4F> DrawContext::col;
+atVector<atVec4I> DrawContext::clip;
+atVector<DrawData> DrawContext::drawList;
 
 static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs, atVector<uint32_t> *pIdx = nullptr, atVector<atVec3F> *pVert = nullptr, atVector<atVec4F> *pCol = nullptr, atVector<atVec2F> *pUV = nullptr);
 static void _AddPoly(const atVector<atVec2F> &points, const atVec2F &uv, atVector<uint32_t> *pIdx = nullptr, atVector<atVec3F> *pVert = nullptr, atVector<atVec4F> *pCol = nullptr, atVector<atVec2F> *pUV = nullptr);
 static void _AdvanceCursor(const char c, const atFont::Glyph &g, int64_t *pLineHeight, atVec2I *pPos, const atVec2I &tl = { 0, 0 });
 static void _GetDrawData(atVector<uint32_t> **pIdx, atVector<atVec3F> **pVert, atVector<atVec4F> **pCol, atVector<atVec2F> **pUV);
-static DrawData& _GetDrawData(int64_t texID);
+static DrawData& _GetDrawData();
 static atAABB<int32_t> _TextBounds(const atString &text);
-static atVec4I _ActiveClipRect();
-
-static atVector<atFont> s_fonts;
-static atVector<atVec4F> s_colStack;
-static atVector<atVec4I> s_clipStack;
-
-static int64_t s_activeFont = -1;
-static atVector<DrawData> s_drawList;
 
 // ------------------------------------------------------
 // API
 
-void atPrimitiveRenderer::SetFont(const atFilename &font)
+void atPrimitiveRenderer::SetFont(const atFilename &font, const int64_t scale, const int64_t resolution)
 {
-  for (const atFont &f : s_fonts)
-    if (f.Filename() == font)
+  for (const atFont &f : DrawContext::fonts)
+    if (f.Filename() == font && f.Height() == scale && f.Resolution() == resolution)
     {
-      s_activeFont = &f - s_fonts.begin();
+      DrawContext::activeFont = &f - DrawContext::fonts.begin();
       return;
     }
-  s_fonts.push_back(atFont(font, 24));
-  s_activeFont = s_fonts.size() - 1;
+
+  DrawContext::fonts.push_back(atFont(font, scale, resolution));
+  DrawContext::activeFont = DrawContext::fonts.size() - 1;
 }
 
 void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
 {
-  atVec4I clip = _ActiveClipRect();
+  atVec4I clip = DrawContext::Clip();
   atAABB<int32_t> bounds = _TextBounds(text);
   atVec2I offset = { atMin(bounds.m_min.x, 0), atMin(bounds.m_min.y, 0) };
   atVec2I tl = atVec2I{ x, y } - pivot * bounds.Dimensions().xy();
@@ -79,11 +100,12 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
   if (!atIntersects(clip, atVec4I(tl, tl + bounds.Dimensions().xy())))
     return;
 
+  PushTexture(DrawContext::Font().GetTextureID());
   tl -= offset;
   atVec2I cursor = tl;
   int64_t rowHeight = 0;
 
-  atFont &font = s_fonts[s_activeFont];
+  atFont &font = DrawContext::Font();
   atVector<uint32_t> *pIdx;
   atVector<atVec3F> *pVert;
   atVector<atVec4F> *pCol;
@@ -110,36 +132,35 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
     atVector<atVec2F>({atVec2F(g.tl.x, g.br.y), atVec2F(g.br.x, g.br.y), atVec2F(g.br.x, g.tl.y), atVec2F(g.tl.x, g.tl.y) }),
       pIdx, pVert, pCol, pUV);
   }
+
+  PopTexture();
 }
 
 void atPrimitiveRenderer::Draw(const atWindow &wnd)
 {
+  atAssert(DrawContext::clip.size() == 0, "Mismatched Push/Pop Clip Rects");
+  atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
+  atAssert(DrawContext::col.size() == 0, "Mismatched Push/Pop Colours");
+
   atRenderable ro;
   atRenderState rs;
-  for (atFont &f : s_fonts)
+  for (atFont &f : DrawContext::fonts)
     f.GetTextureID();
-  for (DrawData &dd : s_drawList)
+  
+  ro.SetShader("assets/shaders/text");
+  ro.SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
+  ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)wnd.Width(), (float)wnd.Height(), -1.f, 1.f)), atRRT_Variable);
+  for (DrawData &dd : DrawContext::drawList)
   {
-    ro.SetShader("assets/shaders/text");
-    ro.SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
-    ro.SetChannel("font0", dd.texID, atRRT_Texture);
-    ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)wnd.Width(), (float)wnd.Height(), -1.f, 1.f)), atRRT_Variable);
-
-    for (const atVec4I64 key : dd.verts.GetKeys())
-    {
-      rs.SetScissor(key);
-      ro.SetChannel("POSITION", dd.verts[key], atRRT_VertexData);
-      ro.SetChannel("COLOR", dd.color[key], atRRT_VertexData);
-      ro.SetChannel("TEXCOORD", dd.uvs[key], atRRT_VertexData);
-      ro.SetChannel("idxBuffer", dd.indices[key], atRRT_Indices);
-      ro.Draw();
-    }
-
-    dd.verts.Clear();
-    dd.color.Clear();
-    dd.uvs.Clear();
-    dd.indices.Clear();
+    rs.SetScissor(dd.clipRect);
+    ro.SetChannel("tex0", dd.texture, atRRT_Texture);
+    ro.SetChannel("COLOR", dd.color, atRRT_VertexData);
+    ro.SetChannel("TEXCOORD", dd.uvs, atRRT_VertexData);
+    ro.SetChannel("POSITION", dd.verts, atRRT_VertexData);
+    ro.SetChannel("idxBuffer", dd.indices, atRRT_Indices);
+    ro.Draw();
   }
+  DrawContext::drawList.clear();
 }
 
 atVec4I atPrimitiveRenderer::TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
@@ -151,9 +172,9 @@ atVec4I atPrimitiveRenderer::TextRect(const int64_t x, const int64_t y, const at
 
 void atPrimitiveRenderer::AddRectangle(const atVec2I &topLeft, const atVec2I &bottomRight)
 {
-  if (!atIntersects(_ActiveClipRect(), atVec4I(topLeft, bottomRight)))
+  if (!atIntersects(DrawContext::Clip(), atVec4I(topLeft, bottomRight)))
     return;
-  atFont &font = s_fonts[s_activeFont];
+  atFont &font = DrawContext::Font();
   _AddPoly({ atVec2F(topLeft), atVec2F(bottomRight.x, topLeft.y), atVec2F(bottomRight), atVec2F(topLeft.x, bottomRight.y) }, font.FindWhitePixel());
 }
 
@@ -164,26 +185,29 @@ void atPrimitiveRenderer::AddRectangle(const int64_t x, const int64_t y, const a
   AddRectangle(tl, br);
 }
 
-void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments, double phase)
+void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments, double phase, const atVec2F &pivot)
 {
   atVector<atVec2F> points;
   points.reserve(segments + 1);
   double step = atPi * 2.0 / (double)segments;
+  atVec2F tl = atVec2F(x, y) + atVec2F(radius, radius) - pivot * radius * 2;
   for (int64_t i = 0; i < segments; ++i)
   {
     double angle = phase + step * i;
-    points.push_back(atVec2F(atCos(angle), atSin(angle)) * radius + atVec2F(x, y));
+    points.push_back(atVec2F(atCos(angle), atSin(angle)) * radius + tl);
   }
-  atFont &font = s_fonts[s_activeFont];
+  atFont &font = DrawContext::Font();
   _AddPoly(points, font.FindWhitePixel());
 }
 
 atVec2I atPrimitiveRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
 void atPrimitiveRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
-void atPrimitiveRenderer::PushColour(const atVec4F &color) { s_colStack.push_back(color); }
-void atPrimitiveRenderer::PushClipRect(const atVec4I &rect) { s_clipStack.push_back(rect); }
-void atPrimitiveRenderer::PopColour(const int64_t count) { s_colStack.erase(atMax(0, s_colStack.size() - count), (atMin(count, s_colStack.size()))); }
-void atPrimitiveRenderer::PopClipRect(const int64_t count) { s_clipStack.erase(atMax(0, s_clipStack.size() - count), (atMin(count, s_clipStack.size()))); }
+void atPrimitiveRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
+void atPrimitiveRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }
+void atPrimitiveRenderer::PushColour(const atVec4F &color) { DrawContext::col.push_back(color); }
+void atPrimitiveRenderer::PushClipRect(const atVec4I &rect) { DrawContext::clip.push_back(rect); }
+void atPrimitiveRenderer::PopColour(const int64_t count) { DrawContext::col.erase(atMax(0, DrawContext::col.size() - count), (atMin(count, DrawContext::col.size()))); }
+void atPrimitiveRenderer::PopClipRect(const int64_t count) { DrawContext::clip.erase(atMax(0, DrawContext::clip.size() - count), (atMin(count, DrawContext::clip.size()))); }
 
 // ------------------------------------------------------
 // Internal Functions
@@ -204,7 +228,7 @@ static atAABB<int32_t> _TextBounds(const atString &text)
 {
   atVec2I pos = 0;
   int64_t lineHeight = 0;
-  atFont &font = s_fonts[s_activeFont];
+  atFont &font = DrawContext::Font();
   atAABB<int32_t> bounds;
   for (const char c : text)
   {
@@ -221,7 +245,7 @@ static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &u
   atAssert(points.size() == uvs.size(), "Points and UVS must contain the same number of elements.");
   if (!pIdx || !pVert || !pCol || !pUV)
     _GetDrawData(&pIdx, &pVert, &pCol, &pUV);
-  atVec4F color = s_colStack.size() ? s_colStack.back() : atVec4F::one();
+  atVec4F color = DrawContext::Colour();
   uint32_t start = (uint32_t)pVert->size();
   for (const atVec2F &v : points)
   {
@@ -237,7 +261,7 @@ void _AddPoly(const atVector<atVec2F>& points, const atVec2F &uv, atVector<uint3
 {
   if (!pIdx || !pVert || !pCol || !pUV)
     _GetDrawData(&pIdx, &pVert, &pCol, &pUV);
-  atVec4F color = s_colStack.size() ? s_colStack.back() : atVec4F::one();
+  atVec4F color = DrawContext::Colour();
   uint32_t start = (uint32_t)pVert->size();
   for (const atVec2F &v : points)
   {
@@ -249,29 +273,27 @@ void _AddPoly(const atVector<atVec2F>& points, const atVec2F &uv, atVector<uint3
   for (uint32_t i = 0; i < points.size() - 2; ++i) pIdx->push_back({ start, start + i + 1, start + i + 2 });
 }
 
-static DrawData& _GetDrawData(int64_t texID)
+static DrawData& _GetDrawData()
 {
-  for (DrawData &dd : s_drawList)
-    if (dd.texID == texID)
+  if (DrawContext::drawList.size() > 0)
+  {
+    DrawData& dd = DrawContext::Data();
+    if (DrawContext::Clip() == dd.clipRect && DrawContext::Texture() == dd.texture)
       return dd;
-  s_drawList.push_back(DrawData());
-  s_drawList.back().texID = texID;
-  return s_drawList.back();
+  }
+
+  DrawData data;
+  data.clipRect = DrawContext::Clip();
+  data.texture = DrawContext::Texture();
+  DrawContext::drawList.push_back(data);
+  return DrawContext::Data();
 }
 
 static void _GetDrawData(atVector<uint32_t> **pIdx, atVector<atVec3F> **pVert, atVector<atVec4F> **pCol, atVector<atVec2F> **pUV)
 {
-  atFont &font = s_fonts[s_activeFont];
-  DrawData &dd = _GetDrawData(font.GetTextureID(false));
-  atVec4I clip = _ActiveClipRect();
-  dd.indices.TryAdd(clip);
-  dd.verts.TryAdd(clip);
-  dd.color.TryAdd(clip);
-  dd.uvs.TryAdd(clip);
-  *pIdx = dd.indices.TryGet(clip);
-  *pVert = dd.verts.TryGet(clip);
-  *pCol = dd.color.TryGet(clip);
-  *pUV = dd.uvs.TryGet(clip);
+  DrawData &dd = _GetDrawData();
+  *pIdx = &dd.indices;
+  *pVert = &dd.verts;
+  *pCol = &dd.color;
+  *pUV = &dd.uvs;
 }
-
-static atVec4I _ActiveClipRect() { return s_clipStack.size() ? s_clipStack.back() : atVec4I64(-INT32_MAX, -INT32_MAX, INT32_MAX, INT32_MAX); }

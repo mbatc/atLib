@@ -50,7 +50,6 @@ public:
 
 protected:
   void Set(const int64_t time);
-
 };
 
 #endif // atDateTime_h__

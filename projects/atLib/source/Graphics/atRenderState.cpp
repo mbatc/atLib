@@ -177,6 +177,12 @@ void atRenderState::SetStencilEnabled(const bool enabled)
   MyState().stencilEnabled = enabled;
   if (m_alwaysBind) Bind();
 }
+void atRenderState::SetScissorEnabled(const bool enabled)
+{
+  MyState().scissorEnabled = enabled;
+  if (m_alwaysBind) Bind();
+}
+
 void atRenderState::SetBlendEnabled(const bool enabled)
 {
   MyState().blendEnabled = enabled;
@@ -207,15 +213,16 @@ void atRenderState::Set(const State &state)
 bool atRenderState::IsDepthWriteEnabled() const { return MyState().depthWriteEnabled; }
 bool atRenderState::IsDepthReadEnabled() const { return MyState().depthReadEnabled; }
 bool atRenderState::IsStencilEnabled() const { return MyState().stencilEnabled; }
+bool atRenderState::IsScissorEnabled() const { return MyState().scissorEnabled; }
 bool atRenderState::IsBlendEnabled() const { return MyState().blendEnabled; }
 bool atRenderState::IsMSAAEnabled() const { return MyState().msaaEnabled; }
 bool atRenderState::IsCullEnabled() const { return MyState().cullEnabled; }
 bool atRenderState::IsAAEnabled() const { return MyState().aaEnabled; }
-const atVec4I &atRenderState::Viewport() const { return MyState().viewport; }
-const atVec4I &atRenderState::Scissor() const { return MyState().scissor; }
-const atVec2F &atRenderState::DepthRange() const { return MyState().depthRange; }
-const atRenderState::State &atRenderState::MyState() const { return m_stack[m_id]; }
-atRenderState::State &atRenderState::MyState() { return m_stack[m_id]; }
+const atVec4I& atRenderState::Viewport() const { return MyState().viewport; }
+const atVec4I& atRenderState::Scissor() const { return MyState().scissor; }
+const atVec2F& atRenderState::DepthRange() const { return MyState().depthRange; }
+const atRenderState::State& atRenderState::MyState() const { return m_stack[m_id]; }
+atRenderState::State& atRenderState::MyState() { return m_stack[m_id]; }
 atRenderState::atRenderState(int unused) { Init(); }
 
 // ----------------------------------
