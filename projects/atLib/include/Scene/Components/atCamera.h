@@ -28,23 +28,37 @@
 
 #include "atWindow.h"
 #include "atTransformable.h"
+#include "atSceneComponent.h"
 
-class atCamera : public atTransformable<double>
+class atCamera : public atSceneComponent
 {
 public:
-  atCamera(const atWindow &wnd, const atVec3F64 &pos = { 0,0,0 }, const atVec3F64 &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atCamera(const atWindow &wnd, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
   void SetProjection(const atWindow &wnd);
-
   atMat4D ProjectionMat() const;
-  atMat4D ViewMat() const;
-
-  void Update(const double moveSpeed, const double dt = 0.016);
 
   double m_fov;
   double m_nearPlane;
   double m_farPlane;
   double m_aspect;
+
+  atVec4I m_viewport = -1;
+  atVec2F m_depthRange = atVec2I(0, 1);
+
+  int64_t TypeID() const override;
+  static const int64_t typeID;
+};
+
+class atSimpleCamera : public atCamera, public atTransformable<double>
+{
+public:
+  atSimpleCamera(const atWindow &wnd, const atVec3F64 &pos = { 0,0,0 }, const atVec3F64 &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+
+  atMat4D ViewMat() const;
+  bool Update(const double dt) override;
+
+  double m_moveSpeed = 1.0;
 };
 
 #endif // atCamera_h__

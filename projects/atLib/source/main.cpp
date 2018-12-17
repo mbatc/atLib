@@ -25,6 +25,7 @@
 
 #include "atInput.h"
 #include "atBVH.h"
+#include <time.h>
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -80,14 +81,15 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atCamera camera(window, { 0, 1, 5 });
+  atSimpleCamera camera(window, { 0, 1, 5 });
+  camera.m_moveSpeed = 1.0f;
 
   // Main program loop
   atRenderState rs;
   while (atInput::Update(true)) // Process user inputs
   {
     // Update camera
-    camera.Update(1.0);
+    camera.Update(0.016);
     camera.SetProjection(window);
 
     // Clear window
@@ -317,6 +319,22 @@ void ExampleRayTraceMesh()
   bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
 }
 
+#include "atScene.h"
+
+void ExampleCreateScene()
+{
+  atScene scene;
+  atSceneNode *pNode = scene.CreateNode();
+  pNode->AddComponent(atSCT_Camera);
+
+  atWindow window;
+  while(atInput::Update())
+  {
+    scene.Update();
+    scene.Draw(window);
+  }
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 
@@ -337,6 +355,6 @@ int main(int argc, char **argv)
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
-
+  
   return atWindow_GetResult();
 }

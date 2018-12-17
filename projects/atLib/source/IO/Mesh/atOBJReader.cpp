@@ -111,6 +111,7 @@ static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Tria
       int64_t slashIndex = 0;
       while (atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos) == pos && slashIndex <= 2)
       {
+        len = 0;
         int64_t val = atScan::Int(*ppSrc + pos, &len, srcLen);
         if (len > 0)
         {

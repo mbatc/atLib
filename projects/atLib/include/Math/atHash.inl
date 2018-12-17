@@ -1,3 +1,4 @@
+#include "atHash.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -29,3 +30,5 @@ template <typename T> int64_t atHash::Hash(const T &o)
   writer.Write(o);
   return atHash::Hash(writer);
 }
+
+template<typename T> int64_t atHash::Hash(const T *o) { return Hash((int64_t)o); }

@@ -36,8 +36,9 @@ public:
 
   atTransformable(const Vec &trans = { 0,0,0 }, const Vec &rot = { 0,0,0 }, const Vec &scale = { 1,1,1 });
   
-  Mat RotationMat() const;
+  Mat WorldMat() const;
   Mat ScaleMat() const;
+  Mat RotationMat() const;
   Mat TranslationMat() const;
   Mat TransformMat() const;
     
