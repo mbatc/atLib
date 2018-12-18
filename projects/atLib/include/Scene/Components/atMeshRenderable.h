@@ -23,53 +23,22 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atScene_h__
-#define atScene_h__
+#ifndef atMeshRenderable_h__
+#define atMeshRenderable_h__
 
-#include "atHashMap.h"
-#include "atSceneNode.h"
+#include "atSceneComponent.h"
+#include "atGraphicsModel.h"
 
-class atScene
+class atMeshRenderable : public atSceneComponent
 {
 public:
-  atScene();
-  ~atScene();
+  bool Update(const double dt) override;
+  bool Draw(const atMat4D &vp) override;
 
-  bool Update();
-  bool Draw();
+  atGraphicsModel m_model;
 
-  atSceneNode* GetRoot();
-  atSceneNode* GetNode(const int64_t id);
-  const atSceneNode* GetNode(const int64_t id) const;
-
-  int64_t GetNodeID(const atSceneNode *pNode) const;
-  atVector<int64_t> GetNodeIDs() const;
-  atVector<int64_t> GetNodeIDs(const atVector<atSceneNode*> nodes) const;
-
-  atSceneNode* CreateNode(const atVec3F64 &position = 0, const atVec3F64 &rotation = 0, const atVec3F64 &scale = atVec3F64::one(), atSceneNode *pParent = nullptr);
-
-  bool DeleteNode(const atSceneNode *pNode, bool migrateChildren = false);
-  bool DeleteNode(const int64_t id, bool migrateChildren = false);
-
-  bool AddActiveCamera(const int64_t id);
-  bool RemoveActiveCamera(const int64_t id);
-
-  bool AddActiveCamera(atSceneNode *pNode);
-  bool RemoveActiveCamera(atSceneNode *pNode);
-
-  const atVector<int64_t>& GetActiveCameras() const;
-
-  atVec4I m_viewport;
-protected:
-  bool Update(atSceneNode *pNode);
-  
-  double m_dt;
-
-  atSceneNode *m_pRoot;
-  atHashMap<int64_t, atSceneNode*> m_nodes;
-  atHashMap<const atSceneNode*, int64_t> m_nodeIDs;
-
-  atVector<int64_t> m_activeCameras;
+  int64_t TypeID() const override;
+  static const int64_t typeID;
 };
 
-#endif // atScene_h__
+#endif // atMeshRenderable_h__

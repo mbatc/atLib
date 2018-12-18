@@ -35,7 +35,8 @@ public:
   template <typename ValType> using VecType = atVector2<ValType>;
   static const int64_t element_count = 2;
 
-  atVector2(const T _x = { 0 }, const T _y = { 0 }) : x(_x), y(_y) {}
+  atVector2() : x(0), y(0) {}
+  atVector2(const T _x, const T _y) : x(_x), y(_y) {}
   atVector2(const VecType<T> &copy) : x(copy.x), y (copy.y) {}
 
   atVector2(VecType<T> &&move)
@@ -46,7 +47,8 @@ public:
 
   // Approaching Template Town
 
-  template <typename T2> atVector2(const T2 _x = { 0 }, const T2 _y = { 0 }) : x((T)_x), y((T)_y) {}
+  template <typename T2> atVector2(const T2 val) : x((T)val), y((T)val) {}
+  template <typename T2> atVector2(const T2 _x, const T2 _y) : x((T)_x), y((T)_y) {}
   template <typename T2> atVector2(const VecType<T2> &copy) : x((T)copy.x), y((T)copy.y) {}
   template <typename T2> atVector2(const std::initializer_list<T2> &list)
   {

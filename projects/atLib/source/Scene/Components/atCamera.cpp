@@ -29,11 +29,11 @@
 const int64_t atCamera::typeID = atSCT_Camera;
 int64_t atCamera::TypeID() const { return typeID; }
 
-atCamera::atCamera(const atWindow &wnd, const double FOV, const double nearPlane, const double farPlane)
+atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
   : m_fov(FOV)
   , m_nearPlane(nearPlane)
   , m_farPlane(farPlane)
-  , m_aspect((double)wnd.Size().x / (double)wnd.Size().y)
+  , m_aspect(aspect)
 {}
 
 bool atSimpleCamera::Update(const double dt)
@@ -62,7 +62,14 @@ bool atSimpleCamera::Update(const double dt)
   return true;
 }
 
-atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera(wnd, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
-atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
+void atCamera::SetViewport(const atVec4I viewport)
+{
+  m_viewport = viewport;
+  m_aspect = (double)(viewport.z) / (double)(viewport.w);
+}
+
+atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
 atMat4D atCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
-void atCamera::SetProjection(const atWindow &wnd) { m_aspect = (double)wnd.Size().x / (double)wnd.Size().y; }
+void atCamera::SetViewport(const atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
+atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
+atVec4I atCamera::Viewport() const { return m_viewport; }

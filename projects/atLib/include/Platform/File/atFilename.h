@@ -31,9 +31,10 @@
 template <typename c> class atFilenameBasic
 {
 public:
+  atFilenameBasic(const c *path);
   atFilenameBasic(const atStringBasic<c> &path = "");
-  atFilenameBasic(const atFilenameBasic &copy);
-  atFilenameBasic(atFilenameBasic &&move);
+  atFilenameBasic(const atFilenameBasic<c> &copy);
+  atFilenameBasic(atFilenameBasic<c> &&move);
   
   atStringBasic<c> Path(const bool withExtension = true) const;
   atStringBasic<c> Name(const bool withExtension = true) const;
@@ -51,13 +52,17 @@ public:
 
   const char* c_str() const;
 
-  bool operator==(const atFilenameBasic &fn) const;
-  bool operator!=(const atFilenameBasic &fn) const;
+  bool operator==(const atFilenameBasic<c> &fn) const;
+  bool operator!=(const atFilenameBasic<c> &fn) const;
   bool operator==(const atStringBasic<c> &fn) const;
   bool operator!=(const atStringBasic<c> &fn) const;
+  bool operator==(const char *fn) const;
+  bool operator!=(const char *fn) const;
 
-  atFilenameBasic operator=(const atFilenameBasic &fn);
-  atFilenameBasic operator=(const atStringBasic<c> &fn);
+  atFilenameBasic<c> operator=(const atFilenameBasic<c> &fn);
+  atFilenameBasic<c> operator=(const atStringBasic<c> &fn);
+  atFilenameBasic<c> operator=(const c *fn);
+
 protected:
   atStringBasic<c> m_fullpath;
   atStringBasic<c> m_name;

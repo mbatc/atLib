@@ -1,3 +1,4 @@
+#include "atFilename.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -46,11 +47,15 @@ template <typename c> void atFilenameBasic<c>::assign(const atStringBasic<c> &pa
 
 template <typename c> atFilenameBasic<c> atFilenameBasic<c>::operator=(const atFilenameBasic<c> &fn) { assign(fn.m_fullpath);  return *this; }
 template <typename c> atFilenameBasic<c> atFilenameBasic<c>::operator=(const atStringBasic<c> &fn) { assign(fn); return *this; }
+template <typename c> atFilenameBasic<c> atFilenameBasic<c>::operator=(const c *fn) { assign(fn);  return *this; }
 template <typename c> bool atFilenameBasic<c>::operator==(const atFilenameBasic<c> &fn) const { return m_fullpath == fn.m_fullpath; }
 template <typename c> bool atFilenameBasic<c>::operator!=(const atFilenameBasic<c> &fn) const { return !(*this == fn); }
 template <typename c> bool atFilenameBasic<c>::operator==(const atStringBasic<c> &fn) const { return m_fullpath == fn.replace('\\', '/'); }
 template <typename c> bool atFilenameBasic<c>::operator!=(const atStringBasic<c> &fn) const { return !(*this == fn); }
+template <typename c> bool atFilenameBasic<c>::operator==(const char *fn) const { return *this == atStringBasic<c>(fn); }
+template <typename c> bool atFilenameBasic<c>::operator!=(const char *fn) const { return *this != atStringBasic<c>(fn); }
 template <typename c> const char* atFilenameBasic<c>::c_str() const { return m_fullpath.c_str(); }
+template <typename c> atFilenameBasic<c>::atFilenameBasic(const c *path) { assign(path); }
 template <typename c> atFilenameBasic<c>::atFilenameBasic(const atStringBasic<c> &path) { assign(path); }
 template <typename c> atFilenameBasic<c>::atFilenameBasic(const atFilenameBasic<c> &copy) { assign(copy.m_fullpath); }
 template <typename c> atStringBasic<c> atFilenameBasic<c>::Path(const bool withExtension) const { return withExtension ? m_fullpath : m_directory + "/" + m_name; }

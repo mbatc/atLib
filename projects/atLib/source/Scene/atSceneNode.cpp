@@ -1,5 +1,33 @@
+
+// -----------------------------------------------------------------------------
+// The MIT License
+// 
+// Copyright(c) 2018 Michael Batchelor, 
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// -----------------------------------------------------------------------------
+
 #include "atSceneNode.h"
 #include "atScene.h"
+#include "atCamera.h"
+#include "atSkybox.h"
+#include "atMeshRenderable.h"
 
 atSceneNode::atSceneNode() {}
 
@@ -33,6 +61,8 @@ bool atSceneNode::AddChild(atSceneNode *pChild, const bool preserveTransform)
 
   // Update relationships
   pChild->m_siblings = m_children;
+  for (atSceneNode *pNode : m_children)
+    pNode->m_siblings.push_back(pChild);
   pChild->m_pParent = this;
   m_children.push_back(pChild);
   return true;
@@ -41,11 +71,19 @@ bool atSceneNode::AddChild(atSceneNode *pChild, const bool preserveTransform)
 bool atSceneNode::RemoveChild(atSceneNode *pChild, const bool preserveTransform)
 {
   if (!pChild || pChild->Parent() != this) return false;
-  for (const atSceneNode * const &pNode : m_children)
+  for (atSceneNode *&pNode : m_children)
     if (pNode == pChild)
     {
       m_children.erase(&pNode - m_children.begin());
-      break;
+    }
+    else
+    {
+      for(atSceneNode *&pSibling : pNode->m_siblings)
+        if (pSibling == pChild)
+        {
+          pNode->m_siblings.erase(&pSibling - pNode->m_siblings.begin());
+          break;
+        }
     }
 
   if (preserveTransform)
@@ -84,8 +122,30 @@ atVector<atSceneComponent*> atSceneNode::Components(const int64_t type) const
 {
   atVector<atSceneComponent*> ret;
   for (atSceneComponent *pComp : m_components)
-    ret.push_back(pComp);
+    if((pComp->TypeID() & type) > 0)
+      ret.push_back(pComp);
   return ret;
+}
+
+atSceneComponent *atSceneNode::AddComponent(const int64_t type)
+{
+  atSceneComponent *pComponent = nullptr;
+  switch (type)
+  {
+  case atSCT_Camera: pComponent = (atSceneComponent*)atNew<atCamera>(); break;
+  case atSCT_MeshRenderable: pComponent = (atSceneComponent*)atNew<atMeshRenderable>(); break;
+  case atSCT_Script: pComponent = nullptr; break;
+  case atSCT_Collidable: pComponent = nullptr; break;
+  case atSCT_Effect: pComponent = nullptr; break;
+  case atSCT_Skybox: pComponent = (atSceneComponent*)atNew<atSkybox>(); break;
+  }
+  if (!pComponent) 
+    return nullptr;
+
+  pComponent->m_pNode = this;
+  
+  m_components.push_back(pComponent);
+  return pComponent;
 }
 
 int64_t atSceneNode::ID() const { return m_pScene->GetNodeID(this); }

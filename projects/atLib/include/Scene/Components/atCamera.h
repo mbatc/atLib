@@ -33,21 +33,25 @@
 class atCamera : public atSceneComponent
 {
 public:
-  atCamera(const atWindow &wnd, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
-  void SetProjection(const atWindow &wnd);
+  void SetViewport(const atVec4I viewport);
+  void SetViewport(const atWindow &wnd);
+  atVec4I Viewport() const;
   atMat4D ProjectionMat() const;
 
+
   double m_fov;
-  double m_nearPlane;
-  double m_farPlane;
   double m_aspect;
-
-  atVec4I m_viewport = -1;
+  double m_farPlane;
+  double m_nearPlane;
   atVec2F m_depthRange = atVec2I(0, 1);
-
+ 
   int64_t TypeID() const override;
   static const int64_t typeID;
+
+protected:
+  atVec4I m_viewport = -1;
 };
 
 class atSimpleCamera : public atCamera, public atTransformable<double>

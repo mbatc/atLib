@@ -1,3 +1,4 @@
+
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -21,3 +22,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
+
+#include "atMeshRenderable.h"
+#include "atSceneNode.h"
+
+const int64_t atMeshRenderable::typeID = atSCT_MeshRenderable;
+int64_t atMeshRenderable::TypeID() const { return typeID; }
+
+bool atMeshRenderable::Update(const double dt) { atUnused(dt); return true; }
+
+bool atMeshRenderable::Draw(const atMat4D &vp)
+{
+  m_model.Draw(vp, m_pNode->GlobalWorldMat());
+  return true;
+}
