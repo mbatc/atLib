@@ -44,19 +44,19 @@ static atCol _SampleBilinear(const atVec2F &uv, const atVector<atCol> &pixels, c
   return atColor::Pack(a + b + c + d);
 }
 
-atImage::atImage() {}
-atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y, 0), m_size(size) {}
 atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::LoadImage(file, &m_size)); }
+const atCol & atImage::Get(const int64_t x, const int64_t y) const { return m_pixels[x + y * Width()]; }
 atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
 atCol& atImage::Get(const int64_t x, const int64_t y) { return m_pixels[x + y * Width()]; }
-atCol & atImage::operator[](const int64_t i) { return m_pixels[i]; }
-atVector<atCol>& atImage::Pixels() { return m_pixels; }
-const atCol & atImage::Get(const int64_t x, const int64_t y) const { return m_pixels[x + y * Width()]; }
+atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y, 0), m_size(size) {}
 const atCol & atImage::operator[](const int64_t i) const { return m_pixels[i]; }
+atCol & atImage::operator[](const int64_t i) { return m_pixels[i]; }
 const atVector<atCol>& atImage::Pixels() const { return m_pixels; }
-const atVec2I& atImage::Size() const { return m_size; }
-const int64_t atImage::Width() const { return m_size.x; }
 const int64_t atImage::Height() const { return m_size.y; }
+const int64_t atImage::Width() const { return m_size.x; }
+const atVec2I& atImage::Size() const { return m_size; }
+atVector<atCol>& atImage::Pixels() { return m_pixels; }
+atImage::atImage() {}
 
 atImage::atImage(atImage &&move)
   : m_pixels(std::move(move.m_pixels))

@@ -23,33 +23,18 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atHash_h__
-#define atHash_h__
+#ifndef atSceneRenderer_h__
+#define atSceneRenderer_h__
 
-#include "atMemoryWriter.h"
+#include "atScene.h"
 
-
-class atHash
+class atSceneRenderer
 {
 public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
+  atSceneRenderer() = delete;
 
-  template <typename T> static int64_t Hash(const T &o);
-  template <typename T> static int64_t Hash(const T *o);
-
-protected:
-  static thread_local atMemoryWriter writer;
+  static bool Render(atScene *pScene);
+  static bool Render(atSceneNode *pNode, const atMat4D &vp);
 };
 
-#include "atHash.inl"
-#endif // atHash_h__s
+#endif // atSceneRenderer_h__

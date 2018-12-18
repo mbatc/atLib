@@ -1,3 +1,4 @@
+#include "atTransformable.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -24,7 +25,8 @@
 // -----------------------------------------------------------------------------
 
 template<typename T> atTransformable<T>::atTransformable(const Vec& trans, const Vec& rot, const Vec& scale) : m_rotation(rot), m_translation(trans), m_scale(scale) {}
-template<typename T> typename atTransformable<T>::Mat atTransformable<T>::RotationMat() const { return atMatrixYawPitchRoll(m_rotation.y, m_rotation.x, m_rotation.z); }
-template<typename T> typename atTransformable<T>::Mat atTransformable<T>::ScaleMat() const { return atMatrixScale(m_scale); }
-template<typename T> typename atTransformable<T>::Mat atTransformable<T>::TranslationMat() const { return atMatrixTranslation(m_translation); }
-template<typename T> typename atTransformable<T>::Mat atTransformable<T>::TransformMat() const {  return TranslationMat() * RotationMat() * ScaleMat(); }
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::RotationMat() const { return atMatrixYawPitchRoll(m_rotation.y, m_rotation.x, m_rotation.z); }
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::WorldMat() const { return TranslationMat() * RotationMat() * ScaleMat(); }
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::ScaleMat() const { return atMatrixScale(m_scale); }
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::TranslationMat() const { return atMatrixTranslation(m_translation); }
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::TransformMat() const {  return TranslationMat() * RotationMat() * ScaleMat(); }

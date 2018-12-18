@@ -1,7 +1,8 @@
-project "atLib"
+project "atTest"
+dependson { "atLib" }
 configurations { "Debug", "Release" }
 
-kind "StaticLib"
+kind "ConsoleApp"
 language "C++"
 characterset ("MBCS")
 
@@ -25,6 +26,7 @@ flags { "MultiProcessorCompile" }
 
   -- atLib Includes
   includedirs { "include", "include/**" } 
+  includedirs { "../atLib/include", "../atLib/include/**" } 
 
   -- Third Party
   includedirs { "3rdParty/**" } 
@@ -36,6 +38,8 @@ flags { "MultiProcessorCompile" }
 -- Project Files
 
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
+
+  links { "atLib" }
 
 -- Debug Configuration Settings
 

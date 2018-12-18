@@ -23,33 +23,24 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atHash_h__
-#define atHash_h__
+#ifndef atSkybox_h__
+#define atSkybox_h__
 
-#include "atMemoryWriter.h"
+#include "atSceneComponent.h"
+#include "atGraphicsModel.h"
 
-
-class atHash
+class atSkybox : public atSceneComponent
 {
 public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
+  bool Draw(const atMat4D &vp) override;
 
-  template <typename T> static int64_t Hash(const T &o);
-  template <typename T> static int64_t Hash(const T *o);
+  int64_t TypeID() const override;
+  static const int64_t typeID;
+
+  bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
 
 protected:
-  static thread_local atMemoryWriter writer;
+  atVector<atRenderable> m_meshes;
 };
 
-#include "atHash.inl"
-#endif // atHash_h__s
+#endif // atSkybox_h__

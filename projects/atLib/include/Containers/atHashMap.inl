@@ -149,7 +149,7 @@ template<class Key, class Value> bool atHashMap<Key, Value>::Rehash(const int64_
 { 
   atHashMap newMap(bucketCount);
   for (auto &kvp : *this)
-    newMap.Add(kvp);
+    newMap.TryAdd(kvp);
   *this = std::move(newMap);
   return true;
 }

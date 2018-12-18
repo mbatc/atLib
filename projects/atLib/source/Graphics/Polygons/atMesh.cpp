@@ -37,6 +37,25 @@ atMesh::atMesh(const atMesh &copy) { *this = copy; }
 
 bool atMesh::MakeValid()
 {
+  int64_t maxMat = m_materials.size() - 1;
+  int64_t maxPos = m_positions.size() - 1;
+  int64_t maxColor = m_colors.size() - 1;
+  int64_t maxNormal = m_normals.size() - 1;
+  int64_t maxTexCoord = m_texCoords.size() - 1;
+
+  // Ensure invalid indices == AT_INVALID_INDEX
+  for (Triangle &tri : m_triangles)
+  {
+    tri.mat = AT_INVALID_INDEX * (tri.mat > maxMat) + (tri.mat <= maxMat) * tri.mat;
+    for (int64_t v = 0; v < 3; ++v)
+    {
+      tri.verts[v].texCoord = AT_INVALID_INDEX * (tri.verts[v].texCoord > maxTexCoord) + (tri.verts[v].texCoord <= maxTexCoord) * tri.verts[v].texCoord;
+      tri.verts[v].position = AT_INVALID_INDEX * (tri.verts[v].position > maxPos) + (tri.verts[v].position <= maxPos) * tri.verts[v].position;
+      tri.verts[v].normal = AT_INVALID_INDEX * (tri.verts[v].normal > maxNormal) + (tri.verts[v].normal <= maxNormal) * tri.verts[v].normal;
+      tri.verts[v].color = AT_INVALID_INDEX * (tri.verts[v].color > maxColor) + (tri.verts[v].color <= maxColor) * tri.verts[v].color;
+    }
+  }
+
   for (Triangle &tri : m_triangles)
   {
     for (int64_t v = 0; v < 3; ++v)
@@ -72,7 +91,7 @@ bool atMesh::MakeValid()
       }
     }
 
-    // calculate missing normals
+    // Calculate missing normals
     for (int64_t v = 0; v < 3; ++v)
       if (tri.verts[v].normal == AT_INVALID_INDEX)
       {
@@ -176,19 +195,19 @@ void atMesh::GenTangents()
   }
 }
 
-void atMesh::RegenNormals()
+void atMesh::GenNormals()
 {
   m_normals.clear();
   atHashMap<atVec3F64, int64_t> normMap;
   for (Triangle &tri : m_triangles)
   {
-    atVec3F64 n = (m_positions[tri.verts[0].position] - m_positions[tri.verts[1].position]).Cross(m_positions[tri.verts[2].position] - m_positions[tri.verts[1].position]);
+    atVec3F64 n = (m_positions[tri.verts[2].position] - m_positions[tri.verts[1].position]).Cross(m_positions[tri.verts[0].position] - m_positions[tri.verts[1].position]).Normalize();
     int64_t normIndex = m_normals.size();
     if (!normMap.TryAdd(n, normIndex))
-    {
       normIndex = normMap[n];
+    else
       m_normals.push_back(n);
-    }
+
     for (int64_t i = 0; i < 3; ++i)
       tri.verts[i].normal = normIndex;
   }
@@ -197,7 +216,63 @@ void atMesh::RegenNormals()
 void atMesh::GenSmoothNormals(const double threshold, const bool regenNormals)
 {
   if (regenNormals)
-    RegenNormals();
+    GenNormals();
+  atVector<atVector<int64_t>> triLookup;
+  atVector<atVector<int64_t>> normalLookup;
+  triLookup.resize(m_positions.size());
+  normalLookup.resize(m_positions.size());
+  // Get all connecting triangles for each position
+  for (int64_t t = 0; t < m_triangles.size(); ++t)
+    for (int64_t v = 0; v < 3; ++v)
+      triLookup[m_triangles[t].verts[v].position].push_back(t);
+
+  // Get all normals for each position
+  for (int64_t v = 0; v < triLookup.size(); ++v)
+  {
+    for (const int64_t t : triLookup[v])
+    {
+      for (int64_t i = 0; i < 3; ++i)
+      {
+        if (m_triangles[t].verts[i].position == v)
+        {
+          normalLookup[v].push_back(m_triangles[t].verts[i].normal);
+        }
+      }
+    }
+  }
+  atVector<atVec3F64> normals(m_positions.size());
+  double avgDot = 0.0;
+  for (int64_t v = 0; v < triLookup.size(); ++v)
+  {
+    avgDot = 0.0;
+    for (const int64_t n : normalLookup[v])
+      avgDot += m_normals[normalLookup[v][0]].Dot(m_normals[n]);
+    avgDot /= normalLookup[v].size();
+    if (avgDot > threshold)
+    {
+      atVec3F64 norm = atVec3F64::zero();
+      for (const int64_t n : normalLookup[v])
+        norm += m_normals[n];
+      normals.push_back((norm / normalLookup[v].size()).Normalize());
+
+      for (int64_t t : triLookup[v])
+        for (int64_t i = 0; i < 3; ++i)
+          if (m_triangles[t].verts[i].position == v)
+            m_triangles[t].verts[i].normal = normals.size() - 1;
+    }
+    else
+    {
+      for (int64_t t : triLookup[v])
+        for (int64_t i = 0; i < 3; ++i)
+          if (m_triangles[t].verts[i].position == v)
+          {
+            normals.push_back(m_normals[m_triangles[t].verts[i].normal]);
+            m_triangles[t].verts[i].normal = normals.size() - 1;
+          }
+    }
+  }
+
+  m_normals.swap(normals);
 }
 
 atString atMesh::TryDiscoverFile(const atString &file, const atString &initialDir)

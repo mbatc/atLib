@@ -26,21 +26,21 @@
 #include "atCamera.h"
 #include "atInput.h"
 
-atCamera::atCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &rot, const double FOV, const double nearPlane, const double farPlane)
-  : atTransformable(pos, rot)
-  , m_fov(FOV)
+const int64_t atCamera::typeID = atSCT_Camera;
+int64_t atCamera::TypeID() const { return typeID; }
+
+atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
+  : m_fov(FOV)
   , m_nearPlane(nearPlane)
   , m_farPlane(farPlane)
-  , m_aspect((double)wnd.Size().x / (double)wnd.Size().y)
+  , m_aspect(aspect)
 {}
 
-void atCamera::SetProjection(const atWindow &wnd) { m_aspect = (double)wnd.Size().x / (double)wnd.Size().y; }
-
-void atCamera::Update(const double moveSpeed, const double dt)
+bool atSimpleCamera::Update(const double dt)
 {
   atVec2F64 dMouse = atInput::MouseDelta();
   atVec3F64 rot;
-  const double speed = moveSpeed * dt * (atInput::KeyDown(atKC_Shift) ? 2 : 1) * (atInput::KeyDown(atKC_Control) ? 0.5 : 1);
+  const double speed = m_moveSpeed * dt * (atInput::KeyDown(atKC_Shift) ? 2 : 1) * (atInput::KeyDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);
@@ -59,7 +59,17 @@ void atCamera::Update(const double moveSpeed, const double dt)
   if (atInput::KeyDown(atKC_Down)) rot.x -= speed;
   m_translation += (RotationMat().Inverse() * move);
   m_rotation += rot;
+  return true;
 }
 
+void atCamera::SetViewport(const atVec4I viewport)
+{
+  m_viewport = viewport;
+  m_aspect = (double)(viewport.z) / (double)(viewport.w);
+}
+
+atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
 atMat4D atCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
-atMat4D atCamera::ViewMat() const { return TransformMat().Inverse(); }
+void atCamera::SetViewport(const atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
+atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
+atVec4I atCamera::Viewport() const { return m_viewport; }

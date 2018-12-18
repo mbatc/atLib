@@ -23,33 +23,37 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atHash_h__
-#define atHash_h__
+#ifndef atSceneComponent_h__
+#define atSceneComponent_h__
 
-#include "atMemoryWriter.h"
+#include "atMath.h"
 
+class atSceneNode;
 
-class atHash
+enum atSceneComponentType : int64_t
 {
-public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
-
-  template <typename T> static int64_t Hash(const T &o);
-  template <typename T> static int64_t Hash(const T *o);
-
-protected:
-  static thread_local atMemoryWriter writer;
+  atSCT_None = 1 << 0,
+  atSCT_MeshRenderable = 1 << 1,
+  atSCT_Script = 1 << 2,
+  atSCT_Camera = 1 << 3,
+  atSCT_Collidable = 1 << 4,
+  atSCT_Effect = 1 << 5,
+  atSCT_Skybox = 1 << 6,
+  atSCT_All = INT64_MAX
 };
 
-#include "atHash.inl"
-#endif // atHash_h__s
+class atSceneComponent
+{
+  friend atSceneNode;
+
+public:
+  virtual bool Update(const double dt) { return true; }
+  virtual bool Draw(const atMat4D &vp) { return true; }
+
+  virtual int64_t TypeID() const = 0;
+
+protected:
+  atSceneNode *m_pNode;
+};
+
+#endif // atSceneComponent_h__

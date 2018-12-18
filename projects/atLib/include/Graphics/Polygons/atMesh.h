@@ -94,10 +94,10 @@ public:
   void GenTangents();
 
   // Generate Normals
-  void RegenNormals();
+  void GenNormals();
 
   // If the dot product of two normals is < threshold they will not be blended
-  void GenSmoothNormals(const double threshold = 0.3, const bool regenNormals = true);
+  void GenSmoothNormals(const double threshold = 0.6, const bool regenNormals = true);
 
   // Flip all normals
   void FlipTextures(const bool u, const bool v);

@@ -35,7 +35,8 @@ public:
 
   static const int64_t element_count = 4;
 
-  atVector4(const T _x = { 0 }, const T _y = { 0 }, const T _z = { 0 }, const T _w = { 0 }) : x(_x), y(_y), z(_z), w(_w) {}
+  atVector4() : x(0), y(0), z(0), w(0) {}
+  atVector4(const T _x, const T _y, const T _z, const T _w) : x(_x), y(_y), z(_z), w(_w) {}
   atVector4(const VecType<T> &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {}
 
   atVector4(VecType<T> &&move)
@@ -52,7 +53,8 @@ public:
       data()[i] = (T)*(list.begin() + i);
   }
 
-  template <typename T2> atVector4(const T2 _x = { 0 }, const T2 _y = { 0 }, const T2 _z = { 0 }, const T2 _w = { 0 }) : x((T)_x), y((T)_y), z((T)_z), w((T)_w) {}
+  template <typename T2> atVector4(const T2 val) : x((T)val), y((T)val), z((T)val), w((T)val) {}
+  template <typename T2> atVector4(const T2 _x, const T2 _y, const T2 _z, const T2 _w) : x((T)_x), y((T)_y), z((T)_z), w((T)_w) {}
   template <typename T2> atVector4(const VecType<T2> &copy) { assign(copy); }
   template <typename T2> atVector4(const atVector2<T2> &vec2, const T2 _z, const T2 _w) { assign(vec2.x, vec2.y, _z, _w); }
   template <typename T2> atVector4(const T2 _x, const atVector2<T2> &vec2, const T2 _w) { assign(_x, vec2.x, vec2.y, _w); }

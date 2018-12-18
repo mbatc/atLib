@@ -23,33 +23,19 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atHash_h__
-#define atHash_h__
+#include "atSkybox.h"
 
-#include "atMemoryWriter.h"
+const int64_t atSkybox::typeID = atSCT_Skybox;
+int64_t atSkybox::TypeID() const { return typeID; }
 
-
-class atHash
+bool atSkybox::SetImages(const atFilename & left, const atFilename & right, const atFilename & top, const atFilename & bottom, const atFilename & front, const atFilename & back)
 {
-public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
+  return false;
+}
 
-  template <typename T> static int64_t Hash(const T &o);
-  template <typename T> static int64_t Hash(const T *o);
+bool atSkybox::Draw(const atMat4D &vp)
+{
+  atUnused(vp);
+  return false;
+}
 
-protected:
-  static thread_local atMemoryWriter writer;
-};
-
-#include "atHash.inl"
-#endif // atHash_h__s
