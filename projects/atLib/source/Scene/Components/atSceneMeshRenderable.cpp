@@ -23,15 +23,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atMeshRenderable.h"
+#include "atSceneMeshRenderable.h"
 #include "atSceneNode.h"
 
-const int64_t atMeshRenderable::typeID = atSCT_MeshRenderable;
-int64_t atMeshRenderable::TypeID() const { return typeID; }
+const int64_t atSceneMeshRenderable::typeID = atSCT_MeshRenderable;
+int64_t atSceneMeshRenderable::TypeID() const { return typeID; }
 
-bool atMeshRenderable::Update(const double dt) { atUnused(dt); return true; }
-
-bool atMeshRenderable::Draw(const atMat4D &vp)
+bool atSceneMeshRenderable::Draw(const atMat4D &vp)
 {
   m_model.Draw(vp, m_pNode->GlobalWorldMat());
   return true;

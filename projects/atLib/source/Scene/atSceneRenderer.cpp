@@ -25,7 +25,7 @@
 
 #include "atSceneRenderer.h"
 #include "atRenderState.h"
-#include "atCamera.h"
+#include "atSceneCamera.h"
 
 bool atSceneRenderer::Render(atScene *pScene)
 {
@@ -39,7 +39,7 @@ bool atSceneRenderer::Render(atScene *pScene)
     // Retrieve each of the nodes camera components
     for(atSceneComponent *pComponent : pCameraNode->Components(atSCT_Camera))
     {
-      atCamera *pCam = (atCamera*)pComponent;
+      atSceneCamera *pCam = (atSceneCamera*)pComponent;
       
       // Setup viewport
       atRenderState rs;

@@ -23,19 +23,38 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atSkybox.h"
+#ifndef atSceneComponent_h__
+#define atSceneComponent_h__
 
-const int64_t atSkybox::typeID = atSCT_Skybox;
-int64_t atSkybox::TypeID() const { return typeID; }
+#include "atMath.h"
 
-bool atSkybox::SetImages(const atFilename & left, const atFilename & right, const atFilename & top, const atFilename & bottom, const atFilename & front, const atFilename & back)
+class atSceneNode;
+
+enum atSceneComponentType : int64_t
 {
-  return false;
-}
+  atSCT_None = 1 << 0,
+  atSCT_MeshRenderable = 1 << 1,
+  atSCT_Script = 1 << 2,
+  atSCT_Camera = 1 << 3,
+  atSCT_Collidable = 1 << 4,
+  atSCT_Effect = 1 << 5,
+  atSCT_Skybox = 1 << 6,
+  atSCT_RigidBody = 1 << 7,
+  atSCT_All = INT64_MAX
+};
 
-bool atSkybox::Draw(const atMat4D &vp)
+class atSceneComponent
 {
-  atUnused(vp);
-  return false;
-}
+  friend atSceneNode;
 
+public:
+  virtual bool Update(const double dt) { atUnused(dt); return true; }
+  virtual bool Draw(const atMat4D &vp) { atUnused(vp); return true; }
+
+  virtual int64_t TypeID() const = 0;
+
+protected:
+  atSceneNode *m_pNode;
+};
+
+#endif // atSceneComponent_h__

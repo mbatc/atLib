@@ -25,8 +25,8 @@
 
 #include "atSceneNode.h"
 #include "atScene.h"
-#include "atCamera.h"
-#include "atSkybox.h"
+#include "atSceneCamera.h"
+#include "atSceneSkybox.h"
 #include "atMeshRenderable.h"
 
 atSceneNode::atSceneNode() {}
@@ -132,12 +132,12 @@ atSceneComponent *atSceneNode::AddComponent(const int64_t type)
   atSceneComponent *pComponent = nullptr;
   switch (type)
   {
-  case atSCT_Camera: pComponent = (atSceneComponent*)atNew<atCamera>(); break;
-  case atSCT_MeshRenderable: pComponent = (atSceneComponent*)atNew<atMeshRenderable>(); break;
+  case atSCT_Camera: pComponent = (atSceneComponent*)atNew<atSceneCamera>(); break;
+  case atSCT_MeshRenderable: pComponent = (atSceneComponent*)atNew<atSceneMeshRenderable>(); break;
   case atSCT_Script: pComponent = nullptr; break;
   case atSCT_Collidable: pComponent = nullptr; break;
   case atSCT_Effect: pComponent = nullptr; break;
-  case atSCT_Skybox: pComponent = (atSceneComponent*)atNew<atSkybox>(); break;
+  case atSCT_Skybox: pComponent = (atSceneComponent*)atNew<atSceneSkybox>(); break;
   }
   if (!pComponent) 
     return nullptr;

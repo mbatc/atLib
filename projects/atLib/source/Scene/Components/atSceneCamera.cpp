@@ -23,13 +23,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atCamera.h"
+#include "atSceneCamera.h"
 #include "atInput.h"
 
-const int64_t atCamera::typeID = atSCT_Camera;
-int64_t atCamera::TypeID() const { return typeID; }
+const int64_t atSceneCamera::typeID = atSCT_Camera;
+int64_t atSceneCamera::TypeID() const { return typeID; }
 
-atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
+atSceneCamera::atSceneCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
   : m_fov(FOV)
   , m_nearPlane(nearPlane)
   , m_farPlane(farPlane)
@@ -62,14 +62,14 @@ bool atSimpleCamera::Update(const double dt)
   return true;
 }
 
-void atCamera::SetViewport(const atVec4I viewport)
+void atSceneCamera::SetViewport(const atVec4I viewport)
 {
   m_viewport = viewport;
   m_aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
-atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
-atMat4D atCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
-void atCamera::SetViewport(const atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
+atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
+atMat4D atSceneCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
+void atSceneCamera::SetViewport(const atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
 atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
-atVec4I atCamera::Viewport() const { return m_viewport; }
+atVec4I atSceneCamera::Viewport() const { return m_viewport; }

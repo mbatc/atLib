@@ -23,37 +23,45 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSceneComponent_h__
-#define atSceneComponent_h__
+#ifndef atCamera_h__
+#define atCamera_h__
 
-#include "atMath.h"
+#include "atWindow.h"
+#include "atTransformable.h"
+#include "atSceneComponent.h"
 
-class atSceneNode;
-
-enum atSceneComponentType : int64_t
+class atSceneCamera : public atSceneComponent
 {
-  atSCT_None = 1 << 0,
-  atSCT_MeshRenderable = 1 << 1,
-  atSCT_Script = 1 << 2,
-  atSCT_Camera = 1 << 3,
-  atSCT_Collidable = 1 << 4,
-  atSCT_Effect = 1 << 5,
-  atSCT_Skybox = 1 << 6,
-  atSCT_All = INT64_MAX
-};
-
-class atSceneComponent
-{
-  friend atSceneNode;
-
 public:
-  virtual bool Update(const double dt) { return true; }
-  virtual bool Draw(const atMat4D &vp) { return true; }
+  atSceneCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
-  virtual int64_t TypeID() const = 0;
+  void SetViewport(const atVec4I viewport);
+  void SetViewport(const atWindow &wnd);
+  atVec4I Viewport() const;
+  atMat4D ProjectionMat() const;
+
+  double m_fov;
+  double m_aspect;
+  double m_farPlane;
+  double m_nearPlane;
+  atVec2F m_depthRange = atVec2I(0, 1);
+ 
+  int64_t TypeID() const override;
+  static const int64_t typeID;
 
 protected:
-  atSceneNode *m_pNode;
+  atVec4I m_viewport = -1;
 };
 
-#endif // atSceneComponent_h__
+class atSimpleCamera : public atSceneCamera, public atTransformable<double>
+{
+public:
+  atSimpleCamera(const atWindow &wnd, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+
+  atMat4D ViewMat() const;
+  bool Update(const double dt) override;
+
+  double m_moveSpeed = 1.0;
+};
+
+#endif // atCamera_h__

@@ -23,22 +23,17 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atMeshRenderable_h__
-#define atMeshRenderable_h__
+#ifndef atEffect_h__
+#define atEffect_h__
 
 #include "atSceneComponent.h"
-#include "atGraphicsModel.h"
 
-class atMeshRenderable : public atSceneComponent
+class atSceneEffect : public atSceneComponent
 {
 public:
-  bool Update(const double dt) override;
-  bool Draw(const atMat4D &vp) override;
-
-  atGraphicsModel m_model;
 
   int64_t TypeID() const override;
   static const int64_t typeID;
 };
 
-#endif // atMeshRenderable_h__
+#endif // atEffect_h__

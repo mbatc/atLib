@@ -23,24 +23,19 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSkybox_h__
-#define atSkybox_h__
+#include "atSceneSkybox.h"
 
-#include "atSceneComponent.h"
-#include "atGraphicsModel.h"
+const int64_t atSceneSkybox::typeID = atSCT_Skybox;
+int64_t atSceneSkybox::TypeID() const { return typeID; }
 
-class atSkybox : public atSceneComponent
+bool atSceneSkybox::SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back)
 {
-public:
-  bool Draw(const atMat4D &vp) override;
+  return false;
+}
 
-  int64_t TypeID() const override;
-  static const int64_t typeID;
+bool atSceneSkybox::Draw(const atMat4D &vp)
+{
+  atUnused(vp);
+  return false;
+}
 
-  bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
-
-protected:
-  atVector<atRenderableCore> m_meshes;
-};
-
-#endif // atSkybox_h__

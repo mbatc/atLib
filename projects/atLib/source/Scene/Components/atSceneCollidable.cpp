@@ -23,46 +23,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atCamera_h__
-#define atCamera_h__
+#include "atSceneCollidable.h"
 
-#include "atWindow.h"
-#include "atTransformable.h"
-#include "atSceneComponent.h"
-
-class atCamera : public atSceneComponent
-{
-public:
-  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
-
-  void SetViewport(const atVec4I viewport);
-  void SetViewport(const atWindow &wnd);
-  atVec4I Viewport() const;
-  atMat4D ProjectionMat() const;
-
-
-  double m_fov;
-  double m_aspect;
-  double m_farPlane;
-  double m_nearPlane;
-  atVec2F m_depthRange = atVec2I(0, 1);
- 
-  int64_t TypeID() const override;
-  static const int64_t typeID;
-
-protected:
-  atVec4I m_viewport = -1;
-};
-
-class atSimpleCamera : public atCamera, public atTransformable<double>
-{
-public:
-  atSimpleCamera(const atWindow &wnd, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
-
-  atMat4D ViewMat() const;
-  bool Update(const double dt) override;
-
-  double m_moveSpeed = 1.0;
-};
-
-#endif // atCamera_h__
+const int64_t atSceneCollidable::typeID = atSCT_Collidable;
+int64_t atSceneCollidable::TypeID() const { return typeID; }

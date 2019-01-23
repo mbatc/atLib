@@ -57,7 +57,7 @@
 #include "atPrimitiveRenderer.h"
 #include "atGraphicsModel.h"
 #include "atRenderState.h"
-#include "atCamera.h"
+#include "atSceneCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
