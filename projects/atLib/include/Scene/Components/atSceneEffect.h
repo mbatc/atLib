@@ -23,8 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atEffect_h__
-#define atEffect_h__
+#ifndef atSceneEffect_h__
+#define atSceneEffect_h__
 
 #include "atSceneComponent.h"
 
@@ -36,4 +36,4 @@ public:
   static const int64_t typeID;
 };
 
-#endif // atEffect_h__
+#endif // atSceneEffect_h__

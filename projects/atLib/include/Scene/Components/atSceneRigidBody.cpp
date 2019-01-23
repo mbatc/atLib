@@ -23,21 +23,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSceneMeshRenderable_h__
-#define atSceneMeshRenderable_h__
+#include "atSceneRigidBody.h"
 
-#include "atSceneComponent.h"
-#include "atGraphicsModel.h"
-
-class atSceneMeshRenderable : public atSceneComponent
-{
-public:
-  bool Draw(const atMat4D &vp) override;
-
-  atGraphicsModel m_model;
-
-  int64_t TypeID() const override;
-  static const int64_t typeID;
-};
-
-#endif // atSceneMeshRenderable_h__
+const int64_t atSceneRigidBody::typeID = atSCT_RigidBody;
+int64_t atSceneRigidBody::TypeID() const { return typeID; }

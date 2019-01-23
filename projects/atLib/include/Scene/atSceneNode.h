@@ -23,12 +23,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSceneEntity_h__
-#define atSceneEntity_h__
+#ifndef atSceneNode_h__
+#define atSceneNode_h__
 
 #include "atString.h"
 #include "atTransformable.h"
 #include "atSceneComponent.h"
+#include <type_traits>
 
 class atScene;
 
@@ -78,7 +79,9 @@ public:
   atSceneComponent* Component(const int64_t type, int64_t index) const;
   atVector<atSceneComponent*> Components(const int64_t type = atSCT_All) const;
 
-  atSceneComponent* AddComponent(const int64_t type);
+  template <typename T> atVector<T*> Components();
+  template <typename T> T* AddComponent();
+  template <typename T> T* AddComponent(T* pComponent);
 
 protected:
   atVec3D ParentPosition() const;
@@ -97,4 +100,5 @@ protected:
   atVector<atSceneComponent*> m_components;
 };
 
-#endif // atSceneEntity_h__
+#include "atSceneNode.inl"
+#endif // atSceneNode_h__

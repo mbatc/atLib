@@ -26,6 +26,8 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
+#include "atSceneSkybox.h"
+#include "atSceneEffect.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -320,7 +322,7 @@ void ExampleRayTraceMesh()
 }
 
 #include "atScene.h"
-#include "atMeshRenderable.h"
+#include "atSceneMeshRenderable.h"
 
 void ExampleCreateScene()
 {
@@ -329,24 +331,25 @@ void ExampleCreateScene()
 
   // Create camera
   atSceneNode *pNode = scene.CreateNode({ 2, 1, 5 });
-  atCamera *pCam1 = (atCamera*)pNode->AddComponent(atSCT_Camera);
+  atSceneCamera *pCam1 = pNode->AddComponent<atSceneCamera>();
   scene.AddActiveCamera(pNode);
 
 
   // Create another camera
   pNode = scene.CreateNode({0, 1, 5});
-  atCamera *pCam2 = (atCamera*)pNode->AddComponent(atSCT_Camera);
+  atSceneCamera *pCam2 = pNode->AddComponent<atSceneCamera>();
   scene.AddActiveCamera(pNode);
 
 
   // Add a mesh
   pNode = scene.CreateNode();
-  atMeshRenderable *pMesh = (atMeshRenderable*)pNode->AddComponent(atSCT_MeshRenderable);
+  atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
   pMesh->m_model.Import("assets/test/models/level.obj");
 
   // Add a skybox
   pNode = scene.CreateNode();
-  pNode->AddComponent(atSCT_Skybox);
+  pNode->AddComponent<atSceneSkybox>();
+
 
   while(atInput::Update())
   {
@@ -374,8 +377,8 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  ExampleRenderMesh();
-  // ExampleCreateScene();
+  //ExampleRenderMesh();
+  ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 

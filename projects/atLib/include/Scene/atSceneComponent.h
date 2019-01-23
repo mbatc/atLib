@@ -23,21 +23,38 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSceneMeshRenderable_h__
-#define atSceneMeshRenderable_h__
+#ifndef atSceneComponent_h__
+#define atSceneComponent_h__
 
-#include "atSceneComponent.h"
-#include "atGraphicsModel.h"
+#include "atMath.h"
 
-class atSceneMeshRenderable : public atSceneComponent
+class atSceneNode;
+
+enum atSceneComponentType : int64_t
 {
-public:
-  bool Draw(const atMat4D &vp) override;
-
-  atGraphicsModel m_model;
-
-  int64_t TypeID() const override;
-  static const int64_t typeID;
+  atSCT_None = 1 << 0,
+  atSCT_MeshRenderable = 1 << 1,
+  atSCT_Script = 1 << 2,
+  atSCT_Camera = 1 << 3,
+  atSCT_Collidable = 1 << 4,
+  atSCT_Effect = 1 << 5,
+  atSCT_Skybox = 1 << 6,
+  atSCT_RigidBody = 1 << 7,
+  atSCT_All = INT64_MAX
 };
 
-#endif // atSceneMeshRenderable_h__
+class atSceneComponent
+{
+  friend atSceneNode;
+
+public:
+  virtual bool Update(const double dt) { atUnused(dt); return true; }
+  virtual bool Draw(const atMat4D &vp) { atUnused(vp); return true; }
+
+  virtual int64_t TypeID() const = 0;
+
+protected:
+  atSceneNode *m_pNode;
+};
+
+#endif // atSceneComponent_h__

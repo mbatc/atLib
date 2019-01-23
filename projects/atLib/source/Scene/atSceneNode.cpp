@@ -127,27 +127,6 @@ atVector<atSceneComponent*> atSceneNode::Components(const int64_t type) const
   return ret;
 }
 
-atSceneComponent *atSceneNode::AddComponent(const int64_t type)
-{
-  atSceneComponent *pComponent = nullptr;
-  switch (type)
-  {
-  case atSCT_Camera: pComponent = (atSceneComponent*)atNew<atSceneCamera>(); break;
-  case atSCT_MeshRenderable: pComponent = (atSceneComponent*)atNew<atSceneMeshRenderable>(); break;
-  case atSCT_Script: pComponent = nullptr; break;
-  case atSCT_Collidable: pComponent = nullptr; break;
-  case atSCT_Effect: pComponent = nullptr; break;
-  case atSCT_Skybox: pComponent = (atSceneComponent*)atNew<atSceneSkybox>(); break;
-  }
-  if (!pComponent) 
-    return nullptr;
-
-  pComponent->m_pNode = this;
-  
-  m_components.push_back(pComponent);
-  return pComponent;
-}
-
 int64_t atSceneNode::ID() const { return m_pScene->GetNodeID(this); }
 
 atSceneNode* atSceneNode::Root() const { return m_pScene->GetRoot(); }

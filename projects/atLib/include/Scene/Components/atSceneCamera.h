@@ -23,8 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atCamera_h__
-#define atCamera_h__
+#ifndef atSceneCamera_h__
+#define atSceneCamera_h__
 
 #include "atWindow.h"
 #include "atTransformable.h"
