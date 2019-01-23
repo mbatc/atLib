@@ -31,7 +31,9 @@ void _atRelAssert(const bool cond, const char *message, const int64_t line, cons
 {
   if (!cond)
   {
+#ifdef _DEBUG
     _CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message);
+#endif
     switch (MessageBox(NULL, message, file, MB_ABORTRETRYIGNORE))
     {
     case IDABORT: exit(0);

@@ -26,6 +26,7 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
+#include "atLua.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -362,6 +363,12 @@ void ExampleCreateScene()
   }
 }
 
+void ExampleRunLua()
+{
+  atLua lua;
+  lua.RunText("print([[hello from lua]])");
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 
@@ -383,6 +390,7 @@ int main(int argc, char **argv)
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
+  // ExampleRunLua();
   
   return atWindow_GetResult();
 }

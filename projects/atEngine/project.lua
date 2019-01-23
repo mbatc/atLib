@@ -3,6 +3,7 @@ dependson { "atLib" }
 configurations { "Debug", "Release" }
 
 kind "ConsoleApp"
+architecture "x64"
 language "C++"
 characterset ("MBCS")
 
