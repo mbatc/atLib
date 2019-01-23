@@ -25,14 +25,21 @@
 
 #include "atAssert.h"
 #include <crtdbg.h>
+#include <Windows.h>
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
   if (!cond)
-#ifdef _DEBUG
-    if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
-#endif
-  _CrtDbgBreak();
+  {
+    _CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message);
+    switch (MessageBox(NULL, message, file, MB_ABORTRETRYIGNORE))
+    {
+    case IDABORT: exit(0);
+    case IDRETRY: break;
+    case IDIGNORE: return;
+    }
+    _CrtDbgBreak();
+  }
 }
 
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)

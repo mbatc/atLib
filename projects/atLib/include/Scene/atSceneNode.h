@@ -70,9 +70,9 @@ public:
   atMat4D GlobalScaleMat() const;
   atMat4D GlobalWorldMat() const;
 
-  atVec3F64 GlobalPosition() const;
-  atVec3F64 GlobalRotation() const;
-  atVec3F64 GlobalScale() const;
+  atVec3D GlobalPosition() const;
+  atVec3D GlobalRotation() const;
+  atVec3D GlobalScale() const;
 
   int64_t ComponentCount(const int64_t type) const;
   atSceneComponent* Component(const int64_t type, int64_t index) const;
@@ -81,9 +81,9 @@ public:
   atSceneComponent* AddComponent(const int64_t type);
 
 protected:
-  atVec3F64 ParentPosition() const;
-  atVec3F64 ParentRotation() const;
-  atVec3F64 ParentScale() const;
+  atVec3D ParentPosition() const;
+  atVec3D ParentRotation() const;
+  atVec3D ParentScale() const;
 
   atMat4D ParentTranslationMat() const;
   atMat4D ParentRotationMat() const;

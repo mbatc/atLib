@@ -110,9 +110,9 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
     switch (_ScanKeyword(&pSrc, data.end() - (uint8_t*)pSrc))
     {
     case atMTLNew: pMat = _GetMaterial(pMesh, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc), loadAll); break;
-    case atMTLAmbientColour: pMat->m_cAmbient = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLDiffuseColour: pMat->m_cDiffuse = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLSpecularColour: pMat->m_cSpecular = { atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
+    case atMTLAmbientColour: pMat->m_cAmbient = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
+    case atMTLDiffuseColour: pMat->m_cDiffuse = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
+    case atMTLSpecularColour: pMat->m_cSpecular = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
     case atMTLSpecularPower: pMat->m_specularPower = atScan::Float((const char**)&pSrc); break;
     case atMTLAlpha: pMat->m_alpha = atScan::Float((const char**)&pSrc); break;
     case atMTLAlphaInv: pMat->m_alpha = 1.0 - atScan::Float((const char**)&pSrc); break;

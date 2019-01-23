@@ -78,6 +78,8 @@ psOutput main(vsOutput In) : SV_Target
   {
     float3x3 TBN = float3x3(In.tangent, In.bitangent, In.normal);
     vNorm = normalize(bumpMap0.Sample(samplerType, In.texCoord).xyz * 2.0 - 1);
+    //vNorm.x = -vNorm.x;
+    vNorm.y = -vNorm.y;
     vNorm = mul(vNorm, TBN);
   }
 

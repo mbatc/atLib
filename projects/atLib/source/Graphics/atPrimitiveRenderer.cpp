@@ -142,14 +142,14 @@ void atPrimitiveRenderer::Draw(const atWindow &wnd)
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
   atAssert(DrawContext::col.size() == 0, "Mismatched Push/Pop Colours");
 
-  atRenderable ro;
+  atRenderableCore ro;
   atRenderState rs;
   for (atFont &f : DrawContext::fonts)
     f.GetTextureID();
   
   ro.SetShader("assets/shaders/text");
   ro.SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
-  ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)wnd.Width(), (float)wnd.Height(), -1.f, 1.f)), atRRT_Variable);
+  ro.SetChannel("mvp", atMat4F(atMatrixOrtho((float)wnd.Width(), (float)wnd.Height(), -1.f, 1.f)), atRRT_Variable);
   for (DrawData &dd : DrawContext::drawList)
   {
     rs.SetScissor(dd.clipRect);

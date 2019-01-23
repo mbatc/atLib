@@ -38,15 +38,15 @@ atCamera::atCamera(const double aspect, const double FOV, const double nearPlane
 
 bool atSimpleCamera::Update(const double dt)
 {
-  atVec2F64 dMouse = atInput::MouseDelta();
-  atVec3F64 rot;
+  atVec2D dMouse = atInput::MouseDelta();
+  atVec3D rot;
   const double speed = m_moveSpeed * dt * (atInput::KeyDown(atKC_Shift) ? 2 : 1) * (atInput::KeyDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);
   else
     rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect, 0 };
-  atVec3F64 move;
+  atVec3D move;
   if (atInput::KeyDown(atKC_W)) move.z -= speed;
   if (atInput::KeyDown(atKC_S)) move.z += speed;
   if (atInput::KeyDown(atKC_D)) move.x += speed;
@@ -68,7 +68,7 @@ void atCamera::SetViewport(const atVec4I viewport)
   m_aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
-atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3F64 &pos, const atVec3F64 &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
+atSimpleCamera::atSimpleCamera(const atWindow &wnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera((double)wnd.Size().x / (double)wnd.Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
 atMat4D atCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
 void atCamera::SetViewport(const atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
 atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }

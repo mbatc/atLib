@@ -42,13 +42,13 @@ template <typename T> void atBVH<T>::Construct(const atVector<T> &primitives)
 template<typename T> void atBVH<T>::ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves)
 {
   pRoot->children.resize(8);
-  atVec3F64 halfSize = pRoot->bounds.Dimensions() / 2;
+  atVec3D halfSize = pRoot->bounds.Dimensions() / 2;
   for (int64_t z = 0; z < 2; ++z)
     for (int64_t y = 0; y < 2; ++y)
       for (int64_t x = 0; x < 2; ++x)
       {
-        pRoot->children[x + y * 2 + z * 4].bounds.m_min = pRoot->bounds.m_min + halfSize * atVec3F64{ x, y, z };
-        pRoot->children[x + y * 2 + z * 4].bounds.m_max = pRoot->bounds.m_min + halfSize * atVec3F64{ x + 1, y + 1, z + 1 };
+        pRoot->children[x + y * 2 + z * 4].bounds.m_min = pRoot->bounds.m_min + halfSize * atVec3D{ x, y, z };
+        pRoot->children[x + y * 2 + z * 4].bounds.m_max = pRoot->bounds.m_min + halfSize * atVec3D{ x + 1, y + 1, z + 1 };
       }
 
   atVector<atVector<int64_t>> indices;
@@ -95,8 +95,8 @@ template<typename T> void atBVH<T>::ConstructRecursive(atBVHNode<T> *pRoot, atVe
 template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime) 
 { 
   atMat4D invModel = modelMat.Inverse();
-  atVec3F64 startPos = invModel * ray.m_pos;
-  atVec3F64 endPos = invModel * (startPos + ray.m_dir);
+  atVec3D startPos = invModel * ray.m_pos;
+  atVec3D endPos = invModel * (startPos + ray.m_dir);
   double invRayLen = (endPos - startPos).Length();
   double time = 0.0;
   bool result = atIntersects(atRay<T2>(startPos, endPos - startPos), *this, &time);

@@ -23,7 +23,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> void atRenderable::SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type)
+template<typename T> void atRenderableCore::SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type)
 {
   Resource &res = GetResource(name);
   res = Resource();
@@ -34,7 +34,7 @@ template<typename T> void atRenderable::SetChannel(const atString &name, const T
   memcpy(res.data.data(), &data, (size_t)res.data.size());
 }
 
-template<typename T> void atRenderable::SetChannel(const atString &name, const atVector<T> &data, const atRenderable_ResourceType type)
+template<typename T> void atRenderableCore::SetChannel(const atString &name, const atVector<T> &data, const atRenderable_ResourceType type)
 {
   Resource &res = GetResource(name);
   res = Resource();
@@ -45,7 +45,7 @@ template<typename T> void atRenderable::SetChannel(const atString &name, const a
   memcpy(res.data.data(), data.data(), (size_t)res.data.size());
 }
 
-template<typename T> void atRenderable::SetChannel(const atString &name, const atStringBasic<T>& data, const atRenderable_ResourceType type)
+template<typename T> void atRenderableCore::SetChannel(const atString &name, const atStringBasic<T>& data, const atRenderable_ResourceType type)
 {
   Resource &res = GetResource(name);
   res = Resource();
@@ -56,4 +56,4 @@ template<typename T> void atRenderable::SetChannel(const atString &name, const a
   memcpy(res.data.data(), data.c_str(), (size_t)res.data.size());
 }
 
-template<typename T> void atRenderable::SetChannel(const atString & name, const std::initializer_list<T>& list, const atRenderable_ResourceType type) { SetChannel(name, atVector<T>(list), type); }
+template<typename T> void atRenderableCore::SetChannel(const atString & name, const std::initializer_list<T>& list, const atRenderable_ResourceType type) { SetChannel(name, atVector<T>(list), type); }

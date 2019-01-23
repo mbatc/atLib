@@ -49,9 +49,9 @@ public:
   
   atString m_name;
 
-  atVec4F64 m_cDiffuse = atVec4F64::one();
-  atVec4F64 m_cSpecular = atVec4F64::one();
-  atVec4F64 m_cAmbient = atVec4F64::zero();
+  atVec4D m_cDiffuse = atVec4D::one();
+  atVec4D m_cSpecular = atVec4D::one();
+  atVec4D m_cAmbient = atVec4D::zero();
 
   double m_alpha = 1.0;
   double m_specularPower = 32.0;

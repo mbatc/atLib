@@ -28,7 +28,7 @@
 #include "atRenderState.h"
 #include "atHardwareTexture.h"
 
-atRenderable::atRenderable()
+atRenderableCore::atRenderableCore()
   : m_pVertBuffer(nullptr)
   , m_pIndexBuffer(nullptr)
   , m_nIndices(0)
@@ -38,7 +38,7 @@ atRenderable::atRenderable()
   , m_shaderRound(-1)
 {}
 
-atRenderable::atRenderable(atRenderable &&move)
+atRenderableCore::atRenderableCore(atRenderableCore &&move)
 {
   m_pIndexBuffer = move.m_pIndexBuffer;
   m_pVertBuffer = move.m_pVertBuffer;
@@ -59,7 +59,7 @@ atRenderable::atRenderable(atRenderable &&move)
   move.m_pVertBuffer = nullptr;
 }
 
-atRenderable::atRenderable(const atRenderable &copy)
+atRenderableCore::atRenderableCore(const atRenderableCore &copy)
   : m_pVertBuffer(nullptr)
   , m_pIndexBuffer(nullptr)
   , m_nIndices(0)
@@ -73,9 +73,9 @@ atRenderable::atRenderable(const atRenderable &copy)
   m_shader = copy.m_shader;
 }
 
-atRenderable::~atRenderable() { Clear(); }
+atRenderableCore::~atRenderableCore() { Clear(); }
 
-bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
+bool atRenderableCore::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
 {
   atRenderState rs;
   Rebuild();
@@ -99,7 +99,6 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
     switch (kvp.m_val.type)
     {
     case atRRT_Texture: 
-      
       if(kvp.m_val.desc.type == atType_Uint8) 
         kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); 
       else if (kvp.m_val.desc.type == atType_Int64) 
@@ -107,6 +106,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
       else 
         atAssert(false, "Texture Resource Type data must be a c-string or int64 texture id.");
       break;
+
     case atRRT_Sampler: 
     {
       atAssert(kvp.m_val.desc.type == atType_Int64, "Sampler Resource Type data must be an int64 sample id (AT_INVALID_ID is a valid parameter - default sample will be used).");
@@ -114,7 +114,11 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
       if(kvp.m_val.id == AT_INVALID_ID)
         kvp.m_val.id = atHardwareTexture::CreateSampler(); break;
     }
-    case atRRT_Variable: kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); break;
+
+    case atRRT_Variable: 
+      kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); 
+      break;
+
     }
     if (kvp.m_val.id == AT_INVALID_ID) kvp.m_val.id = 0;
   }
@@ -162,7 +166,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   return true;
 }
 
-bool atRenderable::Rebuild()
+bool atRenderableCore::Rebuild()
 {
   bool vbInvalid = false;
   bool ibInvalid = false;
@@ -268,7 +272,7 @@ bool atRenderable::Rebuild()
   return res;
 }
 
-void atRenderable::Clear()
+void atRenderableCore::Clear()
 {
   atGraphics::SafeRelease(m_pIndexBuffer);
   atGraphics::SafeRelease(m_pVertBuffer);
@@ -279,7 +283,7 @@ void atRenderable::Clear()
   m_resource.Clear();
 }
 
-atRenderable::Resource& atRenderable::GetResource(const atString &name)
+atRenderableCore::Resource& atRenderableCore::GetResource(const atString &name)
 {
   Resource *pRes = m_resource.TryGet(name);
   if (pRes)
@@ -288,12 +292,25 @@ atRenderable::Resource& atRenderable::GetResource(const atString &name)
   return m_resource.Get(name);
 }
 
-void atRenderable::FreeResource(const atString &name)
+void atRenderableCore::FreeResource(const atString &name)
 {
   Resource *pRes = m_resource.TryGet(name);
   if (!pRes)
     return;
+
+  switch (pRes->type)
+  {
+  case atRRT_Texture:
+    if (pRes->desc.type == atType_Uint8) // texture was loaded from filename
+      atHardwareTexture::DeleteTexture(pRes->id);
+
+  case atRRT_Sampler: 
+    if (*(int64_t*)pRes->data.data() == AT_INVALID_ID) // default sampler was created
+      atHardwareTexture::DeleteSampler(pRes->id);
+  }
+
   m_resource.Remove(name);
 }
 
-void atRenderable::SetShader(const atString &name) { m_shader = name; m_layoutID = -1; }
+bool atRenderableCore::HasResource(const atString &name) { return m_resource.TryGet(name) != nullptr; }
+void atRenderableCore::SetShader(const atString &name) { m_shader = name; m_layoutID = -1; }

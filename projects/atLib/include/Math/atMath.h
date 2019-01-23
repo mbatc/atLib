@@ -62,17 +62,17 @@ typedef atVector2<float> atVec2F;
 typedef atVector3<float> atVec3F;
 typedef atVector4<float> atVec4F;
 
-typedef atVector2<double> atVec2F64;
-typedef atVector3<double> atVec3F64;
-typedef atVector4<double> atVec4F64;
+typedef atVector2<double> atVec2D;
+typedef atVector3<double> atVec3D;
+typedef atVector4<double> atVec4D;
 
 typedef atMatrix<double, 2, 2> atMat2D;
 typedef atMatrix<double, 3, 3> atMat3D;
 typedef atMatrix<double, 4, 4> atMat4D;
 
-typedef atMatrix<float, 2, 2> atMat2;
-typedef atMatrix<float, 3, 3> atMat3;
-typedef atMatrix<float, 4, 4> atMat4;
+typedef atMatrix<float, 2, 2> atMat2F;
+typedef atMatrix<float, 3, 3> atMat3F;
+typedef atMatrix<float, 4, 4> atMat4F;
 
 template <> atTypeDesc atGetTypeDesc<atVector2<float>>();
 template <> atTypeDesc atGetTypeDesc<atVector3<float>>();
@@ -120,6 +120,7 @@ template <typename T> inline T atACos(const T rads) { return acos(rads); }
 template <typename T> inline T atATan(const T rads) { return atan(rads); }
 template <typename T> inline T atATan2(const atVector2<T> pos) { return atATan2(pos.x, pos.y); }
 template <typename T> inline T atATan2(const T y, const T x);
+template <typename T> inline atVector2<T> atQuadraticSolve(const T a, const T b, const T c);
 
 template <typename T> inline atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
 template <typename T> inline atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);

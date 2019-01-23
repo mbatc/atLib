@@ -31,6 +31,13 @@ template<typename T> inline T atATan2(const T y, const T x)
   return 2 * atATan(x <= 0 ? (rad - x) / y : y / (rad + y));
 }
 
+template<typename T> inline atVector2<T> atQuadraticSolve(const T a, const T b, const T c)
+{
+  T val = (T)sqrt(b * b - 4 * a * c);
+  T ac_2 = 2 * a * c;
+  return atVector2<T>((-b - val) / ac_2, (-b + val) / ac_2);
+}
+
 template<typename T> inline atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane)
 {
   const T f_fn = farPlane / (farPlane - nearPlane);

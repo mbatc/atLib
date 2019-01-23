@@ -23,8 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef _atRenderable_h__
-#define _atRenderable_h__
+#ifndef _atRenderableCore_h__
+#define _atRenderableCore_h__
 
 #include "atMesh.h"
 #include "atHashMap.h"
@@ -60,7 +60,7 @@ struct VertexData
 
 class atShader;
 
-class atRenderable
+class atRenderableCore
 {
 public:
   struct Resource
@@ -74,10 +74,10 @@ public:
   };
 
 
-  atRenderable();
-  atRenderable(atRenderable &&move);
-  atRenderable(const atRenderable &copy);
-  ~atRenderable();
+  atRenderableCore();
+  atRenderableCore(atRenderableCore &&move);
+  atRenderableCore(const atRenderableCore &copy);
+  ~atRenderableCore();
   
   void SetShader(const atString &name);
   
@@ -89,6 +89,7 @@ public:
   template <typename T> void SetChannel(const atString &name, const atStringBasic<T> &data, const atRenderable_ResourceType type);
   template <typename T> void SetChannel(const atString &name, const std::initializer_list<T> &list, const atRenderable_ResourceType type);
 
+  bool HasResource(const atString &name);
   Resource& GetResource(const atString &name);
   void FreeResource(const atString &name);
 
@@ -112,5 +113,6 @@ protected:
   int64_t m_shaderRound;
 };
 
-#include "atRenderable.inl"
+#include "atRenderableCore.inl"
 #endif
+

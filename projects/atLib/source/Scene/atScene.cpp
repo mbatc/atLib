@@ -55,7 +55,7 @@ atVector<int64_t> atScene::GetNodeIDs(const atVector<atSceneNode*> nodes) const
   return ret;
 }
 
-atSceneNode* atScene::CreateNode(const atVec3F64 &position, const atVec3F64 &rotation, const atVec3F64 &scale, atSceneNode *pParent)
+atSceneNode* atScene::CreateNode(const atVec3D &position, const atVec3D &rotation, const atVec3D &scale, atSceneNode *pParent)
 {
   atSceneNode *pNode = atNew<atSceneNode>();
   pNode->m_translation = position;

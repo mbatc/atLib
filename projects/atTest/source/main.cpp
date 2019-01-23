@@ -316,7 +316,7 @@ void ExampleRayTraceMesh()
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   
   double time = 0.0;
-  bvh.RayTrace(atRay<double>(atVec3F64(0, 0, -10), atVec3F64(0, 0, 1)), atMat4D::Identity(), &time);
+  bvh.RayTrace(atRay<double>(atVec3D(0, 0, -10), atVec3D(0, 0, 1)), atMat4D::Identity(), &time);
 }
 
 #include "atScene.h"
@@ -374,8 +374,8 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  // ExampleRenderMesh();
-  ExampleCreateScene();
+  ExampleRenderMesh();
+  // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 

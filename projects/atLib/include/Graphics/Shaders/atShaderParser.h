@@ -83,4 +83,8 @@ protected:
   atString m_src;
 };
 
+class atShaderInfo
+{
+};
+
 #endif // atShaderParser_h__
