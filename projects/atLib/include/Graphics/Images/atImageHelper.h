@@ -46,6 +46,8 @@ class atImageHelper
 {
 public:
   static atVector<atCol> LoadImage(const atFilename &file, atVec2I *pSize);
+  static atVector<atCol> LoadFromMemory(const uint8_t *pData, const atVec2I &size, const int nChannels);
+
   static bool SaveImage(const atVector<atCol> &data, const atVec2I &size, const atImageFormat format, const atFilename &file);
 };
 

@@ -18,6 +18,7 @@ public:
 
   // Set Active Shader
   void SetShader(const atString &name);
+  void SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom = "", const atString &hull = "");
   void SetSampler(const atString &name, const int64_t id);
 
   // Set texture units

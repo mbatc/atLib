@@ -26,6 +26,7 @@
 #ifndef atHardwareTexture_h__
 #define atHardwareTexture_h__
 
+#include "atTextureContext.h"
 #include "atFilename.h"
 #include "atImage.h"
 
@@ -56,11 +57,18 @@ public:
   atHardwareTexture() = delete;
 
   static int64_t CreateSampler(const int64_t filter = 21 /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/, const atTexCoordMode uMode = atTCM_Wrap, const atTexCoordMode vMode = atTCM_Wrap, const atTexCoordMode wMode = atTCM_Wrap, const float mipLodBias = 0, const atComparison compFunc = atComp_Never, const atVec4F &borderCol = { 0,0,0,0 }, const float minLOD = 0.f, const float maxLOD = FLT_MAX);
-  static int64_t UploadTexture(const atFilename &file, const bool genMipmaps = true);
-  static int64_t UploadTexture(const atImage &image, const bool genMipmaps = true);
-  static bool UpdateTexture(const int64_t id, const atImage &image, const bool genMipmaps = true);
+  
+  static int64_t AddTexture(ID3D11Texture2D *pTexture, const bool genMipmaps = false, const int64_t sampleCount = 1);
 
-  static void* GetTexture(const int64_t id);
+  static int64_t UploadTexture(const atFilename &file, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  static int64_t UploadTexture(const atImage &image, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  static int64_t UploadTexture(const atCol *pPixels, const atVec2I &size, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  static int64_t UploadDepthTexture(const float *pPixels, const atVec2I &size, const int64_t sampleCount = 1);
+
+  static bool UpdateTexture(const int64_t id, const atImage &image, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  static bool UpdateDepthTexture(const int64_t id, const float *pPixels, const atVec2I &size, const int64_t sampleCount = 1);
+
+  static atTextureContext* GetTexture(const int64_t id);
   static void* GetSampler(const int64_t id);
 
   static void DeleteTexture(const int64_t id);

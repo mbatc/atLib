@@ -54,7 +54,7 @@ static int64_t s_dxgiFormatLookup[atType_Count][4] =
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32)   | DXGI_FORMAT_UNKNOWN                     , // 3 x 16-bit float
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32)   | DXGI_FORMAT_R16G16B16A16_FLOAT          , // 4 x 16-bit float
 
-  ((int64_t)DXGI_FORMAT_D32_FLOAT << 32) | DXGI_FORMAT_R32_FLOAT                   , // 1 x 32-bit float
+  ((int64_t)DXGI_FORMAT_D24_UNORM_S8_UINT << 32) | DXGI_FORMAT_R32_FLOAT                   , // 1 x 32-bit float
   ((int64_t)DXGI_FORMAT_D32_FLOAT_S8X24_UINT << 32) | DXGI_FORMAT_R32G32_FLOAT     , // 2 x 32-bit float
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32) | DXGI_FORMAT_R32G32B32_FLOAT             , // 3 x 32-bit float
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32) | DXGI_FORMAT_R32G32B32A32_FLOAT          , // 4 x 32-bit float
@@ -96,7 +96,7 @@ static int64_t s_dxgiFormatLookup[atType_Count][4] =
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32) | DXGI_FORMAT_UNKNOWN                     , // 3 x 16-bit unsigned int
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32)   | DXGI_FORMAT_R16G16B16A16_UINT           , // 4 x 16-bit unsigned int
 
-  ((int64_t)DXGI_FORMAT_D32_FLOAT << 32) | DXGI_FORMAT_R32_UINT                    , // 1 x 32-bit unsigned int
+  ((int64_t)DXGI_FORMAT_D32_FLOAT << 32) | DXGI_FORMAT_R8G8B8A8_UNORM                    , // 1 x 32-bit unsigned int
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32) | DXGI_FORMAT_R32G32_UINT                 , // 2 x 32-bit unsigned int
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32) | DXGI_FORMAT_R32G32B32_UINT              , // 3 x 32-bit unsigned int
   ((int64_t)DXGI_FORMAT_UNKNOWN << 32)   | DXGI_FORMAT_R32G32B32A32_UINT           , // 4 x 32-bit unsigned int
@@ -115,4 +115,9 @@ int64_t atFormat::DXGI(const atType type, const int64_t width)
   return format;
 }
 
-int64_t atFormat::DXGIDepth(const atType type) { return DXGI(type, 1) >> sizeof(int32_t); }
+int64_t atFormat::DXGIDepth(const atType type)
+{
+  int64_t format = s_dxgiFormatLookup[type][0] >> 32;
+  atAssert(format != DXGI_FORMAT_UNKNOWN, "Unknown DXGI Format!");
+  return format;
+}

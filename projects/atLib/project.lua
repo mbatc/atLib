@@ -2,6 +2,7 @@ project "atLib"
 configurations { "Debug", "Release" }
 
 kind "StaticLib"
+architecture "x64"
 language "C++"
 characterset ("MBCS")
 

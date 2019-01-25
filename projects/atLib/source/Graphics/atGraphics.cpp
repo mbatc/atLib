@@ -30,9 +30,9 @@
 
 atVector<DXGI_MODE_DESC> atGraphics::m_displayModeList;
 ID3D11DeviceContext *atGraphics::m_pContext = nullptr;
-ID3D11Device *atGraphics::m_pDevice = nullptr;
-IDXGIAdapter *atGraphics::m_pAdapter = nullptr;
 IDXGIOutput *atGraphics::m_pOutputDisplay = nullptr;
+IDXGIAdapter *atGraphics::m_pAdapter = nullptr;
+ID3D11Device *atGraphics::m_pDevice = nullptr;
 IDXGIFactory *atGraphics::m_pFactory;
 int64_t atGraphics::m_gfxMemory = 0;
 char atGraphics::m_adapterDesc[128] = { 0 };
@@ -226,6 +226,24 @@ void atGraphics::Draw(int64_t nVerts, int64_t startLocation)
 {
   atRenderState::Bind();
   GetContext()->Draw((UINT)nVerts, (UINT)startLocation);
+}
+
+bool atGraphics::CreateBuffer(ID3D11Buffer **ppBuffer, void *pData, int64_t size, int64_t binding, int64_t usage, int64_t cpuAccess)
+{
+  if (!ppBuffer)
+    return false;
+  SafeRelease(*ppBuffer);
+  D3D11_BUFFER_DESC desc = { 0 };
+  desc.Usage = (D3D11_USAGE)usage;
+  desc.BindFlags = (UINT)binding;
+  desc.ByteWidth = (UINT)size;
+  desc.CPUAccessFlags = (UINT)cpuAccess;
+
+  D3D11_SUBRESOURCE_DATA data = { 0 };
+  data.pSysMem = pData;
+  data.SysMemPitch = 0;
+  data.SysMemSlicePitch = 0;
+  return !FAILED(GetDevice()->CreateBuffer(&desc, pData ? &data : nullptr, ppBuffer));
 }
 
 int64_t atGraphics::RefreshRateNumerator(const bool vsync) { GetOutputDisplay(); return vsync ? RefreshRate::num : RefreshRate::defNum; }

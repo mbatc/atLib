@@ -78,6 +78,8 @@ public:
   static void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0);
   static void Draw(int64_t nVerts, int64_t startLocation = 0);
 
+  static bool CreateBuffer(ID3D11Buffer **ppBuffer, void *pData, int64_t size, int64_t binding, int64_t usage = D3D11_USAGE_DEFAULT, int64_t cpuAccess = 0);
+  
   // Should be called before exiting any application using atGraphics
   static void Shutdown();
 
@@ -88,10 +90,10 @@ protected:
   static void CreateFactory();
 
   static ID3D11Device *m_pDevice;
-  static ID3D11DeviceContext *m_pContext;
   static IDXGIAdapter *m_pAdapter;
-  static IDXGIOutput *m_pOutputDisplay;
   static IDXGIFactory *m_pFactory;
+  static IDXGIOutput *m_pOutputDisplay;
+  static ID3D11DeviceContext *m_pContext;
   static atVector<DXGI_MODE_DESC> m_displayModeList;
 
   static DWORD m_flags;

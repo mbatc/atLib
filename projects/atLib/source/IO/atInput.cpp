@@ -30,13 +30,14 @@
 
 static atButtonState s_keyState[atKC_Count];
 static atButtonState s_mouseState[atMB_Count];
-static atVec2I s_mousePos;
+static atVec2F s_mousePos;
 static atVec2I s_lastMousePos;
 static atVec2F s_mouseVel;
 static atVec2I s_lockPos = { 0,0 };
 static double s_dt = 0.0;
 static bool s_mouseLocked = false;
 static atHashMap<int64_t, bool> s_windows;
+static atVec2F s_mouseScroll;
 
 bool s_mouseSet = false;
 
@@ -54,6 +55,8 @@ static void _UpdateMouse()
       mb = mb;
     mb.Update(s_dt);
   }
+
+  s_mouseScroll = 0;
 }
 
 static void _UpdateKeyboard()
@@ -155,8 +158,13 @@ bool atInput::MiddleMousePressed() { return MousePressed(atMB_Middle); }
 bool atInput::MiddleMouseReleased() { return MouseReleased(atMB_Middle); }
 bool atInput::IsMouseLocked() { return s_mouseLocked; }
 atVec2I atInput::MouseDelta() { return s_mousePos - s_lastMousePos; }
-const atVec2I& atInput::MousePos() { return s_mousePos; }
+void atInput::OnMouseWheelH(const float scroll) { s_mousePos.x += scroll; }
+const float atInput::MouseScrollX() { return MouseScroll().x; }
+const float atInput::MouseScrollY() { return MouseScroll().y; }
+const atVec2F& atInput::MouseScroll() { return s_mouseScroll; }
+const atVec2F& atInput::MousePos() { return s_mousePos; }
 const atVec2F& atInput::MouseVelocity() { return s_mouseVel; }
 atVec2F atInput::MouseDirection() { return s_mouseVel.Normalize(); }
+void atInput::OnMouseWheel(const float scroll) { s_mouseScroll.y += scroll; }
 bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
 void atInput::SetDT(const double dt) { s_dt = dt; }

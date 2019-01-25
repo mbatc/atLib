@@ -58,6 +58,13 @@ int64_t atShaderPool::GetShader(const atString &filename)
   return s_nextShaderID++;
 }
 
+int64_t atShaderPool::GetShader(const atString &pixel, const atString &vert, const atString &geometry, const atString &hull, const atString &compute, const atString &domain)
+{
+  s_shaders.Add(s_nextShaderID, ShaderReference(atNew<atShader>(pixel, vert, geometry, hull, compute, domain)));
+  s_shaders[s_nextShaderID].refCount++;
+  return s_nextShaderID++;
+}
+
 int64_t atShaderPool::BindShader(const int64_t id)
 {
   s_boundShader = AT_INVALID_ID;

@@ -80,7 +80,8 @@ public:
   ~atRenderableCore();
   
   void SetShader(const atString &name);
-  
+  void SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom = "", const atString &hull = "");
+
   bool Draw(const atRenderable_PrimitiveType type = atRPT_TriangleList);
   void Clear();
 
@@ -102,6 +103,12 @@ protected:
   int64_t m_stride;
 
   atString m_shader;
+
+  atString m_vertSource;
+  atString m_pixelSource;
+  atString m_hullSource;
+  atString m_geomSource;
+
   int64_t m_shaderID;
   int64_t m_layoutID;
   
