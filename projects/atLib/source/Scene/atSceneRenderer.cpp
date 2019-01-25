@@ -37,7 +37,7 @@ bool atSceneRenderer::Render(atScene *pScene)
     atSceneNode *pCameraNode = pScene->GetNode(cam);
 
     // Retrieve each of the nodes camera components
-    for(atSceneComponent *pComponent : pCameraNode->Components(atSCT_Camera))
+    for(atSceneComponent *pComponent : pCameraNode->Components<atSceneCamera>())
     {
       atSceneCamera *pCam = (atSceneCamera*)pComponent;
       

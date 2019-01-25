@@ -26,10 +26,10 @@
 #include "atSceneMeshRenderable.h"
 #include "atSceneNode.h"
 
-const int64_t atSceneMeshRenderable::typeID = atSCT_MeshRenderable;
+const int64_t atSceneMeshRenderable::typeID = atSceneComponent::NextTypeID();
 int64_t atSceneMeshRenderable::TypeID() const { return typeID; }
 
-bool atSceneMeshRenderable::Draw(const atMat4D &vp)
+bool atSceneMeshRenderable::OnDraw(const atMat4D &vp)
 {
   m_model.Draw(vp, m_pNode->GlobalWorldMat());
   return true;

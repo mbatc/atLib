@@ -26,6 +26,7 @@
 #ifndef atScene_h__
 #define atScene_h__
 
+#include "atLua.h"
 #include "atHashMap.h"
 #include "atSceneNode.h"
 
@@ -37,6 +38,8 @@ public:
 
   bool Update();
   bool Draw();
+
+  atLua* GetLua();
 
   atSceneNode* GetRoot();
   atSceneNode* GetNode(const int64_t id);

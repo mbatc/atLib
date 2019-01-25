@@ -95,7 +95,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   while (atInput::Update(true)) // Process user inputs
   {
     // Update camera
-    camera.Update(0.016);
+    camera.OnUpdate(0.016);
     camera.SetViewport(window);
 
     // Clear window
@@ -412,6 +412,7 @@ void ExampleImGui()
     atImGui::Render();
     window.Swap();
   }
+}
   
 #include "atBVH.h"
 #include "atIntersects.h"
@@ -426,7 +427,7 @@ int main(int argc, char **argv)
   
   // ExampleRenderText();
   // ExampleRenderMesh();
-  // ExampleCreateScene();
+  ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();

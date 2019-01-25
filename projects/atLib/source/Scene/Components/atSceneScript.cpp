@@ -24,6 +24,13 @@
 // -----------------------------------------------------------------------------
 
 #include "atSceneScript.h"
+#include "atScene.h"
 
-const int64_t atSceneScript::typeID = atSCT_Script;
+const int64_t atSceneScript::typeID = atSceneComponent::NextTypeID();
+
+bool atSceneScript::OnCreate() { return false; }
+bool atSceneScript::OnDestroy() { return false; }
+bool atSceneScript::OnUpdate(const double dt) { return false; }
+bool atSceneScript::OnDraw(const atMat4D &vp) { return false; }
+
 int64_t atSceneScript::TypeID() const { return typeID; }

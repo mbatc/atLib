@@ -25,5 +25,5 @@
 
 #include "atSceneEffect.h"
 
-const int64_t atSceneEffect::typeID = atSCT_Effect;
+const int64_t atSceneEffect::typeID = atSceneComponent::NextTypeID();
 int64_t atSceneEffect::TypeID() const { return typeID; }

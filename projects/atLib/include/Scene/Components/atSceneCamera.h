@@ -59,7 +59,7 @@ public:
   atSimpleCamera(atWindow &wnd, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
   atMat4D ViewMat() const;
-  bool Update(const double dt) override;
+  bool OnUpdate(const double dt) override;
 
   double m_moveSpeed = 1.0;
 };

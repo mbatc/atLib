@@ -32,7 +32,7 @@
 class atSceneSkybox : public atSceneComponent
 {
 public:
-  bool Draw(const atMat4D &vp) override;
+  bool OnDraw(const atMat4D &vp) override;
 
   int64_t TypeID() const override;
   static const int64_t typeID;

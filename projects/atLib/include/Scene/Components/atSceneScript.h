@@ -26,11 +26,21 @@
 #ifndef atSceneScript_h__
 #define atSceneScript_h__
 
+#include "atFilename.h"
 #include "atSceneComponent.h"
 
 class atSceneScript : public atSceneComponent
 {
 public:
+  bool OnCreate() override;
+  bool OnDestroy() override;
+  bool OnUpdate(const double dt) override;
+  bool OnDraw(const atMat4D &vp) override;
+
+  int64_t ID();
+
+  atFilename m_path;
+  atString m_src;
 
   int64_t TypeID() const override;
   static const int64_t typeID;

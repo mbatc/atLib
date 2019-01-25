@@ -25,5 +25,5 @@
 
 #include "atSceneRigidBody.h"
 
-const int64_t atSceneRigidBody::typeID = atSCT_RigidBody;
+const int64_t atSceneRigidBody::typeID = atSceneComponent::NextTypeID();
 int64_t atSceneRigidBody::TypeID() const { return typeID; }

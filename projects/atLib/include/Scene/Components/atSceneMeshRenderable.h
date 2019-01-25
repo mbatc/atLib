@@ -32,7 +32,7 @@
 class atSceneMeshRenderable : public atSceneComponent
 {
 public:
-  bool Draw(const atMat4D &vp) override;
+  bool OnDraw(const atMat4D &vp) override;
 
   atGraphicsModel m_model;
 

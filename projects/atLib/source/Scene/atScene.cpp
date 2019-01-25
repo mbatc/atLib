@@ -27,6 +27,7 @@
 #include "atSceneRenderer.h"
 
 static int64_t _idCounter = 0;
+static atLua *_pLua = nullptr;
 
 int64_t _GetNextID() { return _idCounter++; }
 
@@ -106,6 +107,13 @@ bool atScene::RemoveActiveCamera(const int64_t id)
       return true;
     }
   return false;
+}
+
+atLua* atScene::GetLua()
+{
+  if (!_pLua)
+    _pLua = atNew<atLua>();
+  return _pLua; 
 }
 
 const atSceneNode* atScene::GetNode(const int64_t id) const { atSceneNode * const *ppNode = m_nodes.TryGet(id); return ppNode ? *ppNode : nullptr; }

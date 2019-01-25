@@ -28,33 +28,38 @@
 
 #include "atMath.h"
 
-class atSceneNode;
-
 enum atSceneComponentType : int64_t
 {
-  atSCT_None = 1 << 0,
-  atSCT_MeshRenderable = 1 << 1,
-  atSCT_Script = 1 << 2,
-  atSCT_Camera = 1 << 3,
-  atSCT_Collidable = 1 << 4,
-  atSCT_Effect = 1 << 5,
-  atSCT_Skybox = 1 << 6,
-  atSCT_RigidBody = 1 << 7,
   atSCT_All = INT64_MAX
 };
+
+class atScene;
+class atSceneNode;
+
+template <typename T> void atIsValidSceneComponentType();
 
 class atSceneComponent
 {
   friend atSceneNode;
 
 public:
-  virtual bool Update(const double dt) { atUnused(dt); return true; }
-  virtual bool Draw(const atMat4D &vp) { atUnused(vp); return true; }
+  virtual bool OnCreate() { return true; }
+  virtual bool OnDestroy() { return true; }
+  virtual bool OnUpdate(const double dt) { atUnused(dt); return true; }
+  virtual bool OnDraw(const atMat4D &vp) { atUnused(vp); return true; }
 
   virtual int64_t TypeID() const = 0;
+  static int64_t NextTypeID();
+
+  template <typename T> bool Is() const;
+
+  atScene* Scene();
+  atSceneNode* Node();
 
 protected:
+  static int64_t m_nextTypeID;
   atSceneNode *m_pNode;
 };
 
+#include "atSceneComponent.inl"
 #endif // atSceneComponent_h__

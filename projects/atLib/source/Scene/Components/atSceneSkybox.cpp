@@ -25,7 +25,7 @@
 
 #include "atSceneSkybox.h"
 
-const int64_t atSceneSkybox::typeID = atSCT_Skybox;
+const int64_t atSceneSkybox::typeID = atSceneComponent::NextTypeID();
 int64_t atSceneSkybox::TypeID() const { return typeID; }
 
 bool atSceneSkybox::SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back)
@@ -33,7 +33,7 @@ bool atSceneSkybox::SetImages(const atFilename &left, const atFilename &right, c
   return false;
 }
 
-bool atSceneSkybox::Draw(const atMat4D &vp)
+bool atSceneSkybox::OnDraw(const atMat4D &vp)
 {
   atUnused(vp);
   return false;

@@ -25,5 +25,5 @@
 
 #include "atSceneCollidable.h"
 
-const int64_t atSceneCollidable::typeID = atSCT_Collidable;
+const int64_t atSceneCollidable::typeID = atSceneComponent::NextTypeID();
 int64_t atSceneCollidable::TypeID() const { return typeID; }
