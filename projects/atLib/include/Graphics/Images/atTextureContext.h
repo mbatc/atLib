@@ -32,16 +32,19 @@
 class atTextureContext
 {
 public:
-  atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps = true);
-  atTextureContext(const atImage &file, const bool genMipmaps = true);
-  atTextureContext(const atFilename &file, const bool genMipmaps = true);
+  atTextureContext(const atVector<atCol> &colour, const atVec2I &size, const int64_t sampleCount = 1); // Create a colour texture
+  atTextureContext(const atVector<float> &depth, const atVec2I &size, const int64_t sampleCount = 1); // Create a depth texture
+  atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  atTextureContext(const void *pData, const atVec2I &size, const bool depthTexture = false, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  atTextureContext(const atImage &file, const bool genMipmaps = true, const int64_t sampleCount = 1);
+  atTextureContext(const atFilename &file, const bool genMipmaps = true, const int64_t sampleCount = 1);
   atTextureContext(const atTextureContext &copy);
   atTextureContext(atTextureContext &&move);
   ~atTextureContext();
 
   void Release();
 
-  void UpdateTexture(const atImage &image, const bool genMipmaps = true);
+  void UpdateTexture(const atImage &image, const bool genMipmaps = true, const int64_t sampleCount = 1);
 
   operator ID3D11Texture2D *();
   operator ID3D11ShaderResourceView *();
@@ -58,6 +61,8 @@ public:
   const atTextureContext &operator=(atTextureContext &&rhs);
 protected:
   bool m_genMipmaps;
+  bool m_depthTexture;
+  int64_t m_sampleCount;
 
   ID3D11Texture2D *m_pTexture = nullptr;
   ID3D11ShaderResourceView *m_pShaderView = nullptr;

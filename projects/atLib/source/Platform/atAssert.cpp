@@ -30,16 +30,8 @@
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
   if (!cond)
-  {
-    _CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message);
-    switch (MessageBox(NULL, message, file, MB_ABORTRETRYIGNORE))
-    {
-    case IDABORT: exit(0);
-    case IDRETRY: break;
-    case IDIGNORE: return;
-    }
-    _CrtDbgBreak();
-  }
+    if(_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+      _CrtDbgBreak();
 }
 
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)

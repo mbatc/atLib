@@ -27,8 +27,9 @@
 #define _atRenderState_h__
 
 #include "atGraphics.h"
-#include "atMath.h"
+#include "atWindow.h"
 #include "atShader.h"
+#include "atMath.h"
 
 class atRenderState
 {
@@ -52,12 +53,18 @@ public:
     bool blendEnabled = false;
     bool msaaEnabled = true;
     bool aaEnabled = true;
+    
+    atRenderTarget *pColourTarget;
+    atRenderTarget *pDepthTarget;
   };
 
   atRenderState();
   ~atRenderState();
 
   void Set(const State &state);
+
+  void SetRenderTarget(atWindow *pTarget);
+  void SetRenderTarget(atRenderTarget *pTarget);
 
   bool SetShader(const int64_t id, const int64_t inputLayoutID);
   void SetViewport(const atVec4I &vp);

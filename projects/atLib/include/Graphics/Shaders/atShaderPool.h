@@ -33,6 +33,7 @@ class atShaderPool
 {
 public:
   static int64_t GetShader(const atString &filename);
+  static int64_t GetShader(const atString &pixel, const atString &vert, const atString &geometry = "", const atString &hull = "", const atString &compute = "", const atString &domain = "");
   
   static void ReleaseShader(const int64_t id);
   static void ReloadShaders();

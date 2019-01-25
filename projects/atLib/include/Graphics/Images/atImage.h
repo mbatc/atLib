@@ -40,7 +40,10 @@ public:
   atImage();
   atImage(const atVec2I &size);
   atImage(const atFilename &file);
+  atImage(const atCol *pPixels, const atVec2I &size);
   atImage(const atVector<atCol> &data, const atVec2I &size);
+  atImage(const uint8_t *pPixels, const atVec2I &size, const int64_t nChannels = 4);
+
   atImage(atImage &&move);
   atImage(const atImage &copy);
 

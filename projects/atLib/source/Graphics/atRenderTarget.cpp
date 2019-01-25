@@ -26,78 +26,69 @@
 #include "atRenderTarget.h"
 #include "atWindow.h"
 #include "atRenderState.h"
+#include "atHardwareTexture.h"
 
 atRenderTarget::~atRenderTarget() { Destroy(); }
 
-atRenderTarget::atRenderTarget(const atWindow *pWindow, const atVec2I &size, const bool vsync, const bool windowed)
+atRenderTarget::atRenderTarget(const int64_t colorTex, const int64_t depthTex) 
+  : m_vsync(false)
+  , m_pWindow(nullptr)
+  , m_pSwapChain(nullptr)
+  , m_windowed(true)
+  , m_colorTexID(colorTex)
+  , m_depthTexID(depthTex)
+{}
+
+atRenderTarget::atRenderTarget(atWindow *pWindow, const atVec2I &size, const bool vsync, const bool windowed)
   : m_vsync(vsync)
   , m_size(size)
   , m_pWindow(pWindow)
-  , m_pDepthStencilBuffer(nullptr)
-  , m_pDepthStencilView(nullptr)
-  , m_pRenderTarget(nullptr)
   , m_pSwapChain(nullptr)
   , m_windowed(windowed)
+  , m_colorTexID(AT_INVALID_ID)
+  , m_depthTexID(AT_INVALID_ID)
+  , m_dirty(true)
 {}
 
-void atRenderTarget::Bind()
+void atRenderTarget::Clear(const atVec4F &color, const float depth)
 {
-  Resize();
-  GetDepthStencilView();
-  GetRenderTarget();
-  GetSwapChain();
-  UINT vpCount = 0;
-  atGraphics::GetContext()->RSGetViewports(&vpCount, nullptr);
-  if (vpCount == 0)
-  {
-    D3D11_VIEWPORT vp;
-    vp.TopLeftX = 0.f;
-    vp.TopLeftY = 0.f;
-    vp.Height = (float)m_size.y;
-    vp.Width = (float)m_size.x;
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    atGraphics::GetContext()->RSSetViewports(1, &vp);
-  }
-  atGraphics::GetContext()->OMSetRenderTargets(1, &m_pRenderTarget, m_pDepthStencilView);
+  GetColourTexID();
+  GetDepthTexID();
+  atTextureContext *pColour = atHardwareTexture::GetTexture(m_colorTexID);
+  atTextureContext *pDepth = atHardwareTexture::GetTexture(m_depthTexID);
+  if(pColour)
+    atGraphics::GetContext()->ClearRenderTargetView(*pColour, &color[0]);
+  if(pDepth)
+    atGraphics::GetContext()->ClearDepthStencilView(*pDepth, D3D11_CLEAR_DEPTH, depth, 0);
 }
 
-void atRenderTarget::Clear(const atVec4F &color)
+int64_t atRenderTarget::GetDepthTexID()
 {
-  atGraphics::GetContext()->ClearRenderTargetView(m_pRenderTarget, &color[0]);
-  atGraphics::GetContext()->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+  if (m_depthTexID == AT_INVALID_ID && m_pWindow)
+    m_depthTexID = atHardwareTexture::UploadDepthTexture(nullptr, m_size, 4);
+  return m_depthTexID;
+}
+
+int64_t atRenderTarget::GetColourTexID()
+{
+  if (m_colorTexID == AT_INVALID_ID && m_pWindow)
+    GetWindowRenderTarget();
+  return m_colorTexID;
 }
 
 bool atRenderTarget::Resize()
 {
-  if (m_size == m_pWindow->Size() && m_windowed == m_pWindow->IsWindowed())
-    return false;
-  Destroy();
+  if (m_pWindow)
+  {
+    if (m_size == m_pWindow->Size() && m_windowed == m_pWindow->IsWindowed())
+      return false;
+    Destroy();
 
-  m_size = m_pWindow->Size();
-  m_windowed = m_pWindow->IsWindowed();
-  return true;
-}
-
-ID3D11DepthStencilView* atRenderTarget::GetDepthStencilView()
-{
-  if (!m_pDepthStencilView)
-    CreateDepthStencil();
-  return m_pDepthStencilView;
-}
-
-ID3D11RenderTargetView* atRenderTarget::GetRenderTarget()
-{
-  if (!m_pRenderTarget)
-    CreateRenderTarget();
-  return m_pRenderTarget;
-}
-
-ID3D11Texture2D* atRenderTarget::GetDepthStencilBuffer()
-{
-  if (!m_pDepthStencilBuffer)
-    CreateDepthStencil();
-  return m_pDepthStencilBuffer;
+    m_size = m_pWindow->Size();
+    m_windowed = m_pWindow->IsWindowed();
+    return true;
+  }
+  return false;
 }
 
 IDXGISwapChain* atRenderTarget::GetSwapChain()
@@ -109,6 +100,9 @@ IDXGISwapChain* atRenderTarget::GetSwapChain()
 
 void atRenderTarget::CreateSwapChain()
 {
+  if (!m_pWindow)
+    return;
+
   DXGI_SWAP_CHAIN_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
   desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -131,60 +125,32 @@ void atRenderTarget::CreateSwapChain()
     m_pSwapChain = nullptr;
 }
 
-void atRenderTarget::CreateDepthStencil()
+void atRenderTarget::GetWindowRenderTarget()
 {
-  if (m_pDepthStencilBuffer || !atGraphics::GetDevice())
-    return;
-
-  {
-    D3D11_TEXTURE2D_DESC desc;
-    desc.Width = m_size.x;
-    desc.Height = m_size.y;
-    desc.MipLevels = 1;
-    desc.ArraySize = 1;
-    desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    desc.SampleDesc.Count = 4;
-    desc.SampleDesc.Quality = 0;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
-
-    if (FAILED(atGraphics::GetDevice()->CreateTexture2D(&desc, NULL, &m_pDepthStencilBuffer)))
-      return;
-  }
-  
-  {
-    D3D11_DEPTH_STENCIL_VIEW_DESC desc;
-    desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-    desc.Texture2D.MipSlice = 0;
-    desc.Flags = 0;
-    if (FAILED(atGraphics::GetDevice()->CreateDepthStencilView(m_pDepthStencilBuffer, &desc, &m_pDepthStencilView)))
-      return;
-  }
-}
-
-void atRenderTarget::CreateRenderTarget()
-{
-  if (m_pRenderTarget || !GetSwapChain() || !atGraphics::GetDevice())
+  if (m_colorTexID != AT_INVALID_ID || !GetSwapChain() || !atGraphics::GetDevice())
     return;
 
   ID3D11Texture2D *pBackbuffer = nullptr;
   if (FAILED(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackbuffer)))
     return;
-
-  if (FAILED(atGraphics::GetDevice()->CreateRenderTargetView(pBackbuffer, NULL, &m_pRenderTarget)))
-    return;
-  atGraphics::SafeRelease(pBackbuffer);
+  m_colorTexID = atHardwareTexture::AddTexture(pBackbuffer, false);
 }
 
 void atRenderTarget::Destroy()
 {
   atGraphics::SafeRelease(m_pSwapChain);
-  atGraphics::SafeRelease(m_pDepthStencilView);
-  atGraphics::SafeRelease(m_pRenderTarget);
-  atGraphics::SafeRelease(m_pDepthStencilBuffer);
+  atHardwareTexture::DeleteTexture(m_colorTexID);
+  atHardwareTexture::DeleteTexture(m_depthTexID);
+  m_colorTexID = AT_INVALID_ID;
+  m_depthTexID = AT_INVALID_ID;
+  m_dirty = true;
 }
 
-void atRenderTarget::Swap() { m_pSwapChain->Present(m_vsync ? 1 : 0, 0); }
+bool atRenderTarget::Dirty()
+{
+  bool res = m_dirty;
+  m_dirty = false;
+  return res;
+}
+
+void atRenderTarget::Swap() { m_pSwapChain->Present(m_vsync ? 1 : 0, 0);  }

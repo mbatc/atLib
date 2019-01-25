@@ -32,15 +32,14 @@ static int64_t s_nextLayoutID = 0;
 #define LOC_BUFFER(loc) loc >> 32 
 #define LOC_VAR(loc) loc & 0xFFFFFFFF
 
-static bool _CompileShader(const atFilename &file, const atString &shadertype, void **ppShader, ID3D10Blob **ppShaderBlob = nullptr)
+static bool _CompileShader(const atString &src, const atString &shadertype, void **ppShader, ID3D10Blob **ppShaderBlob = nullptr)
 {
-  if (!ppShader || !atFile::Exists(file))
+  if (!ppShader || src.length() == 0)
     return false;
 
   ID3D10Blob *pShaderBlob = nullptr;
   ID3D10Blob *pError = nullptr;
-  atWideString wFile = atWideString(file.Path());
-  if (FAILED(D3DCompileFromFile(wFile.c_str(), NULL, NULL, "main", shadertype, D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
+  if (FAILED(D3DCompile(src.c_str(), src.length(), NULL, NULL, NULL, "main", shadertype, D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
   {
     atAssert(false, (char*)pError->GetBufferPointer());
     return false;
@@ -112,14 +111,26 @@ atShader::atShader(const atString &name)
   atString geomPath = filepath.Path(false) + ".gs";
   atString computePath = filepath.Path(false) + ".cs";
   atString domainPath = filepath.Path(false) + ".ds";
-  SetShaders(vertPath, pixelPath, hullPath, geomPath, computePath, domainPath);
+  SetShaders(pixelPath, vertPath, hullPath, geomPath, computePath, domainPath);
   m_name = name;
+}
+
+atShader::atShader(const atString &pixel, const atString &vert, const atString &geometry, const atString &hull, const atString &compute, const atString &domain)
+  : m_pVert(nullptr)
+  , m_pPixel(nullptr)
+  , m_pHull(nullptr)
+  , m_pDomain(nullptr)
+  , m_pComp(nullptr)
+  , m_pGeom(nullptr)
+  , m_reload(false) 
+{
+  SetShadersSource(pixel, vert, geometry, hull, compute, domain);
 }
 
 void atShader::Reload()
 {
   m_reload = true;
-  SetShaders(m_vertPath, m_pixelPath, m_hullPath, m_geomPath, m_computePath, m_domainPath);
+  SetShaders(m_pixelPath, m_vertPath, m_hullPath, m_geomPath, m_computePath, m_domainPath);
 }
 
 void atShader::Bind()
@@ -137,72 +148,44 @@ void atShader::Bind()
     atGraphics::BindShaderResource(desc.shader, desc.type, desc.reg, desc.pDXResource);
 }
 
-bool atShader::SetVertexShader(const atFilename &file)
+void atShader::SetShaders(const atFilename &pixel, const atFilename &vert, const atFilename &hull, const atFilename &geom, const atFilename &compute, const atFilename & domain)
 {
-  atGraphics::SafeRelease(m_pVert);
-  return SetShader(file, &m_vsParser, &m_vsByteCode, &m_vertPath, (void**)&m_pVert, VERTEX_SHADER);
+  if ((hull != m_hullPath || m_reload) && hull.Path() != "") m_regenBuffers |= SetHullShader(hull);
+  if ((vert != m_vertPath || m_reload) && vert.Path() != "") m_regenBuffers |= SetVertexShader(vert);
+  if ((geom != m_geomPath || m_reload) && geom.Path() != "") m_regenBuffers |= SetGeometryShader(geom);
+  if ((pixel != m_pixelPath || m_reload) && pixel.Path() != "") m_regenBuffers |= SetPixelShader(pixel);
+  if ((domain != m_domainPath || m_reload) && domain.Path() != "") m_regenBuffers |= SetDomainShader(domain);
+  if ((compute != m_computePath || m_reload) && compute.Path() != "") m_regenBuffers |= SetComputeShader(compute);
+  GenerateBuffers();
+  m_reload = false;
 }
 
-bool atShader::SetPixelShader(const atFilename &file)
+void atShader::SetShadersSource(const atString &pixel, const atString &vert, const atString &hull, const atString &geom, const atString &compute, const atString &domain)
 {
-  atGraphics::SafeRelease(m_pPixel);
-  return SetShader(file, &m_psParser, &m_psByteCode, &m_pixelPath, (void**)&m_pPixel, PIXEL_SHADER);
-}
-
-bool atShader::SetHullShader(const atFilename &file)
-{
-  atGraphics::SafeRelease(m_pHull);
-  return SetShader(file, &m_hsParser, &m_hsByteCode, &m_hullPath, (void**)&m_pHull, HULL_SHADER);
-}
-
-bool atShader::SetGeometryShader(const atFilename &file)
-{
-  atGraphics::SafeRelease(m_pGeom);
-  return SetShader(file, &m_gsParser, &m_gsByteCode, &m_geomPath, (void**)&m_pGeom, GEOM_SHADER);
-}
-
-bool atShader::SetComputeShader(const atFilename &file)
-{
-  atGraphics::SafeRelease(m_pComp);
-  return SetShader(file, &m_csParser, &m_csByteCode, &m_computePath, (void**)&m_pComp, COMPUTE_SHADER);
-}
-
-bool atShader::SetDomainShader(const atFilename &file)
-{
-  atGraphics::SafeRelease(m_pDomain);
-  return SetShader(file, &m_dsParser, &m_dsByteCode, &m_domainPath, (void**)&m_pDomain, DOMAIN_SHADER);
-}
-
-void atShader::SetShaders(const atFilename &vert, const atFilename &pixel, const atFilename &hull, const atFilename &geom, const atFilename &compute, const atFilename & domain)
-{
-  if ((vert != m_vertPath || m_reload) && vert.Path() != "")
-    m_regenBuffers |= SetVertexShader(vert);
-
-  if ((pixel != m_pixelPath || m_reload) && pixel.Path() != "")
-    m_regenBuffers |= SetPixelShader(pixel);
-
-  if ((hull != m_hullPath || m_reload) && hull.Path() != "")
-    m_regenBuffers |= SetHullShader(hull);
-
-  if ((geom != m_geomPath || m_reload) && geom.Path() != "")
-    m_regenBuffers |= SetGeometryShader(hull);
-
-  if ((domain != m_domainPath || m_reload) && domain.Path() != "")
-    m_regenBuffers |= SetDomainShader(hull);
-  
-  if ((compute != m_computePath || m_reload) && compute.Path() != "")
-    m_regenBuffers |= SetComputeShader(hull);
-
+  if (hull != "") m_regenBuffers |= SetHullShaderSource(hull);
+  if (vert != "") m_regenBuffers |= SetVertexShaderSource(vert);
+  if (pixel != "") m_regenBuffers |= SetPixelShaderSource(pixel);
+  if (geom != "") m_regenBuffers |= SetGeometryShaderSource(geom);
+  if (domain != "") m_regenBuffers |= SetDomainShaderSource(domain);
+  if (compute != "") m_regenBuffers |= SetComputeShaderSource(compute);
   GenerateBuffers();
   m_reload = false;
 }
 
 bool atShader::SetShader(const atFilename &file, atShaderParser *pParser, atVector<uint8_t> *pByteCode, atFilename *pCurFile, void **ppDXObject, const char *shaderType)
 {
+  if (!SetShaderSource(atFile::ReadText(file), pParser, pByteCode, pCurFile, ppDXObject, shaderType))
+    return false;
+  *pCurFile = file;
+  return true;
+}
+
+bool atShader::SetShaderSource(const atString &src, atShaderParser *pParser, atVector<uint8_t> *pByteCode, atFilename *pCurFile, void **ppDXObject, const char *shaderType)
+{
   bool res = true;
   ID3D10Blob *pShader = nullptr;
-  if (file.Path() != "")
-    res = _CompileShader(file, shaderType, ppDXObject, &pShader);
+  if (src != "")
+    res = _CompileShader(src, shaderType, ppDXObject, &pShader);
   if (!pShader)
     return res;
 
@@ -213,8 +196,8 @@ bool atShader::SetShader(const atFilename &file, atShaderParser *pParser, atVect
 
   if (res)
   {
-    *pParser = atShaderParser(file);
-    *pCurFile = file;
+    *pParser = atShaderParser(src);
+    *pCurFile = "";
   }
   return res;
 }
@@ -365,3 +348,75 @@ bool atShader::SetResource(const atString &name, void *pData, const int64_t len)
 }
 
 const atString& atShader::GetName() const { return m_name; }
+
+bool atShader::SetHullShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pHull);
+  return SetShaderSource(src, &m_hsParser, &m_hsByteCode, &m_hullPath, (void**)&m_pHull, HULL_SHADER);
+}
+
+bool atShader::SetVertexShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pVert);
+  return SetShaderSource(src, &m_vsParser, &m_vsByteCode, &m_vertPath, (void**)&m_pVert, VERTEX_SHADER);
+}
+
+bool atShader::SetPixelShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pPixel);
+  return SetShaderSource(src, &m_psParser, &m_psByteCode, &m_pixelPath, (void**)&m_pPixel, PIXEL_SHADER);
+}
+
+bool atShader::SetGeometryShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pGeom);
+  return SetShaderSource(src, &m_gsParser, &m_gsByteCode, &m_geomPath, (void**)&m_pGeom, GEOM_SHADER);
+}
+
+bool atShader::SetComputeShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pComp);
+  return SetShaderSource(src, &m_csParser, &m_csByteCode, &m_computePath, (void**)&m_pComp, COMPUTE_SHADER);
+}
+
+bool atShader::SetDomainShaderSource(const atString &src)
+{
+  atGraphics::SafeRelease(m_pDomain);
+  return SetShaderSource(src, &m_dsParser, &m_dsByteCode, &m_domainPath, (void**)&m_pDomain, DOMAIN_SHADER);
+}
+
+bool atShader::SetVertexShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pVert);
+  return SetShader(file, &m_vsParser, &m_vsByteCode, &m_vertPath, (void**)&m_pVert, VERTEX_SHADER);
+}
+
+bool atShader::SetPixelShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pPixel);
+  return SetShader(file, &m_psParser, &m_psByteCode, &m_pixelPath, (void**)&m_pPixel, PIXEL_SHADER);
+}
+
+bool atShader::SetHullShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pHull);
+  return SetShader(file, &m_hsParser, &m_hsByteCode, &m_hullPath, (void**)&m_pHull, HULL_SHADER);
+}
+
+bool atShader::SetGeometryShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pGeom);
+  return SetShader(file, &m_gsParser, &m_gsByteCode, &m_geomPath, (void**)&m_pGeom, GEOM_SHADER);
+}
+
+bool atShader::SetComputeShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pComp);
+  return SetShader(file, &m_csParser, &m_csByteCode, &m_computePath, (void**)&m_pComp, COMPUTE_SHADER);
+}
+
+bool atShader::SetDomainShader(const atFilename &file)
+{
+  atGraphics::SafeRelease(m_pDomain);
+  return SetShader(file, &m_dsParser, &m_dsByteCode, &m_domainPath, (void**)&m_pDomain, DOMAIN_SHADER);
+}

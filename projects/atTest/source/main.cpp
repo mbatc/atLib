@@ -86,6 +86,10 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Main program loop
   atRenderState rs;
+
+  // A Render target must be set before attempting to render
+  // this can be an atWindow or atRenderTarget with a color/depth texture attached
+  rs.SetRenderTarget(&window);
   while (atInput::Update(true)) // Process user inputs
   {
     // Update camera
@@ -148,6 +152,10 @@ void ExampleRenderText()
   rs.SetBlendEnabled(true);
   rs.SetDepthReadEnabled(false);
   rs.SetScissorEnabled(true);
+
+  // A Render target must be set before attempting to render
+  // this can be an atWindow or atRenderTarget with a color/depth texture attached
+  rs.SetRenderTarget(&window);
 
   while (atInput::Update())
   {
@@ -326,6 +334,9 @@ void ExampleCreateScene()
 {
   atWindow window;
   atScene scene;
+  
+  atRenderState rs;
+  rs.SetRenderTarget(&window);
 
   // Create camera
   atSceneNode *pNode = scene.CreateNode({ 2, 1, 5 });
@@ -362,6 +373,36 @@ void ExampleCreateScene()
   }
 }
 
+#include "atImGui.h"
+
+void ExampleImGui()
+{
+  atWindow window;
+  atRenderState rs;
+  rs.SetRenderTarget(&window);
+
+  while (atInput::Update())
+  {
+    window.Clear({ 0, 0.5, 0.5, 1 });
+    atImGui::BeginFrame(window);
+    static char input[512] = "initial";
+    if (ImGui::Begin("Test Window"))
+    {
+      ImGui::Text("Hello from dear imgui");
+      ImGui::InputText("", input, 512);
+    }
+    ImGui::End();
+
+    if (ImGui::Begin("Text Window No. 2"))
+      ImGui::Text("Hello from dear imgui no. 2");
+    ImGui::End();
+
+    atImGui::EndFrame();
+    atImGui::Render();
+    window.Swap();
+  }
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 
@@ -374,10 +415,11 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  ExampleRenderMesh();
+  // ExampleRenderMesh();
   // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
+  // ExampleImGui();
 
   // Not Quite Functional
   

@@ -26,44 +26,51 @@
 #ifndef _atRenderTarget_h__
 #define _atRenderTarget_h__
 
-#include "atGraphics.h"
 #include "atMath.h"
+#include "atGraphics.h"
+#include "atTextureContext.h"
 
 class atWindow;
+class atRenderState;
 
 class atRenderTarget
 {
+  friend atWindow;
+  friend atRenderState;
+
 public:
-  atRenderTarget(const atWindow *pWindow, const atVec2I &size, const bool vsync = true, const bool windowed = true);
+  atRenderTarget(const int64_t colorTex, const int64_t depthTex = AT_INVALID_ID);
+  atRenderTarget(atWindow *pWindow, const atVec2I &size, const bool vsync = true, const bool windowed = true);
   ~atRenderTarget();
 
-  void Bind();
-  void Swap();
-  void Clear(const atVec4F &color);
+  void Clear(const atVec4F &color, const float depth = 1.0f);
+
+  int64_t GetDepthTexID();
+  int64_t GetColourTexID();
 
 protected:
+  // Use to present the render target to the window (only valid if an atWindow is bound)
+  void Swap();
+  bool Dirty();
+
   bool Resize();
   void Destroy();
 
-  ID3D11DepthStencilView* GetDepthStencilView();
-  ID3D11RenderTargetView* GetRenderTarget();
-  ID3D11Texture2D* GetDepthStencilBuffer();
+  // Swap chain is created if the target is an atWindow
+  void CreateSwapChain();
+  void GetWindowRenderTarget();
   IDXGISwapChain* GetSwapChain();
 
-  void CreateSwapChain();
-  void CreateDepthStencil();
-  void CreateRenderTarget();
-
-  ID3D11DepthStencilView *m_pDepthStencilView;
-  ID3D11RenderTargetView *m_pRenderTarget;
-  ID3D11Texture2D *m_pDepthStencilBuffer;
+  int64_t m_colorTexID;
+  int64_t m_depthTexID;
   IDXGISwapChain *m_pSwapChain;
 
   atVec2I m_size;
+  bool m_dirty;
   bool m_vsync;
   bool m_windowed;
 
-  const atWindow *m_pWindow;
+  atWindow *m_pWindow;
 };
 
 #endif
