@@ -62,27 +62,48 @@ int64_t atHardwareTexture::CreateSampler(const int64_t filter, const atTexCoordM
   return s_samplerCounter++;
 }
 
-int64_t atHardwareTexture::UploadTexture(const atFilename &file, const bool genMipmaps)
+int64_t atHardwareTexture::AddTexture(ID3D11Texture2D *pTexture, const bool genMipmaps, const int64_t sampleCount)
+{
+  s_textures.Add(s_imageCounter, atNew<atTextureContext>(pTexture, genMipmaps, sampleCount));
+  return s_imageCounter++;
+}
+
+int64_t atHardwareTexture::UploadTexture(const atFilename &file, const bool genMipmaps, const int64_t sampleCount)
 {
   int64_t *pID = s_imageID.TryGet(file);
   if (pID)
     return *pID;
   s_imageID.Add(file, s_imageCounter);
-  return UploadTexture(atImage(file), genMipmaps);
+  return UploadTexture(atImage(file), genMipmaps, sampleCount);
 }
 
-int64_t atHardwareTexture::UploadTexture(const atImage &image, const bool genMipmaps)
+int64_t atHardwareTexture::UploadTexture(const atImage &image, const bool genMipmaps, const int64_t sampleCount)
 {
-  s_textures.Add(s_imageCounter, atNew<atTextureContext>(image, genMipmaps));
+  s_textures.Add(s_imageCounter, atNew<atTextureContext>(image, genMipmaps, sampleCount));
   return s_imageCounter++;
 }
 
-bool atHardwareTexture::UpdateTexture(const int64_t id, const atImage &image, const bool genMipmaps)
+bool atHardwareTexture::UpdateTexture(const int64_t id, const atImage &image, const bool genMipmaps, const int64_t sampleCount)
 {
   atTextureContext **ppTex = s_textures.TryGet(id);
   if(!ppTex)
     return false;
-  (*ppTex)->UpdateTexture(image, genMipmaps);
+  (*ppTex)->UpdateTexture(image, genMipmaps, sampleCount);
+  return true;
+}
+
+int64_t atHardwareTexture::UploadDepthTexture(const float *pPixels, const atVec2I &size, const int64_t sampleCount)
+{
+  s_textures.Add(s_imageCounter, atNew<atTextureContext>(pPixels, size, true, false, sampleCount));
+  return s_imageCounter++;
+}
+
+bool atHardwareTexture::UpdateDepthTexture(const int64_t id, const float *pPixels, const atVec2I &size, const int64_t sampleCount)
+{
+  atTextureContext **ppTex = s_textures.TryGet(id);
+  if (!ppTex)
+    return false;
+  (**ppTex) = atTextureContext(pPixels, size, true, false, sampleCount);
   return true;
 }
 
@@ -104,8 +125,9 @@ void atHardwareTexture::DeleteSampler(const int64_t id)
   s_sampler_store.Remove(id);
 }
 
-void* atHardwareTexture::GetTexture(const int64_t id) { atTextureContext **ppTexture = s_textures.TryGet(id); return ppTexture ? *ppTexture : nullptr; }
+atTextureContext* atHardwareTexture::GetTexture(const int64_t id) { atTextureContext **ppTexture = s_textures.TryGet(id); return ppTexture ? *ppTexture : nullptr; }
 void* atHardwareTexture::GetSampler(const int64_t id) { ID3D11SamplerState **ppSampler = s_sampler_store.TryGet(id); return ppSampler ? *ppSampler : nullptr; }
+int64_t atHardwareTexture::UploadTexture(const atCol *pPixels, const atVec2I &size, const bool genMipmaps, const int64_t sampleCount) { return UploadTexture(atImage(pPixels, size), genMipmaps, sampleCount); }
 
 // A hacky way of releasing resources when the program ends
 struct CleanupStruct

@@ -36,8 +36,12 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 bool atWindow_PumpMessage();
 int atWindow_GetResult();
 
+class atRenderState;
+
 class atWindow
 {
+  friend atRenderState;
+
 public:
   struct Pixel { Pixel(const char r, const char g, const char b) : r(r), g(g), b(b) {} unsigned char b, g, r; };
 
@@ -55,14 +59,6 @@ public:
   void SetSize(const atVec2I &size);
   void SetStyle(const int64_t style);
   void SetWindowed(const bool windowed);
-
-  const atVec2I &Size();
-  int32_t Width();
-  int32_t Height();
-
-  const atVec2I &GetPos();
-  int32_t GetX();
-  int32_t GetY();
 
   const atVec2I &Size() const;
   int32_t Width() const;
@@ -84,9 +80,9 @@ public:
 
   bool MakeWindow();
   void Destroy();
+  void OnResize();
 
 protected:
-  void UpdateWindowRect();
   void SetWindowRect();
   void LoadDefaultResources();
   void ResizePixels();

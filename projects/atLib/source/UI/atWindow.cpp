@@ -27,9 +27,12 @@
 #include "atInput.h"
 #include <Windowsx.h>
 #include <time.h>
+#include "atImGui.h"
+#include "atHashMap.h"
 
 static MSG s_msg;
 static int64_t s_lastClock = 0;
+static atHashMap<int64_t, atWindow*> _windows;
 
 bool atWindow_PumpMessage()
 {
@@ -46,22 +49,40 @@ bool atWindow_PumpMessage()
 
 int atWindow_GetResult() { return (int)s_msg.wParam; }
 
+
 LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   const double dt = (double)(clock() - s_lastClock) / (double)CLOCKS_PER_SEC;
+  if (!atImGui::ProcessMessage(hWnd, msg, wParam, lParam))
+  {
+    // Messages blocked by ImGui windows
+    switch (msg)
+    {
+    case WM_KEYDOWN: atInput::OnKeyDown(wParam, dt); break;
+    case WM_LBUTTONDOWN: atInput::OnMouseDown(atMB_Left, dt); break;
+    case WM_RBUTTONDOWN: atInput::OnMouseDown(atMB_Right, dt); break;
+    case WM_MBUTTONDOWN: atInput::OnMouseDown(atMB_Middle, dt); break;
+    case WM_MOUSEWHEEL: atInput::OnMouseWheel((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
+    case WM_MOUSEHWHEEL: atInput::OnMouseWheelH((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
+    }
+  }
+
   switch (msg)
   {
   case WM_CLOSE:  PostQuitMessage(0); break;
   case WM_DESTROY: PostQuitMessage(0); break; 
   case WM_KEYUP: atInput::OnKeyUp(wParam, dt); break;
-  case WM_KEYDOWN: atInput::OnKeyDown(wParam, dt); break;
   case WM_LBUTTONUP: atInput::OnMouseUp(atMB_Left, dt); break;
   case WM_RBUTTONUP: atInput::OnMouseUp(atMB_Right, dt); break;
   case WM_MBUTTONUP: atInput::OnMouseUp(atMB_Middle, dt); break;
-  case WM_LBUTTONDOWN: atInput::OnMouseDown(atMB_Left, dt); break;
-  case WM_RBUTTONDOWN: atInput::OnMouseDown(atMB_Right, dt); break;
-  case WM_MBUTTONDOWN: atInput::OnMouseDown(atMB_Middle, dt); break;
   case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
+  case WM_SIZE: case WM_MOVE:
+  {
+    atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
+    if (ppTarget)
+      (*ppTarget)->OnResize();
+  }
+  break;
   default: return DefWindowProc(hWnd, msg, wParam, lParam);
   }
   atInput::SetDT(dt);
@@ -104,11 +125,7 @@ void atWindow::Clear(const Pixel color)
   Clear(atVec4F((float)color.r / 255.f, (float)color.g / 255.f, (float)color.b / 255.f, 1.0f));
 }
 
-void atWindow::Clear(const atVec4F &color)
-{
-  m_dxTarget.Bind();
-  m_dxTarget.Clear(color);
-}
+void atWindow::Clear(const atVec4F &color) { m_dxTarget.Clear(color); }
 
 void atWindow::Clear(const char r, const char g, const char b) { Clear(Pixel(b, g, r)); }
 
@@ -150,6 +167,7 @@ bool atWindow::MakeWindow()
   UpdateWindow(m_hWnd); 
   ShowWindow(m_hWnd, SW_SHOWDEFAULT);
   atInput::RegisterWindow(m_hWnd);
+  _windows.Add((int64_t)m_hWnd, this);
   return true;
 }
 
@@ -185,7 +203,7 @@ bool atWindow::WINCreate()
   return m_hWnd != nullptr;
 }
 
-void atWindow::UpdateWindowRect()
+void atWindow::OnResize()
 {
   RECT clientRect, wndRect;
   GetClientRect(m_hWnd, &clientRect);
@@ -193,6 +211,7 @@ void atWindow::UpdateWindowRect()
   m_clientSize = atVec2I(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
   m_size = atVec2I(wndRect.right - wndRect.left, wndRect.bottom - wndRect.top);
   m_pos = atVec2I(wndRect.left, wndRect.top);
+  m_dxTarget.Resize();
 }
 
 void atWindow::SetWindowRect()
@@ -213,7 +232,7 @@ void atWindow::LoadDefaultResources()
 
 void atWindow::ResizePixels()
 {
-  if (!m_hWnd || m_size.x * m_size.y == m_pixels.size())
+  if (!m_hWnd || m_clientSize.x * m_clientSize.y == m_pixels.size())
     return;
 
   if (m_hardware)
@@ -222,7 +241,7 @@ void atWindow::ResizePixels()
     return;
   }
 
-  m_pixels.resize(m_size.x * m_size.y);
+  m_pixels.resize(m_clientSize.x * m_clientSize.y);
 }
 
 void atWindow::Destroy() 
@@ -230,38 +249,23 @@ void atWindow::Destroy()
   if (m_hWnd)
   {
     atInput::UnRegisterWindow(m_hWnd);
+    _windows.Remove((int64_t)m_hWnd);
     DestroyWindow(m_hWnd);
     m_hWnd = NULL;
   }
   m_pixels.clear();
 }
 
-const atVec2I& atWindow::Size() 
-{
-  UpdateWindowRect();
-  return m_clientSize; 
-}
-
-const atVec2I& atWindow::GetPos()
-{ 
-  UpdateWindowRect();
-  return m_pos;
-}
-
+const atVec2I& atWindow::GetPos() const { return m_pos; }
+const atVec2I& atWindow::Size() const { return m_clientSize; }
 void atWindow::SetStyle(const int64_t style) { m_style = style; }
-void atWindow::SetWindowed(const bool windowed) { m_windowed = windowed; }
+void atWindow::SetWindowed(const bool windowed) { m_windowed = windowed; m_dxTarget.Resize(); }
 void atWindow::SetMenu(HMENU hMenu) { m_hMenu = hMenu; }
 void atWindow::SetIcon(HICON hIcon) { m_hIcon = hIcon; }
 void atWindow::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
 void atWindow::SetParent(const atWindow &window) { m_hWnd = window.GetHandle(); }
 void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
 HWND atWindow::GetHandle() const { return m_hWnd; }
-const atVec2I& atWindow::Size() const { return m_clientSize; }
-const atVec2I& atWindow::GetPos() const { return m_pos; }
-int32_t atWindow::Width() { return Size().x; }
-int32_t atWindow::Height() { return Size().y; }
-int32_t atWindow::GetX() { return GetPos().x; }
-int32_t atWindow::GetY() { return GetPos().y; }
 int32_t atWindow::Width() const { return Size().x; }
 int32_t atWindow::Height() const { return Size().y; }
 int32_t atWindow::GetX() const { return GetPos().x; }

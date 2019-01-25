@@ -136,7 +136,7 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
   PopTexture();
 }
 
-void atPrimitiveRenderer::Draw(const atWindow &wnd)
+void atPrimitiveRenderer::Draw(atWindow &wnd)
 {
   atAssert(DrawContext::clip.size() == 0, "Mismatched Push/Pop Clip Rects");
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
