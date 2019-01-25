@@ -255,6 +255,7 @@ void atWindow::SetIcon(HICON hIcon) { m_hIcon = hIcon; }
 void atWindow::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
 void atWindow::SetParent(const atWindow &window) { m_hWnd = window.GetHandle(); }
 void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
+atVec2I atWindow::DisplaySize() { return atVec2I(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)); }
 HWND atWindow::GetHandle() const { return m_hWnd; }
 const atVec2I& atWindow::Size() const { return m_clientSize; }
 const atVec2I& atWindow::GetPos() const { return m_pos; }

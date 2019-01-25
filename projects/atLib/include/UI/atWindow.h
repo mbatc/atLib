@@ -39,7 +39,7 @@ int atWindow_GetResult();
 class atWindow
 {
 public:
-  struct Pixel { Pixel(const char r, const char g, const char b) : r(r), g(g), b(b) {} unsigned char b, g, r; };
+  struct Pixel { Pixel(const unsigned char r = 255, const unsigned char g = 255, const unsigned char b = 255) : r(r), g(g), b(b) {} unsigned char b, g, r; };
 
   atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const bool hardware = true, const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const int64_t style = WS_OVERLAPPEDWINDOW);
   ~atWindow();
@@ -84,6 +84,8 @@ public:
 
   bool MakeWindow();
   void Destroy();
+
+  static atVec2I DisplaySize();
 
 protected:
   void UpdateWindowRect();

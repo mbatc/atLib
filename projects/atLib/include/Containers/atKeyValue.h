@@ -1,4 +1,4 @@
-
+\
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -29,6 +29,8 @@
 template <class Key, class Val> class atKeyValue
 {
 public:
+  atKeyValue() {}
+
   atKeyValue(const Key &key, const Val &val)
     : m_key(key)
     , m_val(val)

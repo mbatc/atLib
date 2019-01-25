@@ -136,7 +136,7 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
   PopTexture();
 }
 
-void atPrimitiveRenderer::Draw(const atWindow &wnd)
+void atPrimitiveRenderer::Draw(const atVec2I &dimensions)
 {
   atAssert(DrawContext::clip.size() == 0, "Mismatched Push/Pop Clip Rects");
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
@@ -146,10 +146,10 @@ void atPrimitiveRenderer::Draw(const atWindow &wnd)
   atRenderState rs;
   for (atFont &f : DrawContext::fonts)
     f.GetTextureID();
-  
+
   ro.SetShader("assets/shaders/text");
   ro.SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
-  ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)wnd.Width(), (float)wnd.Height(), -1.f, 1.f)), atRRT_Variable);
+  ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)), atRRT_Variable);
   for (DrawData &dd : DrawContext::drawList)
   {
     rs.SetScissor(dd.clipRect);
@@ -201,6 +201,7 @@ void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const doub
 }
 
 atVec2I atPrimitiveRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
+void atPrimitiveRenderer::Draw(const atWindow &wnd) { Draw(wnd.Size()); }
 void atPrimitiveRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
 void atPrimitiveRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
 void atPrimitiveRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }

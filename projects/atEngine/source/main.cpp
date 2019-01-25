@@ -24,10 +24,24 @@
 // -----------------------------------------------------------------------------
 
 #include "atMath.h"
+#include "atWindow.h"
+#include "atInput.h"
+#include "atPrimitiveRenderer.h"
+#include "atRenderState.h"
 
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
-  printf("haha nothing happens yet");
+  atWindow window("atEngine", atWindow::DisplaySize() / 2, true, atWindow::DisplaySize() / 4);
+  atPrimitiveRenderer::SetFont("assets/fonts/RomanSerif.ttf");
+  atRenderState rs;
+  rs.SetBlendEnabled(true);
+  while (atInput::Update(false))
+  {
+    window.Clear(atVec4F(0,0,0,1));
+    atPrimitiveRenderer::AddText(0, 0, "Welcome to atEngine");
+    atPrimitiveRenderer::Draw(window);
+    window.Swap();
+  }
   return 0;
 }

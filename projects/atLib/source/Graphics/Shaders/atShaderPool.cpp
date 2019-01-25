@@ -33,7 +33,7 @@ static int64_t s_boundShader = AT_INVALID_ID;
 
 struct ShaderReference
 {
-  ShaderReference(atShader* pShader)
+  ShaderReference(atShader* pShader = nullptr)
     : pShader(pShader)
     , refCount(0)
   {}

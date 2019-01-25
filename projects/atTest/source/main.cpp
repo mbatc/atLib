@@ -375,7 +375,7 @@ int main(int argc, char **argv)
   
   // ExampleRenderText();
   // ExampleRenderMesh();
-  ExampleCreateScene();
+  // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
 
@@ -384,5 +384,6 @@ int main(int argc, char **argv)
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
   
+  system("pause");
   return atWindow_GetResult();
 }
