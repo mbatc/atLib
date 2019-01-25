@@ -38,7 +38,7 @@ static atCol _LoadChannel3(const uint8_t *pData) { return atColor::Pack(pData[0]
 static atCol _LoadChannel2(const uint8_t *pData) { return atColor::Pack(pData[0], pData[0], pData[0], pData[1]); }
 static atCol _LoadChannel4(const uint8_t *pData) { return *(atCol*)pData; }
 
-static atVector<atCol> _LoadFromMemory(const uint8_t *pData, const atVec2I &size, const int nChannels)
+atVector<atCol> atImageHelper::LoadFromMemory(const uint8_t *pData, const atVec2I &size, const int nChannels)
 {
   atVector<atCol> data;
   atCol (*load_func)(const uint8_t*) = 0;
@@ -49,7 +49,7 @@ static atVector<atCol> _LoadFromMemory(const uint8_t *pData, const atVec2I &size
   if (!load_func) return data;
   data.reserve(size.x * size.y);
   for (int64_t y = 0; y < size.y; ++y)
-    for (int64_t x = 0; x < size.y; ++x)
+    for (int64_t x = 0; x < size.x; ++x)
       data.push_back(load_func(pData + (x * nChannels + y * size.x * nChannels)));
   return data;
 }
@@ -59,7 +59,7 @@ atVector<atCol> atImageHelper::LoadImage(const atFilename &file, atVec2I *pSize)
   atVec2I size;
   int nChannels = 0;
   uint8_t *pData = stbi_load(file.c_str(), &size.x, &size.y, &nChannels, 0);
-  atVector<atCol> rawImage = _LoadFromMemory(pData, size, nChannels);
+  atVector<atCol> rawImage = LoadFromMemory(pData, size, nChannels);
   stbi_image_free(pData);
   *pSize = size;
   return rawImage;

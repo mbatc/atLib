@@ -81,7 +81,12 @@ bool atRenderableCore::Draw(const atRenderable_PrimitiveType type /*= atRPT_Tria
   Rebuild();
   if (m_shaderID == AT_INVALID_ID || m_shaderRound != atShaderPool::ShaderRound())
   {
-    m_shaderID = atShaderPool::GetShader(m_shader); 
+    atShaderPool::ReleaseShader(m_shaderID);
+    if (m_shader.length() > 0)
+      m_shaderID = atShaderPool::GetShader(m_shader);
+    else
+      m_shaderID = atShaderPool::GetShader(m_pixelSource, m_vertSource, m_geomSource, m_hullSource);
+
     m_layoutID = atShaderPool::GetInputLayout(m_shaderID, m_layout);
   }
 
@@ -219,21 +224,7 @@ bool atRenderableCore::Rebuild()
       }
 
     // Create D3D11 Vertex Buffer
-    D3D11_BUFFER_DESC desc;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.ByteWidth = (UINT)rawVert.size();
-    desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
-    desc.StructureByteStride = 0;
-
-    D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = rawVert.data();
-    data.SysMemPitch = 0;
-    data.SysMemSlicePitch = 0;
-
-    m_nVerts = nVerts;
-    res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pVertBuffer));
+    res &= atGraphics::CreateBuffer(&m_pVertBuffer, rawVert.data(), rawVert.size(), D3D11_BIND_VERTEX_BUFFER);
   }
 
   if (ibInvalid || ibCount == 0)
@@ -251,21 +242,9 @@ bool atRenderableCore::Rebuild()
 
     if (pIndices)
     {
-      // Create D3D11 Index Buffer
-      D3D11_BUFFER_DESC desc;
-      desc.Usage = D3D11_USAGE_DEFAULT;
-      desc.ByteWidth = (UINT)pIndices->data.size();
-      desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-      desc.CPUAccessFlags = 0;
-      desc.MiscFlags = 0;
-
-      D3D11_SUBRESOURCE_DATA data;
-      data.pSysMem = pIndices->data.data();
-      data.SysMemPitch = 0;
-      data.SysMemSlicePitch = 0;
-
+      // Create Index Buffer
+      res &= atGraphics::CreateBuffer(&m_pIndexBuffer, pIndices->data.data(), pIndices->data.size(), D3D11_BIND_INDEX_BUFFER);
       m_nIndices = pIndices->count;
-      res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pIndexBuffer));
     }
   }
 
@@ -312,5 +291,21 @@ void atRenderableCore::FreeResource(const atString &name)
   m_resource.Remove(name);
 }
 
+void atRenderableCore::SetShader(const atString &name)
+{
+  atShaderPool::ReleaseShader(m_shaderID);
+  m_shader = name; m_layoutID = -1;
+}
+
+void atRenderableCore::SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom, const atString &hull)
+{
+  atShaderPool::ReleaseShader(m_shaderID);
+  m_layoutID = -1;
+  m_shader = "";
+  m_vertSource = vert;
+  m_pixelSource = pixel;
+  m_geomSource = geom;
+  m_hullSource = hull;
+}
+
 bool atRenderableCore::HasResource(const atString &name) { return m_resource.TryGet(name) != nullptr; }
-void atRenderableCore::SetShader(const atString &name) { m_shader = name; m_layoutID = -1; }

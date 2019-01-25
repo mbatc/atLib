@@ -9,6 +9,7 @@ bool atRenderable::DrawTriangles(const bool indexed) { return m_core.Draw(indexe
 bool atRenderable::DrawTriangleStrip() { return m_core.Draw(atRPT_TriangleStrip); }
 
 void atRenderable::SetShader(const atString &name) { m_core.SetShader(name); }
+void atRenderable::SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom, const atString &hull) { m_core.SetShaderFromSource(pixel, vert, geom, hull); }
 void atRenderable::SetSampler(const atString & name, const int64_t id) { m_core.SetChannel(name, id, atRRT_Sampler); }
 
 void atRenderable::SetTexture(const atString &name, const int64_t id) { m_core.SetChannel(name, id, atRRT_Texture); }

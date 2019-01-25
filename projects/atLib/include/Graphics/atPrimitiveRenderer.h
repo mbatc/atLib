@@ -38,7 +38,7 @@ public:
   // - Resolution being the quality of each character
   // - Scale being how large the font is when displayed at scale 1.0
   static void SetFont(const atFilename &font, const int64_t scale = 24, const int64_t resolution = -1);
-  static void Draw(const atWindow &wnd);
+  static void Draw(atWindow &wnd);
 
   static atVec2I TextSize(const atString &text);
   static atVec4I TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot = { 0, 0 });

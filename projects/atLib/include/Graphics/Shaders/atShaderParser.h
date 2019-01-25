@@ -55,7 +55,9 @@ struct atHLSLBufferDesc
 class atShaderParser
 {
 public:
-  atShaderParser(const atFilename &file = atFilename());
+  atShaderParser() = default;
+  atShaderParser(const atFilename &file);
+  atShaderParser(const atString &src);
   atShaderParser(const atShaderParser &copy);
   atShaderParser(atShaderParser &&move);
 

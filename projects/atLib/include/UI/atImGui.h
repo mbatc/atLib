@@ -23,32 +23,19 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef _atShaderPool_h__
-#define _atShaderPool_h__
+#ifndef atImGui_h__
+#define atImGui_h__
 
-#include "atString.h"
-#include "atRenderable.h"
+#include "atWindow.h"
+#include "../../3rdParty/imgui/imgui.h"
 
-class atShaderPool
+class atImGui
 {
 public:
-  static int64_t GetShader(const atString &filename);
-  static int64_t GetShader(const atString &pixel, const atString &vert, const atString &geometry = "", const atString &hull = "", const atString &compute = "", const atString &domain = "");
-  
-  static void ReleaseShader(const int64_t id);
-  static void ReloadShaders();
-  
-  static int64_t ShaderRound();
-  static int64_t BindShader(const int64_t id);
-  static int64_t BindInputLayout(const int64_t id);
-  static int64_t GetInputLayout(const int64_t id, const atVector<VertexData> &desc);
-
-  // Set a variable in the currently bound shader
-  static bool SetVariable(const int64_t shader, const atString &name, void *pData, int64_t len);
-  static bool SetVariable(const int64_t shader, const int64_t loc, void *pData, int64_t len);
-  static int64_t GetVariableLoc(const int64_t shader, const atString &name);
-
-  static bool IsValid(const int64_t id);
+  static bool BeginFrame(atWindow &wnd);
+  static bool EndFrame();
+  static bool Render();
+  static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
-#endif
+#endif // atImGui_h__

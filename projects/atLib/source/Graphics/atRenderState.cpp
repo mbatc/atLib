@@ -25,6 +25,7 @@
 
 #include "atRenderState.h"
 #include "atShaderPool.h"
+#include "atHardwareTexture.h"
 
 static atRenderState *s_pGlobalState = nullptr;
 
@@ -103,10 +104,30 @@ void atRenderState::Bind()
     atGraphics::GetContext()->RSSetScissorRects(1, &sc);
   }
 
+  // Bind Render Target Textures
+  if (m_activeState.pColourTarget != top.pColourTarget || m_activeState.pDepthTarget != top.pDepthTarget ||
+    (top.pColourTarget && top.pColourTarget->Dirty()) ||
+    (top.pDepthTarget && top.pDepthTarget->Dirty()))
+  {
+    atTextureContext *pTex = top.pColourTarget ? atHardwareTexture::GetTexture(top.pColourTarget->GetColourTexID()) : nullptr;
+    atTextureContext *pDepth = top.pDepthTarget ? atHardwareTexture::GetTexture(top.pDepthTarget->GetDepthTexID()) : nullptr;
+    atGraphics::GetContext()->OMSetRenderTargets(pTex ? 1 : 0, pTex ? *pTex : nullptr, pDepth ? *pDepth : nullptr);
+  }
+
   atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
   atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
 
   m_activeState = top;
+}
+
+void atRenderState::SetRenderTarget(atWindow *pTarget) { SetRenderTarget(&pTarget->m_dxTarget); }
+
+void atRenderState::SetRenderTarget(atRenderTarget *pTarget)
+{
+  if (pTarget->GetColourTexID() != AT_INVALID_ID)
+    MyState().pColourTarget = pTarget;
+  if (pTarget->GetDepthTexID() != AT_INVALID_ID)
+    MyState().pDepthTarget = pTarget;
 }
 
 bool atRenderState::SetShader(const int64_t id, const int64_t inputLayoutID)

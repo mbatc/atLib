@@ -37,7 +37,7 @@ public:
   // Scalar Operations
   //
 
-  template <typename VecType, template <typename> class VecCls, typename ValType> static VecCls<VecType> Assign(VecCls<VecType> *pLhs, const ValType val) { for (VecType &mine : *pLhs) mine = val; return *pLhs; }
+  template <typename VecType, template <typename> class VecCls, typename ValType> static VecCls<VecType> Assign(VecCls<VecType> *pLhs, const ValType val) { for (VecType &mine : *pLhs) mine = (VecType)val; return *pLhs; }
   template <typename VecType, template <typename> class VecCls, typename ValType> static bool Equals(const VecCls<VecType> &lhs, const ValType val) { for (const VecType val : lhs) if (val != (VecType)val) return false; return true; }
   
   template <typename VecType, template <typename> class VecCls, typename ValType> static VecCls<VecType> Add(const VecCls<VecType> &lhs, const ValType val) 
