@@ -30,19 +30,24 @@ flags { "MultiProcessorCompile" }
   -- Third Party
   includedirs { "3rdParty/**" } 
 
+
 -- Third Party Files
 
   files { "3rdParty/**.cpp", "3rdParty/**.h", "3rdParty/**.inl" }
+  files { "3rdParty/sol/sol.hpp" }
 
 -- Project Files
 
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
+
+  links { "LuaLib" }
 
 -- Debug Configuration Settings
 
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
+    libdirs {"3rdParty/lua/Debug/"}
 
 -- Release Configuration Settings
 
@@ -50,3 +55,4 @@ flags { "MultiProcessorCompile" }
     flags { "LinkTimeOptimization" }
     defines { "NDEBUG" }
     optimize "On"
+    libdirs {"3rdParty/lua/Release/"}

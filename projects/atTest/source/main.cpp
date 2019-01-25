@@ -373,6 +373,14 @@ void ExampleCreateScene()
   }
 }
 
+#include "atLua.h"
+
+void ExampleRunLua()
+{
+  atLua lua;
+  lua.RunText("print([[hello from lua]])");
+}
+
 #include "atImGui.h"
 
 void ExampleImGui()
@@ -401,8 +409,7 @@ void ExampleImGui()
     atImGui::Render();
     window.Swap();
   }
-}
-
+  
 #include "atBVH.h"
 #include "atIntersects.h"
 
@@ -425,6 +432,7 @@ int main(int argc, char **argv)
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
+  // ExampleRunLua();
   
   return atWindow_GetResult();
 }
