@@ -81,7 +81,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atSimpleCamera camera(window, { 0, 1, 5 });
+  atSimpleCamera camera(&window, { 0, 1, 5 });
   camera.m_moveSpeed = 1.0f;
 
   // Main program loop

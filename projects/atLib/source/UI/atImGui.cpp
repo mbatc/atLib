@@ -213,11 +213,11 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
   return true;
 }
 
-bool atImGui::BeginFrame(atWindow &wnd)
+bool atImGui::BeginFrame(atWindow *pWnd)
 {
   _Initialise();
   ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = wnd.Size();
+  io.DisplaySize = pWnd->Size();
   io.MousePos = atInput::MousePos();
 
   int64_t curTime;

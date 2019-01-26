@@ -45,13 +45,13 @@ void atCamera::SetViewport(const atVec4I viewport)
 }
 
 atMat4D atCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
-void atCamera::SetViewport(atWindow &wnd) { SetViewport(atVec4I(0, 0, wnd.Width(), wnd.Height())); }
+void atCamera::SetViewport(const atWindow *pWindow) { SetViewport(atVec4I(0, 0, pWindow->Width(), pWindow->Height())); }
 atVec4I atCamera::Viewport() const { return m_viewport; }
 
 // Simple moveable camera implementation
 
 atSimpleCamera::atSimpleCamera(double aspect, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atCamera(aspect, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
-atSimpleCamera::atSimpleCamera(atWindow &wnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSimpleCamera((double)wnd.Size().x / (double)wnd.Size().y, pos, rot, FOV, nearPlane, farPlane) {}
+atSimpleCamera::atSimpleCamera(const atWindow *pWindow, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSimpleCamera((double)pWindow->Size().x / (double)pWindow->Size().y, pos, rot, FOV, nearPlane, farPlane) {}
 atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
 
 bool atSimpleCamera::Update(const double dt)

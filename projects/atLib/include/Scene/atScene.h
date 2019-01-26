@@ -26,6 +26,7 @@
 #ifndef atScene_h__
 #define atScene_h__
 
+#include "atLua.h"
 #include "atHashMap.h"
 #include "atSceneNode.h"
 
@@ -61,12 +62,16 @@ public:
 
   const atVector<int64_t>& GetActiveCameras() const;
 
+  void SetLua(atLua *pLua);
+  atLua* GetLua();
+
   atVec4I m_viewport;
 protected:
   bool Update(atSceneNode *pNode);
   
   double m_dt;
 
+  atLua *m_pLua;
   atSceneNode *m_pRoot;
   atHashMap<int64_t, atSceneNode*> m_nodes;
   atHashMap<const atSceneNode*, int64_t> m_nodeIDs;

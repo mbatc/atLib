@@ -30,7 +30,7 @@ static int64_t _idCounter = 0;
 
 int64_t _GetNextID() { return _idCounter++; }
 
-atScene::atScene() : m_pRoot(nullptr) { m_pRoot = CreateNode(); }
+atScene::atScene() : m_pRoot(nullptr), m_pLua(nullptr) { m_pRoot = CreateNode(); }
 atScene::~atScene() { DeleteNode(m_pRoot); }
 
 int64_t atScene::GetNodeID(const atSceneNode *pNode) const
@@ -112,7 +112,7 @@ bool atScene::Draw(atSceneNode *pCamera)
 {
   if (!pCamera)
     return false;
-  return Draw(pCamera->ID);
+  return Draw(pCamera->ID());
 }
 
 bool atScene::Draw(const int64_t camera)
@@ -133,5 +133,7 @@ bool atScene::DeleteNode(const int64_t id, bool migrateChildren) { return Delete
 const atVector<int64_t>& atScene::GetActiveCameras() const { return m_activeCameras; }
 atVector<int64_t> atScene::GetNodeIDs() const { return m_nodes.GetKeys(); }
 bool atScene::Draw() { return atSceneRenderer::Render(this); }
+void atScene::SetLua(atLua *pLua) { m_pLua = pLua; }
 atSceneNode* atScene::GetRoot() { return m_pRoot; }
 bool atScene::Update() { return Update(m_pRoot); }
+atLua* atScene::GetLua() { return m_pLua; }

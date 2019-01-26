@@ -32,7 +32,7 @@
 class atImGui
 {
 public:
-  static bool BeginFrame(atWindow &wnd);
+  static bool BeginFrame(atWindow *pWnd);
   static bool EndFrame();
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

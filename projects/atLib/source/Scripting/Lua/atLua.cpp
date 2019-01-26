@@ -23,29 +23,78 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#define SOL_CHECK_ARGUMENTS 1
 #include "atLua.h"
 #include "sol.hpp"
 
-static bool _ErrorReport(const sol::protected_function_result &result)
+int _ExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
 {
-  if (!result.valid())
+  printf("An exception occurred in a function, here's what it says:\n\t");
+  if (exception)
   {
-    sol::error err = result;
-    atString str = err.what();
-    printf("%s\n\n", str.c_str());
-    return false;
+    const std::exception& ex = *exception;
+    atString str = ex.what();
+    printf("exception: %s\n\n", str.c_str());
   }
-  return true;
+  else
+  {
+    printf("description: %s\n\n", description.data());
+  }
+  return sol::stack::push(L, description);
 }
 
 atLua::atLua()
 {
   sol::state lua;
   m_pLua = atNew<sol::state>();
+  m_pLua->set_exception_handler(_ExceptionHandler);
   m_pLua->open_libraries();
 }
 
 atLua::~atLua() { atDelete(m_pLua); }
 sol::state * atLua::GetLua() { return m_pLua; }
-bool atLua::RunText(const atString &command) { return _ErrorReport(m_pLua->script(command.c_str())); }
-bool atLua::RunFile(const atString &filename) { return _ErrorReport(m_pLua->script_file(filename.c_str())); }
+bool atLua::RunText(const atString &command) { return m_pLua->script(command.c_str()).valid(); }
+bool atLua::RunFile(const atString &filename) { return m_pLua->script_file(filename.c_str()).valid(); }
+
+void atLua::ExposeImGui()
+{
+  sol::state &lua = *m_pLua;
+  lua["atImGui"] = lua.create_table();
+  sol::state &gui = lua["atImGui"];
+}
+
+void atLua::ExposeScene()
+{
+  sol::state &lua = *m_pLua;
+  if (!lua["atScene"].valid())
+    lua["atScene"] = lua.create_table();
+
+  sol::state &gui = lua["atScene"];
+}
+
+void atLua::ExposeMathTypes()
+{
+  sol::state &lua = *m_pLua;
+  if (!lua["atMath"].valid())
+    lua["atMath"] = lua.create_table();
+
+  sol::state &gui = lua["atMath"];
+}
+
+void atLua::ExposeContainers()
+{
+  sol::state &lua = *m_pLua;
+  if (!lua["atScene"].valid())
+    lua["atScene"] = lua.create_table();
+
+  sol::state &scene = lua["atScene"];
+}
+
+void atLua::ExposeMathFunctions()
+{
+  sol::state &lua = *m_pLua;
+  if (!lua["atMath"].valid())
+    lua["atMath"] = lua.create_table();
+
+  sol::state &math = lua["atMath"];
+}

@@ -28,5 +28,5 @@
 int main(int argc, char **argv)
 {
   atEngine engine(argc, argv);
-  return engine.Result();
+  return (int)engine.Result();
 }

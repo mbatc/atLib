@@ -36,7 +36,7 @@ public:
   atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
   void SetViewport(const atVec4I viewport);
-  void SetViewport(atWindow &wnd);
+  void SetViewport(const atWindow *pWindow);
   atVec4I Viewport() const;
   atMat4D ProjectionMat() const;
 
@@ -57,7 +57,7 @@ class atSimpleCamera : public atCamera, public atTransformable<double>
 {
 public:
   atSimpleCamera(double aspect = 1.0, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
-  atSimpleCamera(atWindow &wnd, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atSimpleCamera(const atWindow *pWindow, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
   atMat4D ViewMat() const;
   bool Update(const double dt) override;
