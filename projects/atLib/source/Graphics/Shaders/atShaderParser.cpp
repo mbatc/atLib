@@ -178,7 +178,15 @@ static int64_t _ParseDataLayout(atHLSLBufferDesc *pLayout, const char *src, int6
   return atMin(offset + 1, len);
 }
 
-atShaderParser::atShaderParser(const atFilename &file) : m_fn(file) { Parse(); }
+atShaderParser::atShaderParser(const atFilename &file)
+  : m_fn(file)
+{
+  Clear();
+  ReadFile();
+  Parse(); 
+}
+
+atShaderParser::atShaderParser(const atString &src) : m_src(src) { Parse(); }
 
 atShaderParser::atShaderParser(const atShaderParser &copy)
   : m_fn(copy.m_fn)
@@ -198,8 +206,7 @@ atShaderParser::atShaderParser(atShaderParser &&move)
 
 bool atShaderParser::Parse()
 {
-  Clear();
-  if (!ReadFile())
+  if(m_src == "")
     return false;
 
   atVector<atVec4I64> usedReg(atHLSLBT_Count,  atVec4I64::zero());

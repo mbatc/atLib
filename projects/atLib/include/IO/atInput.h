@@ -190,7 +190,12 @@ public:
 
   static atVec2I MouseDelta();
   static atVec2F MouseDirection();
-  static const atVec2I& MousePos();
+  static void OnMouseWheel(const float scroll);
+  static void OnMouseWheelH(const float scroll);
+  static const float MouseScrollX();
+  static const float MouseScrollY();
+  static const atVec2F& MouseScroll();
+  static const atVec2F& MousePos();
   static const atVec2F& MouseVelocity();
   static void SetMousePos(const atVec2I& pos, const bool updateLastPos = true);
 

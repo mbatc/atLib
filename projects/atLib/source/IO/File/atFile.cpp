@@ -83,6 +83,24 @@ int64_t atFile::Write(void *pData, const int64_t len)
   return fwrite(pData, sizeof(uint8_t), (size_t)len / sizeof(uint8_t), m_pFile);
 }
 
+atString atFile::ReadText()
+{
+  if (!IsOpen())
+    return "";
+  atVector<char> data(m_info.Size(), 0);
+  Read(data.data(), data.size());
+  return data.data();
+}
+
+atString atFile::ReadText(const atFilename &filename)
+{
+  atFile file;
+  atString ret;
+  if (file.Open(filename))
+    ret = file.ReadText();
+  return ret;
+}
+
 bool atFile::Flush()
 {
   if (!IsOpen())

@@ -25,14 +25,13 @@
 
 #include "atAssert.h"
 #include <crtdbg.h>
+#include <Windows.h>
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
   if (!cond)
-#ifdef _DEBUG
-    if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
-#endif
-  _CrtDbgBreak();
+    if(_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+      _CrtDbgBreak();
 }
 
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)

@@ -25,15 +25,16 @@
 
 #include "atTextureContext.h"
 #include "atImage.h"
+#include "atFormat.h"
 
-static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture, const bool genMipmaps)
+static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture, const bool genMipmaps, const int64_t sampleCount)
 {
   ID3D11ShaderResourceView *pView = nullptr;
 
   D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
   desc.Texture2D.MipLevels = genMipmaps ? -1 : 1;
   desc.Texture2D.MostDetailedMip = 0;
-  desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  desc.ViewDimension = sampleCount > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
   desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
   atGraphics::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pView);
@@ -42,10 +43,16 @@ static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture, const 
   return pView;
 }
 
-static ID3D11DepthStencilView *_CreateDSView(ID3D11Texture2D *pTexture)
+static ID3D11DepthStencilView *_CreateDSView(ID3D11Texture2D *pTexture, const int64_t sampleCount)
 {
   ID3D11DepthStencilView *pView = nullptr;
-  atGraphics::GetDevice()->CreateDepthStencilView(pTexture, nullptr, &pView);
+  D3D11_DEPTH_STENCIL_VIEW_DESC desc{};
+  desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  desc.ViewDimension = sampleCount > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+  desc.Texture2D.MipSlice = 0;
+  desc.Flags = 0;
+
+  atGraphics::GetDevice()->CreateDepthStencilView(pTexture, &desc, &pView);
   return pView;
 }
 
@@ -63,23 +70,36 @@ static ID3D11UnorderedAccessView *_CreateUAView(ID3D11Texture2D *pTexture)
   return pView;
 }
 
-atTextureContext::atTextureContext(const atImage &image, const bool genMipmaps) : m_genMipmaps(genMipmaps)
+atTextureContext::atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps, const int64_t sampleCount) : m_pTexture(pTexture), m_genMipmaps(genMipmaps) {}
+
+atTextureContext::atTextureContext(const atFilename &file, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(atImage(file), genMipmaps) {}
+
+atTextureContext::atTextureContext(const atImage &image, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(image.Pixels().data(), image.Size(), false, genMipmaps) {}
+
+atTextureContext::atTextureContext(const atVector<float> &depth, const atVec2I &size, const int64_t sampleCount) : atTextureContext(depth.data(), size, true) {}
+
+atTextureContext::atTextureContext(const void *pData, const atVec2I &size, const bool depthTexture, const bool genMipmaps, const int64_t sampleCount)
+  : m_genMipmaps(genMipmaps && !depthTexture)
+  , m_depthTexture(depthTexture)
+  , m_sampleCount(sampleCount)
 {
   D3D11_TEXTURE2D_DESC texDesc{};
-  texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-  texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  texDesc.Height = (UINT)image.Height();
-  texDesc.Width = (UINT)image.Width();
+  texDesc.BindFlags = m_depthTexture ? D3D11_BIND_DEPTH_STENCIL : (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+  texDesc.Format = DXGI_FORMAT(m_depthTexture ? atFormat::DXGIDepth(atType_Float32) : atFormat::DXGI(atType_Uint32, 1));
+  texDesc.Height = (UINT)size.y;
+  texDesc.Width = (UINT)size.x;
   texDesc.Usage = D3D11_USAGE_DEFAULT;
   texDesc.SampleDesc.Quality = 0;
-  texDesc.SampleDesc.Count = 1;
+  texDesc.SampleDesc.Count = (UINT)sampleCount;
   texDesc.ArraySize = 1;
-  texDesc.MipLevels = 0;
-  texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
+  texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
+  texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * m_genMipmaps;
 
   atGraphics::GetDevice()->CreateTexture2D(&texDesc, nullptr, &m_pTexture);
-  atGraphics::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, image.Pixels().data(), (UINT)(image.Width() * sizeof(atCol)), 0);
+  if (pData)
+    atGraphics::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, pData, (UINT)(size.x * (m_depthTexture ? sizeof(float) : sizeof(atCol))), 0);
 }
+
 
 atTextureContext::atTextureContext(const atTextureContext &copy)
 {
@@ -89,6 +109,8 @@ atTextureContext::atTextureContext(const atTextureContext &copy)
   m_pDepthView = copy.m_pDepthView;
   m_pRenderView = copy.m_pRenderView;
   m_pShaderView = copy.m_pShaderView;
+  m_sampleCount = copy.m_sampleCount;
+  m_depthTexture = copy.m_depthTexture;
   if (m_pTexture) m_pTexture->AddRef();
   if (m_pUAView) m_pUAView->AddRef();
   if (m_pDepthView) m_pDepthView->AddRef();
@@ -103,6 +125,10 @@ atTextureContext::atTextureContext(atTextureContext &&move) : m_genMipmaps(move.
   m_pDepthView = move.m_pDepthView;
   m_pRenderView = move.m_pRenderView;
   m_pShaderView = move.m_pShaderView;
+  m_sampleCount = move.m_sampleCount;
+  m_depthTexture = move.m_depthTexture;
+  move.m_sampleCount = 1;
+  move.m_depthTexture = false;
   move.m_pTexture = nullptr;
   move.m_pUAView = nullptr;
   move.m_pDepthView = nullptr;
@@ -119,6 +145,8 @@ const atTextureContext &atTextureContext::operator=(const atTextureContext &rhs)
   m_pRenderView = rhs.m_pRenderView;
   m_pShaderView = rhs.m_pShaderView;
   m_genMipmaps = rhs.m_genMipmaps;
+  m_sampleCount = rhs.m_sampleCount;
+  m_depthTexture = rhs.m_depthTexture;
   if (m_pTexture) m_pTexture->AddRef();
   if (m_pUAView) m_pUAView->AddRef();
   if (m_pDepthView) m_pDepthView->AddRef();
@@ -136,6 +164,10 @@ const atTextureContext &atTextureContext::operator=(atTextureContext &&rhs)
   m_pRenderView = rhs.m_pRenderView;
   m_pShaderView = rhs.m_pShaderView;
   m_genMipmaps = rhs.m_genMipmaps;
+  m_sampleCount = rhs.m_sampleCount;
+  m_depthTexture = rhs.m_depthTexture;
+  rhs.m_sampleCount = 1;
+  rhs.m_depthTexture = false;
   rhs.m_pTexture = nullptr;
   rhs.m_pUAView = nullptr;
   rhs.m_pDepthView = nullptr;
@@ -156,7 +188,7 @@ void atTextureContext::Release()
 atTextureContext::operator ID3D11ShaderResourceView*()
 {
   if (!m_pShaderView)
-    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps);
+    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps, m_sampleCount);
   return m_pShaderView;
 }
 
@@ -170,7 +202,7 @@ atTextureContext::operator ID3D11RenderTargetView*()
 atTextureContext::operator ID3D11DepthStencilView*()
 {
   if (!m_pDepthView)
-    m_pDepthView = _CreateDSView(m_pTexture);
+    m_pDepthView = _CreateDSView(m_pTexture, m_sampleCount);
   return m_pDepthView;
 }
 
@@ -184,7 +216,7 @@ atTextureContext::operator ID3D11UnorderedAccessView*()
 atTextureContext::operator ID3D11ShaderResourceView**()
 {
   if (!m_pShaderView)
-    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps);
+    m_pShaderView = _CreateSRView(m_pTexture, m_genMipmaps, m_sampleCount);
   return &m_pShaderView;
 }
 
@@ -198,7 +230,7 @@ atTextureContext::operator ID3D11RenderTargetView**()
 atTextureContext::operator ID3D11DepthStencilView**()
 {
   if (!m_pDepthView)
-    m_pDepthView = _CreateDSView(m_pTexture);
+    m_pDepthView = _CreateDSView(m_pTexture, m_sampleCount);
   return &m_pDepthView;
 }
 
@@ -209,9 +241,15 @@ atTextureContext::operator ID3D11UnorderedAccessView**()
   return &m_pUAView;
 }
 
-void atTextureContext::UpdateTexture(const atImage &image, const bool genMipaps) { *this = atTextureContext(image, genMipaps); }
+atVec2I atTextureContext::Size() const
+{
+  D3D11_TEXTURE2D_DESC desc;
+  m_pTexture->GetDesc(&desc);
+  return{ desc.Width, desc.Height };
+}
+
+void atTextureContext::UpdateTexture(const atImage &image, const bool genMipaps, const int64_t sampleCount) { *this = atTextureContext(image, genMipaps, sampleCount); }
+
 atTextureContext::~atTextureContext() { Release(); }
 atTextureContext::operator ID3D11Texture2D*() { return m_pTexture; }
 atTextureContext::operator ID3D11Texture2D**() { return &m_pTexture; }
-atTextureContext::atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps) : m_pTexture(pTexture), m_genMipmaps(genMipmaps) {}
-atTextureContext::atTextureContext(const atFilename &file, const bool genMipmaps) : atTextureContext(atImage(file), genMipmaps) {}

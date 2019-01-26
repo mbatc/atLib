@@ -165,9 +165,9 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
     {
     case atOBJComment: pSrc += atString::_find_end(pSrc, data.end() - (uint8_t*)pSrc, "\n"); break;
     case atOBJFace: _ParseFace(&pSrc, data.end() - (uint8_t*)pSrc, &pMesh->m_triangles, matNames[curMat]); break;
-    case atOBJVertex: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atOBJNormal: pMesh->m_normals.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atOBJTexCoord: pMesh->m_texCoords.push_back(atOBJReader::ParseVector<atVec3F64>(&pSrc, data.end() - (uint8_t*)pSrc).xy()); break;
+    case atOBJVertex: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atOBJNormal: pMesh->m_normals.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atOBJTexCoord: pMesh->m_texCoords.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc).xy()); break;
     case atOBJLine: pSrc += atString::_find_first_of(pSrc, data.end() - (uint8_t*)pSrc, "\n\r"); break;
     case atOBJMatLib: mtlFile = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc); break;
     case atOBJMatRef: 

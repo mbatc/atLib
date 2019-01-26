@@ -55,7 +55,7 @@ atVector<int64_t> atScene::GetNodeIDs(const atVector<atSceneNode*> nodes) const
   return ret;
 }
 
-atSceneNode* atScene::CreateNode(const atVec3F64 &position, const atVec3F64 &rotation, const atVec3F64 &scale, atSceneNode *pParent)
+atSceneNode* atScene::CreateNode(const atVec3D &position, const atVec3D &rotation, const atVec3D &scale, atSceneNode *pParent)
 {
   atSceneNode *pNode = atNew<atSceneNode>();
   pNode->m_translation = position;
@@ -106,6 +106,23 @@ bool atScene::RemoveActiveCamera(const int64_t id)
       return true;
     }
   return false;
+}
+
+bool atScene::Draw(atSceneNode *pCamera)
+{
+  if (!pCamera)
+    return false;
+  return Draw(pCamera->ID);
+}
+
+bool atScene::Draw(const int64_t camera)
+{
+  atVector<int64_t> lastCamList = m_activeCameras;
+  m_activeCameras.clear();
+  m_activeCameras.push_back(camera);
+  bool res = Draw();
+  m_activeCameras = lastCamList;
+  return res;
 }
 
 const atSceneNode* atScene::GetNode(const int64_t id) const { atSceneNode * const *ppNode = m_nodes.TryGet(id); return ppNode ? *ppNode : nullptr; }

@@ -28,7 +28,7 @@
 #include "atRenderState.h"
 #include "atHardwareTexture.h"
 
-atRenderable::atRenderable()
+atRenderableCore::atRenderableCore()
   : m_pVertBuffer(nullptr)
   , m_pIndexBuffer(nullptr)
   , m_nIndices(0)
@@ -38,7 +38,7 @@ atRenderable::atRenderable()
   , m_shaderRound(-1)
 {}
 
-atRenderable::atRenderable(atRenderable &&move)
+atRenderableCore::atRenderableCore(atRenderableCore &&move)
 {
   m_pIndexBuffer = move.m_pIndexBuffer;
   m_pVertBuffer = move.m_pVertBuffer;
@@ -59,7 +59,7 @@ atRenderable::atRenderable(atRenderable &&move)
   move.m_pVertBuffer = nullptr;
 }
 
-atRenderable::atRenderable(const atRenderable &copy)
+atRenderableCore::atRenderableCore(const atRenderableCore &copy)
   : m_pVertBuffer(nullptr)
   , m_pIndexBuffer(nullptr)
   , m_nIndices(0)
@@ -73,15 +73,20 @@ atRenderable::atRenderable(const atRenderable &copy)
   m_shader = copy.m_shader;
 }
 
-atRenderable::~atRenderable() { Clear(); }
+atRenderableCore::~atRenderableCore() { Clear(); }
 
-bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
+bool atRenderableCore::Draw(const atRenderable_PrimitiveType type /*= atRPT_TriangleList*/)
 {
   atRenderState rs;
   Rebuild();
   if (m_shaderID == AT_INVALID_ID || m_shaderRound != atShaderPool::ShaderRound())
   {
-    m_shaderID = atShaderPool::GetShader(m_shader); 
+    atShaderPool::ReleaseShader(m_shaderID);
+    if (m_shader.length() > 0)
+      m_shaderID = atShaderPool::GetShader(m_shader);
+    else
+      m_shaderID = atShaderPool::GetShader(m_pixelSource, m_vertSource, m_geomSource, m_hullSource);
+
     m_layoutID = atShaderPool::GetInputLayout(m_shaderID, m_layout);
   }
 
@@ -99,7 +104,6 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
     switch (kvp.m_val.type)
     {
     case atRRT_Texture: 
-      
       if(kvp.m_val.desc.type == atType_Uint8) 
         kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); 
       else if (kvp.m_val.desc.type == atType_Int64) 
@@ -107,6 +111,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
       else 
         atAssert(false, "Texture Resource Type data must be a c-string or int64 texture id.");
       break;
+
     case atRRT_Sampler: 
     {
       atAssert(kvp.m_val.desc.type == atType_Int64, "Sampler Resource Type data must be an int64 sample id (AT_INVALID_ID is a valid parameter - default sample will be used).");
@@ -114,7 +119,11 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
       if(kvp.m_val.id == AT_INVALID_ID)
         kvp.m_val.id = atHardwareTexture::CreateSampler(); break;
     }
-    case atRRT_Variable: kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); break;
+
+    case atRRT_Variable: 
+      kvp.m_val.loc = atShaderPool::GetVariableLoc(m_shaderID, kvp.m_key); 
+      break;
+
     }
     if (kvp.m_val.id == AT_INVALID_ID) kvp.m_val.id = 0;
   }
@@ -162,7 +171,7 @@ bool atRenderable::Draw(const atRenderable_PrimitiveType type /*= atRPT_Triangle
   return true;
 }
 
-bool atRenderable::Rebuild()
+bool atRenderableCore::Rebuild()
 {
   bool vbInvalid = false;
   bool ibInvalid = false;
@@ -215,21 +224,7 @@ bool atRenderable::Rebuild()
       }
 
     // Create D3D11 Vertex Buffer
-    D3D11_BUFFER_DESC desc;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.ByteWidth = (UINT)rawVert.size();
-    desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
-    desc.StructureByteStride = 0;
-
-    D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = rawVert.data();
-    data.SysMemPitch = 0;
-    data.SysMemSlicePitch = 0;
-
-    m_nVerts = nVerts;
-    res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pVertBuffer));
+    res &= atGraphics::CreateBuffer(&m_pVertBuffer, rawVert.data(), rawVert.size(), D3D11_BIND_VERTEX_BUFFER);
   }
 
   if (ibInvalid || ibCount == 0)
@@ -247,28 +242,16 @@ bool atRenderable::Rebuild()
 
     if (pIndices)
     {
-      // Create D3D11 Index Buffer
-      D3D11_BUFFER_DESC desc;
-      desc.Usage = D3D11_USAGE_DEFAULT;
-      desc.ByteWidth = (UINT)pIndices->data.size();
-      desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-      desc.CPUAccessFlags = 0;
-      desc.MiscFlags = 0;
-
-      D3D11_SUBRESOURCE_DATA data;
-      data.pSysMem = pIndices->data.data();
-      data.SysMemPitch = 0;
-      data.SysMemSlicePitch = 0;
-
+      // Create Index Buffer
+      res &= atGraphics::CreateBuffer(&m_pIndexBuffer, pIndices->data.data(), pIndices->data.size(), D3D11_BIND_INDEX_BUFFER);
       m_nIndices = pIndices->count;
-      res &= SUCCEEDED(atGraphics::GetDevice()->CreateBuffer(&desc, &data, &m_pIndexBuffer));
     }
   }
 
   return res;
 }
 
-void atRenderable::Clear()
+void atRenderableCore::Clear()
 {
   atGraphics::SafeRelease(m_pIndexBuffer);
   atGraphics::SafeRelease(m_pVertBuffer);
@@ -279,7 +262,7 @@ void atRenderable::Clear()
   m_resource.Clear();
 }
 
-atRenderable::Resource& atRenderable::GetResource(const atString &name)
+atRenderableCore::Resource& atRenderableCore::GetResource(const atString &name)
 {
   Resource *pRes = m_resource.TryGet(name);
   if (pRes)
@@ -288,12 +271,41 @@ atRenderable::Resource& atRenderable::GetResource(const atString &name)
   return m_resource.Get(name);
 }
 
-void atRenderable::FreeResource(const atString &name)
+void atRenderableCore::FreeResource(const atString &name)
 {
   Resource *pRes = m_resource.TryGet(name);
   if (!pRes)
     return;
+
+  switch (pRes->type)
+  {
+  case atRRT_Texture:
+    if (pRes->desc.type == atType_Uint8) // texture was loaded from filename
+      atHardwareTexture::DeleteTexture(pRes->id);
+
+  case atRRT_Sampler: 
+    if (*(int64_t*)pRes->data.data() == AT_INVALID_ID) // default sampler was created
+      atHardwareTexture::DeleteSampler(pRes->id);
+  }
+
   m_resource.Remove(name);
 }
 
-void atRenderable::SetShader(const atString &name) { m_shader = name; m_layoutID = -1; }
+void atRenderableCore::SetShader(const atString &name)
+{
+  atShaderPool::ReleaseShader(m_shaderID);
+  m_shader = name; m_layoutID = -1;
+}
+
+void atRenderableCore::SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom, const atString &hull)
+{
+  atShaderPool::ReleaseShader(m_shaderID);
+  m_layoutID = -1;
+  m_shader = "";
+  m_vertSource = vert;
+  m_pixelSource = pixel;
+  m_geomSource = geom;
+  m_hullSource = hull;
+}
+
+bool atRenderableCore::HasResource(const atString &name) { return m_resource.TryGet(name) != nullptr; }

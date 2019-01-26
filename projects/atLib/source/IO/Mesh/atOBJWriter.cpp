@@ -61,9 +61,9 @@ bool atOBJWriter::Write(const atFilename &file, const atMesh &mesh)
   objFile.WriteText("\n# https://github.com/mbatc/atLib");
   objFile.WriteText("\n\nmtllib " + mtlFile);
   objFile.WriteText("\no " + (mesh.m_name.length() ? mesh.m_name : atString("default")) + "\n");
-  for (const atVec3F64 &v : mesh.m_positions) objFile.WriteText("v " + atPrint::Vector(v) + "\n");
-  for (const atVec2F64 &vt: mesh.m_texCoords) objFile.WriteText("vt " + atPrint::Vector(vt) + "\n");
-  for (const atVec3F64 &vn : mesh.m_normals) objFile.WriteText("vn " + atPrint::Vector(vn) + "\n");
+  for (const atVec3D &v : mesh.m_positions) objFile.WriteText("v " + atPrint::Vector(v) + "\n");
+  for (const atVec2D &vt: mesh.m_texCoords) objFile.WriteText("vt " + atPrint::Vector(vt) + "\n");
+  for (const atVec3D &vn : mesh.m_normals) objFile.WriteText("vn " + atPrint::Vector(vn) + "\n");
   const int64_t vFlags = (mesh.m_positions.size() > 0 * atVE_Position) | (mesh.m_texCoords.size() > 0 * atVE_TexCoord) | (mesh.m_normals.size() > 0 * atVE_Normal);
   for (int64_t m = 0; m < mesh.m_materials.size(); ++m)
   {

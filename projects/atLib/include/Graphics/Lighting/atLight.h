@@ -40,11 +40,11 @@ class atLight
 public:
   atLightType m_type;
 
-  atVec3F64 m_position = atVec3F64::zero();
-  atVec3F64 m_direction = -atVec3F64::one();
-  atVec4F64 m_diffuseColor = atVec4F64::one();
-  atVec4F64 m_ambientColor = atVec4F64::zero();
-  atVec4F64 m_specularColor = atVec4F64::one();
+  atVec3D m_position = atVec3D::zero();
+  atVec3D m_direction = -atVec3D::one();
+  atVec4D m_diffuseColor = atVec4D::one();
+  atVec4D m_ambientColor = atVec4D::zero();
+  atVec4D m_specularColor = atVec4D::one();
   
   double m_intensity = 1;
   double m_specularPower = 32;
@@ -59,10 +59,10 @@ public:
 
   // Calculate the frag colour with the lighting applied.
   // only colour channels from the material are used (textures are not applied)
-  atVec3F64 CalcLighting(const atVec3F64 &normal, const atVec3F64 &fragPos, const atVec3F64 &camPos = atVec3F64(), const atMaterial &material = atMaterial());
+  atVec3D CalcLighting(const atVec3D &normal, const atVec3D &fragPos, const atVec3D &camPos = atVec3D(), const atMaterial &material = atMaterial());
 
-  double CalcLambertian(const atVec3F64 &normal);
-  double CalcSpecular(const atVec3F64 &normal, const atVec3F64 &fragPos, const atVec3F64 &camPos);
+  double CalcLambertian(const atVec3D &normal);
+  double CalcSpecular(const atVec3D &normal, const atVec3D &fragPos, const atVec3D &camPos);
   double CalcAttenuation(const double dist);
 };
 

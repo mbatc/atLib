@@ -111,12 +111,12 @@ public:
 
   atVector<Triangle> m_triangles;
 
-  atVector<atVec3F64> m_positions;
-  atVector<atVec3F64> m_normals;
-  atVector<atVec4F64> m_colors;
-  atVector<atVec2F64> m_texCoords;
-  atVector<atVec3F64> m_tangents;
-  atVector<atVec3F64> m_binormals;
+  atVector<atVec3D> m_positions;
+  atVector<atVec3D> m_normals;
+  atVector<atVec4D> m_colors;
+  atVector<atVec2D> m_texCoords;
+  atVector<atVec3D> m_tangents;
+  atVector<atVec3D> m_binormals;
 
   atVector<atMaterial> m_materials;
 

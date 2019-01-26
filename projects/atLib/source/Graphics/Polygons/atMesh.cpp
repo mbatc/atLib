@@ -65,7 +65,7 @@ bool atMesh::MakeValid()
         if (m_default.color == AT_INVALID_INDEX)
         {
           m_default.color = m_colors.size();
-          m_colors.push_back(atVec4F64(1.0, 1.0, 1.0, 1.0));
+          m_colors.push_back(atVec4D(1.0, 1.0, 1.0, 1.0));
         }
         tri.verts[v].color = m_default.color;
       }
@@ -75,7 +75,7 @@ bool atMesh::MakeValid()
         if (m_default.position == AT_INVALID_INDEX)
         {
           m_default.position = m_positions.size();
-          m_positions.push_back(atVec3F64(0.0, 0.0, 0.0));
+          m_positions.push_back(atVec3D(0.0, 0.0, 0.0));
         }
         tri.verts[v].position = m_default.position;
       }
@@ -85,7 +85,7 @@ bool atMesh::MakeValid()
         if (m_default.texCoord == AT_INVALID_INDEX)
         {
           m_default.texCoord = m_texCoords.size();
-          m_texCoords.push_back(atVec2F64(0.0, 0.0));
+          m_texCoords.push_back(atVec2D(0.0, 0.0));
         }
         tri.verts[v].texCoord = m_default.texCoord;
       }
@@ -122,14 +122,14 @@ void atMesh::SpatialTransform(const atMat4D &transform)
 
 void atMesh::PositionTransform(const atMat4D &transform)
 {
-  for (atVec3F64 &pos : m_positions)
+  for (atVec3D &pos : m_positions)
     pos = transform * pos;
 }
 
 void atMesh::NormalTransform(const atMat4D &transform)
 {
   atMat4D nMat = transform.Inverse().Transpose();
-  for (atVec3F64 &norm : m_normals)
+  for (atVec3D &norm : m_normals)
     norm = transform * norm;
 }
 
@@ -158,26 +158,26 @@ void atMesh::GenTangents()
 {
   m_tangents.resize(m_positions.size());
   m_binormals.resize(m_positions.size());
-  memset(m_tangents.data(), 0, (size_t)m_tangents.size() * sizeof(atVec3F64));
-  memset(m_binormals.data(), 0, (size_t)m_binormals.size() * sizeof(atVec3F64));
+  memset(m_tangents.data(), 0, (size_t)m_tangents.size() * sizeof(atVec3D));
+  memset(m_binormals.data(), 0, (size_t)m_binormals.size() * sizeof(atVec3D));
 
   for (Triangle &tri : m_triangles)
   {
-    const atVec3F64 &v1 = m_positions[tri.verts[0].position];
-    const atVec3F64 &v2 = m_positions[tri.verts[1].position];
-    const atVec3F64 &v3 = m_positions[tri.verts[2].position];
-    const atVec2F64 &t1 = m_texCoords[tri.verts[0].texCoord];
-    const atVec2F64 &t2 = m_texCoords[tri.verts[1].texCoord];
-    const atVec2F64 &t3 = m_texCoords[tri.verts[2].texCoord];
+    const atVec3D &v1 = m_positions[tri.verts[0].position];
+    const atVec3D &v2 = m_positions[tri.verts[1].position];
+    const atVec3D &v3 = m_positions[tri.verts[2].position];
+    const atVec2D &t1 = m_texCoords[tri.verts[0].texCoord];
+    const atVec2D &t2 = m_texCoords[tri.verts[1].texCoord];
+    const atVec2D &t3 = m_texCoords[tri.verts[2].texCoord];
 
-    const atVec3F64 AB = v2 - v1;
-    const atVec3F64 AC = v3 - v1;
-    const atVec2F64 tAB = t2 - t1;
-    const atVec2F64 tAC = t3 - t1;
+    const atVec3D AB = v2 - v1;
+    const atVec3D AC = v3 - v1;
+    const atVec2D tAB = t2 - t1;
+    const atVec2D tAC = t3 - t1;
 
     double r = 1.0 / (tAB.x * tAC.y - tAC.x * tAB.y);
-    atVec3F64 uDir = atVec3F64{ (tAC.y * AB.x - tAB.y * AC.x), (tAC.y * AB.y - tAB.y * AC.y), (tAC.y * AB.z - tAB.y * AC.z) } * r;
-    atVec3F64 vDir = atVec3F64{ (tAB.x * AC.x - tAC.x * AB.x), (tAB.x * AC.y - tAC.x * AB.y), (tAB.x * AC.z - tAC.x * AB.z) } * r;
+    atVec3D uDir = atVec3D{ (tAC.y * AB.x - tAB.y * AC.x), (tAC.y * AB.y - tAB.y * AC.y), (tAC.y * AB.z - tAB.y * AC.z) } * r;
+    atVec3D vDir = atVec3D{ (tAB.x * AC.x - tAC.x * AB.x), (tAB.x * AC.y - tAC.x * AB.y), (tAB.x * AC.z - tAC.x * AB.z) } * r;
 
     for (int64_t i = 0; i < 3; ++i)
     {
@@ -198,10 +198,10 @@ void atMesh::GenTangents()
 void atMesh::GenNormals()
 {
   m_normals.clear();
-  atHashMap<atVec3F64, int64_t> normMap;
+  atHashMap<atVec3D, int64_t> normMap;
   for (Triangle &tri : m_triangles)
   {
-    atVec3F64 n = (m_positions[tri.verts[2].position] - m_positions[tri.verts[1].position]).Cross(m_positions[tri.verts[0].position] - m_positions[tri.verts[1].position]).Normalize();
+    atVec3D n = (m_positions[tri.verts[2].position] - m_positions[tri.verts[1].position]).Cross(m_positions[tri.verts[0].position] - m_positions[tri.verts[1].position]).Normalize();
     int64_t normIndex = m_normals.size();
     if (!normMap.TryAdd(n, normIndex))
       normIndex = normMap[n];
@@ -240,7 +240,7 @@ void atMesh::GenSmoothNormals(const double threshold, const bool regenNormals)
       }
     }
   }
-  atVector<atVec3F64> normals(m_positions.size());
+  atVector<atVec3D> normals(m_positions.size());
   double avgDot = 0.0;
   for (int64_t v = 0; v < triLookup.size(); ++v)
   {
@@ -250,7 +250,7 @@ void atMesh::GenSmoothNormals(const double threshold, const bool regenNormals)
     avgDot /= normalLookup[v].size();
     if (avgDot > threshold)
     {
-      atVec3F64 norm = atVec3F64::zero();
+      atVec3D norm = atVec3D::zero();
       for (const int64_t n : normalLookup[v])
         norm += m_normals[n];
       normals.push_back((norm / normalLookup[v].size()).Normalize());
@@ -426,5 +426,5 @@ int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t
   return size;
 }
 
-void atMesh::FlipNormals() { for (atVec3F64 &norm : m_normals) norm = -norm; }
-void atMesh::FlipTextures(const bool u, const bool v) { if (!(u || v)) return; for (atVec2F64 &texCoord : m_texCoords) texCoord = { u ? 1.0 - texCoord.x : texCoord.x, v ? 1.0 - texCoord.y : texCoord.y }; }
+void atMesh::FlipNormals() { for (atVec3D &norm : m_normals) norm = -norm; }
+void atMesh::FlipTextures(const bool u, const bool v) { if (!(u || v)) return; for (atVec2D &texCoord : m_texCoords) texCoord = { u ? 1.0 - texCoord.x : texCoord.x, v ? 1.0 - texCoord.y : texCoord.y }; }

@@ -57,6 +57,10 @@ public:
   //   *.ds (domain shader)
   // ------------------------:
   atShader(const atString &path);
+
+  // Compile shaders from source
+  // No shader will be bound to a stage if the source is an empty string
+  atShader(const atString &pixel, const atString &vert, const atString &geometry = "", const atString &hull = "", const atString &compute = "", const atString &domain = "");
   ~atShader();
 
   void Reload();
@@ -68,6 +72,14 @@ public:
   bool SetGeometryShader(const atFilename &file);
   bool SetComputeShader(const atFilename &file);
   bool SetDomainShader(const atFilename &file);
+
+  bool SetHullShaderSource(const atString &src);
+  bool SetVertexShaderSource(const atString &src);
+  bool SetPixelShaderSource(const atString &src);
+  bool SetGeometryShaderSource(const atString &src);
+  bool SetComputeShaderSource(const atString &src);
+  bool SetDomainShaderSource(const atString &src);
+
   const atString &GetName() const;
 
   // Managing Shader Inputs
@@ -77,8 +89,11 @@ public:
   int64_t GetResourceLoc(const atString &name);
 
 private:
-  void SetShaders(const atFilename &vert, const atFilename &pixel, const atFilename &hull, const atFilename &geom, const atFilename &compute, const atFilename &domain);
+  void SetShaders(const atFilename &pixel, const atFilename &vert, const atFilename &hull, const atFilename &geom, const atFilename &compute, const atFilename &domain);
   bool SetShader(const atFilename &file, atShaderParser *pParser, atVector<uint8_t> *pByteCode, atFilename *pCurFile, void **pDXObject, const char *shaderType);
+  void SetShadersSource(const atString &pixel, const atString &vert, const atString &hull, const atString &geom, const atString &compute, const atString &domain);
+  bool SetShaderSource(const atString &src, atShaderParser *pParser, atVector<uint8_t> *pByteCode, atFilename *pCurFile, void **pDXObject, const char *shaderType);
+
   void GenerateBuffers();
   void AddResources(const atShaderParser &parser, const atShaderType type);
   void UpdateResources();

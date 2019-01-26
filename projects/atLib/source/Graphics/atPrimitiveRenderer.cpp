@@ -148,17 +148,17 @@ void atPrimitiveRenderer::Draw(const atVec2I &dimensions)
     f.GetTextureID();
 
   ro.SetShader("assets/shaders/text");
-  ro.SetChannel("samplerType", AT_INVALID_ID, atRRT_Sampler);
-  ro.SetChannel("mvp", atMat4(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)), atRRT_Variable);
+  ro.SetSampler("samplerType", AT_INVALID_ID);
+  ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
   for (DrawData &dd : DrawContext::drawList)
   {
     rs.SetScissor(dd.clipRect);
-    ro.SetChannel("tex0", dd.texture, atRRT_Texture);
-    ro.SetChannel("COLOR", dd.color, atRRT_VertexData);
-    ro.SetChannel("TEXCOORD", dd.uvs, atRRT_VertexData);
-    ro.SetChannel("POSITION", dd.verts, atRRT_VertexData);
-    ro.SetChannel("idxBuffer", dd.indices, atRRT_Indices);
-    ro.Draw();
+    ro.SetTexture("tex0", dd.texture);
+    ro.SetAttribute("COLOR", dd.color);
+    ro.SetAttribute("TEXCOORD", dd.uvs);
+    ro.SetAttribute("POSITION", dd.verts);
+    ro.SetIndices("idxBuffer", dd.indices);
+    ro.DrawTriangles();
   }
   DrawContext::drawList.clear();
 }
@@ -201,7 +201,7 @@ void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const doub
 }
 
 atVec2I atPrimitiveRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
-void atPrimitiveRenderer::Draw(const atWindow &wnd) { Draw(wnd.Size()); }
+void atPrimitiveRenderer::Draw(atWindow &wnd) { Draw(wnd.Size()); }
 void atPrimitiveRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
 void atPrimitiveRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
 void atPrimitiveRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }

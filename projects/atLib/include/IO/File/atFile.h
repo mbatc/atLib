@@ -59,6 +59,9 @@ public:
   // Writes pData to the file
   int64_t WriteText(const atString &text);
 
+  atString ReadText();
+  static atString ReadText(const atFilename &filename);
+
   bool Flush();
 
   // Read data into pBuffer. 

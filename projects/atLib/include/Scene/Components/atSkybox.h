@@ -40,7 +40,7 @@ public:
   bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
 
 protected:
-  atVector<atRenderable> m_meshes;
+  atVector<atRenderableCore> m_meshes;
 };
 
 #endif // atSkybox_h__
