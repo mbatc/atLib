@@ -90,6 +90,8 @@ protected:
   atMat4D ParentScaleMat() const;
   atMat4D ParentWorldMat() const;
 
+  atString m_name;
+
   atScene *m_pScene = nullptr;
   atSceneNode *m_pParent = nullptr;
   atVector<atSceneNode*> m_children;

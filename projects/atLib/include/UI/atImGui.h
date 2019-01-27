@@ -36,6 +36,18 @@ public:
   static bool EndFrame();
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+  static bool Begin(const char *name);
+  static bool Begin(const char *name, const atVec2F &size);
+  static bool Begin(const char *name, const atVec2F &size, const atVec2F &pos);
+  static void End();
+
+  static void Text(const char *text);
+  static bool Button(const char *label);
+  static bool Button(const char *label, const atVec2F &size);
+  static bool Button(const char *label, const atVec2F &size, const atVec2F &pos);
+  static bool Selectable(const char *label, const bool selected);
+  static bool Selectable(const char *label, const bool selected, const atVec2F &pos);
 };
 
 #endif // atImGui_h__

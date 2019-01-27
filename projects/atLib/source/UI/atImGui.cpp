@@ -318,3 +318,48 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   io.KeySuper = false;
   return io.WantCaptureKeyboard || io.WantCaptureMouse;
 }
+
+// Wrapping ImGui Functions (Useful for exposing functionality to Lua)
+
+bool atImGui::Begin(const char *name) { return ImGui::Begin(name); }
+
+bool atImGui::Begin(const char *name, const atVec2F &size)
+{
+  ImGui::SetNextWindowSize(size);
+  return Begin(name);
+}
+
+bool atImGui::Begin(const char *name, const atVec2F &size, const atVec2F &pos)
+{
+  ImGui::SetNextWindowPos(pos);
+  return Begin(name, size);
+}
+
+
+bool atImGui::Button(const char *label, const atVec2F &size, const atVec2F &pos)
+{
+  ImVec2 lastCursorPos = ImGui::GetCursorPos();
+  ImGui::SetCursorPos(pos);
+  bool result = Button(label, size);
+  ImGui::SetCursorPos(lastCursorPos);
+  return result;
+}
+
+bool atImGui::Selectable(const char *label, const bool selected, const atVec2F &pos)
+{
+  ImVec2 lastCursorPos = ImGui::GetCursorPos();
+  ImGui::SetCursorPos(pos);
+  bool result = Selectable(label, selected);
+  ImGui::SetCursorPos(lastCursorPos);
+  return result;
+}
+
+void atImGui::End() { ImGui::End(); }
+
+void atImGui::Text(const char *text) { ImGui::Text(text); }
+
+bool atImGui::Button(const char *label) { return ImGui::Button(label); }
+
+bool atImGui::Button(const char *label, const atVec2F &size) { return ImGui::Button(label, size); }
+
+bool atImGui::Selectable(const char *label, const bool selected) { return ImGui::Selectable(label, selected); }

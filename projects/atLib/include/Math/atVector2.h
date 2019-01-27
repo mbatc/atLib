@@ -47,7 +47,7 @@ public:
 
   // Approaching Template Town
 
-  template <typename T2> atVector2(const T2 val) : x((T)val), y((T)val) {}
+  template <typename T2> atVector2(const T2 val) : x((T2)val), y((T)val) {}
   template <typename T2> atVector2(const T2 _x, const T2 _y) : x((T)_x), y((T)_y) {}
   template <typename T2> atVector2(const VecType<T2> &copy) : x((T)copy.x), y((T)copy.y) {}
   template <typename T2> atVector2(const std::initializer_list<T2> &list)
@@ -105,6 +105,11 @@ public:
   template <typename T2> bool operator!=(const T2 &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
 
   operator atMatrix<T, 2, 1>() const { return atMatrix<T, 2, 1>({ x, y }); }
+
+  VecType<T> Add(const VecType<T> &rhs) { return *this = atVectorMath::Add(*this, rhs); }
+  VecType<T> Sub(const VecType<T> &rhs) { return *this = atVectorMath::Subtract(*this, rhs); }
+  VecType<T> Mul(const VecType<T> &rhs) { return *this = atVectorMath::Multiply(*this, rhs); }
+  VecType<T> Div(const VecType<T> &rhs) { return *this = atVectorMath::Divide(*this, rhs); }
 
   T Mag() const { return Mag(*this); }
   T Length() const { return Length(*this); }

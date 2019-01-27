@@ -1,4 +1,5 @@
 
+
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -54,7 +55,6 @@ public:
 
   atBVHNode<T> m_root;
 };
-
 
 template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
 

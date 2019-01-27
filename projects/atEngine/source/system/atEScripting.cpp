@@ -35,6 +35,13 @@ bool atEScripting::Initialise(const atString &packageDir)
   m_pLua = atNew<atLua>();
   RunText("require([[" + m_packageDir + "/core]])");
   RunText("atCore.Initialise([[" + m_packageDir + "]], [[" + atFilename(packageDir).Name() +"]])");
+  
+  // Expose required atLib functions
+  m_pLua->ExposeMathTypes();
+  m_pLua->ExposeMathFunctions();
+  m_pLua->ExposeScene();
+  m_pLua->ExposeImGui();
+
   m_packageDir = packageDir;
   return m_running;
 }

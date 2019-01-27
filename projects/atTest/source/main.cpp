@@ -94,7 +94,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   {
     // Update camera
     camera.Update(0.016);
-    camera.SetViewport(window);
+    camera.SetViewport(&window);
 
     // Clear window
     window.Clear(clearColor);
@@ -392,7 +392,7 @@ void ExampleImGui()
   while (atInput::Update())
   {
     window.Clear({ 0, 0.5, 0.5, 1 });
-    atImGui::BeginFrame(window);
+    atImGui::BeginFrame(&window);
     static char input[512] = "initial";
     if (ImGui::Begin("Test Window"))
     {

@@ -2,6 +2,7 @@
 #include "atInput.h"
 #include "atImGui.h"
 #include "atSceneRenderer.h"
+#include "atRenderState.h"
 
 atEngine::atEngine(int argc, char **argv)
   : m_result(-1)
@@ -34,6 +35,8 @@ void atEngine::Shutdown()
 int64_t atEngine::Run()
 {
   int64_t res = 0;
+  atRenderState rs;
+  rs.SetRenderTarget(m_pWindow);
   while (atInput::Update() && res == 0)
   {
     m_pWindow->Clear(0xFF333333);
