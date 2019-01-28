@@ -31,6 +31,9 @@
 
 atSceneNode::atSceneNode() {}
 
+const atString &atSceneNode::Name() { return m_name; }
+void atSceneNode::SetName(const atString &name) { m_name = name; }
+
 bool atSceneNode::Update(const double dt)
 {
   bool res = true;
@@ -157,12 +160,14 @@ bool atSceneNode::AddChild(const int64_t id) { return AddChild(m_pScene->GetNode
 
 int64_t atSceneNode::SiblingID(const int64_t index) const { return Sibling(index)->ID(); }
 int64_t atSceneNode::ChildID(const int64_t index) const { return Child(index)->ID(); }
-int64_t atSceneNode::ParentID(const int64_t index)  const { return m_pParent->ID(); }
+int64_t atSceneNode::ParentID()  const { return m_pParent->ID(); }
 
 atVector<int64_t> atSceneNode::SiblingIDs() const { return m_pScene->GetNodeIDs(m_siblings); }
 atVector<int64_t> atSceneNode::ChildIDs() const { return m_pScene->GetNodeIDs(m_children); }
 
 atSceneNode* atSceneNode::Sibling(const int64_t index) const { return m_siblings[index]; }
+int64_t atSceneNode::ChildCount() const { return m_children.size(); }
+int64_t atSceneNode::SiblingCount() const { return m_siblings.size(); }
 atSceneNode* atSceneNode::Child(const int64_t index) const { return m_children[index]; }
 atSceneNode* atSceneNode::Parent() const { return m_pParent; }
 

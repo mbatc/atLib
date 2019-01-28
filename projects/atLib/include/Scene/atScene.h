@@ -49,7 +49,7 @@ public:
   atVector<int64_t> GetNodeIDs() const;
   atVector<int64_t> GetNodeIDs(const atVector<atSceneNode*> nodes) const;
 
-  atSceneNode* CreateNode(const atVec3D &position = 0, const atVec3D &rotation = 0, const atVec3D &scale = atVec3D::one(), atSceneNode *pParent = nullptr);
+  atSceneNode* CreateNode(const atString &name, const atVec3D &position = 0, const atVec3D &rotation = 0, const atVec3D &scale = atVec3D::one(), atSceneNode *pParent = nullptr);
 
   bool DeleteNode(const atSceneNode *pNode, bool migrateChildren = false);
   bool DeleteNode(const int64_t id, bool migrateChildren = false);

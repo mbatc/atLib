@@ -24,6 +24,14 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+
+template <typename T2> atVector<T>::atVector(const atVector<T2> &vec)
+{
+  reserve(vec.size());
+  for (const T2 &i : vec)
+    push_back(T2(i));
+}
+
 template <class T> atVector<T>::atVector(atVector<T> &&move)
 {
   swap(move);

@@ -39,6 +39,9 @@ class atSceneNode : public atTransformable<double>
 public:
   atSceneNode();
 
+  const atString& Name();
+  void SetName(const atString &name);
+
   virtual bool Update(const double dt);
   virtual bool Draw(const atMat4D &vp);
   
@@ -52,7 +55,10 @@ public:
   atSceneNode* Child(const int64_t index) const;
   atSceneNode* Sibling(const int64_t index) const;
 
-  int64_t ParentID(const int64_t index) const;
+  int64_t ChildCount() const;
+  int64_t SiblingCount() const;
+
+  int64_t ParentID() const;
   int64_t ChildID(const int64_t index) const;
   int64_t SiblingID(const int64_t index) const;
 

@@ -52,6 +52,7 @@ atLua::atLua()
   m_pLua = atNew<sol::state>();
   m_pLua->set_exception_handler(_ExceptionHandler);
   m_pLua->open_libraries();
+  ExposeContainers();
 }
 
 atLua::~atLua() { atDelete(m_pLua); }
