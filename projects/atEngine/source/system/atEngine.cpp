@@ -52,6 +52,7 @@ int64_t atEngine::Run()
 
 bool atEngine::Update()
 {
+  m_script.Update();
   bool result = m_script.DoUpdateEvent(0.0016);
   result &= m_scene.Update();
   return true;

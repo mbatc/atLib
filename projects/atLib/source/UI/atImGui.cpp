@@ -354,6 +354,16 @@ bool atImGui::Selectable(const char *label, const bool selected, const atVec2F &
   return result;
 }
 
+bool atImGui::BeginTreeNode(const char *label) { return ImGui::TreeNode(label); }
+
+void atImGui::EndTreeNode() { ImGui::TreePop(); }
+
+void atImGui::PushID(const char *label) { ImGui::PushID(label); }
+
+void atImGui::PushID(const int64_t id) { ImGui::PushID((int)id); }
+
+void atImGui::PopID() { ImGui::PopID(); }
+
 void atImGui::End() { ImGui::End(); }
 
 void atImGui::Text(const char *text) { ImGui::Text(text); }

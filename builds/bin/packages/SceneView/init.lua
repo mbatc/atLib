@@ -10,7 +10,10 @@ end
 
 SceneView.OnGui = function()
 	atImGui.Begin("Scene View")
-	atImGui.Selectable("Scene Selectable", false)
+	if atImGui.BeginTreeNode("Scene") then
+		atImGui.Selectable("Scene Selectable", false)		
+		atImGui.EndTreeNode()
+	end
 	atImGui.End()
 end
 

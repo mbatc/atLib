@@ -23,24 +23,27 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSkybox_h__
-#define atSkybox_h__
+#ifndef atSceneScript_h__
+#define atSceneScript_h__
 
+#include "atFilename.h"
 #include "atSceneComponent.h"
-#include "atGraphicsModel.h"
 
-class atSkybox : public atSceneComponent
+class atSceneScript : public atSceneComponent
 {
 public:
-  bool Draw(const atMat4D &vp) override;
+  bool OnCreate() override;
+  bool OnDestroy() override;
+  bool OnUpdate(const double dt) override;
+  bool OnDraw(const atMat4D &vp) override;
+
+  int64_t ID();
+
+  atFilename m_path;
+  atString m_src;
 
   int64_t TypeID() const override;
   static const int64_t typeID;
-
-  bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
-
-protected:
-  atVector<atRenderableCore> m_meshes;
 };
 
-#endif // atSkybox_h__
+#endif // atScript_h__

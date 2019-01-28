@@ -36,11 +36,18 @@ public:
   atScene();
   ~atScene();
 
+  const atString& GetName();
+  void SetName(const atString &name);
+
   bool Update();
   bool Draw();
   bool Draw(atSceneNode *pCamera);
   bool Draw(const int64_t camera);
 
+  atLua* GetLua();
+  void SetLua(atLua *pLua);
+
+  int64_t GetRootID();
   atSceneNode* GetRoot();
   atSceneNode* GetNode(const int64_t id);
   const atSceneNode* GetNode(const int64_t id) const;
@@ -62,13 +69,12 @@ public:
 
   const atVector<int64_t>& GetActiveCameras() const;
 
-  void SetLua(atLua *pLua);
-  atLua* GetLua();
-
   atVec4I m_viewport;
 protected:
   bool Update(atSceneNode *pNode);
   
+  atString m_name;
+
   double m_dt;
 
   atLua *m_pLua;

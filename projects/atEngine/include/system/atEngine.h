@@ -4,7 +4,7 @@
 #include "atTypes.h"
 #include "atScene.h"
 #include "atWindow.h"
-#include "atCamera.h"
+#include "atSceneCamera.h"
 #include "atEScripting.h"
 
 class atEngine

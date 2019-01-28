@@ -23,46 +23,30 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atCamera_h__
-#define atCamera_h__
-
-#include "atWindow.h"
-#include "atTransformable.h"
-#include "atSceneComponent.h"
-
-class atCamera : public atSceneComponent
+template<typename T> inline atVector<T*> atSceneNode::Components() const
 {
-public:
-  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atVector<T*> ret;
+  for (atSceneComponent *pComp : m_components)
+    if (pComp->Is<T>())
+      ret.push_back((T*)pComp);
+  return ret;
+}
 
-  void SetViewport(const atVec4I viewport);
-  void SetViewport(const atWindow *pWindow);
-  atVec4I Viewport() const;
-  atMat4D ProjectionMat() const;
-
-  double m_fov;
-  double m_aspect;
-  double m_farPlane;
-  double m_nearPlane;
-  atVec2F m_depthRange = atVec2I(0, 1);
- 
-  int64_t TypeID() const override;
-  static const int64_t typeID;
-
-protected:
-  atVec4I m_viewport = -1;
-};
-
-class atSimpleCamera : public atCamera, public atTransformable<double>
+template <typename T> inline int64_t atSceneNode::ComponentCount() const
 {
-public:
-  atSimpleCamera(double aspect = 1.0, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
-  atSimpleCamera(const atWindow *pWindow, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    count += pComp->Is<T>();
+  return count;
+}
 
-  atMat4D ViewMat() const;
-  bool Update(const double dt) override;
+template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
+{
+  atIsValidSceneComponentType<T>();
+  pComponent->m_pNode = this;
+  m_components.push_back(pComponent);
+  return pComponent;
+}
 
-  double m_moveSpeed = 1.0;
-};
-
-#endif // atCamera_h__
+template <typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
+template <typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }

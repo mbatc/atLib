@@ -1,5 +1,6 @@
 #include "atEScripting.h"
 #include "atFilename.h"
+#include "atInput.h"
 
 atEScripting::atEScripting(const atString &packageDir)
   : m_running(true)
@@ -54,11 +55,17 @@ void atEScripting::Destroy()
   m_pLua = nullptr;
 }
 
+bool atEScripting::Update()
+{
+  if (atInput::KeyDown(atKC_Apostraphe))
+    Reload();
+  return true;
+}
+
 bool atEScripting::DoUpdateEvent(const double dt) { return DoFunction("OnUpdate"); }
 bool atEScripting::DoDrawEvent(const atMat4D &mvp) { return DoFunction("OnDraw"); }
 bool atEScripting::DoStartupEvent() { return DoFunction("OnStartup"); }
 bool atEScripting::DoCleanupEvent() { return DoFunction("OnCleanup"); }
 bool atEScripting::DoGUIEvent() { return DoFunction("OnGui"); }
-
 bool atEScripting::IsRunning() { return m_running; }
-bool atEScripting::Reload() { return Initialise(m_packageDir); }
+bool atEScripting::Reload() { return Initialise(atString(m_packageDir)); }

@@ -23,19 +23,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atSkybox.h"
+#include "atSceneCollidable.h"
 
-const int64_t atSkybox::typeID = atSCT_Skybox;
-int64_t atSkybox::TypeID() const { return typeID; }
-
-bool atSkybox::SetImages(const atFilename & left, const atFilename & right, const atFilename & top, const atFilename & bottom, const atFilename & front, const atFilename & back)
-{
-  return false;
-}
-
-bool atSkybox::Draw(const atMat4D &vp)
-{
-  atUnused(vp);
-  return false;
-}
-
+const int64_t atSceneCollidable::typeID = atSceneComponent::NextTypeID();
+int64_t atSceneCollidable::TypeID() const { return typeID; }

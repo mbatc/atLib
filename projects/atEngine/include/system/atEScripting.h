@@ -9,7 +9,7 @@ public:
   atEScripting(const atString &packageDir);
   ~atEScripting();
 
-  bool Reload();
+  bool Update();
   bool IsRunning();
 
   bool DoStartupEvent();
@@ -20,6 +20,7 @@ public:
   bool DoFunction(const atString name, const atVector<atString> &args = {}, const bool overrideRunning = false);
 
 protected:
+  bool Reload();
   bool RunText(const atString &text, const bool overrideRunning = false);
   bool Initialise(const atString &packageDir);
   void Destroy();

@@ -27,7 +27,7 @@
 #include "atLua.h"
 #include "sol.hpp"
 #include "atImGui.h"
-#include "atScene.h"
+#include "atLuaScene.h"
 #include "atVectorMath.h"
 
 int _ExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
@@ -84,6 +84,14 @@ void atLua::ExposeImGui()
     (bool(*)(const char*, const bool))atImGui::Selectable);
 
   gui["Text"] = atImGui::Text;
+
+  gui["BeginTreeNode"] = atImGui::BeginTreeNode;
+
+  gui["EndTreeNode"] = atImGui::EndTreeNode;
+
+  gui["PushID"] = sol::overload((void(*)(const int64_t))atImGui::PushID, (void(*)(const char*))atImGui::PushID);
+
+  gui["PopID"] = atImGui::PopID;
 }
 
 // SCENE
@@ -91,25 +99,80 @@ void atLua::ExposeImGui()
 void atLua::ExposeScene()
 {
   sol::state &lua = *m_pLua;
+  
+  auto &sceneNamespace = lua["atScene"].get_or_create<sol::table>();
 
-  // TODO:  Create atLuaScene to wrapper atScene calls using Lua compatible types
-  //        atLuaScene should create a scene and store a pointer to it internally.
-  //        The interface should use ID's which can be passed between LUA and C++
-  //        to access the scene and it's contents
+  // LUA Scene Class
+  auto &scene = sceneNamespace.create_simple_usertype<atLuaScene>();
+  scene.set("AddActiveCamera", sol::overload(
+    &atLuaScene::AddActiveCamera,
+    &atLuaScene::AddActiveCameraFromID));
+  scene.set("RemoveActiveCamera", sol::overload(
+    &atLuaScene::RemoveActiveCamera,
+    &atLuaScene::RemoveActiveCameraFromID));
+  scene.set("CreateNode", sol::overload(
+      &atLuaScene::CreateNode,
+      &atLuaScene::CreateNodeP,
+      &atLuaScene::CreateNodePR,
+      &atLuaScene::CreateNodePRS,
+      &atLuaScene::CreateNodePRSP));
+  scene.set("DeleteNode", sol::overload(
+    &atLuaScene::DeleteNode,
+    &atLuaScene::DeleteNodeFromID));
+  scene.set("GetNode", &atLuaScene::GetNode);
+  scene.set("GetNodeIDs", &atLuaScene::GetNodeIDs);
+  scene.set("GetRootNode", &atLuaScene::GetRootNode);
+  scene.set("GetRootNodeID", &atLuaScene::GetRootNodeID);
+  scene.set("GetName", &atLuaScene::GetName);
+  scene.set("SetName", &atLuaScene::SetName);
 
-  // TODO:  Create atLuaSceneNode to wrapper atSceneNode class using Lua compatible types
-  //        Should work similarly to atLuaScene accept with atSceneNode as apposed to 
-  //        atScene
+  // LUA Scene Node Class
+  auto &node = sceneNamespace.create_simple_usertype<atLuaSceneNode>();
+  node.set("GetName", &atLuaSceneNode::GetName);
+  node.set("SetName", &atLuaSceneNode::SetName);
+  node.set("GetParentID", &atLuaSceneNode::GetParentID);
+  node.set("SiblingCount", &atLuaSceneNode::SiblingCount);
+  node.set("GetSiblings", &atLuaSceneNode::GetSiblings);
+  node.set("GetSiblingID", &atLuaSceneNode::GetSiblingID);
+  node.set("GetSibling", &atLuaSceneNode::GetSibling);
+  node.set("ChildCount", &atLuaSceneNode::ChildCount);
+  node.set("GetChild", &atLuaSceneNode::GetChild);
+  node.set("GetChildID", &atLuaSceneNode::GetChildID);
+  node.set("GetChildren", &atLuaSceneNode::GetChildren);
+  node.set("AddChild", sol::overload(
+      &atLuaSceneNode::AddChild,
+      &atLuaSceneNode::AddChildP,
+      &atLuaSceneNode::AddChildByID,
+      &atLuaSceneNode::AddChildByIDP));
+  node.set("RemoveChild", sol::overload(
+    &atLuaSceneNode::RemoveChild,
+    &atLuaSceneNode::RemoveChildP,
+    &atLuaSceneNode::RemoveChildByID,
+    &atLuaSceneNode::RemoveChildByIDP));
+  node.set("GetComponents", sol::overload(
+    &atLuaSceneNode::GetComponents,
+    &atLuaSceneNode::GetComponentsOyType));
+  node.set("GetComponent", sol::overload(
+    &atLuaSceneNode::GetComponent,
+    &atLuaSceneNode::GetComponentOfType));
+  node.set("GetPosition", &atLuaSceneNode::GetPosition);
+  node.set("GetRotation", &atLuaSceneNode::GetRotation);
+  node.set("GetScale", &atLuaSceneNode::GetScale);
+  node.set("GlobalPosition", &atLuaSceneNode::GetGlobalPosition);
+  node.set("GlobalRotation", &atLuaSceneNode::GetGlobalRotation);
+  node.set("GlobalScale", &atLuaSceneNode::GetGlobalScale);
+  node.set("SetPosition", &atLuaSceneNode::SetPosition);
+  node.set("SetRotation", &atLuaSceneNode::SetRotation);
+  node.set("SetScale", &atLuaSceneNode::SetScale);
+  node.set("GetID", &atLuaSceneNode::GetID);
 
-  // lua.new_usertype<atScene>("atScene",
-  //   "NodeIDs", &atScene::GetNodeIDs,
-  //   "CreateNode", &atScene::CreateNode,
-  //   "DeleteNode", &atScene::DeleteNode,
-  //   "AddActiveCamera", &atScene::AddActiveCamera,
-  //   "RemoveActiveCamera", &atScene::RemoveActiveCamera);
+  // LUA Component Class
+  auto &component = sceneNamespace.create_simple_usertype<atLuaSceneComponent>();
+  component.set("TypeID", &atLuaSceneComponent::TypeID);
 
-  auto &scene = lua["atScene"].get_or_create<sol::table>();
-  auto &node = scene["Node"].get_or_create<sol::table>();
+  sceneNamespace.set_usertype("Node", node);
+  sceneNamespace.set_usertype("Scene", scene);
+  sceneNamespace.set_usertype("Component", component);
 }
 
 // CONTAINERS

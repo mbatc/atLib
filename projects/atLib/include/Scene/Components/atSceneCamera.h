@@ -23,43 +23,46 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atImGui_h__
-#define atImGui_h__
+#ifndef atSceneCamera_h__
+#define atSceneCamera_h__
 
 #include "atWindow.h"
-#include "../../3rdParty/imgui/imgui.h"
+#include "atTransformable.h"
+#include "atSceneComponent.h"
 
-// Consider moving towards an object based system for safer functions
-// e.g. to create a window instantion an atImGui::Window() which will call Begin() on construction
-// and End() in destruction.
-// This will hopefully remove mismatched Begin()/End() funcitons
-
-class atImGui
+class atSceneCamera : public atSceneComponent
 {
 public:
-  static bool BeginFrame(atWindow *pWnd);
-  static bool EndFrame();
-  static bool Render();
-  static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  atSceneCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
-  static bool Begin(const char *name);
-  static bool Begin(const char *name, const atVec2F &size);
-  static bool Begin(const char *name, const atVec2F &size, const atVec2F &pos);
-  static void End();
+  void SetViewport(const atVec4I viewport);
+  void SetViewport(const atWindow *pWindow);
+  atVec4I Viewport() const;
+  atMat4D ProjectionMat() const;
 
-  static void Text(const char *text);
-  static bool Button(const char *label);
-  static bool Button(const char *label, const atVec2F &size);
-  static bool Button(const char *label, const atVec2F &size, const atVec2F &pos);
-  static bool Selectable(const char *label, const bool selected);
-  static bool Selectable(const char *label, const bool selected, const atVec2F &pos);
+  double m_fov;
+  double m_aspect;
+  double m_farPlane;
+  double m_nearPlane;
+  atVec2F m_depthRange = atVec2I(0, 1);
+ 
+  int64_t TypeID() const override;
+  static const int64_t typeID;
 
-  static bool BeginTreeNode(const char *label);
-  static void EndTreeNode();
-
-  static void PushID(const char *label);
-  static void PushID(const int64_t id);
-  static void PopID();
+protected:
+  atVec4I m_viewport = -1;
 };
 
-#endif // atImGui_h__
+class atSimpleCamera : public atSceneCamera, public atTransformable<double>
+{
+public:
+  atSimpleCamera(double aspect = 1.0, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atSimpleCamera(const atWindow *pWindow, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+
+  atMat4D ViewMat() const;
+  bool OnUpdate(const double dt) override;
+
+  double m_moveSpeed = 1.0;
+};
+
+#endif // atCamera_h__

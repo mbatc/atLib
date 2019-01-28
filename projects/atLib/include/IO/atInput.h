@@ -73,7 +73,7 @@ enum atKeyCode
   atKC_Z = 'Z',
   atKC_Hyphen = '-',
   atKC_Equals = '=',
-  atKC_Apostraphe = '\'',
+  atKC_Apostraphe = VK_OEM_7,
   atKC_OpenSqrBracket = '[',
   atKC_CloseSqrBracket = ']',
   atKC_Period = '.',

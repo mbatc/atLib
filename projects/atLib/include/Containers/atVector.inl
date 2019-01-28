@@ -1,4 +1,3 @@
-#include "atVector.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -25,7 +24,7 @@
 // -----------------------------------------------------------------------------
 
 
-template <typename T2> atVector<T>::atVector(const atVector<T2> &vec)
+template <class T> template <typename T2> atVector<T>::atVector(const atVector<T2> &vec)
 {
   reserve(vec.size());
   for (const T2 &i : vec)

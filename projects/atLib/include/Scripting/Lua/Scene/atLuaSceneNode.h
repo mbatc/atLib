@@ -2,16 +2,21 @@
 #define atLuaSceneNode_h__
 
 #include "atSceneNode.h"
+#include "atLuaSceneComponent.h"
 
 // Functions are named to reflect there parameters as this
 // makes it easier to implement overloaded functions in lua
 // as the compiler struggles to resolve overloaded member functions
 // when taking a pointer to them
 
+class atLuaScene;
+
 class atLuaSceneNode
 {
+  friend atLuaScene;
+
 public:
-  atLuaSceneNode(atSceneNode *pNode);
+  atLuaSceneNode(atSceneNode *pNode = nullptr);
   atLuaSceneNode(const atLuaSceneNode &node);
   atLuaSceneNode(atLuaSceneNode &&move);
 
@@ -19,6 +24,11 @@ public:
   atVec3D GetScale() const;
   atVec3D GetPosition() const;
   atVec3D GetRotation() const;
+
+  atVec3D GetGlobalScale() const;
+  atVec3D GetGlobalPosition() const;
+  atVec3D GetGlobalRotation() const;
+  
   const char* GetName() const;
 
   int64_t ChildCount() const;
@@ -38,18 +48,28 @@ public:
   void SetName(const char *name);
   void SetScale(const atVec3D &scl);
   void SetPosition(const atVec3D &pos);
-  void SetRotaiton(const atVec3D &rot);
+  void SetRotation(const atVec3D &rot);
 
   bool AddChildP(const atLuaSceneNode &node, const bool preserveTransforms);
-  bool AddChildIDByP(const int64_t id, const bool preserveTransforms);
-  bool AddChildP(const int64_t id, const bool preserveTransforms);
-
+  bool AddChildByIDP(const int64_t id, const bool preserveTransforms);
+  
   bool AddChild(const atLuaSceneNode &node);
-  bool AddChildIDBy(const int64_t id);
-  bool AddChild(const int64_t id);
+  bool AddChildByID(const int64_t id);
+
+  bool RemoveChild(const atLuaSceneNode &node);
+  bool RemoveChildP(const atLuaSceneNode &node, bool preserveTransforms);
+  bool RemoveChildByID(const int64_t id);
+  bool RemoveChildByIDP(const int64_t id, bool preserveTransforms);
+
+  atVector<atLuaSceneComponent> GetComponents();
+  atVector<atLuaSceneComponent> GetComponentsOyType(const int64_t type);
+  int64_t ComponentCount();
+  int64_t ComponentCountOfType(const int64_t type);
+  atLuaSceneComponent GetComponent(const int64_t index);
+  atLuaSceneComponent GetComponentOfType(const int64_t type, const int64_t index);
 
 protected:
-  atSceneNode *m_pNode;
+  atSceneNode *m_pNode = nullptr;
 };
 
 #endif // atLuaSceneNode_h__
