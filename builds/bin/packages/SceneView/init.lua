@@ -33,10 +33,21 @@ SceneView.OnGui = function()
 		scene:CreateNode("New Node", defPos, defRot, defScl, selectedID)
 	end
 	atImGui.SameLine()
+
+	rootSelected = selectedID == scene:GetRootNodeID()
+
+	if rootSelected then
+		atImGui.PushStyle(atCore.Packages["GuiStyles"].disabledID)
+	end
+
 	if atImGui.Button("Delete Node") then
 		scene:DeleteNode(selectedID)
 	end
 
+	if rootSelected then
+		atImGui.PopStyle()
+	end
+	
 	atImGui.End()
 	atImGui.PopColour()
 	atImGui.PopStyle()

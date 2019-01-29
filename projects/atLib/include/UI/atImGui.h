@@ -47,6 +47,8 @@ public:
   static bool Begin(const char *name, const atVec2D &size, const atVec2D &pos);
   static void End();
 
+  static const char* TextInput(const char *name, const char *initial);
+
   static void Text(const char *text);
   static bool Button(const char *label);
   static bool Button(const char *label, const atVec2D &size);

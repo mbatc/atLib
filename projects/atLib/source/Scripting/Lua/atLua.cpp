@@ -133,6 +133,8 @@ void atLua::ExposeImGui()
 
   gui["Text"] = atImGui::Text;
 
+  gui["TextInput"] = atImGui::TextInput;
+
   gui["BeginTreeNode"] = atImGui::BeginTreeNode;
 
   gui["EndTreeNode"] = atImGui::EndTreeNode;

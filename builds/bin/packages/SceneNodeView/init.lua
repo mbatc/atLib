@@ -21,7 +21,11 @@ NodeView.OnGui = function()
 		local node = scene:GetNode(nodeID)
 
 		if nodeID ~= -1 then
-			atImGui.Text("Node Name: " .. node:GetName())
+			atImGui.PushID(nodeID)
+			atImGui.Text("Node Name: ")
+			atImGui.SameLine()
+			node:SetName(atImGui.TextInput("", node:GetName()))
+			
 			atImGui.NewLine()
 			atImGui.Text("Position:")
 			atImGui.SameLine()
@@ -34,6 +38,7 @@ NodeView.OnGui = function()
 			atImGui.Text("Scale:")
 			atImGui.SameLine()
 			atImGui.Text("" .. node:GetScale().x .. ", " .. node:GetScale().y .. ", ".. node:GetScale().z)
+			atImGui.PopID()
 		end
 	end
 	atImGui.End()

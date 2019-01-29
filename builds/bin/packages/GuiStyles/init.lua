@@ -1,6 +1,7 @@
 GuiStyles = {}
 
 GuiStyles.mainStyleID = "atEMainStyle"
+GuiStyles.disabledID = "atEDisabledStyle"
 
 GuiStyles.OnStartup = function()
     atImGui.AddColours(GuiStyles.mainStyleID, [[
@@ -35,6 +36,8 @@ TabActive{1, 0.67, 0, 1};
 ]])
 
     atImGui.AddStyle(GuiStyles.mainStyleID, "WindowRounding{0}; FrameRounding{2}; FrameBorderSize{1}")
+
+    atImGui.AddStyle(GuiStyles.disabledID, "Alpha{0.5}")
 end
 
 return GuiStyles

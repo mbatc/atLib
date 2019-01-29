@@ -379,6 +379,17 @@ void atImGui::PopID() { ImGui::PopID(); }
 
 void atImGui::End() { ImGui::End(); }
 
+
+const char* atImGui::TextInput(const char * name, const char * initial)
+{
+  static atVector<char> inputBuffer;
+  int64_t initialLen = strlen(initial);
+  inputBuffer.resize(atMax(inputBuffer.size(), strlen(initial) + 128));
+  memcpy(inputBuffer.data(), initial, initialLen + 1);
+  ImGui::InputText(name, inputBuffer.data(), inputBuffer.size());
+  return inputBuffer.data();
+}
+
 void atImGui::Text(const char *text) { ImGui::Text(text); }
 
 bool atImGui::Button(const char *label) { return ImGui::Button(label); }
