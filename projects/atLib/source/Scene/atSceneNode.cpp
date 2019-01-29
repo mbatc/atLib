@@ -71,19 +71,22 @@ bool atSceneNode::AddChild(atSceneNode *pChild, const bool preserveTransform)
 bool atSceneNode::RemoveChild(atSceneNode *pChild, const bool preserveTransform)
 {
   if (!pChild || pChild->Parent() != this) return false;
+
+  // Remove from all sibling lists
+  for (atSceneNode *&pNode : m_children)
+    for (atSceneNode *&pSibling : pNode->m_siblings)
+      if (pSibling == pChild)
+      {
+        pNode->m_siblings.erase(&pSibling - pNode->m_siblings.begin());
+        break;
+      }
+
+  // Remove from child list
   for (atSceneNode *&pNode : m_children)
     if (pNode == pChild)
     {
       m_children.erase(&pNode - m_children.begin());
-    }
-    else
-    {
-      for(atSceneNode *&pSibling : pNode->m_siblings)
-        if (pSibling == pChild)
-        {
-          pNode->m_siblings.erase(&pSibling - pNode->m_siblings.begin());
-          break;
-        }
+      break;
     }
 
   if (preserveTransform)

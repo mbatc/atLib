@@ -23,12 +23,18 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#define SOL_CHECK_ARGUMENTS 1
 #include "atLua.h"
 #include "sol.hpp"
 #include "atImGui.h"
 #include "atLuaScene.h"
 #include "atVectorMath.h"
+
+inline void _LuaPanic(sol::optional<std::string> maybe_msg) 
+{
+  printf("Lua is in a panic state and will now abort() the application\n");
+  if (maybe_msg)
+    printf("\terror message: %s\n", maybe_msg.value().c_str());
+}
 
 int _ExceptionHandler(lua_State* L, sol::optional<const std::exception&> exception, sol::string_view description)
 {
@@ -46,10 +52,52 @@ int _ExceptionHandler(lua_State* L, sol::optional<const std::exception&> excepti
   return sol::stack::push(L, description);
 }
 
+bool _LuaCall(const sol::state &s, const sol::protected_function_result &res)
+{
+  if (!res.valid())
+  {
+    atString err = "sol: ";
+    err += to_string(res.status()).c_str();
+    err += " error";
+    std::exception_ptr eptr = std::current_exception();
+    if (eptr) {
+      err += " with a ";
+      try {
+        std::rethrow_exception(eptr);
+      }
+      catch (const std::exception& ex) {
+        err += "std::exception -- ";
+        err += ex.what();
+      }
+      catch (const std::string& message) {
+        err += "thrown message -- ";
+        err += message.c_str();
+      }
+      catch (const char* message) {
+        err += "thrown message -- ";
+        err += message;
+      }
+      catch (...) {
+        err.append("thrown but unknown type, cannot serialize into error message");
+      }
+    }
+
+    if (type_of(s, res.stack_index()) == sol::type::string) {
+      err += ": ";
+      sol::string_view serr = sol::stack::get<sol::string_view>(s, res.stack_index());
+      err += serr.data();
+    }
+
+    printf("-- LUA ERROR --\n\n%s\n\n", err.c_str());
+    return false;
+  }
+  return true;
+}
+
 atLua::atLua()
 {
-  sol::state lua;
   m_pLua = atNew<sol::state>();
+  lua_atpanic(*m_pLua, sol::c_call<decltype(&_LuaPanic), &_LuaPanic>);
   m_pLua->set_exception_handler(_ExceptionHandler);
   m_pLua->open_libraries();
   ExposeContainers();
@@ -57,8 +105,8 @@ atLua::atLua()
 
 atLua::~atLua() { atDelete(m_pLua); }
 sol::state * atLua::GetLua() { return m_pLua; }
-bool atLua::RunText(const atString &command) { return m_pLua->script(command.c_str()).valid(); }
-bool atLua::RunFile(const atString &filename) { return m_pLua->script_file(filename.c_str()).valid(); }
+bool atLua::RunText(const atString &command) { return _LuaCall(*m_pLua, m_pLua->script(command.c_str(), &sol::script_pass_on_error)); }
+bool atLua::RunFile(const atString &filename) { return _LuaCall(*m_pLua, m_pLua->script_file(filename.c_str(), &sol::script_pass_on_error)); }
 
 // DEAR IMGUI
 
@@ -68,19 +116,19 @@ void atLua::ExposeImGui()
 
   auto &gui = lua["atImGui"].get_or_create<sol::table>();
   gui["Begin"] = sol::overload(
-    (bool(*)(const char*, const atVec2F&, const atVec2F&))atImGui::Begin,
-    (bool(*)(const char*, const atVec2F&))atImGui::Begin,
+    (bool(*)(const char*, const atVec2D&, const atVec2D&))atImGui::Begin,
+    (bool(*)(const char*, const atVec2D&))atImGui::Begin,
     (bool(*)(const char*))atImGui::Begin);
 
   gui["End"] = atImGui::End;
   
   gui["Button"] = sol::overload(
-    (bool(*)(const char*, const atVec2F&, const atVec2F&))atImGui::Button,
-    (bool(*)(const char*, const atVec2F&))atImGui::Button,
+    (bool(*)(const char*, const atVec2D&, const atVec2D&))atImGui::Button,
+    (bool(*)(const char*, const atVec2D&))atImGui::Button,
     (bool(*)(const char*))atImGui::Button);
 
   gui["Selectable"] = sol::overload(
-    (bool(*)(const char*, const bool, const atVec2F&))atImGui::Selectable,
+    (bool(*)(const char*, const bool, const atVec2D&))atImGui::Selectable,
     (bool(*)(const char*, const bool))atImGui::Selectable);
 
   gui["Text"] = atImGui::Text;
@@ -92,6 +140,41 @@ void atLua::ExposeImGui()
   gui["PushID"] = sol::overload((void(*)(const int64_t))atImGui::PushID, (void(*)(const char*))atImGui::PushID);
 
   gui["PopID"] = atImGui::PopID;
+
+  gui["SameLine"] = atImGui::SameLine;
+
+  gui["NewLine"] = atImGui::NewLine;
+
+  gui["BeginChild"] = sol::overload(
+    (bool(*)(const char*, const atVec2D&, const bool))atImGui::BeginChild,
+    (bool(*)(const char*, const atVec2D&))atImGui::BeginChild,
+    (bool(*)(const char*))atImGui::BeginChild);
+
+  gui["EndChild"] = atImGui::EndChild;
+
+  // Style Management
+
+  gui["AddStyle"] = atImGui::AddStyle;
+  gui["AddColours"] = atImGui::AddColours;
+  gui["RemoveStyle"] = atImGui::RemoveStyle;
+  gui["RemoveColours"] = atImGui::RemoveColours;
+
+  gui["PushColour"] = sol::overload(
+    (void(*)(const char *, const atVec4D&))atImGui::PushColour,
+    (void(*)(const char *))atImGui::PushColour);
+
+  gui["PopColour"] = sol::overload(
+    (void(*)(int64_t))atImGui::PopColour,
+    (void(*)())atImGui::PopColour);
+
+  gui["PushStyle"] = sol::overload(
+    (void(*)(const char *, const atVec2D&))atImGui::PushStyle,
+    (void(*)(const char *, const double))atImGui::PushStyle,
+    (void(*)(const char *))atImGui::PushStyle);
+
+  gui["PopStyle"] = sol::overload(
+    (void(*)(int64_t))atImGui::PopStyle,
+    (void(*)())atImGui::PopStyle);
 }
 
 // SCENE
@@ -132,8 +215,8 @@ void atLua::ExposeScene()
   node.set("SetName", &atLuaSceneNode::SetName);
   node.set("GetParentID", &atLuaSceneNode::GetParentID);
   node.set("SiblingCount", &atLuaSceneNode::SiblingCount);
-  node.set("GetSiblings", &atLuaSceneNode::GetSiblings);
   node.set("GetSiblingID", &atLuaSceneNode::GetSiblingID);
+  node.set("GetSiblings", &atLuaSceneNode::GetSiblings);
   node.set("GetSibling", &atLuaSceneNode::GetSibling);
   node.set("ChildCount", &atLuaSceneNode::ChildCount);
   node.set("GetChild", &atLuaSceneNode::GetChild);
@@ -220,16 +303,18 @@ void atLua::ExposeMathTypes()
 
   // Expose Vector Classes
   math.new_usertype<atVec2D>("Vec2",
+    sol::constructors<atVec2D(double, double)>(),
     "x", &atVec2D::x,
-    "x", &atVec2D::y,
+    "y", &atVec2D::y,
     "Add", &atVec2D::Add,
     "Sub", &atVec2D::Sub,
     "Mul", &atVec2D::Mul,
     "Div", &atVec2D::Div);
 
   math.new_usertype<atVec3D>("Vec3",
+    sol::constructors<atVec3D(double, double, double)>(),
     "x", &atVec3D::x,
-    "x", &atVec3D::y,
+    "y", &atVec3D::y,
     "z", &atVec3D::z,
     "Add", &atVec3D::Add,
     "Sub", &atVec3D::Sub,
@@ -240,8 +325,9 @@ void atLua::ExposeMathTypes()
     "yz", &atVec3D::yz);
 
   math.new_usertype<atVec4D>("Vec4",
+    sol::constructors<atVec4D(double, double, double, double)>(),
     "x", &atVec4D::x,
-    "x", &atVec4D::y,
+    "y", &atVec4D::y,
     "z", &atVec4D::z,
     "w", &atVec4D::w,
     "Add", &atVec4D::Add,

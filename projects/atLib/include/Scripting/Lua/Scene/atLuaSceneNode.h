@@ -42,8 +42,8 @@ public:
   int64_t GetChildID(const int64_t index) const;
   int64_t GetSiblingID(const int64_t index) const;
 
-  atVector<atLuaSceneNode> GetChildren() const;
-  atVector<atLuaSceneNode> GetSiblings() const;
+  std::vector<atLuaSceneNode> GetChildren() const;
+  std::vector<atLuaSceneNode> GetSiblings() const;
 
   void SetName(const char *name);
   void SetScale(const atVec3D &scl);
@@ -61,12 +61,15 @@ public:
   bool RemoveChildByID(const int64_t id);
   bool RemoveChildByIDP(const int64_t id, bool preserveTransforms);
 
-  atVector<atLuaSceneComponent> GetComponents();
-  atVector<atLuaSceneComponent> GetComponentsOyType(const int64_t type);
+  std::vector<atLuaSceneComponent> GetComponents();
+  std::vector<atLuaSceneComponent> GetComponentsOyType(const int64_t type);
   int64_t ComponentCount();
   int64_t ComponentCountOfType(const int64_t type);
   atLuaSceneComponent GetComponent(const int64_t index);
   atLuaSceneComponent GetComponentOfType(const int64_t type, const int64_t index);
+
+  const atLuaSceneNode& operator=(const atLuaSceneNode &rhs);
+  const atLuaSceneNode& operator=(atLuaSceneNode &&rhs);
 
 protected:
   atSceneNode *m_pNode = nullptr;

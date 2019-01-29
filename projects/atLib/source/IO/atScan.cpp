@@ -132,8 +132,8 @@ double atScan::Float(const char *str, int64_t *pLen, int64_t srclen)
   if (firstNum != nextChar || floatlen == 0)
     return 0.0f;
 
-  int64_t mag = (int64_t)pow(10, floatlen - (dot > firstNum && dot < lastNum ? 2 : 1));
-  int64_t exponent = atMax(0, lastNum - dot - 1);
+  int64_t exponent = atMax(0, floatlen - (dot > firstNum && dot < lastNum ? 2 : 1));
+  int64_t mag = (int64_t)pow(10, exponent);
 
   uint64_t value = 0;
   for (int64_t c = firstNum + isNegative; c < lastNum; ++c)

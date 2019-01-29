@@ -157,6 +157,23 @@ template <class T> template <class T1> void atVector<T>::assign(T1* start, T1* e
     push_back((T)start[i]);
 }
 
+template <class T> template <typename T2> inline atVector<T>::operator std::vector<T2>()
+{
+  std::vector<T2> ret;
+  ret.reserve(size());
+  for (T &i : *this)
+    ret.push_back(T2(i));
+  return ret;
+}
+
+template <class T> inline atVector<T>::operator std::vector<T>()
+{
+  std::vector<T> ret;
+  ret.reserve(size());
+  for (T &i : *this)
+    ret.push_back(i);
+  return ret;
+}
 
 template <class T> const T& atVector<T>::at(const int64_t index) const
 {

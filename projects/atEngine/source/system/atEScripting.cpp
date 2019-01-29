@@ -2,6 +2,8 @@
 #include "atFilename.h"
 #include "atInput.h"
 
+void _ExposeScriptCommands(atEScripting *pLua);
+
 atEScripting::atEScripting(const atString &packageDir)
   : m_running(true)
   , m_pLua(nullptr)
@@ -11,7 +13,7 @@ atEScripting::atEScripting(const atString &packageDir)
 
 atEScripting::~atEScripting() { Destroy(); }
 
-bool atEScripting::DoFunction(const atString name, const atVector<atString> &args, const bool overrideRunning)
+bool atEScripting::DoFunction(const atString &name, const atVector<atString> &args, const bool overrideRunning)
 {
   if (!m_running && !overrideRunning)
     return false;
@@ -23,7 +25,7 @@ bool atEScripting::DoFunction(const atString name, const atVector<atString> &arg
 
 bool atEScripting::RunText(const atString &text, const bool overrideRunning)
 {
-  if (!m_running && !overrideRunning)
+  if (!m_running && !overrideRunning || !m_pLua)
     return false;
   m_running &= m_pLua->RunText(text);
   return m_running;
@@ -32,23 +34,30 @@ bool atEScripting::RunText(const atString &text, const bool overrideRunning)
 bool atEScripting::Initialise(const atString &packageDir)
 {
   Destroy();
+  m_running = true;
   m_packageDir = packageDir;
   m_pLua = atNew<atLua>();
   RunText("require([[" + m_packageDir + "/core]])");
   RunText("atCore.Initialise([[" + m_packageDir + "]], [[" + atFilename(packageDir).Name() +"]])");
   
-  // Expose required atLib functions
-  m_pLua->ExposeMathTypes();
-  m_pLua->ExposeMathFunctions();
-  m_pLua->ExposeScene();
-  m_pLua->ExposeImGui();
+  if (m_running)
+  {
+    // Expose required atLib functions
+    m_pLua->ExposeMathTypes();
+    m_pLua->ExposeMathFunctions();
+    m_pLua->ExposeScene();
+    m_pLua->ExposeImGui();
 
-  m_packageDir = packageDir;
-  return m_running;
+    // Expose atEngine script commands
+    _ExposeScriptCommands(this);
+  }
+
+  return DoStartupEvent();
 }
 
 void atEScripting::Destroy()
 {
+  DoCleanupEvent();
   if (m_pLua)
     atDelete(m_pLua);
   m_packageDir = "";
@@ -57,7 +66,7 @@ void atEScripting::Destroy()
 
 bool atEScripting::Update()
 {
-  if (atInput::KeyDown(atKC_Apostraphe))
+  if (atInput::KeyPressed(atKC_Apostraphe))
     Reload();
   return true;
 }
@@ -69,3 +78,35 @@ bool atEScripting::DoCleanupEvent() { return DoFunction("OnCleanup"); }
 bool atEScripting::DoGUIEvent() { return DoFunction("OnGui"); }
 bool atEScripting::IsRunning() { return m_running; }
 bool atEScripting::Reload() { return Initialise(atString(m_packageDir)); }
+
+// Global Scripting Engine Commands
+
+#include "atEngine.h"
+
+atLuaScene atEScripting::Commands::GetScene()
+{
+  return atEngine::Commands::Scene();
+}
+
+atVec2D atEScripting::Commands::GetWindowSize()
+{
+  return atEngine::Commands::WindowSize();
+}
+
+double atEScripting::Commands::GetWindowWidth()
+{
+  return (double)atEngine::Commands::WindowWidth();
+}
+
+double atEScripting::Commands::GetWindowHeight()
+{
+  return (double)atEngine::Commands::WindowHeight();
+}
+
+void _ExposeScriptCommands(atEScripting *pScripting)
+{
+  pScripting->ExposeFunction("GetScene", atEScripting::Commands::GetScene);
+  pScripting->ExposeFunction("GetWindowWidth", atEScripting::Commands::GetWindowWidth);
+  pScripting->ExposeFunction("GetWindowHeight", atEScripting::Commands::GetWindowHeight);
+  pScripting->ExposeFunction("GetWindowSize", atEScripting::Commands::GetWindowSize);
+}

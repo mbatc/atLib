@@ -25,7 +25,7 @@ public:
   
   atLuaSceneNode GetNode(const int64_t id) const;
 
-  atVector<int64_t> GetNodeIDs() const;
+  std::vector<int64_t> GetNodeIDs() const;
 
   int64_t CreateNodePRSP(const char *name, const atVec3D &position, const atVec3D &rotation, const atVec3D &scale, const int64_t parentID);
   int64_t CreateNodePRS(const char *name, const atVec3D &position, const atVec3D &rotation, const atVec3D &scale);
@@ -33,13 +33,18 @@ public:
   int64_t CreateNodeP(const char *name, const atVec3D &position);
   int64_t CreateNode(const char *name);
 
-  bool DeleteNodeFromID(const int64_t id, bool migrateChildren = false);
-  bool DeleteNode(const atLuaSceneNode &node, bool migrateChildren = false);
+  bool DeleteNodeFromIDM(const int64_t id, bool migrateChildren);
+  bool DeleteNodeFromID(const int64_t id);
+  bool DeleteNodeM(const atLuaSceneNode &node, bool migrateChildren);
+  bool DeleteNode(const atLuaSceneNode &node);
 
   bool AddActiveCameraFromID(const int64_t id);
   bool RemoveActiveCameraFromID(const int64_t id);
   bool AddActiveCamera(const atLuaSceneNode &node);
   bool RemoveActiveCamera(const atLuaSceneNode &node);
+
+  const atLuaScene& operator=(const atLuaScene &rhs);
+  const atLuaScene& operator=(atLuaScene &&rhs);
 
 protected:
   atScene *m_pScene;

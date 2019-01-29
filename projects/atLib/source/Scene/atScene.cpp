@@ -31,13 +31,37 @@ static atLua *_pLua = nullptr;
 
 int64_t _GetNextID() { return _idCounter++; }
 
-atScene::atScene() : m_pRoot(nullptr), m_pLua(nullptr) { m_pRoot = CreateNode("Root"); }
-atScene::~atScene() { DeleteNode(m_pRoot); }
+atScene::atScene() : m_pRoot(nullptr), m_pLua(nullptr), m_name("Scene") { m_pRoot = CreateNode("Root"); }
+atScene::~atScene() { DeleteNode(m_pRoot, false, true); }
 
 int64_t atScene::GetNodeID(const atSceneNode *pNode) const
 {
   const int64_t *pID = m_nodeIDs.TryGet(pNode);
   return pID ? *pID : AT_INVALID_ID;
+}
+
+bool atScene::DeleteNode(atSceneNode *pNode, bool migrateChildren, bool allowRoot)
+{
+  if (!pNode || pNode->m_pScene != this || (pNode == m_pRoot && migrateChildren)) return false;
+  atVector<atSceneNode*> children = pNode->Children();
+  bool res = true;
+  for (atSceneNode *pNode : children)
+    if (migrateChildren)
+      pNode->Parent()->AddChild(pNode);
+    else
+      res &= DeleteNode(pNode, migrateChildren);
+
+  if (pNode->Parent())
+    pNode->Parent()->RemoveChild(pNode);
+
+  if (!allowRoot && pNode == m_pRoot)
+    return true;
+
+  int64_t id = m_nodeIDs[pNode];
+  m_nodeIDs.Remove(pNode);
+  m_nodes.Remove(id);
+  atDelete(pNode);
+  return res;
 }
 
 bool atScene::Update(atSceneNode *pNode)
@@ -72,22 +96,9 @@ atSceneNode* atScene::CreateNode(const atString &name, const atVec3D &position, 
   return pNode;
 }
 
-bool atScene::DeleteNode(const atSceneNode *pNode, bool migrateChildren)
+bool atScene::DeleteNode(atSceneNode *pNode, bool migrateChildren)
 {
-  if (!pNode || pNode->m_pScene != this || (pNode == m_pRoot && migrateChildren)) return false;
-  atVector<atSceneNode*> children = pNode->Children();
-  bool res = true;
-  for (atSceneNode *pNode : children)
-    if (migrateChildren)
-      m_pRoot->AddChild(pNode);
-    else
-      res &= DeleteNode(pNode, migrateChildren);
-
-  int64_t id = m_nodeIDs[pNode];
-  m_nodeIDs.Remove(pNode);
-  m_nodes.Remove(id);
-  atDelete(pNode);
-  return res;
+  return DeleteNode(pNode, migrateChildren, false);
 }
 
 bool atScene::AddActiveCamera(const int64_t id)

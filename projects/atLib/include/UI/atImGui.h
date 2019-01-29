@@ -43,23 +43,47 @@ public:
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   static bool Begin(const char *name);
-  static bool Begin(const char *name, const atVec2F &size);
-  static bool Begin(const char *name, const atVec2F &size, const atVec2F &pos);
+  static bool Begin(const char *name, const atVec2D &size);
+  static bool Begin(const char *name, const atVec2D &size, const atVec2D &pos);
   static void End();
 
   static void Text(const char *text);
   static bool Button(const char *label);
-  static bool Button(const char *label, const atVec2F &size);
-  static bool Button(const char *label, const atVec2F &size, const atVec2F &pos);
+  static bool Button(const char *label, const atVec2D &size);
+  static bool Button(const char *label, const atVec2D &size, const atVec2D &pos);
   static bool Selectable(const char *label, const bool selected);
-  static bool Selectable(const char *label, const bool selected, const atVec2F &pos);
-
+  static bool Selectable(const char *label, const bool selected, const atVec2D &pos);
   static bool BeginTreeNode(const char *label);
   static void EndTreeNode();
 
+  static bool BeginChild(const char *id, const atVec2D &size, const bool border);
+  static bool BeginChild(const char *id, const atVec2D &size);
+  static bool BeginChild(const char *id);
+  static void EndChild();
+
+  static void NewLine();
+  static void SameLine();
   static void PushID(const char *label);
   static void PushID(const int64_t id);
   static void PopID();
+
+  static void AddColours(const char *id, const char *colourString);
+  static void RemoveColours(const char *id);
+
+  static void AddStyle(const char *id, const char *colourString);
+  static void RemoveStyle(const char *id);
+
+  static void PushColour(const char *colourName, const atVec4D &colour);
+  static void PushColour(const char *colourID);
+  static void PopColour(int64_t count);
+  static void PopColour();
+
+  static void PushStyle(const char *styleName, const atVec2D &val);
+  static void PushStyle(const char *styleName, const double val);
+  static void PushStyle(const char *styleID);
+  static void PopStyle(int64_t count);
+  static void PopStyle();
+
 };
 
 #endif // atImGui_h__

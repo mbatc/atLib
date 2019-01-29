@@ -73,17 +73,22 @@ atCore.WorkingDir = ""
 atCore.Initialise = function(cwd, packageDir)
     for _, dir in pairs(atCore.File.GetDirectories(cwd)) do
         atCore.Packages[dir] = require(packageDir .. "." .. dir)
+        if (type(atCore.Packages[dir]) ~= 'table') then
+            print("Warning: " .. dir .. " is not a table. Make sure the package table is returned in init.lua")
+        end
     end
 end
 
 atCore.Call = function(func, ...)
     for k, p in pairs(atCore.Packages) do
-        if (p[func] ~= nil) then
-            if (arg ~= nil) then
-                p[func](unpack(arg))
-            else
-                p[func]()
-            end
+        if(type(p) == 'table') then
+           if (p[func] ~= nil) then
+               if (arg ~= nil) then
+                   p[func](unpack(arg))
+               else
+                   p[func]()
+               end
+           end
         end
     end
 end

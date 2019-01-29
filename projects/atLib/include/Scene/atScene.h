@@ -58,7 +58,7 @@ public:
 
   atSceneNode* CreateNode(const atString &name, const atVec3D &position = 0, const atVec3D &rotation = 0, const atVec3D &scale = atVec3D::one(), atSceneNode *pParent = nullptr);
 
-  bool DeleteNode(const atSceneNode *pNode, bool migrateChildren = false);
+  bool DeleteNode(atSceneNode *pNode, bool migrateChildren = false);
   bool DeleteNode(const int64_t id, bool migrateChildren = false);
 
   bool AddActiveCamera(const int64_t id);
@@ -71,6 +71,7 @@ public:
 
   atVec4I m_viewport;
 protected:
+  bool DeleteNode(atSceneNode *pNode, bool migrateChildren, bool allowRoot);
   bool Update(atSceneNode *pNode);
   
   atString m_name;

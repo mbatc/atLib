@@ -13,6 +13,9 @@ public:
 
   int64_t TypeID() const;
 
+  const atLuaSceneComponent& operator=(const atLuaSceneComponent &rhs);
+  const atLuaSceneComponent& operator=(atLuaSceneComponent &&rhs);
+
 protected:
   atSceneComponent *m_pComponent;
 };

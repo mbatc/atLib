@@ -31,6 +31,7 @@
 #include "atShaderPool.h"
 #include "atInput.h"
 #include <time.h>
+#include "atScan.h"
 
 struct VERTEX_CONSTANT_BUFFER
 {
@@ -249,7 +250,7 @@ bool atImGui::Render()
   rs.SetBlendEnabled(true);
   rs.SetDepthReadEnabled(false);
   rs.SetDepthWriteEnabled(false);
-  rs.SetScissor(true);
+  rs.SetScissorEnabled(true);
   rs.SetStencilEnabled(false);
   rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y));
   rs.SetShader(_shaderID, _inputLayoutID);
@@ -323,20 +324,20 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 bool atImGui::Begin(const char *name) { return ImGui::Begin(name); }
 
-bool atImGui::Begin(const char *name, const atVec2F &size)
+bool atImGui::Begin(const char *name, const atVec2D &size)
 {
   ImGui::SetNextWindowSize(size);
   return Begin(name);
 }
 
-bool atImGui::Begin(const char *name, const atVec2F &size, const atVec2F &pos)
+bool atImGui::Begin(const char *name, const atVec2D &size, const atVec2D &pos)
 {
   ImGui::SetNextWindowPos(pos);
   return Begin(name, size);
 }
 
 
-bool atImGui::Button(const char *label, const atVec2F &size, const atVec2F &pos)
+bool atImGui::Button(const char *label, const atVec2D &size, const atVec2D &pos)
 {
   ImVec2 lastCursorPos = ImGui::GetCursorPos();
   ImGui::SetCursorPos(pos);
@@ -345,7 +346,7 @@ bool atImGui::Button(const char *label, const atVec2F &size, const atVec2F &pos)
   return result;
 }
 
-bool atImGui::Selectable(const char *label, const bool selected, const atVec2F &pos)
+bool atImGui::Selectable(const char *label, const bool selected, const atVec2D &pos)
 {
   ImVec2 lastCursorPos = ImGui::GetCursorPos();
   ImGui::SetCursorPos(pos);
@@ -357,6 +358,18 @@ bool atImGui::Selectable(const char *label, const bool selected, const atVec2F &
 bool atImGui::BeginTreeNode(const char *label) { return ImGui::TreeNode(label); }
 
 void atImGui::EndTreeNode() { ImGui::TreePop(); }
+
+bool atImGui::BeginChild(const char *id, const atVec2D &size, const bool border) { return ImGui::BeginChild(id, size, border); }
+
+bool atImGui::BeginChild(const char *id, const atVec2D &size) { return BeginChild(id, size, false); }
+
+bool atImGui::BeginChild(const char *id) { return BeginChild(id, { 0, 0 }, false); }
+
+void atImGui::EndChild() { ImGui::EndChild(); }
+
+void atImGui::NewLine() { ImGui::NewLine(); }
+
+void atImGui::SameLine() { ImGui::SameLine(); }
 
 void atImGui::PushID(const char *label) { ImGui::PushID(label); }
 
@@ -370,6 +383,281 @@ void atImGui::Text(const char *text) { ImGui::Text(text); }
 
 bool atImGui::Button(const char *label) { return ImGui::Button(label); }
 
-bool atImGui::Button(const char *label, const atVec2F &size) { return ImGui::Button(label, size); }
+bool atImGui::Button(const char *label, const atVec2D &size) { return ImGui::Button(label, size); }
 
 bool atImGui::Selectable(const char *label, const bool selected) { return ImGui::Selectable(label, selected); }
+
+// Helpers to push a large collection of styles in one go
+
+struct _atImGuiColours
+{
+  int64_t colID = -1;
+  atVec4D colour = atVec4D::one();
+};
+
+struct _atImGuiStyles
+{
+  int64_t varID = -1;
+  atVec2D vec2 = 0;
+  int64_t nVals = 0;
+};
+
+static atVector<int64_t> _stylePopCount;
+static atVector<int64_t> _styleColourPopCount;
+static atHashMap<atString, int64_t> _styleLookup;
+static atHashMap<atString, int64_t> _styleColourLookup;
+static atHashMap<atString, atVector<_atImGuiColours>> _coloursCache;
+static atHashMap<atString, atVector<_atImGuiStyles>> _stylesCache;
+
+// ImGui provides a handy function to get the style colour names
+// so we can generate a string to int hash map of colour id's quite easily
+
+static int64_t _GetColourID(const atString &colour)
+{
+  // Generate style colour name to ID lookup
+  if (_styleColourLookup.Size() == 0)
+    for (int64_t id = 0; id < (int64_t)ImGuiCol_COUNT; ++id)
+      _styleColourLookup.Add(atString(ImGui::GetStyleColorName((ImGuiCol)id)).to_lower(), id);
+  atString lowerStr = colour.to_lower();
+  int64_t *pID =_styleColourLookup.TryGet(lowerStr);
+  return pID ? *pID : -1;
+}
+
+static int64_t _GetStyleID(const atString &style)
+{
+  // Generate style colour name to ID lookup
+  if (_styleLookup.Size() == 0)
+    for (int64_t id = 0; id < (int64_t)ImGuiStyleVar_COUNT; ++id)
+      _styleLookup.Add(atString(ImGui::GetStyleVarName((ImGuiCol)id)).to_lower(), id);
+  atString lowerStr = style.to_lower();
+  int64_t *pID = _styleLookup.TryGet(lowerStr);
+  return pID ? *pID : -1;
+}
+
+static _atImGuiStyles _ParseStyleString(const atString &str)
+{
+  static atVector<atString> args;
+  args.clear();
+
+  // remove whitespace and split string
+  args = str.replace("}", "").replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "").split('{');
+
+  _atImGuiStyles ret;
+
+  if (args.size() == 2)
+  {
+    int64_t styleID = _GetStyleID(args[0]);
+    if (styleID >= 0)
+    {
+      atVector<atString> styleVals = args[1].split(',');
+      const ImGuiStyleVarInfo *pInfo = ImGui::GetStyleVarInfo((ImGuiStyleVar)styleID);
+
+      if (styleVals.size() == pInfo->Count)
+      {
+        for (int64_t i = 0; i < styleVals.size(); ++i)
+          ret.vec2[i] = atScan::Float(styleVals[0]);
+        ret.varID = styleID;
+        ret.nVals = pInfo->Count;
+        return ret;
+      }
+      else
+      {
+        printf("atImGui Warning - Parsing style string:\n\t%d values needed for a valid style. %lld provided.\n", pInfo->Count, styleVals.size());
+      }
+    }
+    else
+    {
+      printf("atImGui Warning - Parsing style string:\n\t'%s' is not a valid ImGui style id.\n", args[0].c_str());
+    }
+  }
+  else
+  {
+    printf("atImGui Warning - Parsing style string:\n\tNot enough arguments in '%s'\n", str.c_str());
+  }
+
+  return _atImGuiStyles();
+}
+
+static _atImGuiColours _ParseColourString(const atString &str)
+{
+  static atVector<atString> args;
+  args.clear();
+  args = str.replace("}", "").replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "").split('{');
+
+  _atImGuiColours ret;
+
+  if (args.size() == 2)
+  {
+    int64_t colID = _GetColourID(args[0]);
+    if (colID >= 0)
+    {
+      atVector<atString> colVals = args[1].split(',');
+      if (colVals.size() == 4 || colVals.size() == 3)
+      {
+        for (int64_t i = 0; i < colVals.size(); ++i)
+          ret.colour[i] = atScan::Float(colVals[i]);
+        ret.colID = colID;
+        return ret;
+      }
+      else
+      {
+        printf("atImGui Warning - Parsing style colour string:\n\t3 or 4 values needed for a valid colour. %lld where provided", colVals.size());
+      }
+    }
+    else
+    {
+      printf("atImGui Warning - Parsing style colour string:\n\t'%s' is not a valid ImGui colour id.", args[0].c_str());
+    }
+  }
+  else
+  {
+    printf("atImGui Warning - Parsing style colour string: Not enough arguments in '%s'", str.c_str());
+  }
+
+  return _atImGuiColours();
+}
+
+void atImGui::AddColours(const char *id, const char *colourString)
+{
+  RemoveColours(id);
+  _coloursCache.TryAdd(id, atVector<_atImGuiColours>());
+  atVector<_atImGuiColours> &col = _coloursCache.Get(id);
+  col.clear();
+
+  atVector<atString> tokens = atString(colourString).split(';');
+  for (const atString &colString : tokens)
+  {
+    _atImGuiColours colDef = _ParseColourString(colString);
+    if(colDef.colID >= 0)
+      col.push_back(colDef);
+  }
+}
+
+void atImGui::AddStyle(const char *id, const char *styleString)
+{
+  RemoveStyle(id);
+  _stylesCache.TryAdd(id, atVector<_atImGuiStyles>());
+  atVector<_atImGuiStyles> &style = _stylesCache.Get(id);
+  style.clear();
+
+  atVector<atString> tokens = atString(styleString).split(';');
+  for (const atString &colString : tokens)
+  {
+    _atImGuiStyles styleDef = _ParseStyleString(colString);
+    if (styleDef.varID >= 0)
+      style.push_back(styleDef);
+  }
+}
+
+void atImGui::RemoveColours(const char *id) { _coloursCache.Remove(id); }
+
+void atImGui::RemoveStyle(const char *id) { _stylesCache.Remove(id); }
+
+void atImGui::PushColour(const char *colourName, const atVec4D &colour)
+{
+  int64_t id = _GetColourID(colourName);
+  if (id < 0)
+  {
+    printf("atImGui Warning - Push Colour: Invalid Colour ID '%s'", colourName);
+    return;
+  }
+
+  _styleColourPopCount.push_back(1);
+  ImGui::PushStyleColor((ImGuiCol)id, colour);
+}
+
+void atImGui::PushStyle(const char *styleName, const atVec2D &val)
+{
+  int64_t id = _GetStyleID(styleName);
+  if (id < 0)
+  {
+    printf("atImGui Warning - Push Style: Invalid Style ID '%s'", styleName);
+    return;
+  }
+
+  if (ImGui::GetStyleVarInfo((ImGuiStyleVar)id)->Count != 2)
+  {
+    printf("atImGui Warning - Push Style: '%s' expects a double. A Vec2 was passed.", styleName);
+    return;
+  }
+
+  ImGui::PushStyleVar((ImGuiStyleVar)id, val);
+  _stylePopCount.push_back(1);
+}
+
+void atImGui::PushStyle(const char *styleName, const double val)
+{
+  int64_t id = _GetStyleID(styleName);
+  if (id < 0)
+  {
+    printf("atImGui Warning - Push Style: Invalid Style ID '%s'", styleName);
+    return;
+  }
+
+  if (ImGui::GetStyleVarInfo((ImGuiStyleVar)id)->Count != 1)
+  {
+    printf("atImGui Warning - Push Style: '%s' expects a Vec2. A double was passed.", styleName);
+    return;
+  }
+
+  ImGui::PushStyleVar((ImGuiStyleVar)id, (float)val);
+  _stylePopCount.push_back(1);
+}
+
+void atImGui::PushColour(const char *colourID)
+{
+  atVector<_atImGuiColours> *pColours = _coloursCache.TryGet(colourID);
+  if (!pColours)
+  {
+    printf("atImGui Warning - Push Colour: No colour style exists with the id %s. Use AddColours to push add a named colour style string.", colourID);
+    return;
+  }
+
+  for (_atImGuiColours &colDef : *pColours)
+    ImGui::PushStyleColor((ImGuiCol)colDef.colID, colDef.colour);
+  _styleColourPopCount.push_back(pColours->size());
+}
+
+void atImGui::PushStyle(const char *styleID)
+{
+  atVector<_atImGuiStyles> *pStyles = _stylesCache.TryGet(styleID);
+  if (!pStyles)
+  {
+    printf("atImGui Warning - Push Style: No style exists with the id %s. Use AddStyles to push add a named style string.", styleID);
+    return;
+  }
+
+  for (_atImGuiStyles &styleDef : *pStyles)
+  {
+    if (styleDef.nVals == 1)
+      ImGui::PushStyleVar((ImGuiStyleVar)styleDef.varID, (float)styleDef.vec2[0]);
+    else
+      ImGui::PushStyleVar((ImGuiStyleVar)styleDef.varID, ImVec2(styleDef.vec2));
+  }
+  _stylePopCount.push_back(pStyles->size());
+}
+
+void atImGui::PopColour(int64_t count)
+{
+  while (count-- > 0)
+  {
+    if (_styleColourPopCount.size() == 0)
+      return;
+    ImGui::PopStyleColor((int)_styleColourPopCount.back());
+    _styleColourPopCount.pop_back();
+  }
+}
+
+void atImGui::PopStyle(int64_t count)
+{
+  while (count-- > 0)
+  {
+    if (_stylePopCount.size() == 0)
+      return;
+    ImGui::PopStyleVar((int)_stylePopCount.back());
+    _stylePopCount.pop_back();
+  }
+}
+
+void atImGui::PopColour() { PopColour(1); }
+void atImGui::PopStyle() { PopStyle(1); }

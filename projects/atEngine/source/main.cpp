@@ -27,6 +27,8 @@
 
 int main(int argc, char **argv)
 {
-  atEngine engine(argc, argv);
-  return (int)engine.Result();
+  atEngine::Instance(argc, argv);
+  int result = (int)atEngine::Instance()->Result();
+  atEngine::Destroy();
+  return result;
 }

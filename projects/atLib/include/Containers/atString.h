@@ -54,8 +54,8 @@ public:
   static atStringBasic<T> _to_lower(const T *str, const int64_t len);
   static atStringBasic<T> _to_upper(const T *str, const int64_t len);
 
-  atStringBasic<T> to_lower();
-  atStringBasic<T> to_upper();
+  atStringBasic<T> to_lower() const;
+  atStringBasic<T> to_upper() const;
 
   //******************
   // Compare functions

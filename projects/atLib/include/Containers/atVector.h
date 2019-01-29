@@ -150,6 +150,9 @@ public:
   const bool operator==(const atVector<T> &rhs) const;
   const bool operator!=(const atVector<T> &rhs) const;
 
+  operator std::vector<T>();
+  template <typename T2> operator std::vector<T2>();
+
 protected:
 
   // Vector will only resize if [capacity] > [m_capacity]
