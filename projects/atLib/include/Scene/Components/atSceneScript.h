@@ -32,18 +32,28 @@
 class atSceneScript : public atSceneComponent
 {
 public:
+  atSceneScript();
+  ~atSceneScript();
+
   bool OnCreate() override;
   bool OnDestroy() override;
   bool OnUpdate(const double dt) override;
   bool OnDraw(const atMat4D &vp) override;
 
-  int64_t ID();
+  bool Reload();
+  bool Unload();
+  int64_t ScriptID();
+  const char* ScriptIDString();
 
   atFilename m_path;
   atString m_src;
 
   int64_t TypeID() const override;
   static const int64_t typeID;
+
+protected:
+  int64_t m_scriptID;
+  atString m_scriptIDString;
 };
 
 #endif // atScript_h__

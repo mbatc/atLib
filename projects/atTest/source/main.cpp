@@ -107,7 +107,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     model.SetLighting(light);
     model.EnableLighting(useLighting);
     model.SetCamera(camera.m_translation);
-    useLighting = atInput::KeyPressed(atKC_L) ? !useLighting : useLighting;
+    useLighting = atInput::ButtonPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
@@ -167,7 +167,7 @@ void ExampleRenderText()
 
     // Enable/Disable pivots
     static bool usePivot = true;
-    usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+    usePivot = atInput::ButtonPressed(atKC_P) ? !usePivot : usePivot;
 
     // Bake Text
     if (usePivot)
@@ -355,7 +355,7 @@ void ExampleCreateScene()
   // Add a mesh
   pNode = scene.CreateNode("Mesh");
   atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
-  pMesh->m_model.Import("assets/test/models/level.obj");
+  pMesh->SetModel("assets/test/models/level.obj");
 
   // Add a skybox
   pNode = scene.CreateNode("Skybox");

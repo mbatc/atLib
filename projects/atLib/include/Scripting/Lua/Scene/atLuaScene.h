@@ -3,6 +3,9 @@
 
 #include "atScene.h"
 #include "atLuaSceneNode.h"
+#include "atLuaSceneCamera.h"
+#include "atLuaSceneScript.h"
+#include "atLuaSceneMeshRenderable.h"
 
 // Functions are named to reflect there parameters as this
 // makes it easier to implement overloaded functions in lua

@@ -47,7 +47,7 @@ public:
 
   // Approaching Template Town
 
-  template <typename T2> atVector2(const T2 val) : x((T2)val), y((T)val) {}
+  template <typename T2> atVector2(const T2 val) : x((T)val), y((T)val) {}
   template <typename T2> atVector2(const T2 _x, const T2 _y) : x((T)_x), y((T)_y) {}
   template <typename T2> atVector2(const VecType<T2> &copy) : x((T)copy.x), y((T)copy.y) {}
   template <typename T2> atVector2(const std::initializer_list<T2> &list)

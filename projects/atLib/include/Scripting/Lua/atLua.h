@@ -44,6 +44,7 @@ public:
   void ExposeMathTypes();
   void ExposeContainers();
   void ExposeMathFunctions();
+  void ExposeInput();
 
   sol::state* GetLua();
 protected:

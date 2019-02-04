@@ -62,14 +62,20 @@ public:
   bool RemoveChildByIDP(const int64_t id, bool preserveTransforms);
 
   std::vector<atLuaSceneComponent> GetComponents();
-  std::vector<atLuaSceneComponent> GetComponentsOyType(const int64_t type);
+  std::vector<atLuaSceneComponent> GetComponentsOfType(const int64_t type);
   int64_t ComponentCount();
   int64_t ComponentCountOfType(const int64_t type);
   atLuaSceneComponent GetComponent(const int64_t index);
   atLuaSceneComponent GetComponentOfType(const int64_t type, const int64_t index);
 
+  atLuaSceneComponent AddComponent(const int64_t type);
+  bool RemoveComponentIndexed(const int64_t index);
+  bool RemoveComponent(const atLuaSceneComponent &component);
+
   const atLuaSceneNode& operator=(const atLuaSceneNode &rhs);
   const atLuaSceneNode& operator=(atLuaSceneNode &&rhs);
+
+  bool IsValid() const;
 
 protected:
   atSceneNode *m_pNode = nullptr;

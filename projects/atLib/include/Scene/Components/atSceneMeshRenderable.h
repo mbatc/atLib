@@ -33,11 +33,16 @@ class atSceneMeshRenderable : public atSceneComponent
 {
 public:
   bool OnDraw(const atMat4D &vp) override;
-
-  atGraphicsModel m_model;
+  bool SetModel(const atMesh &mesh);
+  bool SetModel(const atString &file);
+  const atString& GetModelPath();
 
   int64_t TypeID() const override;
   static const int64_t typeID;
+
+protected:
+  atString m_path;
+  atGraphicsModel m_model;
 };
 
 #endif // atSceneMeshRenderable_h__

@@ -26,11 +26,56 @@
 #include "atSceneScript.h"
 #include "atScene.h"
 
+static int64_t _nextScriptID = 0;
+
 const int64_t atSceneScript::typeID = atSceneComponent::NextTypeID();
 
-bool atSceneScript::OnCreate() { return false; }
-bool atSceneScript::OnDestroy() { return false; }
-bool atSceneScript::OnUpdate(const double dt) { return false; }
-bool atSceneScript::OnDraw(const atMat4D &vp) { return false; }
+atSceneScript::atSceneScript() : m_scriptID(_nextScriptID++)
+{
+  m_scriptIDString = atString(m_scriptID); 
+}
+
+atSceneScript::~atSceneScript() { Unload(); }
+
+bool atSceneScript::Reload()
+{
+  if (!Unload())
+    return false;
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.Scripts[\"" + m_scriptIDString + "\"] = dofile([[" + m_path.Path() + "]])") : false;
+}
+
+bool atSceneScript::Unload()
+{
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.Scripts[\"" + m_scriptIDString + "\"] = nil") : false;
+}
+
+bool atSceneScript::OnCreate() 
+{ 
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.CallScript([[" + m_scriptIDString + "]], [[OnCreate]])") : false;
+}
+
+bool atSceneScript::OnDestroy()
+{
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.CallScript([[" + m_scriptIDString + "]], [[OnDestroy]])") : false;
+}
+
+bool atSceneScript::OnUpdate(const double dt)
+{
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.CallScript([[" + m_scriptIDString + "]], [[OnUpdate]])") : false;
+}
+
+bool atSceneScript::OnDraw(const atMat4D &vp)
+{
+  atLua *pLua = Scene()->GetLua();
+  return pLua ? pLua->RunText("atScene.CallScript([[" + m_scriptIDString + "]], [[OnDraw]])") : false;
+}
+
+int64_t atSceneScript::ScriptID() { return m_scriptID; }
+const char* atSceneScript::ScriptIDString() { return m_scriptIDString; }
 
 int64_t atSceneScript::TypeID() const { return typeID; }

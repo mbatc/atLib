@@ -81,6 +81,9 @@ public:
   atVec3D GlobalRotation() const;
   atVec3D GlobalScale() const;
 
+  bool RemoveComponent(const int64_t index);
+  bool RemoveComponent(const atSceneComponent *pComponent);
+
   atVector<atSceneComponent*> Components(const int64_t type = atSCT_All) const;
   atSceneComponent* Component(int64_t index) const;
   atSceneComponent* Component(int64_t index, const int64_t type) const;

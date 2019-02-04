@@ -12,11 +12,11 @@ public:
   ~atLuaSceneComponent();
 
   int64_t TypeID() const;
+  bool IsValid() const;
 
   const atLuaSceneComponent& operator=(const atLuaSceneComponent &rhs);
   const atLuaSceneComponent& operator=(atLuaSceneComponent &&rhs);
 
-protected:
   atSceneComponent *m_pComponent;
 };
 

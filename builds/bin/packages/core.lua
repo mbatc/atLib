@@ -66,15 +66,19 @@ end
 
 -- Package Loading
 
-atCore.PackageDir = ""
+atCore.packageDir = ""
 
-atCore.WorkingDir = ""
+atCore.workingDir = ""
 
 atCore.Initialise = function(cwd, packageDir)
+	atCore.packageDir = packageDir
+	atCore.workingDir = cwd
     for _, dir in pairs(atCore.File.GetDirectories(cwd)) do
-        atCore.Packages[dir] = require(packageDir .. "." .. dir)
+        atCore.Packages[dir] = require(packageDir .. dir)
         if (type(atCore.Packages[dir]) ~= 'table') then
             print("Warning: " .. dir .. " is not a table. Make sure the package table is returned in init.lua")
+        else
+            print("Loaded " .. dir)
         end
     end
 end

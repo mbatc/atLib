@@ -34,3 +34,7 @@ bool atSceneMeshRenderable::OnDraw(const atMat4D &vp)
   m_model.Draw(vp, m_pNode->GlobalWorldMat());
   return true;
 }
+
+const atString& atSceneMeshRenderable::GetModelPath() { return m_path; }
+bool atSceneMeshRenderable::SetModel(const atMesh &mesh) { m_path = mesh.m_sourceFile; return m_model.Import(mesh); }
+bool atSceneMeshRenderable::SetModel(const atString &file) { m_path = file; return m_model.Import(file); }

@@ -41,23 +41,23 @@ bool atSimpleCamera::OnUpdate(const double dt)
 {
   atVec2D dMouse = atInput::MouseDelta();
   atVec3D rot;
-  const double speed = m_moveSpeed * dt * (atInput::KeyDown(atKC_Shift) ? 2 : 1) * (atInput::KeyDown(atKC_Control) ? 0.5 : 1);
+  const double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);
   else
     rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect, 0 };
   atVec3D move;
-  if (atInput::KeyDown(atKC_W)) move.z -= speed;
-  if (atInput::KeyDown(atKC_S)) move.z += speed;
-  if (atInput::KeyDown(atKC_D)) move.x += speed;
-  if (atInput::KeyDown(atKC_A)) move.x -= speed;
-  if (atInput::KeyDown(atKC_E)) move.y += speed;
-  if (atInput::KeyDown(atKC_X)) move.y -= speed;
-  if (atInput::KeyDown(atKC_Left)) rot.y += speed;
-  if (atInput::KeyDown(atKC_Right)) rot.y -= speed;
-  if (atInput::KeyDown(atKC_Up)) rot.x += speed;
-  if (atInput::KeyDown(atKC_Down)) rot.x -= speed;
+  if (atInput::ButtonDown(atKC_W)) move.z -= speed;
+  if (atInput::ButtonDown(atKC_S)) move.z += speed;
+  if (atInput::ButtonDown(atKC_D)) move.x += speed;
+  if (atInput::ButtonDown(atKC_A)) move.x -= speed;
+  if (atInput::ButtonDown(atKC_E)) move.y += speed;
+  if (atInput::ButtonDown(atKC_X)) move.y -= speed;
+  if (atInput::ButtonDown(atKC_Left)) rot.y += speed;
+  if (atInput::ButtonDown(atKC_Right)) rot.y -= speed;
+  if (atInput::ButtonDown(atKC_Up)) rot.x += speed;
+  if (atInput::ButtonDown(atKC_Down)) rot.x -= speed;
   m_translation += (RotationMat().Inverse() * move);
   m_rotation += rot;
   return true;

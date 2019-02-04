@@ -16,7 +16,7 @@ SceneView.OnGui = function()
 	atImGui.PushColour(atCore.Packages["GuiStyles"].mainStyleID)
 	atImGui.PushStyle(atCore.Packages["GuiStyles"].mainStyleID)
 
-	atImGui.Begin("Scene View", atMath.Vec2.new(wndWidth / 5, wndHeight / 2), atMath.Vec2.new(0, 0))
+	atImGui.Begin("Scene View")
 	if atImGui.BeginChild("SceneViewFrame", atMath.Vec2.new(0, wndHeight / 2- 60), true) then
 		if atImGui.BeginTreeNode(scene:GetName()) then
 			SceneView.DrawNode(scene:GetRootNode())

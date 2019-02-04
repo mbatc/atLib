@@ -8,4 +8,5 @@ atLuaSceneComponent::~atLuaSceneComponent() { m_pComponent = nullptr; }
 const atLuaSceneComponent& atLuaSceneComponent::operator=(const atLuaSceneComponent & rhs) { m_pComponent = rhs.m_pComponent; return *this; }
 const atLuaSceneComponent& atLuaSceneComponent::operator=(atLuaSceneComponent && rhs) { m_pComponent = rhs.m_pComponent; rhs.m_pComponent = nullptr; return *this; }
 
-int64_t atLuaSceneComponent::TypeID() const { return m_pComponent->TypeID(); }
+int64_t atLuaSceneComponent::TypeID() const { return m_pComponent ? m_pComponent->TypeID() : -1; }
+bool atLuaSceneComponent::IsValid() const { return m_pComponent != nullptr; }

@@ -26,8 +26,12 @@
 #include "atLua.h"
 #include "sol.hpp"
 #include "atImGui.h"
+#include "atInput.h"
 #include "atLuaScene.h"
 #include "atVectorMath.h"
+#include "atSceneScript.h"
+#include "atSceneCamera.h"
+#include "atSceneMeshRenderable.h"
 
 inline void _LuaPanic(sol::optional<std::string> maybe_msg) 
 {
@@ -236,10 +240,11 @@ void atLua::ExposeScene()
     &atLuaSceneNode::RemoveChildByIDP));
   node.set("GetComponents", sol::overload(
     &atLuaSceneNode::GetComponents,
-    &atLuaSceneNode::GetComponentsOyType));
+    &atLuaSceneNode::GetComponentsOfType));
   node.set("GetComponent", sol::overload(
     &atLuaSceneNode::GetComponent,
     &atLuaSceneNode::GetComponentOfType));
+  node.set("ComponentCount", sol::overload(&atLuaSceneNode::ComponentCount, &atLuaSceneNode::ComponentCountOfType));
   node.set("GetPosition", &atLuaSceneNode::GetPosition);
   node.set("GetRotation", &atLuaSceneNode::GetRotation);
   node.set("GetScale", &atLuaSceneNode::GetScale);
@@ -250,14 +255,71 @@ void atLua::ExposeScene()
   node.set("SetRotation", &atLuaSceneNode::SetRotation);
   node.set("SetScale", &atLuaSceneNode::SetScale);
   node.set("GetID", &atLuaSceneNode::GetID);
+  node.set("AddComponent", &atLuaSceneNode::AddComponent);
+  node.set("RemoveComponent", sol::overload(&atLuaSceneNode::RemoveComponentIndexed, &atLuaSceneNode::RemoveComponent));
 
   // LUA Component Class
   auto &component = sceneNamespace.create_simple_usertype<atLuaSceneComponent>();
   component.set("TypeID", &atLuaSceneComponent::TypeID);
+  component.set("Valid", &atLuaSceneComponent::IsValid);
+
+  // Built in component types
+  auto &script = sceneNamespace.create_simple_usertype<atLuaSceneScript>(sol::constructors<atLuaSceneScript(const atLuaSceneComponent&)>());
+  script.set("TypeID", &atLuaSceneScript::TypeID);
+  script.set("Reload", &atLuaSceneScript::Reload);
+  script.set("Unload", &atLuaSceneScript::Unload);
+  script.set("GetScriptID", &atLuaSceneScript::ScriptID);
+  script.set("GetScriptIDString", &atLuaSceneScript::ScriptIDString);
+  script.set("SetPath", &atLuaSceneScript::SetScriptPath);
+  script.set("SetSource", &atLuaSceneScript::SetScriptSrc);
+  script.set("GetPath", &atLuaSceneScript::GetScriptPath);
+  script.set("GetSource", &atLuaSceneScript::GetScriptSrc);
+  script.set("Valid", &atLuaSceneScript::IsValid);
+
+  auto &camera = sceneNamespace.create_simple_usertype<atLuaSceneCamera>(sol::constructors<atLuaSceneCamera(const atLuaSceneComponent&)>());
+  camera.set("GetAspect", &atLuaSceneCamera::GetAspect);
+  camera.set("SetAspect", &atLuaSceneCamera::GetAspect);
+  camera.set("GetDepthRange", &atLuaSceneCamera::GetDepthRange);
+  camera.set("SetDepthRange", sol::overload(&atLuaSceneCamera::SetDepthRange, &atLuaSceneCamera::SetDepthRangeA));
+  camera.set("GetViewport", &atLuaSceneCamera::GetViewport);
+  camera.set("SetViewport", sol::overload(&atLuaSceneCamera::SetViewport, &atLuaSceneCamera::SetViewportA));
+  camera.set("GetFOV", &atLuaSceneCamera::GetFOV);
+  camera.set("SetFOV", &atLuaSceneCamera::SetFOV);
+  camera.set("GetNearPlane", &atLuaSceneCamera::GetNearPlane);
+  camera.set("SetNearPlane", &atLuaSceneCamera::SetNearPlane);
+  camera.set("GetFarPlane", &atLuaSceneCamera::GetFarPlane);
+  camera.set("SetFarPlane", &atLuaSceneCamera::SetFarPlane);
+  camera.set("Valid", &atLuaSceneCamera::IsValid);
+
+  auto &mesh = sceneNamespace.create_simple_usertype<atLuaSceneMeshRenderable>(sol::constructors<atLuaSceneMeshRenderable(const atLuaSceneComponent&)>());
+  mesh.set("SetModelPath", &atLuaSceneMeshRenderable::SetModelPath);
+  mesh.set("GetModelPath", &atLuaSceneMeshRenderable::GetModelPath);
+  mesh.set("Valid", &atLuaSceneMeshRenderable::IsValid);
 
   sceneNamespace.set_usertype("Node", node);
   sceneNamespace.set_usertype("Scene", scene);
   sceneNamespace.set_usertype("Component", component);
+  sceneNamespace.set_usertype("Script", script);
+  sceneNamespace.set_usertype("Camera", camera);
+  sceneNamespace.set_usertype("Mesh", mesh);
+  sceneNamespace["Script"]["TypeID"] = atSceneScript::typeID;
+  sceneNamespace["Camera"]["TypeID"] = atSceneCamera::typeID;
+  sceneNamespace["Mesh"]["TypeID"] = atSceneMeshRenderable::typeID;
+  // Create scripting helpers
+  RunText("\
+atScene.Scripts = {}\n\
+atScene.CallScript = function(scriptID, funcName, ...)\n\
+  if (atScene.Scripts[scriptID] ~= nil) then\n\
+    if (atScene.Scripts[scriptID][funcName] ~= nil) then\n\
+      if (arg ~= nil) then\n\
+        return atScene.Scripts[scriptID][funcName](unpack(arg))\n\
+      else\n\
+        return atScene.Scripts[scriptID][funcName]()\n\
+      end\n\
+    end\n\
+  end\n\
+end\n\
+");
 }
 
 // CONTAINERS
@@ -296,6 +358,30 @@ void atLua::ExposeMathFunctions()
   math["ACos"] = atACos<double>;
   math["ATan"] = atATan<double>;
   math["QuadraticSolve"] = atQuadraticSolve<double>;
+}
+
+void atLua::ExposeInput()
+{
+  auto &input = (*m_pLua)["atInput"].get_or_create<sol::table>();
+  input["ButtonPressed"] = atInput::ButtonPressed;
+  input["ButtonReleased"] = atInput::ButtonReleased;
+  input["ButtonDown"] = atInput::ButtonDown;
+  input["ButtonDownTime"] = atInput::ButtonDownTime;
+  input["ButtonUpTime"] = atInput::ButtonUpTime;
+  input["MousePos"] = atInput::MousePos;
+  input["MouseScroll"] = atInput::MouseScroll;
+  input["MouseScrollX"] = atInput::MouseScrollX;
+  input["MouseScrollY"] = atInput::MouseScrollY;
+  input["MouseMoved"] = atInput::MouseMoved;
+  input["MouseDelta"] = atInput::MouseDelta;
+
+  auto &codes = input["Codes"].get_or_create<sol::table>();
+  for (int64_t k = 0; k < atKC_Count + atKC_MB_Count; ++k)
+  {
+    const atString name = atInput::ToString(k);
+    if (name.length() > 0)
+      codes[name] = k;
+  }
 }
 
 void atLua::ExposeMathTypes()

@@ -32,7 +32,7 @@
 
 #include <Windows.h>
 #include "atButtonState.h"
-#include "atMath.h"
+#include "atString.h"
 
 enum atKeyCode
 {
@@ -71,12 +71,11 @@ enum atKeyCode
   atKC_X = 'X',
   atKC_Y = 'Y',
   atKC_Z = 'Z',
-  atKC_Hyphen = '-',
   atKC_Equals = '=',
   atKC_Apostraphe = VK_OEM_7,
   atKC_OpenSqrBracket = '[',
   atKC_CloseSqrBracket = ']',
-  atKC_Period = '.',
+  atKC_Period = VK_DECIMAL,
   atKC_Comma = ',',
   atKC_ForwardSlash = '\\',
   atKC_BackSlash = '/',
@@ -121,18 +120,18 @@ enum atKeyCode
   atKC_F11 = VK_F11,
   atKC_F12 = VK_F12,
   atKC_Menu = VK_MENU,
-  atKC_LOEM = VK_LWIN,
-  atKC_ROEM = VK_RWIN,
 
-  atKC_Count = 256
-};
+  atKC_Count = 256,
+  
+  atKC_MB_Left,
+  atKC_MB_Right,
+  atKC_MB_Middle,
 
-enum atMouseButton
-{
-  atMB_Left,
-  atMB_Right,
-  atMB_Middle,
-  atMB_Count = 3
+  atKC_MB_Count = 3,
+
+  atKC_ImGui_Left = 0,
+  atKC_ImGui_Right = 1,
+  atKC_ImGui_Middle = 2,
 };
 
 class atWindow;
@@ -142,28 +141,22 @@ class atInput
   friend atWindow;
 public:
   static bool Update(const bool escExit = true);
-
-  static void OnKeyDown(const int64_t keyCode, const double dt);
-  static void OnKeyUp(const int64_t keyCode, const double dt);
-  static void OnMouseDown(const int64_t mb, const double dt);
-  static void OnMouseUp(const int64_t mb, const double dt);
+  
+  // Update button inputs
+  static void OnButtonDown(const int64_t keyCode, const double dt);
+  static void OnButtonUp(const int64_t keyCode, const double dt);
   static void OnMouseMove(const atVec2I &pos, const double dt);
 
-  static const atButtonState &GetKey(int64_t keyCode);
-  static bool KeyDown(const int64_t key);
-  static bool KeyUp(const int64_t key);
-  static bool KeyPressed(const int64_t key);
-  static bool KeyReleased(const int64_t key);
-  static double KeyDownTime(const int64_t key);
-  static double KeyUpTime(const int64_t key);
-
-  static bool MouseDown(const int64_t mb);
-  static bool MouseUp(const int64_t mb);
-  static bool MousePressed(const int64_t mb);
-  static bool MouseReleased(const int64_t mb);
-  static double MouseDownTime(const int64_t mb);
-  static double MouseUpTime(const int64_t mb);
-
+  // Get Mouse/Key inputs using an atKeyCode
+  static const atButtonState &GetButton(int64_t keyCode);
+  static bool ButtonDown(const int64_t key);
+  static bool ButtonUp(const int64_t key);
+  static bool ButtonPressed(const int64_t key);
+  static bool ButtonReleased(const int64_t key);
+  static double ButtonDownTime(const int64_t key);
+  static double ButtonUpTime(const int64_t key);
+  
+  // Get mouse inputs
   static double LeftMouseUpTime();
   static double LeftMouseDownTime();
   static bool LeftMouseDown();
@@ -202,6 +195,8 @@ public:
   static bool MouseMoved();
 
   static void SetDT(const double dt);
+
+  static atString ToString(const int64_t code);
 protected:
   static void RegisterWindow(HWND hWnd);
   static void UnRegisterWindow(HWND hWnd);

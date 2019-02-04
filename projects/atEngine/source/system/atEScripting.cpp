@@ -39,7 +39,7 @@ bool atEScripting::Initialise(const atString &packageDir)
   m_pLua = atNew<atLua>();
   RunText("require([[" + m_packageDir + "/core]])");
   RunText("atCore.Initialise([[" + m_packageDir + "]], [[" + atFilename(packageDir).Name() +"]])");
-  
+
   if (m_running)
   {
     // Expose required atLib functions
@@ -66,7 +66,7 @@ void atEScripting::Destroy()
 
 bool atEScripting::Update()
 {
-  if (atInput::KeyPressed(atKC_Apostraphe))
+  if (atInput::ButtonPressed(atKC_Apostraphe))
     Reload();
   return true;
 }

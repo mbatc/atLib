@@ -150,6 +150,11 @@ static bool _Initialise()
   if (!::QueryPerformanceCounter((LARGE_INTEGER *)&_lastTime))
     return false;
 
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  // io.ConfigViewportsNoAutoMerge = true;
+  // io.ConfigViewportsNoTaskBarIcon = false;
+  // io.ConfigDockingTabBarOnSingleWindows = true;
+  // io.ConfigDockingTransparentPayload = true;
 
   io.KeyMap[ImGuiKey_Tab] = atKC_Tab;
   io.KeyMap[ImGuiKey_LeftArrow] = atKC_Left;
@@ -299,12 +304,12 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   {
   case WM_SYSKEYDOWN: case WM_KEYDOWN: io.KeysDown[wParam] = true; break;
   case WM_SYSKEYUP: case WM_KEYUP: io.KeysDown[wParam] = false; break;
-  case WM_LBUTTONUP: io.MouseDown[atMB_Left] = false; break;
-  case WM_RBUTTONUP: io.MouseDown[atMB_Right] = false; break;
-  case WM_MBUTTONUP: io.MouseDown[atMB_Middle] = false; break;
-  case WM_LBUTTONDOWN: io.MouseDown[atMB_Left] = true; break;
-  case WM_RBUTTONDOWN: io.MouseDown[atMB_Right] = true; break;
-  case WM_MBUTTONDOWN: io.MouseDown[atMB_Middle] = true; break;
+  case WM_LBUTTONUP: io.MouseDown[atKC_ImGui_Left] = false; break;
+  case WM_RBUTTONUP: io.MouseDown[atKC_ImGui_Right] = false; break;
+  case WM_MBUTTONUP: io.MouseDown[atKC_ImGui_Middle] = false; break;
+  case WM_LBUTTONDOWN: io.MouseDown[atKC_ImGui_Left] = true; break;
+  case WM_RBUTTONDOWN: io.MouseDown[atKC_ImGui_Right] = true; break;
+  case WM_MBUTTONDOWN: io.MouseDown[atKC_ImGui_Middle] = true; break;
   case WM_MOUSEWHEEL: io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA; break;
   case WM_MOUSEHWHEEL: io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA; break;
   case WM_CHAR:

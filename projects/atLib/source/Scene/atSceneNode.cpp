@@ -136,7 +136,27 @@ int64_t atSceneNode::ComponentCount(const int64_t type) const
   return count;
 }
 
-atSceneComponent* atSceneNode::Component(int64_t index) const { return m_components[index]; }
+bool atSceneNode::RemoveComponent(const int64_t index)
+{
+  if (index < 0 || index >= m_components.size())
+    return false;
+
+  // swap and pop that bad boy
+  atDelete(m_components[index]);
+  std::swap(m_components[index], m_components.back());
+  m_components.pop_back();
+  return true;
+}
+
+bool atSceneNode::RemoveComponent(const atSceneComponent *pComponent)
+{
+  for (int64_t i = 0; i < m_components.size(); ++i)
+    if (m_components[i] == pComponent)
+      return RemoveComponent(i);
+  return false;
+}
+
+atSceneComponent* atSceneNode::Component(int64_t index) const { return index >= 0 && index < m_components.size() ? m_components[index] : nullptr; }
 int64_t atSceneNode::ComponentCount() const { return m_components.size(); }
 int64_t atSceneNode::ID() const { return m_pScene->GetNodeID(this); }
 atSceneNode* atSceneNode::Root() const { return m_pScene->GetRoot(); }

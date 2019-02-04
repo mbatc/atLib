@@ -59,10 +59,10 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     // Messages blocked by ImGui windows
     switch (msg)
     {
-    case WM_KEYDOWN: atInput::OnKeyDown(wParam, dt); break;
-    case WM_LBUTTONDOWN: atInput::OnMouseDown(atMB_Left, dt); break;
-    case WM_RBUTTONDOWN: atInput::OnMouseDown(atMB_Right, dt); break;
-    case WM_MBUTTONDOWN: atInput::OnMouseDown(atMB_Middle, dt); break;
+    case WM_KEYDOWN: atInput::OnButtonDown(wParam, dt); break;
+    case WM_LBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Left, dt); break;
+    case WM_RBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Right, dt); break;
+    case WM_MBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Middle, dt); break;
     case WM_MOUSEWHEEL: atInput::OnMouseWheel((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     case WM_MOUSEHWHEEL: atInput::OnMouseWheelH((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     }
@@ -72,10 +72,10 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   {
   case WM_CLOSE:  PostQuitMessage(0); break;
   case WM_DESTROY: PostQuitMessage(0); break; 
-  case WM_KEYUP: atInput::OnKeyUp(wParam, dt); break;
-  case WM_LBUTTONUP: atInput::OnMouseUp(atMB_Left, dt); break;
-  case WM_RBUTTONUP: atInput::OnMouseUp(atMB_Right, dt); break;
-  case WM_MBUTTONUP: atInput::OnMouseUp(atMB_Middle, dt); break;
+  case WM_KEYUP: atInput::OnButtonUp(wParam, dt); break;
+  case WM_LBUTTONUP: atInput::OnButtonUp(atKC_MB_Left, dt); break;
+  case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
+  case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
   case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
   case WM_SIZE: case WM_MOVE:
   {
