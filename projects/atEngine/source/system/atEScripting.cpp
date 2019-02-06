@@ -1,4 +1,5 @@
 #include "atEScripting.h"
+#include "atFileDialog.h"
 #include "atFilename.h"
 #include "atInput.h"
 
@@ -83,25 +84,17 @@ bool atEScripting::Reload() { return Initialise(atString(m_packageDir)); }
 
 #include "atEngine.h"
 
-atLuaScene atEScripting::Commands::GetScene()
-{
-  return atEngine::Commands::Scene();
-}
+atLuaScene atEScripting::Commands::GetScene() { return atEngine::Commands::Scene(); }
 
-atVec2D atEScripting::Commands::GetWindowSize()
-{
-  return atEngine::Commands::WindowSize();
-}
+atVec2D atEScripting::Commands::GetWindowSize() { return atEngine::Commands::WindowSize(); }
 
-double atEScripting::Commands::GetWindowWidth()
-{
-  return (double)atEngine::Commands::WindowWidth();
-}
+double atEScripting::Commands::GetWindowWidth() { return (double)atEngine::Commands::WindowWidth(); }
 
-double atEScripting::Commands::GetWindowHeight()
-{
-  return (double)atEngine::Commands::WindowHeight();
-}
+double atEScripting::Commands::GetWindowHeight() { return (double)atEngine::Commands::WindowHeight(); }
+
+const char* atEScripting::Commands::DialogOpen(const char *initialDir, const char *fileFilter, int64_t initialFilter) { return atFileDialog::Open(initialDir, fileFilter, initialFilter); }
+
+const char* atEScripting::Commands::DialogSaveAs(const char *initialDir, const char *fileFilter, int64_t initialFilter) { return atFileDialog::SaveAs(initialDir, fileFilter, initialFilter); }
 
 void _ExposeScriptCommands(atEScripting *pScripting)
 {
@@ -109,4 +102,6 @@ void _ExposeScriptCommands(atEScripting *pScripting)
   pScripting->ExposeFunction("GetWindowWidth", atEScripting::Commands::GetWindowWidth);
   pScripting->ExposeFunction("GetWindowHeight", atEScripting::Commands::GetWindowHeight);
   pScripting->ExposeFunction("GetWindowSize", atEScripting::Commands::GetWindowSize);
+  pScripting->ExposeFunction("DialogOpen", atEScripting::Commands::DialogOpen);
+  pScripting->ExposeFunction("DialogSaveAs", atEScripting::Commands::DialogSaveAs);
 }

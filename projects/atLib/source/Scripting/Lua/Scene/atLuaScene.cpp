@@ -12,6 +12,9 @@ bool atLuaScene::DeleteNodeM(const atLuaSceneNode &node, bool migrateChildren) {
 bool atLuaScene::DeleteNodeFromIDM(const int64_t id, bool migrateChildren) { return m_pScene->DeleteNode(id, migrateChildren); }
 int64_t atLuaScene::CreateNodeP(const char *name, const atVec3D &position) { return m_pScene->CreateNode(name, position)->ID(); }
 bool atLuaScene::RemoveActiveCamera(const atLuaSceneNode &node) { return m_pScene->RemoveActiveCamera(node.m_pNode); }
+bool atLuaScene::IsActiveCameraFromID(const atLuaSceneNode &node) { return m_pScene->IsActiveCamera(node.m_pNode); }
+void atLuaScene::SetViewport(const atVec4I &vp) { m_pScene->m_viewport = vp; }
+void atLuaScene::SetViewportA(const int64_t x, const int64_t y, const int64_t w, const int64_t h) { m_pScene->m_viewport = { x, y, w, h }; }
 bool atLuaScene::AddActiveCamera(const atLuaSceneNode &node) { return m_pScene->AddActiveCamera(node.m_pNode); }
 atLuaSceneNode atLuaScene::GetNode(const int64_t id) const { return atLuaSceneNode(m_pScene->GetNode(id)); }
 bool atLuaScene::RemoveActiveCameraFromID(const int64_t id) { return m_pScene->RemoveActiveCamera(id); }
@@ -20,6 +23,7 @@ atLuaSceneNode atLuaScene::GetRootNode() const { return atLuaSceneNode(m_pScene-
 int64_t atLuaScene::CreateNode(const char *name) { return m_pScene->CreateNode(name)->ID(); }
 bool atLuaScene::DeleteNodeFromID(const int64_t id) { return DeleteNodeFromIDM(id, false); }
 bool atLuaScene::DeleteNode(const atLuaSceneNode &node) { return DeleteNodeM(node, false); }
+bool atLuaScene::IsActiveCamera(const int64_t id) { return m_pScene->IsActiveCamera(id); }
 std::vector<int64_t> atLuaScene::GetNodeIDs() const { return m_pScene->GetNodeIDs(); }
 int64_t atLuaScene::GetRootNodeID() const { return m_pScene->GetRootID(); }
 const char* atLuaScene::GetName() const { return m_pScene->GetName(); }

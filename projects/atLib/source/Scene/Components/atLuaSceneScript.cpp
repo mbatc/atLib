@@ -1,9 +1,11 @@
 #include "atLuaSceneScript.h"
 #include "atSceneScript.h"
+#include "atLuaSceneNode.h"
 
 #define GetVar(name, defaultVal) IsValid() ? Script()->name : defaultVal
 #define SetVar(name, to) if(IsValid()) Script()->name to
 atSceneScript * atLuaSceneScript::Script() { return (atSceneScript*)m_pComponent; }
+atLuaSceneNode atLuaSceneScript::Node() { return GetVar(Node(), atLuaSceneNode()); }
 bool atLuaSceneScript::IsValid() { return m_pComponent && m_pComponent->Is<atSceneScript>(); }
 
 

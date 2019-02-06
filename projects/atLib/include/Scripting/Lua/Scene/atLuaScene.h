@@ -45,6 +45,11 @@ public:
   bool RemoveActiveCameraFromID(const int64_t id);
   bool AddActiveCamera(const atLuaSceneNode &node);
   bool RemoveActiveCamera(const atLuaSceneNode &node);
+  bool IsActiveCamera(const int64_t id);
+  bool IsActiveCameraFromID(const atLuaSceneNode &node);
+
+  void SetViewport(const atVec4I &vp);
+  void SetViewportA(const int64_t x, const int64_t y, const int64_t w, const int64_t h);
 
   const atLuaScene& operator=(const atLuaScene &rhs);
   const atLuaScene& operator=(atLuaScene &&rhs);

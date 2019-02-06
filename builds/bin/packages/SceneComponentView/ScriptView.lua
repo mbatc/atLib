@@ -1,6 +1,6 @@
 ScriptView = {}
 
-ScriptView.DrawUI = function()
+ScriptView.DrawUI = function(comp)
     atImGui.Text("Script View")
 end
 

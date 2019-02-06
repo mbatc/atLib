@@ -3,6 +3,8 @@
 
 #include "atSceneComponent.h"
 
+class atLuaSceneNode;
+
 class atLuaSceneComponent
 {
 public:
@@ -11,6 +13,7 @@ public:
   atLuaSceneComponent(atLuaSceneComponent &&move);
   ~atLuaSceneComponent();
 
+  atLuaSceneNode Node();
   int64_t TypeID() const;
   bool IsValid() const;
 

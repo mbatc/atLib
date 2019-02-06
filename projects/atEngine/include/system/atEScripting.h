@@ -20,6 +20,9 @@ public:
     static atVec2D GetWindowSize();
     static double GetWindowWidth();
     static double GetWindowHeight();
+
+    static const char* DialogOpen(const char *initialDir, const char* fileFilter, int64_t initialFilter);
+    static const char* DialogSaveAs(const char *initialDir, const char* fileFilter, int64_t initialFilter);
   };
 
   bool Reload();

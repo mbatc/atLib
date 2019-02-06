@@ -327,8 +327,6 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 // Wrapping ImGui Functions (Useful for exposing functionality to Lua)
 
-bool atImGui::Begin(const char *name) { return ImGui::Begin(name); }
-
 bool atImGui::Begin(const char *name, const atVec2D &size)
 {
   ImGui::SetNextWindowSize(size);
@@ -360,6 +358,65 @@ bool atImGui::Selectable(const char *label, const bool selected, const atVec2D &
   return result;
 }
 
+bool atImGui::Checkbox(const char *label, const bool active)
+{
+  bool v = active;
+  ImGui::Checkbox(label, &v);
+  return v;
+}
+
+const char* atImGui::TextInput(const char *name, const char *initial)
+{
+  static atVector<char> inputBuffer;
+  int64_t initialLen = strlen(initial);
+  inputBuffer.resize(atMax(inputBuffer.size(), strlen(initial) + 128));
+  memcpy(inputBuffer.data(), initial, initialLen + 1);
+  ImGui::InputText(name, inputBuffer.data(), inputBuffer.size());
+  return inputBuffer.data();
+}
+
+atVec2D atImGui::GetWindowSize() { return{ GetWindowWidth(), GetWindowHeight() }; }
+
+int64_t atImGui::GetWindowWidth() { return (int64_t)ImGui::GetWindowWidth(); }
+
+int64_t atImGui::GetWindowHeight() { return (int64_t)ImGui::GetWindowHeight(); }
+
+double atImGui::InputFloat(const char *name, const double val) { double in = val; ImGui::InputDouble(name, &in); return in; }
+
+atVec2D atImGui::InputFloat2(const char *name, const atVec2D &val) { atVec2F in = val; ImGui::InputFloat2(name, &in[0]); return in; }
+
+atVec3D atImGui::InputFloat3(const char *name, const atVec3D &val) { atVec3F in = val; ImGui::InputFloat3(name, &in[0]); return in; }
+
+atVec4D atImGui::InputFloat4(const char *name, const atVec4D &val) { atVec4F in = val; ImGui::InputFloat4(name, &in[0]); return in; }
+
+int32_t atImGui::InputInt(const char *name, const int32_t val) { int32_t in = val; ImGui::InputInt(name, &in); return in; }
+
+atVec2I atImGui::InputInt2(const char *name, const atVec2I &val) { atVec2I in = val; ImGui::InputInt2(name, &in[0]); return in; }
+
+atVec3I atImGui::InputInt3(const char *name, const atVec3I &val) { atVec3I in = val; ImGui::InputInt3(name, &in[0]); return in; }
+
+atVec4I atImGui::InputInt4(const char *name, const atVec4I &val) { atVec4I in = val; ImGui::InputInt4(name, &in[0]); return in; }
+
+bool atImGui::IsKeyDown(const int64_t keyCode) { return ImGui::IsKeyDown((int)keyCode); }
+
+bool atImGui::IsKeyPressed(const int64_t keyCode) { return ImGui::IsKeyPressed((int)keyCode); }
+
+bool atImGui::IsKeyReleased(const int64_t keyCode) { return ImGui::IsKeyReleased((int)keyCode); }
+
+bool atImGui::IsWindowFocused() { return ImGui::IsWindowFocused(); }
+
+bool atImGui::IsWindowHovered() { return ImGui::IsWindowHovered(); } 
+
+bool atImGui::IsItemHovered() { return ImGui::IsItemHovered(); }
+
+bool atImGui::IsItemActive() { return ImGui::IsItemActive(); }
+
+bool atImGui::IsItemClicked() { return ImGui::IsItemClicked(); }
+
+bool atImGui::IsItemFocused() { return ImGui::IsItemFocused(); }
+
+bool atImGui::Begin(const char *name) { return ImGui::Begin(name); }
+
 bool atImGui::BeginTreeNode(const char *label) { return ImGui::TreeNode(label); }
 
 void atImGui::EndTreeNode() { ImGui::TreePop(); }
@@ -384,16 +441,11 @@ void atImGui::PopID() { ImGui::PopID(); }
 
 void atImGui::End() { ImGui::End(); }
 
+void atImGui::OpenPopup(const char *name) { ImGui::OpenPopup(name); }
 
-const char* atImGui::TextInput(const char * name, const char * initial)
-{
-  static atVector<char> inputBuffer;
-  int64_t initialLen = strlen(initial);
-  inputBuffer.resize(atMax(inputBuffer.size(), strlen(initial) + 128));
-  memcpy(inputBuffer.data(), initial, initialLen + 1);
-  ImGui::InputText(name, inputBuffer.data(), inputBuffer.size());
-  return inputBuffer.data();
-}
+bool atImGui::BeginPopup(const char *name) { return ImGui::BeginPopup(name); }
+
+void atImGui::EndPopup() { ImGui::EndPopup(); }
 
 void atImGui::Text(const char *text) { ImGui::Text(text); }
 

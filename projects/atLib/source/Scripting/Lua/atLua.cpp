@@ -119,44 +119,60 @@ void atLua::ExposeImGui()
   sol::state &lua = *m_pLua;
 
   auto &gui = lua["atImGui"].get_or_create<sol::table>();
+
+  // Windows
   gui["Begin"] = sol::overload(
     (bool(*)(const char*, const atVec2D&, const atVec2D&))atImGui::Begin,
     (bool(*)(const char*, const atVec2D&))atImGui::Begin,
     (bool(*)(const char*))atImGui::Begin);
-
   gui["End"] = atImGui::End;
-  
-  gui["Button"] = sol::overload(
-    (bool(*)(const char*, const atVec2D&, const atVec2D&))atImGui::Button,
-    (bool(*)(const char*, const atVec2D&))atImGui::Button,
-    (bool(*)(const char*))atImGui::Button);
-
-  gui["Selectable"] = sol::overload(
-    (bool(*)(const char*, const bool, const atVec2D&))atImGui::Selectable,
-    (bool(*)(const char*, const bool))atImGui::Selectable);
-
-  gui["Text"] = atImGui::Text;
-
-  gui["TextInput"] = atImGui::TextInput;
-
-  gui["BeginTreeNode"] = atImGui::BeginTreeNode;
-
-  gui["EndTreeNode"] = atImGui::EndTreeNode;
-
-  gui["PushID"] = sol::overload((void(*)(const int64_t))atImGui::PushID, (void(*)(const char*))atImGui::PushID);
-
-  gui["PopID"] = atImGui::PopID;
-
-  gui["SameLine"] = atImGui::SameLine;
-
-  gui["NewLine"] = atImGui::NewLine;
-
   gui["BeginChild"] = sol::overload(
     (bool(*)(const char*, const atVec2D&, const bool))atImGui::BeginChild,
     (bool(*)(const char*, const atVec2D&))atImGui::BeginChild,
     (bool(*)(const char*))atImGui::BeginChild);
-
   gui["EndChild"] = atImGui::EndChild;
+  gui["OpenPopup"] = atImGui::OpenPopup;
+  gui["BeginPopup"] = atImGui::BeginPopup;
+  gui["EndPopup"] = atImGui::EndPopup;
+
+  // Controls
+
+  gui["Button"] = sol::overload(
+    (bool(*)(const char*, const atVec2D&, const atVec2D&))atImGui::Button,
+    (bool(*)(const char*, const atVec2D&))atImGui::Button,
+    (bool(*)(const char*))atImGui::Button);
+  gui["Selectable"] = sol::overload(
+    (bool(*)(const char*, const bool, const atVec2D&))atImGui::Selectable,
+    (bool(*)(const char*, const bool))atImGui::Selectable);
+  gui["Text"] = atImGui::Text;
+  gui["BeginTreeNode"] = atImGui::BeginTreeNode;
+  gui["EndTreeNode"] = atImGui::EndTreeNode;
+  gui["Checkbox"] = atImGui::Checkbox;
+  
+  // Input
+  gui["TextInput"] = atImGui::TextInput;
+  gui["Input"] = sol::overload(atImGui::InputInt, atImGui::InputFloat);
+  gui["Input2"] = sol::overload(atImGui::InputInt2, atImGui::InputFloat2);
+  gui["Input3"] = sol::overload(atImGui::InputInt3, atImGui::InputFloat3);
+  gui["Input4"] = sol::overload(atImGui::InputInt4, atImGui::InputFloat4);
+
+  // Helpers
+  gui["IsKeyDown"] = atImGui::IsKeyDown;
+  gui["IsKeyPressed"] = atImGui::IsKeyPressed;
+  gui["IsKeyReleased"] = atImGui::IsKeyReleased;
+  gui["IsItemHovered"] = atImGui::IsItemHovered;
+  gui["IsItemActive"] = atImGui::IsItemActive;
+  gui["IsItemClicked"] = atImGui::IsItemClicked;
+  gui["IsItemFocused"] = atImGui::IsItemFocused;
+  gui["IsWindowFocused"] = atImGui::IsWindowFocused;
+  gui["IsWindowHovered"] = atImGui::IsWindowHovered;
+  gui["GetWindowSize"] = atImGui::GetWindowSize;
+  gui["GetWindowHeight"] = atImGui::GetWindowHeight;
+  gui["GetWindowWidth"] = atImGui::GetWindowWidth;
+  gui["PushID"] = sol::overload((void(*)(const int64_t))atImGui::PushID, (void(*)(const char*))atImGui::PushID);
+  gui["PopID"] = atImGui::PopID;
+  gui["SameLine"] = atImGui::SameLine;
+  gui["NewLine"] = atImGui::NewLine;
 
   // Style Management
 
@@ -164,20 +180,16 @@ void atLua::ExposeImGui()
   gui["AddColours"] = atImGui::AddColours;
   gui["RemoveStyle"] = atImGui::RemoveStyle;
   gui["RemoveColours"] = atImGui::RemoveColours;
-
   gui["PushColour"] = sol::overload(
     (void(*)(const char *, const atVec4D&))atImGui::PushColour,
     (void(*)(const char *))atImGui::PushColour);
-
   gui["PopColour"] = sol::overload(
     (void(*)(int64_t))atImGui::PopColour,
     (void(*)())atImGui::PopColour);
-
   gui["PushStyle"] = sol::overload(
     (void(*)(const char *, const atVec2D&))atImGui::PushStyle,
     (void(*)(const char *, const double))atImGui::PushStyle,
     (void(*)(const char *))atImGui::PushStyle);
-
   gui["PopStyle"] = sol::overload(
     (void(*)(int64_t))atImGui::PopStyle,
     (void(*)())atImGui::PopStyle);
@@ -199,6 +211,9 @@ void atLua::ExposeScene()
   scene.set("RemoveActiveCamera", sol::overload(
     &atLuaScene::RemoveActiveCamera,
     &atLuaScene::RemoveActiveCameraFromID));
+  scene.set("IsActiveCamera", sol::overload(
+    &atLuaScene::IsActiveCamera,
+    &atLuaScene::IsActiveCameraFromID));
   scene.set("CreateNode", sol::overload(
       &atLuaScene::CreateNode,
       &atLuaScene::CreateNodeP,
@@ -214,6 +229,7 @@ void atLua::ExposeScene()
   scene.set("GetRootNodeID", &atLuaScene::GetRootNodeID);
   scene.set("GetName", &atLuaScene::GetName);
   scene.set("SetName", &atLuaScene::SetName);
+  scene.set("SetViewport", sol::overload(&atLuaScene::SetViewport, &atLuaScene::SetViewportA));
 
   // LUA Scene Node Class
   auto &node = sceneNamespace.create_simple_usertype<atLuaSceneNode>();
@@ -262,6 +278,7 @@ void atLua::ExposeScene()
   auto &component = sceneNamespace.create_simple_usertype<atLuaSceneComponent>();
   component.set("TypeID", &atLuaSceneComponent::TypeID);
   component.set("Valid", &atLuaSceneComponent::IsValid);
+  component.set("Node", &atLuaSceneComponent::Node);
 
   // Built in component types
   auto &script = sceneNamespace.create_simple_usertype<atLuaSceneScript>(sol::constructors<atLuaSceneScript(const atLuaSceneComponent&)>());
@@ -275,6 +292,7 @@ void atLua::ExposeScene()
   script.set("GetPath", &atLuaSceneScript::GetScriptPath);
   script.set("GetSource", &atLuaSceneScript::GetScriptSrc);
   script.set("Valid", &atLuaSceneScript::IsValid);
+  script.set("Node", &atLuaSceneScript::Node);
 
   auto &camera = sceneNamespace.create_simple_usertype<atLuaSceneCamera>(sol::constructors<atLuaSceneCamera(const atLuaSceneComponent&)>());
   camera.set("GetAspect", &atLuaSceneCamera::GetAspect);
@@ -290,11 +308,13 @@ void atLua::ExposeScene()
   camera.set("GetFarPlane", &atLuaSceneCamera::GetFarPlane);
   camera.set("SetFarPlane", &atLuaSceneCamera::SetFarPlane);
   camera.set("Valid", &atLuaSceneCamera::IsValid);
+  camera.set("Node", &atLuaSceneCamera::Node);
 
   auto &mesh = sceneNamespace.create_simple_usertype<atLuaSceneMeshRenderable>(sol::constructors<atLuaSceneMeshRenderable(const atLuaSceneComponent&)>());
   mesh.set("SetModelPath", &atLuaSceneMeshRenderable::SetModelPath);
   mesh.set("GetModelPath", &atLuaSceneMeshRenderable::GetModelPath);
   mesh.set("Valid", &atLuaSceneMeshRenderable::IsValid);
+  mesh.set("Node", &atLuaSceneMeshRenderable::Node);
 
   sceneNamespace.set_usertype("Node", node);
   sceneNamespace.set_usertype("Scene", scene);
@@ -432,24 +452,62 @@ void atLua::ExposeMathTypes()
     "xyw", &atVec4D::xyw,
     "yzw", &atVec4D::yzw);
 
+  math.new_usertype<atVec2I>("Vec2I",
+    sol::constructors<atVec2I(int32_t, int32_t)>(),
+    "x", &atVec2I::x,
+    "y", &atVec2I::y,
+    "Add", &atVec2I::Add,
+    "Sub", &atVec2I::Sub,
+    "Mul", &atVec2I::Mul,
+    "Div", &atVec2I::Div);
+
+  math.new_usertype<atVec3I>("Vec3I",
+    sol::constructors<atVec3I(int32_t, int32_t, int32_t)>(),
+    "x", &atVec3I::x,
+    "y", &atVec3I::y,
+    "z", &atVec3I::z,
+    "Add", &atVec3I::Add,
+    "Sub", &atVec3I::Sub,
+    "Mul", &atVec3I::Mul,
+    "Div", &atVec3I::Div,
+    "xy", &atVec3I::xy,
+    "xz", &atVec3I::xz,
+    "yz", &atVec3I::yz);
+
+  math.new_usertype<atVec4I>("Vec4I",
+    sol::constructors<atVec4I(int32_t, int32_t, int32_t, int32_t)>(),
+    "x", &atVec4I::x,
+    "y", &atVec4I::y,
+    "z", &atVec4I::z,
+    "w", &atVec4I::w,
+    "Add", &atVec4I::Add,
+    "Sub", &atVec4I::Sub,
+    "Mul", &atVec4I::Mul,
+    "Div", &atVec4I::Div,
+    "xy", &atVec4I::xy,
+    "xz", &atVec4I::xz,
+    "xw", &atVec4I::xw,
+    "yz", &atVec4I::yz,
+    "yw", &atVec4I::yw,
+    "zw", &atVec4I::zw,
+    "xzw", &atVec4I::xzw,
+    "xyw", &atVec4I::xyw,
+    "yzw", &atVec4I::yzw);
+
   // Expose Vector Math Functions
   math["Dot"] = sol::overload(
     (double(*)(const atVec2D&, const atVec2D&))atVectorMath::Dot,
     (double(*)(const atVec3D&, const atVec3D&))atVectorMath::Dot,
     (double(*)(const atVec4D&, const atVec4D&))atVectorMath::Dot);
-
   math["Mag"] = sol::overload(
     (double(*)(const atVec2D&))atVectorMath::Mag,
     (double(*)(const atVec3D&))atVectorMath::Mag,
     (double(*)(const atVec4D&))atVectorMath::Mag);
-
   math["Reflect"] = sol::overload(
     (atVec2D(*)(const atVec2D&, const atVec2D&))atVectorMath::Reflect,
     (atVec3D(*)(const atVec3D&, const atVec3D&))atVectorMath::Reflect,
     (atVec4D(*)(const atVec4D&, const atVec4D&))atVectorMath::Reflect);
-
   math["Cross"] = (atVec3D(*)(const atVec3D&, const atVec3D&))atVectorMath::Cross;
-
   math["Normalize"] = sol::overload(
     (atVec2D(*)(const atVec2D&))atVectorMath::Normalize,
     (atVec3D(*)(const atVec3D&))atVectorMath::Normalize,

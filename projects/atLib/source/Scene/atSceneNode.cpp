@@ -182,10 +182,10 @@ const atVector<atSceneNode*>& atSceneNode::Siblings() const { return m_siblings;
 
 // Transformations and Matrices
 
-atMat4D atSceneNode::GlobalTranslationMat() const { return TranslationMat() * ParentTranslationMat(); }
-atMat4D atSceneNode::GlobalRotationMat() const { return RotationMat() * ParentRotationMat(); }
-atMat4D atSceneNode::GlobalScaleMat() const { return ScaleMat() * ParentScaleMat(); }
-atMat4D atSceneNode::GlobalWorldMat() const { return WorldMat() * ParentWorldMat(); }
+atMat4D atSceneNode::GlobalTranslationMat() const { return ParentTranslationMat() * TranslationMat(); }
+atMat4D atSceneNode::GlobalRotationMat() const { return ParentRotationMat() * RotationMat(); }
+atMat4D atSceneNode::GlobalScaleMat() const { return ParentScaleMat() * ScaleMat(); }
+atMat4D atSceneNode::GlobalWorldMat() const { return  ParentWorldMat() * WorldMat(); }
 
 atVec3D atSceneNode::GlobalPosition() const { return ParentWorldMat() * m_translation; }
 atVec3D atSceneNode::GlobalRotation() const { return ParentRotation() + m_rotation; }

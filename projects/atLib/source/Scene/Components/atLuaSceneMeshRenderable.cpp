@@ -1,6 +1,6 @@
 #include "atLuaSceneMeshRenderable.h"
-
 #include "atSceneMeshRenderable.h"
+#include "atLuaSceneNode.h"
 
 #define SetVar(name, to) if(IsValid()) Mesh()->name to
 #define GetVar(name, defaultVal) IsValid() ? Mesh()->name : defaultVal;
@@ -12,5 +12,6 @@ atLuaSceneMeshRenderable::atLuaSceneMeshRenderable(atSceneComponent *pComp) : at
 atLuaSceneMeshRenderable::atLuaSceneMeshRenderable(const atLuaSceneMeshRenderable &copy) : atLuaSceneComponent(copy.m_pComponent) {}
 atLuaSceneMeshRenderable::atLuaSceneMeshRenderable(atLuaSceneMeshRenderable &&move) : atLuaSceneComponent(move.m_pComponent) { move.m_pComponent = nullptr; }
 
+atLuaSceneNode atLuaSceneMeshRenderable::Node() { return GetVar(Node(), atLuaSceneNode()); }
 const char* atLuaSceneMeshRenderable::GetModelPath() { return GetVar(GetModelPath(), ""); }
 bool atLuaSceneMeshRenderable::SetModelPath(const char *file) { return GetVar(SetModel(file), false); }

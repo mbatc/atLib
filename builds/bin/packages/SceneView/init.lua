@@ -12,6 +12,7 @@ SceneView.OnGui = function()
 	local scene = atCore.GetScene()
 	local wndWidth = atCore.GetWindowWidth()
 	local wndHeight = atCore.GetWindowHeight()
+	scene:SetViewport(0, 0, wndWidth, wndHeight)
 
 	atImGui.PushColour(atCore.Packages["GuiStyles"].mainStyleID)
 	atImGui.PushStyle(atCore.Packages["GuiStyles"].mainStyleID)

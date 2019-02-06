@@ -42,10 +42,42 @@ public:
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+  // Lua friendly wrappers for ImGui functions
+
+  static atVec2D GetWindowSize();
+  static int64_t GetWindowWidth();
+  static int64_t GetWindowHeight();
+
+  static double InputFloat(const char *name, const double val);
+  static atVec2D InputFloat2(const char *name, const atVec2D &val);
+  static atVec3D InputFloat3(const char *name, const atVec3D &val);
+  static atVec4D InputFloat4(const char *name, const atVec4D &val);
+
+  static int32_t InputInt(const char *name, const int32_t val);
+  static atVec2I InputInt2(const char *name, const atVec2I &val);
+  static atVec3I InputInt3(const char *name, const atVec3I &val);
+  static atVec4I InputInt4(const char *name, const atVec4I &val);
+
+  static bool IsKeyDown(const int64_t keyCode);
+  static bool IsKeyPressed(const int64_t keyCode);
+  static bool IsKeyReleased(const int64_t keyCode);
+
+  static bool IsWindowFocused();
+  static bool IsWindowHovered();
+
+  static bool IsItemHovered();
+  static bool IsItemActive();
+  static bool IsItemClicked();
+  static bool IsItemFocused();
+
   static bool Begin(const char *name);
   static bool Begin(const char *name, const atVec2D &size);
   static bool Begin(const char *name, const atVec2D &size, const atVec2D &pos);
   static void End();
+
+  static void OpenPopup(const char *name);
+  static bool BeginPopup(const char *name);
+  static void EndPopup();
 
   static const char* TextInput(const char *name, const char *initial);
 
@@ -55,6 +87,7 @@ public:
   static bool Button(const char *label, const atVec2D &size, const atVec2D &pos);
   static bool Selectable(const char *label, const bool selected);
   static bool Selectable(const char *label, const bool selected, const atVec2D &pos);
+  static bool Checkbox(const char *label, const bool active);
   static bool BeginTreeNode(const char *label);
   static void EndTreeNode();
 

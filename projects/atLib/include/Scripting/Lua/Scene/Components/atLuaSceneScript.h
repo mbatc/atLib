@@ -25,6 +25,7 @@ public:
   void SetScriptPath(const char *path);
   void SetScriptSrc(const char *src);
 
+  atLuaSceneNode Node();
   bool IsValid();
   atSceneScript* Script();
 };

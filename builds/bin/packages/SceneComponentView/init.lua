@@ -13,15 +13,15 @@ ComponentView.OnGui = function()
 		if comp:Valid() then
 			typeID = comp:TypeID()
 			if typeID == atScene.Script.TypeID then
-				ScriptView.DrawUI()
+				ScriptView.DrawUI(atScene.Script.new(comp))
 			end
 
 			if typeID == atScene.Mesh.TypeID then
-				MeshView.DrawUI()
+				MeshView.DrawUI(atScene.Mesh.new(comp))
 			end
 
 			if typeID == atScene.Camera.TypeID then
-				CameraView.DrawUI()
+				CameraView.DrawUI(atScene.Camera.new(comp))
 			end
 		end
 	end

@@ -1,8 +1,10 @@
 #include "atLuaSceneCamera.h"
 #include "atSceneCamera.h"
+#include "atLuaSceneNode.h"
 
 #define SetVar(name, to) if(IsValid()) Camera()->name to
 #define GetVar(name, defaultVal) IsValid() ? Camera()->name : defaultVal;
+atLuaSceneNode atLuaSceneCamera::Node() { return GetVar(Node(), atLuaSceneNode()); }
 atSceneCamera* atLuaSceneCamera::Camera() { return (atSceneCamera*)m_pComponent; }
 bool atLuaSceneCamera::IsValid() { return m_pComponent && m_pComponent->Is<atSceneCamera>(); }
 

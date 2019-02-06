@@ -61,9 +61,11 @@ public:
   bool DeleteNode(atSceneNode *pNode, bool migrateChildren = false);
   bool DeleteNode(const int64_t id, bool migrateChildren = false);
 
+  bool IsActiveCamera(const int64_t id);
   bool AddActiveCamera(const int64_t id);
   bool RemoveActiveCamera(const int64_t id);
 
+  bool IsActiveCamera(atSceneNode *pNode);
   bool AddActiveCamera(atSceneNode *pNode);
   bool RemoveActiveCamera(atSceneNode *pNode);
 

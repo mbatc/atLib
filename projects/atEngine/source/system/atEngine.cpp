@@ -78,7 +78,8 @@ bool atEngine::Render()
 {
   atMat4D vp = m_pCamera->ProjectionMat() * m_pCamera->ViewMat();
   bool result = m_script.DoDrawEvent(vp);
-  result &= atSceneRenderer::Render(m_scene.GetRoot(), vp);
+  result &= m_scene.Draw();
+  // result &= atSceneRenderer::Render(m_scene.GetRoot(), vp);
   return true;
 }
 

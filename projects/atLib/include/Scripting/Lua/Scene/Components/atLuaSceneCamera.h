@@ -29,6 +29,7 @@ public:
   void SetViewport(const atVec4I &vp);
   void SetViewportA(const double x, const double y, const double w, const double h);
 
+  atLuaSceneNode Node();
   atSceneCamera* Camera();
   bool IsValid();
 };

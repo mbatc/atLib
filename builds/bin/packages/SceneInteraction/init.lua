@@ -2,6 +2,8 @@ SceneInteraction = {}
 
 SceneInteraction.selectedNode = -1
 SceneInteraction.selectedComponent = -1
+SceneInteraction.nodeSelChanged = false
+SceneInteraction.compSelChanged = false
 
 SceneInteraction.SelectNode = function(id)
 	DeselectNode(id)
@@ -10,6 +12,7 @@ SceneInteraction.SelectNode = function(id)
 end
 
 SceneInteraction.DeselectNode = function()
+	SceneInteraction.nodeSelChanged = SceneInteraction.selectedNode == -1
 	SceneInteraction.selectedNode = -1
 	SceneInteraction.DeselectComponent()
 	return true
@@ -38,7 +41,16 @@ SceneInteraction.SelectComponent = function(index)
 	return true
 end
 
+SceneInteraction.ComponentSelectionChanged = function()
+	return SceneInteraction.compSelChanged
+end
+
+SceneInteraction.NodeSelectionChanged = function()
+	return SceneInteraction.nodeSelChanged
+end
+
 SceneInteraction.DeselectComponent = function()
+	SceneInteraction.compSelChanged = SceneInteraction.selectedComponent == -1
 	SceneInteraction.selectedComponent = -1
 end
 

@@ -13,6 +13,7 @@ public:
   atLuaSceneMeshRenderable(const atLuaSceneMeshRenderable &copy);
   atLuaSceneMeshRenderable(atLuaSceneMeshRenderable &&move);
 
+  atLuaSceneNode Node();
   bool SetModelPath(const char *file);
   const char* GetModelPath();
 

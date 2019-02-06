@@ -27,42 +27,52 @@ NodeView.OnGui = function()
 			node:SetName(atImGui.TextInput("", node:GetName()))
 			
 			atImGui.NewLine()
-			atImGui.Text("Position:")
-			atImGui.SameLine()
-			atImGui.Text("" .. node:GetPosition().x .. ", " .. node:GetPosition().y .. ", ".. node:GetPosition().z)
+			local result = atImGui.Input3("Position", node:GetPosition())
+			if atImGui.IsItemActive() then
+				node:SetPosition(result)
+			end
 
-			atImGui.Text("Rotation:")
-			atImGui.SameLine()
-			atImGui.Text("" .. node:GetRotation().x .. ", " .. node:GetRotation().y .. ", ".. node:GetRotation().z)
+			result = atImGui.Input3("Rotation", node:GetRotation())
+			if atImGui.IsItemActive() then
+				node:SetRotation(result)
+			end
 
-			atImGui.Text("Scale:")
-			atImGui.SameLine()
-			atImGui.Text("" .. node:GetScale().x .. ", " .. node:GetScale().y .. ", ".. node:GetScale().z)
+			result = atImGui.Input3("Scale", node:GetScale())
+			if atImGui.IsItemActive() then
+				node:SetScale(result)
+			end
 			atImGui.PopID()
 			
 			atImGui.Text("Components")
 			atImGui.BeginChild("ComponentList", atMath.Vec2.new(0, 0), true)
 			
-			componentList = node:GetComponents()
+			local componentList = node:GetComponents()
 			for i, comp in pairs(componentList) do
 				if atImGui.Selectable("Component ".. i .. ", TypeID" .. comp:TypeID(), atCore.Packages["SceneInteraction"].selectedComponent == i - 1) then
 					atCore.Packages["SceneInteraction"].selectedComponent = i - 1
 				end
 			end
+			if atImGui.Selectable("Add New Component", false) then
+				atImGui.OpenPopup("AddComponentPopup")
+			end
+
+			local addCompType = -1
+			if atImGui.BeginPopup("AddComponentPopup") then
+				if atImGui.Button("Add Camera") then
+					addCompType = atScene.Camera.TypeID
+				end
+				
+				if atImGui.Button("Add Mesh") then
+					addCompType = atScene.Mesh.TypeID
+				end
+				
+				if atImGui.Button("Add Script") then
+					addCompType = atScene.Script.TypeID
+				end
+				atImGui.EndPopup()
+			end
+
 			atImGui.EndChild()
-			
-			addCompType = -1
-			if atImGui.Button("Add Camera") then
-				addCompType = atScene.Camera.TypeID
-			end
-			
-			if atImGui.Button("Add Mesh") then
-				addCompType = atScene.Mesh.TypeID
-			end
-			
-			if atImGui.Button("Add Script") then
-				addCompType = atScene.Script.TypeID
-			end
 			
 			if addCompType ~= -1 then
 				 node:AddComponent(addCompType)
