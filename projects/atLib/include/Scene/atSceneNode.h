@@ -23,12 +23,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSceneEntity_h__
-#define atSceneEntity_h__
+#ifndef atSceneNode_h__
+#define atSceneNode_h__
 
 #include "atString.h"
 #include "atTransformable.h"
 #include "atSceneComponent.h"
+#include <type_traits>
 
 class atScene;
 
@@ -38,6 +39,9 @@ class atSceneNode : public atTransformable<double>
 
 public:
   atSceneNode();
+
+  const atString& Name();
+  void SetName(const atString &name);
 
   virtual bool Update(const double dt);
   virtual bool Draw(const atMat4D &vp);
@@ -52,7 +56,10 @@ public:
   atSceneNode* Child(const int64_t index) const;
   atSceneNode* Sibling(const int64_t index) const;
 
-  int64_t ParentID(const int64_t index) const;
+  int64_t ChildCount() const;
+  int64_t SiblingCount() const;
+
+  int64_t ParentID() const;
   int64_t ChildID(const int64_t index) const;
   int64_t SiblingID(const int64_t index) const;
 
@@ -63,7 +70,7 @@ public:
   bool RemoveChild(atSceneNode *pChild, const bool preserveTransform = true);
 
   bool AddChild(const int64_t id);
-  bool RemoveChild(const int64_t id);
+  bool RemoveChild(const int64_t id, const bool preserveTransform = true);
 
   atMat4D GlobalTranslationMat() const;
   atMat4D GlobalRotationMat() const;
@@ -74,13 +81,26 @@ public:
   atVec3D GlobalRotation() const;
   atVec3D GlobalScale() const;
 
-  int64_t ComponentCount(const int64_t type) const;
-  atSceneComponent* Component(const int64_t type, int64_t index) const;
-  atVector<atSceneComponent*> Components(const int64_t type = atSCT_All) const;
+  bool RemoveComponent(const int64_t index);
+  bool RemoveComponent(const atSceneComponent *pComponent);
 
-  atSceneComponent* AddComponent(const int64_t type);
+  atVector<atSceneComponent*> Components(const int64_t type = atSCT_All) const;
+  atSceneComponent* Component(int64_t index) const;
+  atSceneComponent* Component(int64_t index, const int64_t type) const;
+  int64_t ComponentCount(const int64_t type) const;
+  int64_t ComponentCount() const;
+
+  template <typename T> T* Component(const int64_t index) const;
+  template <typename T> atVector<T*> Components() const;
+  template <typename T> int64_t ComponentCount() const;
+
+  template <typename T> T* AddComponent();
+  template <typename T> T* AddComponent(T* pComponent);
+
+  atScene* Scene();
 
 protected:
+
   atVec3D ParentPosition() const;
   atVec3D ParentRotation() const;
   atVec3D ParentScale() const;
@@ -90,6 +110,8 @@ protected:
   atMat4D ParentScaleMat() const;
   atMat4D ParentWorldMat() const;
 
+  atString m_name;
+
   atScene *m_pScene = nullptr;
   atSceneNode *m_pParent = nullptr;
   atVector<atSceneNode*> m_children;
@@ -97,4 +119,5 @@ protected:
   atVector<atSceneComponent*> m_components;
 };
 
-#endif // atSceneEntity_h__
+#include "atSceneNode.inl"
+#endif // atSceneNode_h__

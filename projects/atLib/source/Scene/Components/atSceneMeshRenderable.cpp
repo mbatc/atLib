@@ -23,46 +23,18 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atCamera_h__
-#define atCamera_h__
+#include "atSceneMeshRenderable.h"
+#include "atSceneNode.h"
 
-#include "atWindow.h"
-#include "atTransformable.h"
-#include "atSceneComponent.h"
+const int64_t atSceneMeshRenderable::typeID = atSceneComponent::NextTypeID();
+int64_t atSceneMeshRenderable::TypeID() const { return typeID; }
 
-class atCamera : public atSceneComponent
+bool atSceneMeshRenderable::OnDraw(const atMat4D &vp)
 {
-public:
-  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  m_model.Draw(vp, m_pNode->GlobalWorldMat());
+  return true;
+}
 
-  void SetViewport(const atVec4I viewport);
-  void SetViewport(atWindow &wnd);
-  atVec4I Viewport() const;
-  atMat4D ProjectionMat() const;
-
-
-  double m_fov;
-  double m_aspect;
-  double m_farPlane;
-  double m_nearPlane;
-  atVec2F m_depthRange = atVec2I(0, 1);
- 
-  int64_t TypeID() const override;
-  static const int64_t typeID;
-
-protected:
-  atVec4I m_viewport = -1;
-};
-
-class atSimpleCamera : public atCamera, public atTransformable<double>
-{
-public:
-  atSimpleCamera(atWindow &wnd, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
-
-  atMat4D ViewMat() const;
-  bool Update(const double dt) override;
-
-  double m_moveSpeed = 1.0;
-};
-
-#endif // atCamera_h__
+const atString& atSceneMeshRenderable::GetModelPath() { return m_path; }
+bool atSceneMeshRenderable::SetModel(const atMesh &mesh) { m_path = mesh.m_sourceFile; return m_model.Import(mesh); }
+bool atSceneMeshRenderable::SetModel(const atString &file) { m_path = file; return m_model.Import(file); }

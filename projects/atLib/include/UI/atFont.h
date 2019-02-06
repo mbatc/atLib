@@ -51,7 +51,7 @@ public:
     int64_t height;   // Height of the glyph in pixels
   };
 
-  atFont(const atFilename &filename, const int64_t scale = 32, const int64_t resolution = -1);
+  atFont(const atFilename &filename = "", const int64_t scale = 32, const int64_t resolution = -1);
   atFont(const atFont &copy);
   atFont(atFont &&move);
   ~atFont();

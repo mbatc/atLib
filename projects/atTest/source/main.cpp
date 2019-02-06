@@ -57,7 +57,7 @@
 #include "atPrimitiveRenderer.h"
 #include "atGraphicsModel.h"
 #include "atRenderState.h"
-#include "atCamera.h"
+#include "atSceneCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
@@ -81,7 +81,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atSimpleCamera camera(window, { 0, 1, 5 });
+  atSimpleCamera camera(&window, { 0, 1, 5 });
   camera.m_moveSpeed = 1.0f;
 
   // Main program loop
@@ -93,8 +93,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   while (atInput::Update(true)) // Process user inputs
   {
     // Update camera
-    camera.Update(0.016);
-    camera.SetViewport(window);
+    camera.OnUpdate(0.016);
+    camera.SetViewport(&window);
 
     // Clear window
     window.Clear(clearColor);
@@ -105,7 +105,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     model.SetLighting(light);
     model.EnableLighting(useLighting);
     model.SetCamera(camera.m_translation);
-    useLighting = atInput::KeyPressed(atKC_L) ? !useLighting : useLighting;
+    useLighting = atInput::ButtonPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
@@ -165,7 +165,7 @@ void ExampleRenderText()
 
     // Enable/Disable pivots
     static bool usePivot = true;
-    usePivot = atInput::KeyPressed(atKC_P) ? !usePivot : usePivot;
+    usePivot = atInput::ButtonPressed(atKC_P) ? !usePivot : usePivot;
 
     // Bake Text
     if (usePivot)
@@ -328,7 +328,7 @@ void ExampleRayTraceMesh()
 }
 
 #include "atScene.h"
-#include "atMeshRenderable.h"
+#include "atSceneMeshRenderable.h"
 
 void ExampleCreateScene()
 {
@@ -339,25 +339,26 @@ void ExampleCreateScene()
   rs.SetRenderTarget(&window);
 
   // Create camera
-  atSceneNode *pNode = scene.CreateNode({ 2, 1, 5 });
-  atCamera *pCam1 = (atCamera*)pNode->AddComponent(atSCT_Camera);
+  atSceneNode *pNode = scene.CreateNode("Camera 1", { 2, 1, 5 });
+  atSceneCamera *pCam1 = pNode->AddComponent<atSceneCamera>();
   scene.AddActiveCamera(pNode);
 
 
   // Create another camera
-  pNode = scene.CreateNode({0, 1, 5});
-  atCamera *pCam2 = (atCamera*)pNode->AddComponent(atSCT_Camera);
+  pNode = scene.CreateNode("Camera 2", {0, 1, 5});
+  atSceneCamera *pCam2 = pNode->AddComponent<atSceneCamera>();
   scene.AddActiveCamera(pNode);
 
 
   // Add a mesh
-  pNode = scene.CreateNode();
-  atMeshRenderable *pMesh = (atMeshRenderable*)pNode->AddComponent(atSCT_MeshRenderable);
-  pMesh->m_model.Import("assets/test/models/level.obj");
+  pNode = scene.CreateNode("Mesh");
+  atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
+  pMesh->SetModel("assets/test/models/level.obj");
 
   // Add a skybox
-  pNode = scene.CreateNode();
-  pNode->AddComponent(atSCT_Skybox);
+  // pNode = scene.CreateNode("Skybox");
+  // pNode->AddComponent<atSceneSkybox>();
+
 
   while(atInput::Update())
   {
@@ -392,7 +393,7 @@ void ExampleImGui()
   while (atInput::Update())
   {
     window.Clear({ 0, 0.5, 0.5, 1 });
-    atImGui::BeginFrame(window);
+    atImGui::BeginFrame(&window);
     static char input[512] = "initial";
     if (ImGui::Begin("Test Window"))
     {
@@ -409,6 +410,7 @@ void ExampleImGui()
     atImGui::Render();
     window.Swap();
   }
+}
   
 #include "atBVH.h"
 #include "atIntersects.h"
@@ -423,7 +425,7 @@ int main(int argc, char **argv)
   
   // ExampleRenderText();
   // ExampleRenderMesh();
-  // ExampleCreateScene();
+  ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
@@ -434,5 +436,6 @@ int main(int argc, char **argv)
   // ExampleRayTraceMesh();
   // ExampleRunLua();
   
+  system("pause");
   return atWindow_GetResult();
 }

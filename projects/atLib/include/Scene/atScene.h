@@ -26,6 +26,7 @@
 #ifndef atScene_h__
 #define atScene_h__
 
+#include "atLua.h"
 #include "atHashMap.h"
 #include "atSceneNode.h"
 
@@ -35,9 +36,18 @@ public:
   atScene();
   ~atScene();
 
+  const atString& GetName();
+  void SetName(const atString &name);
+
   bool Update();
   bool Draw();
+  bool Draw(atSceneNode *pCamera);
+  bool Draw(const int64_t camera);
 
+  atLua* GetLua();
+  void SetLua(atLua *pLua);
+
+  int64_t GetRootID();
   atSceneNode* GetRoot();
   atSceneNode* GetNode(const int64_t id);
   const atSceneNode* GetNode(const int64_t id) const;
@@ -46,14 +56,16 @@ public:
   atVector<int64_t> GetNodeIDs() const;
   atVector<int64_t> GetNodeIDs(const atVector<atSceneNode*> nodes) const;
 
-  atSceneNode* CreateNode(const atVec3D &position = 0, const atVec3D &rotation = 0, const atVec3D &scale = atVec3D::one(), atSceneNode *pParent = nullptr);
+  atSceneNode* CreateNode(const atString &name, const atVec3D &position = 0, const atVec3D &rotation = 0, const atVec3D &scale = atVec3D::one(), atSceneNode *pParent = nullptr);
 
-  bool DeleteNode(const atSceneNode *pNode, bool migrateChildren = false);
+  bool DeleteNode(atSceneNode *pNode, bool migrateChildren = false);
   bool DeleteNode(const int64_t id, bool migrateChildren = false);
 
+  bool IsActiveCamera(const int64_t id);
   bool AddActiveCamera(const int64_t id);
   bool RemoveActiveCamera(const int64_t id);
 
+  bool IsActiveCamera(atSceneNode *pNode);
   bool AddActiveCamera(atSceneNode *pNode);
   bool RemoveActiveCamera(atSceneNode *pNode);
 
@@ -61,10 +73,14 @@ public:
 
   atVec4I m_viewport;
 protected:
+  bool DeleteNode(atSceneNode *pNode, bool migrateChildren, bool allowRoot);
   bool Update(atSceneNode *pNode);
   
+  atString m_name;
+
   double m_dt;
 
+  atLua *m_pLua;
   atSceneNode *m_pRoot;
   atHashMap<int64_t, atSceneNode*> m_nodes;
   atHashMap<const atSceneNode*, int64_t> m_nodeIDs;
