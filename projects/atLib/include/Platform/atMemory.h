@@ -43,11 +43,8 @@ template <class T, typename... Args> T* atNewArray(const int64_t size);
 template <class T, typename... Args> T* atNewArray(const int64_t size, const T &copy);
 
 // Will Construct/Destruct object of they are non primitive types
-template <class T, typename... Args> typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstruct(T *pVal, Args... args);
-template <class T, typename... Args> typename std::enable_if<!std::is_constructible<T, Args...>::value>::type atConstruct(T *pVal, Args... args) { atUnused(pVal, args...); }
-
-template <class T, typename... Args> typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstructArray(T *pVal, const int64_t count, Args... args);
-template <class T, typename... Args> typename std::enable_if<!std::is_constructible<T, Args...>::value>::type atConstructArray(T *pVal, const int64_t count, Args... args) { atUnused(pVal, count, args...); }
+template <class T, typename... Args> void atConstruct(T *pVal, Args... args);
+template <class T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args... args);
 
 template <class T> typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal);
 template <class T> typename std::enable_if<!std::is_destructible<T>::value>::type atDestruct(T *pVal) { atUnused(pVal); }
@@ -90,18 +87,16 @@ template <class T> typename std::enable_if<std::is_destructible<T>::value>::type
     atDestruct(&pVal[i]);
 }
 
-template <class T, typename... Args> typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstructArray(T *pVal, const int64_t count, Args... args)
+template <class T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args... args)
 {
   for (int64_t i = 0; i < count; ++i)
     atConstruct<T, Args...>(pVal + i, std::forward<Args>(args)...);
 }
 
-template <class T> inline typename std::enable_if<std::is_fundamental<T>::value>::type atConstructArray(T* pVal, int64_t count, T val) { while (count-- > 0) memcpy(pVal++, &val, sizeof(T)); }
-template <class T> inline typename std::enable_if<std::is_fundamental<T>::value>::type atConstruct(T* pVal, T val) { memcpy(pVal, &val, sizeof(T)); }
 template <class T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
 template <class T> inline T* atNewArray(const int64_t size) { return atInternal_New(size); }
 template <class T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New(size, copy); }
-template <class T, typename... Args> inline typename std::enable_if<std::is_constructible<T, Args...>::value>::type atConstruct(T *pVal, Args... args) { new(pVal) T(std::forward<Args>(args)...); }
+template <class T, typename... Args> inline void atConstruct(T *pVal, Args... args) { new(pVal) T(std::forward<Args>(args)...); }
 template <class T> inline typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal) { pVal->~T(); }
 
 #endif

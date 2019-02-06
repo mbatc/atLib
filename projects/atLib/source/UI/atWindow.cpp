@@ -29,6 +29,7 @@
 #include <time.h>
 #include "atImGui.h"
 #include "atHashMap.h"
+#include "atColor.h"
 
 static MSG s_msg;
 static int64_t s_lastClock = 0;
@@ -58,10 +59,10 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     // Messages blocked by ImGui windows
     switch (msg)
     {
-    case WM_KEYDOWN: atInput::OnKeyDown(wParam, dt); break;
-    case WM_LBUTTONDOWN: atInput::OnMouseDown(atMB_Left, dt); break;
-    case WM_RBUTTONDOWN: atInput::OnMouseDown(atMB_Right, dt); break;
-    case WM_MBUTTONDOWN: atInput::OnMouseDown(atMB_Middle, dt); break;
+    case WM_KEYDOWN: atInput::OnButtonDown(wParam, dt); break;
+    case WM_LBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Left, dt); break;
+    case WM_RBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Right, dt); break;
+    case WM_MBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Middle, dt); break;
     case WM_MOUSEWHEEL: atInput::OnMouseWheel((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     case WM_MOUSEHWHEEL: atInput::OnMouseWheelH((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     }
@@ -71,10 +72,10 @@ LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   {
   case WM_CLOSE:  PostQuitMessage(0); break;
   case WM_DESTROY: PostQuitMessage(0); break; 
-  case WM_KEYUP: atInput::OnKeyUp(wParam, dt); break;
-  case WM_LBUTTONUP: atInput::OnMouseUp(atMB_Left, dt); break;
-  case WM_RBUTTONUP: atInput::OnMouseUp(atMB_Right, dt); break;
-  case WM_MBUTTONUP: atInput::OnMouseUp(atMB_Middle, dt); break;
+  case WM_KEYUP: atInput::OnButtonUp(wParam, dt); break;
+  case WM_LBUTTONUP: atInput::OnButtonUp(atKC_MB_Left, dt); break;
+  case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
+  case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
   case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
   case WM_SIZE: case WM_MOVE:
   {
@@ -124,6 +125,8 @@ void atWindow::Clear(const Pixel color)
     m_pixels[i] = color;
   Clear(atVec4F((float)color.r / 255.f, (float)color.g / 255.f, (float)color.b / 255.f, 1.0f));
 }
+
+void atWindow::Clear(const atCol color) { m_dxTarget.Clear(atColor::UnPack<float>(color)); }
 
 void atWindow::Clear(const atVec4F &color) { m_dxTarget.Clear(color); }
 
@@ -265,6 +268,7 @@ void atWindow::SetIcon(HICON hIcon) { m_hIcon = hIcon; }
 void atWindow::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
 void atWindow::SetParent(const atWindow &window) { m_hWnd = window.GetHandle(); }
 void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
+atVec2I atWindow::DisplaySize() { return atVec2I(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)); }
 HWND atWindow::GetHandle() const { return m_hWnd; }
 int32_t atWindow::Width() const { return Size().x; }
 int32_t atWindow::Height() const { return Size().y; }

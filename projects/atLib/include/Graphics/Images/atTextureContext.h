@@ -46,6 +46,8 @@ public:
 
   void UpdateTexture(const atImage &image, const bool genMipmaps = true, const int64_t sampleCount = 1);
 
+  atVec2I Size() const;
+
   operator ID3D11Texture2D *();
   operator ID3D11ShaderResourceView *();
   operator ID3D11RenderTargetView *();

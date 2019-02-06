@@ -43,13 +43,14 @@ class atWindow
   friend atRenderState;
 
 public:
-  struct Pixel { Pixel(const char r, const char g, const char b) : r(r), g(g), b(b) {} unsigned char b, g, r; };
+  struct Pixel { Pixel(const unsigned char r = 255, const unsigned char g = 255, const unsigned char b = 255) : r(r), g(g), b(b) {} unsigned char b, g, r; };
 
   atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const bool hardware = true, const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const int64_t style = WS_OVERLAPPEDWINDOW);
   ~atWindow();
 
   void Clear(const Pixel color);
   void Clear(const char r, const char g, const char b);
+  void Clear(const atCol color);
   void Clear(const atVec4F &color);
 
   void Swap();
@@ -81,6 +82,8 @@ public:
   bool MakeWindow();
   void Destroy();
   void OnResize();
+
+  static atVec2I DisplaySize();
 
 protected:
   void SetWindowRect();
