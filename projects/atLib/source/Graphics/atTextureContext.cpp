@@ -241,6 +241,13 @@ atTextureContext::operator ID3D11UnorderedAccessView**()
   return &m_pUAView;
 }
 
+atVec2I atTextureContext::Size() const
+{
+  D3D11_TEXTURE2D_DESC desc;
+  m_pTexture->GetDesc(&desc);
+  return{ desc.Width, desc.Height };
+}
+
 void atTextureContext::UpdateTexture(const atImage &image, const bool genMipaps, const int64_t sampleCount) { *this = atTextureContext(image, genMipaps, sampleCount); }
 
 atTextureContext::~atTextureContext() { Release(); }

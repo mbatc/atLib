@@ -92,9 +92,11 @@ void atRenderState::Bind()
     atGraphics::GetContext()->RSSetState(s_pRasterState);
   }
 
-  if (m_activeState.viewport != top.viewport || m_activeState.depthRange != top.depthRange)
+  if (m_activeState.viewport != top.viewport || m_activeState.depthRange != top.depthRange ||
+    top.viewport.x < 0 || top.viewport.y < 0 || top.viewport.z < 0 || top.viewport.w < 0)
   {
     D3D11_VIEWPORT vp = _DX11ViewportDesc(top);
+    top.viewport = { vp.TopLeftX, vp.TopLeftY, vp.Width, vp.Height };
     atGraphics::GetContext()->RSSetViewports(1, &vp);
   }
 
@@ -289,12 +291,28 @@ static D3D11_DEPTH_STENCIL_DESC _DX11DepthDesc(const atRenderState::State &state
 static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state)
 {
   D3D11_VIEWPORT desc;
+
   desc.Height = (float)state.viewport.w;
   desc.Width = (float)state.viewport.z;
   desc.TopLeftX = (float)state.viewport.x;
   desc.TopLeftY = (float)state.viewport.y;
   desc.MinDepth = (float)state.depthRange.x;
   desc.MaxDepth = (float)state.depthRange.y;
+
+  if (desc.TopLeftX < 0)
+    desc.TopLeftX = 0;
+  if (desc.TopLeftY < 0)
+    desc.TopLeftY = 0;
+  if (desc.Width < 0 || desc.Height < 0 && state.pColourTarget)
+  {
+    atTextureContext *pTarget = atHardwareTexture::GetTexture(state.pColourTarget->GetColourTexID());
+    if (pTarget)
+    {
+      atVec2I size = pTarget->Size();
+      desc.Width = desc.Width < 0 ? size.x : desc.Width;
+      desc.Height = desc.Height < 0 ? size.y : desc.Height;
+    }
+  }
   return desc;
 }
 
