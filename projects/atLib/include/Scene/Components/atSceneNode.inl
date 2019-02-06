@@ -1,5 +1,4 @@
 
-
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -24,40 +23,30 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atBVH_h__
-#define atBVH_h__
-
-#include "atRay.h"
-#include "atAABB.h"
-
-template <typename T> struct atBVHNode
+template<typename T> inline atVector<T*> atSceneNode::Components() const
 {
-  atBVHNode();
-  bool isLeaf = false;
-  T primitive;
-  atAABB<double> bounds;
-  atVector<atBVHNode<T>> children;
-};
+  atVector<T*> ret;
+  for (atSceneComponent *pComp : m_components)
+    if (pComp->Is<T>())
+      ret.push_back((T*)pComp);
+  return ret;
+}
 
-template <typename T> atBVHNode<T>::atBVHNode() {}
-
-template <typename T> class atBVH
+template <typename T> inline int64_t atSceneNode::ComponentCount() const
 {
-public:
-  atBVH(const atVector<T> &primitives);
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    count += pComp->Is<T>();
+  return count;
+}
 
-  void Construct(const atVector<T> &primitives);
+template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
+{
+  atIsValidSceneComponentType<T>();
+  pComponent->m_pNode = this;
+  m_components.push_back(pComponent);
+  return pComponent;
+}
 
-  // Recursively construct the tree - removes items from pPrimitives as they are assigned to tree node
-  void ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves);
-
-  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime);
-
-  atBVHNode<T> m_root;
-};
-
-template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
-
-#include "atBVH.inl"
-#endif // atBVH_h__
-
+template <typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
+template <typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }

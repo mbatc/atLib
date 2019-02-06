@@ -23,11 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atMath.h"
+#include "atEngine.h"
 
 int main(int argc, char **argv)
 {
-  atUnused(argc, argv);
-  printf("haha nothing happens yet");
-  return 0;
+  atEngine::Instance(argc, argv);
+  int result = (int)atEngine::Instance()->Result();
+  atEngine::Destroy();
+  return result;
 }

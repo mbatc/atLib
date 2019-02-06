@@ -18,6 +18,10 @@ objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
 flags { "FatalWarnings" }
 flags { "MultiProcessorCompile" }
 
+-- Build Options
+
+buildoptions { "/bigobj" }
+
 -- Shared Defines
 
   defines { "_CRT_SECURE_NO_WARNINGS" }

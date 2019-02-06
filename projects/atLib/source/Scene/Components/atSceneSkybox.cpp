@@ -1,5 +1,4 @@
 
-
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -24,40 +23,19 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atBVH_h__
-#define atBVH_h__
+#include "atSceneSkybox.h"
 
-#include "atRay.h"
-#include "atAABB.h"
+const int64_t atSceneSkybox::typeID = atSceneComponent::NextTypeID();
+int64_t atSceneSkybox::TypeID() const { return typeID; }
 
-template <typename T> struct atBVHNode
+bool atSceneSkybox::SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back)
 {
-  atBVHNode();
-  bool isLeaf = false;
-  T primitive;
-  atAABB<double> bounds;
-  atVector<atBVHNode<T>> children;
-};
+  return false;
+}
 
-template <typename T> atBVHNode<T>::atBVHNode() {}
-
-template <typename T> class atBVH
+bool atSceneSkybox::OnDraw(const atMat4D &vp)
 {
-public:
-  atBVH(const atVector<T> &primitives);
-
-  void Construct(const atVector<T> &primitives);
-
-  // Recursively construct the tree - removes items from pPrimitives as they are assigned to tree node
-  void ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves);
-
-  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime);
-
-  atBVHNode<T> m_root;
-};
-
-template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
-
-#include "atBVH.inl"
-#endif // atBVH_h__
+  atUnused(vp);
+  return false;
+}
 

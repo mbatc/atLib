@@ -21035,7 +21035,8 @@ namespace sol {
 		return result;
 #else
 		// just throw our error
-		throw error(detail::direct_error, err);
+
+    throw error(detail::direct_error, err);
 #endif // If exceptions are allowed
 	}
 
