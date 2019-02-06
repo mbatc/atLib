@@ -23,19 +23,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atSkybox.h"
-
-const int64_t atSkybox::typeID = atSCT_Skybox;
-int64_t atSkybox::TypeID() const { return typeID; }
-
-bool atSkybox::SetImages(const atFilename & left, const atFilename & right, const atFilename & top, const atFilename & bottom, const atFilename & front, const atFilename & back)
-{
-  return false;
+template <typename T> inline void atIsValidSceneComponentType()
+{ 
+  static_assert(std::is_base_of<atSceneComponent, T>::value, "Invalid Component Type: T must be derived from atSceneComponent");
 }
 
-bool atSkybox::Draw(const atMat4D &vp)
+template <typename T> inline bool atSceneComponent::Is() const
 {
-  atUnused(vp);
-  return false;
+  atIsValidSceneComponentType<T>();
+  return T::typeID == TypeID();
 }
-

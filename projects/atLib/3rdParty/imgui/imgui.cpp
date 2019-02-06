@@ -6294,14 +6294,6 @@ void ImGui::PopStyleColor(int count)
     }
 }
 
-struct ImGuiStyleVarInfo
-{
-    ImGuiDataType   Type;
-    ImU32           Count;
-    ImU32           Offset;
-    void*           GetVarPtr(ImGuiStyle* style) const { return (void*)((unsigned char*)style + Offset); }
-};
-
 static const ImGuiStyleVarInfo GStyleVarInfo[] =
 {
     { ImGuiDataType_Float, 1, (ImU32)IM_OFFSETOF(ImGuiStyle, Alpha) },              // ImGuiStyleVar_Alpha
@@ -6328,7 +6320,7 @@ static const ImGuiStyleVarInfo GStyleVarInfo[] =
     { ImGuiDataType_Float, 2, (ImU32)IM_OFFSETOF(ImGuiStyle, ButtonTextAlign) },    // ImGuiStyleVar_ButtonTextAlign
 };
 
-static const ImGuiStyleVarInfo* GetStyleVarInfo(ImGuiStyleVar idx)
+const ImGuiStyleVarInfo* ImGui::GetStyleVarInfo(ImGuiStyleVar idx)
 {
     IM_ASSERT(idx >= 0 && idx < ImGuiStyleVar_COUNT);
     IM_ASSERT(IM_ARRAYSIZE(GStyleVarInfo) == ImGuiStyleVar_COUNT);
@@ -6437,6 +6429,36 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     }
     IM_ASSERT(0);
     return "Unknown";
+}
+
+const char* ImGui::GetStyleVarName(ImGuiStyleVar idx)
+{
+  switch (idx)
+  {
+  case ImGuiStyleVar_Alpha: return "Alpha";                         // float     Alpha
+  case ImGuiStyleVar_WindowPadding: return "WindowPadding";         // ImVec2    WindowPadding
+  case ImGuiStyleVar_WindowRounding: return "WindowRounding";       // float     WindowRounding
+  case ImGuiStyleVar_WindowBorderSize: return "WindowBorderSize";   // float     WindowBorderSize
+  case ImGuiStyleVar_WindowMinSize: return "WindowMinSize";         // ImVec2    WindowMinSize
+  case ImGuiStyleVar_WindowTitleAlign: return "WindowTitleAlign";   // ImVec2    WindowTitleAlign
+  case ImGuiStyleVar_ChildRounding: return "ChildRounding";         // float     ChildRounding
+  case ImGuiStyleVar_ChildBorderSize: return "ChildBorderSize";     // float     ChildBorderSize
+  case ImGuiStyleVar_PopupRounding: return "PopupRounding";         // float     PopupRounding
+  case ImGuiStyleVar_PopupBorderSize: return "PopupBorderSize";     // float     PopupBorderSize
+  case ImGuiStyleVar_FramePadding: return "FramePadding";           // ImVec2    FramePadding
+  case ImGuiStyleVar_FrameRounding: return "FrameRounding";         // float     FrameRounding
+  case ImGuiStyleVar_FrameBorderSize: return "FrameBorderSize";     // float     FrameBorderSize
+  case ImGuiStyleVar_ItemSpacing: return "ItemSpacing";             // ImVec2    ItemSpacing
+  case ImGuiStyleVar_ItemInnerSpacing: return "ItemInnerSpacing";   // ImVec2    ItemInnerSpacing
+  case ImGuiStyleVar_IndentSpacing: return "IndentSpacing";         // float     IndentSpacing
+  case ImGuiStyleVar_ScrollbarSize: return "ScrollbarSize";         // float     ScrollbarSize
+  case ImGuiStyleVar_ScrollbarRounding: return "ScrollbarRounding"; // float     ScrollbarRounding
+  case ImGuiStyleVar_GrabMinSize: return "GrabMinSize";             // float     GrabMinSize
+  case ImGuiStyleVar_GrabRounding: return "GrabRounding";           // float     GrabRounding
+  case ImGuiStyleVar_TabRounding: return "TabRounding";             // float     TabRounding
+  case ImGuiStyleVar_ButtonTextAlign: return "ButtonTextAlign";     // ImVec2    ButtonTextAlign
+  }
+  return "Unknown";
 }
 
 bool ImGui::IsWindowChildOf(ImGuiWindow* window, ImGuiWindow* potential_parent)

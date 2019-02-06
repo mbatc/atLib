@@ -196,6 +196,14 @@ struct ImVec4
 #endif
 };
 
+struct ImGuiStyleVarInfo
+{
+  ImGuiDataType   Type;
+  ImU32           Count;
+  ImU32           Offset;
+  void*           GetVarPtr(ImGuiStyle* style) const { return (void*)((unsigned char*)style + Offset); }
+};
+
 //-----------------------------------------------------------------------------
 // ImGui: Dear ImGui end-user API
 // (Inside a namespace so you can add extra functions in your own separate file. Please don't modify imgui.cpp/.h!)
@@ -650,6 +658,8 @@ namespace ImGui
     IMGUI_API ImDrawList*   GetOverlayDrawList(ImGuiViewport* viewport);                        // get overlay draw list for the given viewport. 
     IMGUI_API ImDrawListSharedData* GetDrawListSharedData();                                    // you may use this when creating your own ImDrawList instances
     IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
+    IMGUI_API const char*   GetStyleVarName(ImGuiStyleVar idx);
+    IMGUI_API const ImGuiStyleVarInfo* GetStyleVarInfo(ImGuiStyleVar idx);
     IMGUI_API void          SetStateStorage(ImGuiStorage* storage);                             // replace current window storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
     IMGUI_API ImGuiStorage* GetStateStorage();
     IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);

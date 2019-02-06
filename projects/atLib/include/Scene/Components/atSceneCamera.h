@@ -23,24 +23,46 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSkybox_h__
-#define atSkybox_h__
+#ifndef atSceneCamera_h__
+#define atSceneCamera_h__
 
+#include "atWindow.h"
+#include "atTransformable.h"
 #include "atSceneComponent.h"
-#include "atGraphicsModel.h"
 
-class atSkybox : public atSceneComponent
+class atSceneCamera : public atSceneComponent
 {
 public:
-  bool Draw(const atMat4D &vp) override;
+  atSceneCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
+  void SetViewport(const atVec4I viewport);
+  void SetViewport(const atWindow *pWindow);
+  atVec4I Viewport() const;
+  atMat4D ProjectionMat() const;
+
+  double m_fov;
+  double m_aspect;
+  double m_farPlane;
+  double m_nearPlane;
+  atVec2F m_depthRange = atVec2I(0, 1);
+ 
   int64_t TypeID() const override;
   static const int64_t typeID;
 
-  bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
-
 protected:
-  atVector<atRenderableCore> m_meshes;
+  atVec4I m_viewport = -1;
 };
 
-#endif // atSkybox_h__
+class atSimpleCamera : public atSceneCamera, public atTransformable<double>
+{
+public:
+  atSimpleCamera(double aspect = 1.0, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atSimpleCamera(const atWindow *pWindow, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+
+  atMat4D ViewMat() const;
+  bool OnUpdate(const double dt) override;
+
+  double m_moveSpeed = 1.0;
+};
+
+#endif // atCamera_h__

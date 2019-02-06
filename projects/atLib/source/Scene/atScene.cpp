@@ -27,16 +27,42 @@
 #include "atSceneRenderer.h"
 
 static int64_t _idCounter = 0;
+static atLua *_pLua = nullptr;
 
 int64_t _GetNextID() { return _idCounter++; }
 
-atScene::atScene() : m_pRoot(nullptr) { m_pRoot = CreateNode(); }
-atScene::~atScene() { DeleteNode(m_pRoot); }
+atScene::atScene() : m_pRoot(nullptr), m_pLua(nullptr), m_name("Scene") { m_pRoot = CreateNode("Root"); }
+atScene::~atScene() { DeleteNode(m_pRoot, false, true); }
 
 int64_t atScene::GetNodeID(const atSceneNode *pNode) const
 {
   const int64_t *pID = m_nodeIDs.TryGet(pNode);
   return pID ? *pID : AT_INVALID_ID;
+}
+
+bool atScene::DeleteNode(atSceneNode *pNode, bool migrateChildren, bool allowRoot)
+{
+  if (!pNode || pNode->m_pScene != this || (pNode == m_pRoot && migrateChildren)) return false;
+  atVector<atSceneNode*> children = pNode->Children();
+  bool res = true;
+  for (atSceneNode *pNode : children)
+    if (migrateChildren)
+      pNode->Parent()->AddChild(pNode);
+    else
+      res &= DeleteNode(pNode, migrateChildren);
+
+  if (pNode->Parent())
+    pNode->Parent()->RemoveChild(pNode);
+
+  if (!allowRoot && pNode == m_pRoot)
+    return true;
+
+  int64_t id = m_nodeIDs[pNode];
+  m_nodeIDs.Remove(pNode);
+  m_nodes.Remove(id);
+  RemoveActiveCamera(id);
+  atDelete(pNode);
+  return res;
 }
 
 bool atScene::Update(atSceneNode *pNode)
@@ -55,9 +81,10 @@ atVector<int64_t> atScene::GetNodeIDs(const atVector<atSceneNode*> nodes) const
   return ret;
 }
 
-atSceneNode* atScene::CreateNode(const atVec3D &position, const atVec3D &rotation, const atVec3D &scale, atSceneNode *pParent)
+atSceneNode* atScene::CreateNode(const atString &name, const atVec3D &position, const atVec3D &rotation, const atVec3D &scale, atSceneNode *pParent)
 {
   atSceneNode *pNode = atNew<atSceneNode>();
+  pNode->m_name = name;
   pNode->m_translation = position;
   pNode->m_rotation = rotation;
   pNode->m_scale = scale;
@@ -70,22 +97,17 @@ atSceneNode* atScene::CreateNode(const atVec3D &position, const atVec3D &rotatio
   return pNode;
 }
 
-bool atScene::DeleteNode(const atSceneNode *pNode, bool migrateChildren)
+bool atScene::DeleteNode(atSceneNode *pNode, bool migrateChildren)
 {
-  if (!pNode || pNode->m_pScene != this || (pNode == m_pRoot && migrateChildren)) return false;
-  atVector<atSceneNode*> children = pNode->Children();
-  bool res = true;
-  for (atSceneNode *pNode : children)
-    if (migrateChildren)
-      m_pRoot->AddChild(pNode);
-    else
-      res &= DeleteNode(pNode, migrateChildren);
+  return DeleteNode(pNode, migrateChildren, false);
+}
 
-  int64_t id = m_nodeIDs[pNode];
-  m_nodeIDs.Remove(pNode);
-  m_nodes.Remove(id);
-  atDelete(pNode);
-  return res;
+bool atScene::IsActiveCamera(const int64_t id)
+{
+  for (const int64_t camera : m_activeCameras)
+    if (id == camera)
+      return true;
+  return false;
 }
 
 bool atScene::AddActiveCamera(const int64_t id)
@@ -102,19 +124,42 @@ bool atScene::RemoveActiveCamera(const int64_t id)
   for(const int64_t &camera : m_activeCameras)
     if (id == camera)
     {
-      m_activeCameras.erase(&id - m_activeCameras.begin());
+      m_activeCameras.erase(&camera - m_activeCameras.begin());
       return true;
     }
   return false;
 }
 
+bool atScene::Draw(atSceneNode *pCamera)
+{
+  if (!pCamera)
+    return false;
+  return Draw(pCamera->ID());
+}
+
+bool atScene::Draw(const int64_t camera)
+{
+  atVector<int64_t> lastCamList = m_activeCameras;
+  m_activeCameras.clear();
+  m_activeCameras.push_back(camera);
+  bool res = Draw();
+  m_activeCameras = lastCamList;
+  return res;
+}
+
 const atSceneNode* atScene::GetNode(const int64_t id) const { atSceneNode * const *ppNode = m_nodes.TryGet(id); return ppNode ? *ppNode : nullptr; }
 bool atScene::RemoveActiveCamera(atSceneNode *pNode) { return pNode->m_pScene == this ? RemoveActiveCamera(GetNodeID(pNode)) : false; }
 atSceneNode* atScene::GetNode(const int64_t id) { atSceneNode **ppNode = m_nodes.TryGet(id); return ppNode ? *ppNode : nullptr; }
+bool atScene::IsActiveCamera(atSceneNode *pNode) { return  pNode->m_pScene == this ? IsActiveCamera(GetNodeID(pNode)) : false; }
 bool atScene::AddActiveCamera(atSceneNode *pNode) { return pNode->m_pScene == this ? AddActiveCamera(GetNodeID(pNode)) : false; }
 bool atScene::DeleteNode(const int64_t id, bool migrateChildren) { return DeleteNode(GetNode(id), migrateChildren); }
 const atVector<int64_t>& atScene::GetActiveCameras() const { return m_activeCameras; }
-atVector<int64_t> atScene::GetNodeIDs() const { return m_nodes.GetKeys(); }
+atVector<int64_t> atScene::GetNodeIDs() const  { return m_nodes.GetKeys(); }
+void atScene::SetName(const atString &name) { m_name = name; }
 bool atScene::Draw() { return atSceneRenderer::Render(this); }
+int64_t atScene::GetRootID() { return m_pRoot->ID(); }
+const atString& atScene::GetName() { return m_name; }
+void atScene::SetLua(atLua *pLua) { m_pLua = pLua; }
 atSceneNode* atScene::GetRoot() { return m_pRoot; }
 bool atScene::Update() { return Update(m_pRoot); }
+atLua* atScene::GetLua() { return m_pLua; }

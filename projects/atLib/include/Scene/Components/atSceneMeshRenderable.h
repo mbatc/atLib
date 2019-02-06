@@ -23,22 +23,26 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atMeshRenderable_h__
-#define atMeshRenderable_h__
+#ifndef atSceneMeshRenderable_h__
+#define atSceneMeshRenderable_h__
 
 #include "atSceneComponent.h"
 #include "atGraphicsModel.h"
 
-class atMeshRenderable : public atSceneComponent
+class atSceneMeshRenderable : public atSceneComponent
 {
 public:
-  bool Update(const double dt) override;
-  bool Draw(const atMat4D &vp) override;
-
-  atGraphicsModel m_model;
+  bool OnDraw(const atMat4D &vp) override;
+  bool SetModel(const atMesh &mesh);
+  bool SetModel(const atString &file);
+  const atString& GetModelPath();
 
   int64_t TypeID() const override;
   static const int64_t typeID;
+
+protected:
+  atString m_path;
+  atGraphicsModel m_model;
 };
 
-#endif // atMeshRenderable_h__
+#endif // atSceneMeshRenderable_h__

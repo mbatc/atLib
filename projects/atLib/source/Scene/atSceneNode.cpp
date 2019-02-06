@@ -25,17 +25,17 @@
 
 #include "atSceneNode.h"
 #include "atScene.h"
-#include "atCamera.h"
-#include "atSkybox.h"
-#include "atMeshRenderable.h"
 
 atSceneNode::atSceneNode() {}
+
+const atString &atSceneNode::Name() { return m_name; }
+void atSceneNode::SetName(const atString &name) { m_name = name; }
 
 bool atSceneNode::Update(const double dt)
 {
   bool res = true;
   for (atSceneComponent *pComp : m_components)
-    res &= pComp->Update(dt);
+    res &= pComp->OnUpdate(dt);
   return res;
 }
 
@@ -43,7 +43,7 @@ bool atSceneNode::Draw(const atMat4D &vp)
 {
   bool res = true;
   for (atSceneComponent *pComp : m_components)
-    res &= pComp->Draw(vp);
+    res &= pComp->OnDraw(vp);
   return res;
 }
 
@@ -71,19 +71,22 @@ bool atSceneNode::AddChild(atSceneNode *pChild, const bool preserveTransform)
 bool atSceneNode::RemoveChild(atSceneNode *pChild, const bool preserveTransform)
 {
   if (!pChild || pChild->Parent() != this) return false;
+
+  // Remove from all sibling lists
+  for (atSceneNode *&pNode : m_children)
+    for (atSceneNode *&pSibling : pNode->m_siblings)
+      if (pSibling == pChild)
+      {
+        pNode->m_siblings.erase(&pSibling - pNode->m_siblings.begin());
+        break;
+      }
+
+  // Remove from child list
   for (atSceneNode *&pNode : m_children)
     if (pNode == pChild)
     {
       m_children.erase(&pNode - m_children.begin());
-    }
-    else
-    {
-      for(atSceneNode *&pSibling : pNode->m_siblings)
-        if (pSibling == pChild)
-        {
-          pNode->m_siblings.erase(&pSibling - pNode->m_siblings.begin());
-          break;
-        }
+      break;
     }
 
   if (preserveTransform)
@@ -98,26 +101,6 @@ bool atSceneNode::RemoveChild(atSceneNode *pChild, const bool preserveTransform)
   return true;
 }
 
-int64_t atSceneNode::ComponentCount(const int64_t type) const
-{
-  int64_t count = 0;
-  for (atSceneComponent *pComp : m_components)
-    count += (pComp->TypeID() & type) > 0;
-  return count;
-}
-
-atSceneComponent* atSceneNode::Component(const int64_t type, int64_t index) const
-{
-  int64_t count = -1;
-  for (atSceneComponent *pComp : m_components)
-  {
-    count += (pComp->TypeID() & type) > 0;
-    if (count == index)
-      return pComp;
-  }
-  return nullptr;
-}
-
 atVector<atSceneComponent*> atSceneNode::Components(const int64_t type) const
 {
   atVector<atSceneComponent*> ret;
@@ -127,42 +110,70 @@ atVector<atSceneComponent*> atSceneNode::Components(const int64_t type) const
   return ret;
 }
 
-atSceneComponent *atSceneNode::AddComponent(const int64_t type)
+atSceneComponent* atSceneNode::Component(int64_t index, const int64_t type) const
 {
-  atSceneComponent *pComponent = nullptr;
-  switch (type)
-  {
-  case atSCT_Camera: pComponent = (atSceneComponent*)atNew<atCamera>(); break;
-  case atSCT_MeshRenderable: pComponent = (atSceneComponent*)atNew<atMeshRenderable>(); break;
-  case atSCT_Script: pComponent = nullptr; break;
-  case atSCT_Collidable: pComponent = nullptr; break;
-  case atSCT_Effect: pComponent = nullptr; break;
-  case atSCT_Skybox: pComponent = (atSceneComponent*)atNew<atSkybox>(); break;
-  }
-  if (!pComponent) 
-    return nullptr;
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    if ((pComp->TypeID() & type) > 0)
+    {
+      if (count == index)
+        return pComp;
+      ++count;
+    }
+    else if (count > index)
+    {
+      break;
+    }
 
-  pComponent->m_pNode = this;
-  
-  m_components.push_back(pComponent);
-  return pComponent;
+  return nullptr;
 }
 
-int64_t atSceneNode::ID() const { return m_pScene->GetNodeID(this); }
+int64_t atSceneNode::ComponentCount(const int64_t type) const
+{
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    count += (pComp->TypeID() & type) > 0;
+  return count;
+}
 
+bool atSceneNode::RemoveComponent(const int64_t index)
+{
+  if (index < 0 || index >= m_components.size())
+    return false;
+
+  // swap and pop that bad boy
+  atDelete(m_components[index]);
+  std::swap(m_components[index], m_components.back());
+  m_components.pop_back();
+  return true;
+}
+
+bool atSceneNode::RemoveComponent(const atSceneComponent *pComponent)
+{
+  for (int64_t i = 0; i < m_components.size(); ++i)
+    if (m_components[i] == pComponent)
+      return RemoveComponent(i);
+  return false;
+}
+
+atSceneComponent* atSceneNode::Component(int64_t index) const { return index >= 0 && index < m_components.size() ? m_components[index] : nullptr; }
+int64_t atSceneNode::ComponentCount() const { return m_components.size(); }
+int64_t atSceneNode::ID() const { return m_pScene->GetNodeID(this); }
 atSceneNode* atSceneNode::Root() const { return m_pScene->GetRoot(); }
 
-bool atSceneNode::RemoveChild(const int64_t id) { return RemoveChild(m_pScene->GetNode(id)); }
+bool atSceneNode::RemoveChild(const int64_t id, const bool preserveTransform) { return RemoveChild(m_pScene->GetNode(id), preserveTransform); }
 bool atSceneNode::AddChild(const int64_t id) { return AddChild(m_pScene->GetNode(id)); }
 
 int64_t atSceneNode::SiblingID(const int64_t index) const { return Sibling(index)->ID(); }
 int64_t atSceneNode::ChildID(const int64_t index) const { return Child(index)->ID(); }
-int64_t atSceneNode::ParentID(const int64_t index)  const { return m_pParent->ID(); }
+int64_t atSceneNode::ParentID()  const { return m_pParent->ID(); }
 
 atVector<int64_t> atSceneNode::SiblingIDs() const { return m_pScene->GetNodeIDs(m_siblings); }
 atVector<int64_t> atSceneNode::ChildIDs() const { return m_pScene->GetNodeIDs(m_children); }
 
 atSceneNode* atSceneNode::Sibling(const int64_t index) const { return m_siblings[index]; }
+int64_t atSceneNode::ChildCount() const { return m_children.size(); }
+int64_t atSceneNode::SiblingCount() const { return m_siblings.size(); }
 atSceneNode* atSceneNode::Child(const int64_t index) const { return m_children[index]; }
 atSceneNode* atSceneNode::Parent() const { return m_pParent; }
 
@@ -171,14 +182,16 @@ const atVector<atSceneNode*>& atSceneNode::Siblings() const { return m_siblings;
 
 // Transformations and Matrices
 
-atMat4D atSceneNode::GlobalTranslationMat() const { return TranslationMat() * ParentTranslationMat(); }
-atMat4D atSceneNode::GlobalRotationMat() const { return RotationMat() * ParentRotationMat(); }
-atMat4D atSceneNode::GlobalScaleMat() const { return ScaleMat() * ParentScaleMat(); }
-atMat4D atSceneNode::GlobalWorldMat() const { return WorldMat() * ParentWorldMat(); }
+atMat4D atSceneNode::GlobalTranslationMat() const { return ParentTranslationMat() * TranslationMat(); }
+atMat4D atSceneNode::GlobalRotationMat() const { return ParentRotationMat() * RotationMat(); }
+atMat4D atSceneNode::GlobalScaleMat() const { return ParentScaleMat() * ScaleMat(); }
+atMat4D atSceneNode::GlobalWorldMat() const { return  ParentWorldMat() * WorldMat(); }
 
 atVec3D atSceneNode::GlobalPosition() const { return ParentWorldMat() * m_translation; }
 atVec3D atSceneNode::GlobalRotation() const { return ParentRotation() + m_rotation; }
 atVec3D atSceneNode::GlobalScale() const { return ParentScale() * m_scale; }
+
+atScene* atSceneNode::Scene() { return m_pScene; }
 
 atVec3D atSceneNode::ParentPosition() const { return Parent() ? Parent()->GlobalPosition() : 0; }
 atVec3D atSceneNode::ParentRotation() const { return Parent() ? Parent()->GlobalRotation() : 0; }

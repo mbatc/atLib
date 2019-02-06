@@ -23,16 +23,30 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atMeshRenderable.h"
-#include "atSceneNode.h"
-
-const int64_t atMeshRenderable::typeID = atSCT_MeshRenderable;
-int64_t atMeshRenderable::TypeID() const { return typeID; }
-
-bool atMeshRenderable::Update(const double dt) { atUnused(dt); return true; }
-
-bool atMeshRenderable::Draw(const atMat4D &vp)
+template<typename T> inline atVector<T*> atSceneNode::Components() const
 {
-  m_model.Draw(vp, m_pNode->GlobalWorldMat());
-  return true;
+  atVector<T*> ret;
+  for (atSceneComponent *pComp : m_components)
+    if (pComp->Is<T>())
+      ret.push_back((T*)pComp);
+  return ret;
 }
+
+template <typename T> inline int64_t atSceneNode::ComponentCount() const
+{
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    count += pComp->Is<T>();
+  return count;
+}
+
+template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
+{
+  atIsValidSceneComponentType<T>();
+  pComponent->m_pNode = this;
+  m_components.push_back(pComponent);
+  return pComponent;
+}
+
+template <typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
+template <typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }
