@@ -23,24 +23,30 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atSkybox_h__
-#define atSkybox_h__
-
-#include "atSceneComponent.h"
-#include "atGraphicsModel.h"
-
-class atSceneSkybox : public atSceneComponent
+template<typename T> inline atVector<T*> atSceneNode::Components() const
 {
-public:
-  bool OnDraw(const atMat4D &vp) override;
+  atVector<T*> ret;
+  for (atSceneComponent *pComp : m_components)
+    if (pComp->Is<T>())
+      ret.push_back((T*)pComp);
+  return ret;
+}
 
-  int64_t TypeID() const override;
-  static const int64_t typeID;
+template <typename T> inline int64_t atSceneNode::ComponentCount() const
+{
+  int64_t count = 0;
+  for (atSceneComponent *pComp : m_components)
+    count += pComp->Is<T>();
+  return count;
+}
 
-  bool SetImages(const atFilename &left, const atFilename &right, const atFilename &top, const atFilename &bottom, const atFilename &front, const atFilename &back);
+template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
+{
+  atIsValidSceneComponentType<T>();
+  pComponent->m_pNode = this;
+  m_components.push_back(pComponent);
+  return pComponent;
+}
 
-protected:
-  atVector<atRenderableCore> m_meshes;
-};
-
-#endif // atSkybox_h__
+template <typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
+template <typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }

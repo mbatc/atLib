@@ -358,8 +358,8 @@ void ExampleCreateScene()
   pMesh->SetModel("assets/test/models/level.obj");
 
   // Add a skybox
-  pNode = scene.CreateNode("Skybox");
-  pNode->AddComponent<atSceneSkybox>();
+  // pNode = scene.CreateNode("Skybox");
+  // pNode->AddComponent<atSceneSkybox>();
 
 
   while(atInput::Update())
