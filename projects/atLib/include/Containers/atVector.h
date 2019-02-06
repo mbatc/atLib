@@ -43,11 +43,12 @@ public:
   // Creates an empty atVector
   atVector();
 
+  template <typename T2> atVector(const atVector<T2> &vec);
+
   // Creates an atVector with an initial capacity of [reserve]
   atVector(const int64_t _reserve);
   atVector(const std::initializer_list<T> &list);
   atVector(T* pData, int64_t len);
-
   // Creates an atVector with size [size] and copies [initial] into each element
   atVector(const int64_t size, const T &initial);
   atVector(const atVector<T> &copy);
@@ -148,6 +149,9 @@ public:
 
   const bool operator==(const atVector<T> &rhs) const;
   const bool operator!=(const atVector<T> &rhs) const;
+
+  operator std::vector<T>();
+  template <typename T2> operator std::vector<T2>();
 
 protected:
 

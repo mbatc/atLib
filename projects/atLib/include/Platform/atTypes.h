@@ -65,7 +65,7 @@ template <> int64_t atSize(const atType &val);
 
 struct atTypeDesc
 {
-  atTypeDesc(const atType type, const int64_t count = 1)
+  atTypeDesc(const atType type = atType_Unknown, const int64_t count = 1)
     : type(type)
     , count(count)
     , size(atSize(type) * count)

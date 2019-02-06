@@ -1,4 +1,3 @@
-#include "atVector.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,6 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
+
+
+template <class T> template <typename T2> atVector<T>::atVector(const atVector<T2> &vec)
+{
+  reserve(vec.size());
+  for (const T2 &i : vec)
+    push_back(T2(i));
+}
 
 template <class T> atVector<T>::atVector(atVector<T> &&move)
 {
@@ -150,6 +157,23 @@ template <class T> template <class T1> void atVector<T>::assign(T1* start, T1* e
     push_back((T)start[i]);
 }
 
+template <class T> template <typename T2> inline atVector<T>::operator std::vector<T2>()
+{
+  std::vector<T2> ret;
+  ret.reserve(size());
+  for (T &i : *this)
+    ret.push_back(T2(i));
+  return ret;
+}
+
+template <class T> inline atVector<T>::operator std::vector<T>()
+{
+  std::vector<T> ret;
+  ret.reserve(size());
+  for (T &i : *this)
+    ret.push_back(i);
+  return ret;
+}
 
 template <class T> const T& atVector<T>::at(const int64_t index) const
 {
