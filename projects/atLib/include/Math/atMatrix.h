@@ -45,17 +45,17 @@ public:
 
   T Determinate() const;
 
-  template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> Mult(const atMatrix<T2, col2, row2> &rhs) const;
+  template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> Mul(const atMatrix<T2, col2, row2> &rhs) const;
   template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> operator*(const atMatrix<T2, col2, row2> &rhs) const;
 
-  template <int64_t col2, int64_t row2> atMatrix<T, row, col2> Mult(const atMatrix<T, col2, row2> &rhs) const;
+  template <int64_t col2, int64_t row2> atMatrix<T, row, col2> Mul(const atMatrix<T, col2, row2> &rhs) const;
   template <int64_t col2, int64_t row2> atMatrix<T, row, col2> operator*(const atMatrix<T, col2, row2> &rhs) const;
 
   template <typename T2> atMatrix<T, col, row> Add(const atMatrix<T2, col, row> &rhs) const;
-  template <typename T2> atMatrix<T, col, row> Subtract(const atMatrix<T2, col, row> &rhs) const;
+  template <typename T2> atMatrix<T, col, row> Sub(const atMatrix<T2, col, row> &rhs) const;
 
-  atMatrix<T, col, row> Mult(const T &rhs) const;
-  atMatrix<T, col, row> Subtract(const T &rhs) const;
+  atMatrix<T, col, row> Mul(const T &rhs) const;
+  atMatrix<T, col, row> Sub(const T &rhs) const;
   atMatrix<T, col, row> Add(const T &rhs) const;
 
   template <typename T2> atMatrix<T, col, row> operator/(const T2 &rhs) const;
