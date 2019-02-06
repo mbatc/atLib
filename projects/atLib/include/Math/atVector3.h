@@ -110,15 +110,17 @@ public:
 
   atVector2<T> xy() const { return atVector2<T>(x, y); }
   atVector2<T> xz() const { return atVector2<T>(x, z); }
-  atVector2<T> xw() const { return atVector2<T>(x, w); }
   atVector2<T> yz() const { return atVector2<T>(y, z); }
-  atVector2<T> yw() const { return atVector2<T>(y, w); }
-  atVector2<T> zw() const { return atVector2<T>(z, w); }
 
   T Mag() const { return Mag(*this); }
   T Length() const { return Length(*this); }
   T Dot(const VecType<T> &rhs) const { return Dot(*this, rhs); }
   T Angle(const VecType<T> &rhs) const { return Angle(*this, rhs); }
+
+  VecType<T> Add(const VecType<T> &rhs) { return *this = atVectorMath::Add(*this, rhs); }
+  VecType<T> Sub(const VecType<T> &rhs) { return *this = atVectorMath::Subtract(*this, rhs); }
+  VecType<T> Mul(const VecType<T> &rhs) { return *this = atVectorMath::Multiply(*this, rhs); }
+  VecType<T> Div(const VecType<T> &rhs) { return *this = atVectorMath::Divide(*this, rhs); }
 
   VecType<T> Normalize() const { return Normalize(*this); }
   VecType<T> Reflect(const VecType<T> &norm) { return Reflect(*this, norm); }

@@ -72,6 +72,12 @@ public:
     return ret;
   }  
 
+  template <template <typename> class VecCls, typename VecType> static VecCls<VecType>
+    atVectorMath::Multiply(const VecCls<VecType> &lhs, const VecCls<VecType> &rhs)
+    {
+      return Multiply<VecCls, VecType, VecCls, VecType>(lhs, rhs);
+    }
+
   //------------------
   // Vector Operations
   //

@@ -75,7 +75,7 @@ template <typename T, int64_t col, int64_t row> template<int64_t dim> atMatrix<T
   return ret;
 }
 
-template <typename T, int64_t col, int64_t row> template<typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mult(const atMatrix<T2, col2, row2> &rhs) const
+template <typename T, int64_t col, int64_t row> template<typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mul(const atMatrix<T2, col2, row2> &rhs) const
 {
   atMatrix<T, row, col2> ret;
   for (int64_t r = 0; r < row; ++r)
@@ -93,7 +93,7 @@ template <typename T, int64_t col, int64_t row>  template<typename T2> atMatrix<
   return ret;
 }
 
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::Subtract(const atMatrix<T2, col, row> &rhs) const
+template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::Sub(const atMatrix<T2, col, row> &rhs) const
 {
   atMatrix<T, col, row> ret = *this;
   for (int64_t i = 0; i < col * row; ++i) 
@@ -101,7 +101,7 @@ template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<
   return ret;
 }
 
-template <typename T, int64_t col, int64_t row>  atMatrix<T, col, row> atMatrix<T, col, row>::Mult(const T &rhs) const
+template <typename T, int64_t col, int64_t row>  atMatrix<T, col, row> atMatrix<T, col, row>::Mul(const T &rhs) const
 {
   atMatrix<T, col, row> ret;
   for (int64_t i = 0; i < col * row; ++i) 
@@ -136,15 +136,15 @@ template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<
     m_data[i] = (T)copy.m_data[i];
 }
 
-template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mult(const atMatrix<T, col2, row2> &rhs) const { return Mult<T, col2, row2>(rhs); }
-template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T, col2, row2>& rhs) const { return Mult<T, col, row2>(rhs); }
-template <typename T, int64_t col, int64_t row> template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T2, col2, row2>& rhs) const { return Mult<T2, col2, row2>(rhs); }
+template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mul(const atMatrix<T, col2, row2> &rhs) const { return Mul<T, col2, row2>(rhs); }
+template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T, col2, row2>& rhs) const { return Mul<T, col, row2>(rhs); }
+template <typename T, int64_t col, int64_t row> template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T2, col2, row2>& rhs) const { return Mul<T2, col2, row2>(rhs); }
          
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator/(const T2 &rhs) const { return Mult<T2>((T)1 / rhs); }
+template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator/(const T2 &rhs) const { return Mul<T2>((T)1 / rhs); }
 template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator+(const atMatrix<T2, col, row>& rhs) const { return Add(rhs); }
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator-(const atMatrix<T2, col, row>& rhs) const { return Subtract(rhs); }
+template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator-(const atMatrix<T2, col, row>& rhs) const { return Sub(rhs); }
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Inverse() const { return ((row == 2 && col == 2) ? atMatrix<T, col, row>({ m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mult((T)1 / Determinate()); }
+template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Inverse() const { return ((row == 2 && col == 2) ? atMatrix<T, col, row>({ m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mul((T)1 / Determinate()); }
 template <typename T, int64_t col, int64_t row> const atMatrix<T, col, row>& atMatrix<T, col, row>::operator=(const atMatrix<T, col, row> &rhs) { memcpy(m_data, rhs.m_data, (int64_t)sizeof(T) * row * col); return *this; }
 
 template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix(atMatrix<T, col, row> &&move) { memcpy(m_data, move.m_data, (int64_t)sizeof(T) * row * col); move = atMatrix(); }
@@ -153,6 +153,6 @@ template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix(
 template <typename T, int64_t col, int64_t row> bool atMatrix<T, col, row>::operator==(const atMatrix<T, col, row> &rhs) const { return memcmp(m_data, rhs.m_data, row * col) == 0; }
 template <typename T, int64_t col, int64_t row> bool atMatrix<T, col, row>::operator!=(const atMatrix<T, col, row>& rhs) const { return !(*this == rhs); }
 template <typename T, int64_t col, int64_t row> const T & atMatrix<T, col, row>::operator[](const int64_t index) const { return m_data[index]; }
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Subtract(const T &rhs) const { return Add(-rhs); }
+template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Sub(const T &rhs) const { return Add(-rhs); }
 template <typename T, int64_t col, int64_t row> T& atMatrix<T, col, row>::operator[](const int64_t index) { return m_data[index]; }
 template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix() { memset(m_data, 0, sizeof(T) * row * col); }

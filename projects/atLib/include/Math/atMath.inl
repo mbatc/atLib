@@ -189,25 +189,25 @@ template<typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix<T, 
 
 template<typename T> inline atVector4<T> operator*(const atMatrix<T, 4, 4> &lhs, const atVector4<T> &rhs)
 {
-  atMatrix<T, 1, 4> mat = atMatrix<T, 4, 1>(rhs).Mult(lhs);
+  atMatrix<T, 1, 4> mat = atMatrix<T, 4, 1>(rhs).Mul(lhs);
   return atVector4<T>(mat[0], mat[1], mat[2], mat[3]);
 }
 
 template<typename T> inline atVector3<T> operator*(const atMatrix<T, 4, 4> &lhs, const atVector3<T> &rhs)
 {
-  atMatrix<T, 1, 4> mat = atMatrix<T, 4, 1>(atVector4<T>(rhs, 1.0)).Mult(lhs);
+  atMatrix<T, 1, 4> mat = atMatrix<T, 4, 1>(atVector4<T>(rhs, 1.0)).Mul(lhs);
   return atVector3<T>(mat[0], mat[1], mat[2]);
 }
 
 template<typename T> inline atVector3<T> operator*(const atMatrix<T, 3, 3> &lhs, const atVector3<T> &rhs)
 {
-  atMatrix<T, 1, 3> mat = atMatrix<T, 3, 1>(rhs).Mult(lhs);
+  atMatrix<T, 1, 3> mat = atMatrix<T, 3, 1>(rhs).Mul(lhs);
   return atVector4<T>(mat[0], mat[1], mat[2]);
 }
 
 template<typename T> inline atVector2<T> operator*(const atMatrix<T, 2, 2> &lhs, const atVector2<T> &rhs)
 {
-  atMatrix<T, 1, 2> mat = atMatrix<T, 2, 1>(rhs).Mult(lhs);
+  atMatrix<T, 1, 2> mat = atMatrix<T, 2, 1>(rhs).Mul(lhs);
   return atVector4<T>(mat[0], mat[1]);
 }
 

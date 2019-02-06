@@ -124,6 +124,11 @@ public:
   atVector3<T> xyw() const { return atVector3<T>(x, y, w); }
   atVector3<T> yzw() const { return atVector3<T>(y, z, w); }
 
+  VecType<T> Add(const VecType<T> &rhs) { return *this = atVectorMath::Add(*this, rhs); }
+  VecType<T> Sub(const VecType<T> &rhs) { return *this = atVectorMath::Subtract(*this, rhs); }
+  VecType<T> Mul(const VecType<T> &rhs) { return *this = atVectorMath::Multiply(*this, rhs); }
+  VecType<T> Div(const VecType<T> &rhs) { return *this = atVectorMath::Divide(*this, rhs); }
+
   T Mag() const { return Mag(*this); }
   T Length() const { return Length(*this); }
   T Dot(const VecType<T> &rhs) const { return Dot(*this, rhs); }
