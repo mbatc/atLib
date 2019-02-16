@@ -59,9 +59,8 @@ template<class Key, class Value> bool atHashMap<Key, Value>::TryAdd(const KVP &k
   bucket.push_back(kvp);
   ++m_size;
 
-  if (bucket.size() > m_itemCount)
-    Rehash((int64_t)(atMax(m_buckets.size() * 1.6, 2)));
-
+  if (m_size > m_itemCount * m_buckets.size())
+    Rehash((int64_t)(atMax(m_buckets.size() * _grow_rate, 2)));
   return true;
 }
 

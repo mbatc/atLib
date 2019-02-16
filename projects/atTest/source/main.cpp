@@ -26,7 +26,6 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
-#include "atSceneSkybox.h"
 #include "atSceneEffect.h"
 
 //---------------------------------------------------------------------------------
