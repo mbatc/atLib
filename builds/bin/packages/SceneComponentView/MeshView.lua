@@ -17,7 +17,7 @@ MeshView.DrawUI = function(mesh)
     end
 
     if atImGui.Button("Browse") then
-        local browsePath = atCore.DialogOpen("", "*.obj\0Wavefront OBJ\0\0", 1)
+        local browsePath = atCore.DialogOpen("", "Wavefront OBJ(*.obj)\0*.obj\0\0", 1)
         if browsePath ~= "" then
             MeshView.meshPath = browsePath
             mesh:SetModelPath(browsePath)

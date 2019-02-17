@@ -2,6 +2,7 @@
 #include <windows.h>
 
 static const char *_defaultFilter = "All Files\0*.*\0\0";
+static char _path[MAX_PATH] = { 0 };
 
 static OPENFILENAME _GetOFN(const atString *pInitialPath, const char *filter, const int64_t initialFilter)
 {
@@ -15,11 +16,11 @@ static OPENFILENAME _GetOFN(const atString *pInitialPath, const char *filter, co
 
 const char* atFileDialog::Open(const atString &initialPath, const char *filter, const int64_t initialFilter)
 {
-  char path[MAX_PATH] = { 0 };
   OPENFILENAME ofn = _GetOFN(initialPath.length() > 0 ? &initialPath : nullptr, filter, initialFilter);
+  memset(_path, 0, sizeof(_path));
   ofn.lpstrDefExt = "";
-  ofn.lpstrFile = path;
-  ofn.nMaxFile = sizeof(path);
+  ofn.lpstrFile = _path;
+  ofn.nMaxFile = sizeof(_path);
   if (!GetOpenFileName(&ofn))
     return "";
   return ofn.lpstrFile;
@@ -27,11 +28,11 @@ const char* atFileDialog::Open(const atString &initialPath, const char *filter, 
 
 const char* atFileDialog::SaveAs(const atString &initialPath, const char *filter, const int64_t initialFilter)
 {
-  char path[MAX_PATH] = { 0 };
   OPENFILENAME ofn = _GetOFN(initialPath.length() > 0 ? &initialPath : nullptr, filter, initialFilter);
+  memset(_path, 0, sizeof(_path));
   ofn.lpstrDefExt = "";
-  ofn.lpstrFile = path;
-  ofn.nMaxFile = sizeof(path);
+  ofn.lpstrFile = _path;
+  ofn.nMaxFile = sizeof(_path);
   if (!GetSaveFileName(&ofn))
     return "";
   return ofn.lpstrFile;

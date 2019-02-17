@@ -32,6 +32,7 @@
 template <class Key, class Value> class atHashMap
 {
 public:
+  const double _grow_rate = 1.61803399; // PHI
   const int64_t m_itemCount = 16;
 
   typedef atKeyValue<Key, Value> KVP;
