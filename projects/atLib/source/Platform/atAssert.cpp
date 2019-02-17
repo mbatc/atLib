@@ -30,7 +30,9 @@
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
   if (!cond)
-    if(_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+#ifdef _DEBUG
+    if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+#endif
       _CrtDbgBreak();
 }
 

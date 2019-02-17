@@ -24,27 +24,63 @@
 // -----------------------------------------------------------------------------
 
 #include "atHash.h"
+#include "atIterator.h"
 
 thread_local atMemoryWriter atHash::writer;
 
-int64_t atHash::Hash(const atMemoryWriter &mem)
+uint64_t atMurmur(const void *key, int64_t len, uint64_t seed = 2147483647)
 {
-  // One-at-a-Time hash
-  int64_t hash = 0;
+  const uint64_t m = 0xc6a4a7935bd1e995LLU;
+  const int r = 47;
+  uint64_t hash = seed ^ (len * m);
+  const uint64_t *data = (const uint64_t *)key;
+  const uint64_t *end = (len >> 3) + data;
+  while (data != end)
+  {
+    uint64_t k = *data++;
+    k *= m;
+    k ^= k >> r;
+    k *= m;
+    hash ^= k;
+    hash *= m;
+  }
 
-  for (const uint8_t byte : mem.m_data)
+  const unsigned char *data2 = (const unsigned char *)data;
+  switch (len & 7)
+  {
+  case 7: hash ^= (uint64_t)(data2[6]) << 48;
+  case 6: hash ^= (uint64_t)(data2[5]) << 40;
+  case 5: hash ^= (uint64_t)(data2[4]) << 32;
+  case 4: hash ^= (uint64_t)(data2[3]) << 24;
+  case 3: hash ^= (uint64_t)(data2[2]) << 16;
+  case 2: hash ^= (uint64_t)(data2[1]) << 8;
+  case 1: hash ^= (uint64_t)(data2[0]);
+    hash *= m;
+  };
+  hash ^= hash >> r;
+  hash *= m;
+  hash ^= hash >> r;
+  return hash;
+}
+
+uint64_t atOneAtTime(const void *pData, int64_t len, uint64_t seed = 2147483647)
+{
+  const uint64_t m = 0xc6a4a7935bd1e995LLU;
+  const int r = 47;
+  uint64_t hash = seed ^ (len * m);
+  for (const uint8_t byte : atIterate((uint8_t*)pData, len))
   {
     hash += byte;
     hash += (hash << 10);
     hash ^= (hash >> 6);
   }
-
   hash += (hash << 3);
   hash += (hash >> 11);
   hash += (hash << 15);
   return hash;
 }
 
+int64_t atHash::Hash(const atMemoryWriter &mem) { return (int64_t)(atMurmur(mem.m_data.data(), mem.m_data.size())); }
 int64_t atHash::Hash(const int64_t val) { return val; }
 int64_t atHash::Hash(const int32_t val) { return (int64_t)val; }
 int64_t atHash::Hash(const int16_t val) { return (int64_t)val; }

@@ -26,8 +26,6 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
-#include "atSceneSkybox.h"
-#include "atSceneEffect.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -417,6 +415,186 @@ void ExampleImGui()
 #include "atBVH.h"
 #include "atIntersects.h"
 
+#define PACK_X(x) ((x & 0xFFFF) << 31)
+#define PACK_Y(y) ((y & 0xFFFF) << 15)
+#define PACK_Z(z) (z)
+#define PACK_XYZ(x, y, z) (PACK_X(x) | PACK_Y(y) | PACK_Z(z))
+#define UNPACK_X(x) ((x >> 31) & 0xFFFF) 
+#define UNPACK_Y(y) ((y >> 15) & 0xFFFF)
+#define UNPACK_Z(z) (z & 0xFFFF)
+
+class atPointBlob
+{
+public:
+  static const int64_t _regionLayers = 3;
+  static const int64_t _leafSize = 256;
+  static const int64_t _leafWidth = (1 << _regionLayers);
+  static const int64_t _regionSize = _leafWidth * _leafSize;
+
+  struct Voxel
+  {
+    atVec3I position;
+    uint32_t color;
+  };
+
+  struct BlockLeaf
+  {
+    atAABB<int64_t> bounds;
+    atHashMap<int64_t, uint32_t> m_points;
+  };
+
+  struct Block
+  {
+    BlockLeaf* GetLeaf(const atVec3I &pos, const bool create = true)
+    {
+      if (layer == _regionLayers)
+      {
+        if (!pLeaf && create)
+        {
+          pLeaf = atNew<BlockLeaf>();
+          pLeaf->bounds = atAABB<int64_t>(pos * _leafSize, (pos + 1) * _leafSize);
+        }
+        return pLeaf;
+      }
+
+      atVec3I blockPos = atVec3I(atVec3D(pos) / _regionSize) * (1ll << layer) - position;
+      uint8_t i = blockPos.x + blockPos.y * 2 + blockPos.z * 4;
+      if (i < 0 || i >= 8) return nullptr;
+      if (!m_children[i] && create)
+      {
+        m_children[i] = atNew<Block>();
+        m_children[i]->position = atVec3I(atVec3D(pos) / _regionSize) * (1ll << layer);
+        m_children[i]->layer = layer + 1;
+      }
+      return m_children[i] ? m_children[i]->GetLeaf(pos) : nullptr;
+    }
+    
+    atVector<Voxel> GetPoints(const atAABB<int64_t> &bounds)
+    {
+      atVector<Voxel> ret;
+      atVec3I minLeaf = bounds.m_min / _leafWidth;
+      atVec3I maxLeaf = bounds.m_max / _leafWidth;
+
+      for (int64_t z = minLeaf.z; z <= maxLeaf.z + 1; ++z)
+        for (int64_t y = minLeaf.y; y <= maxLeaf.y + 1; ++y)
+          for (int64_t x = minLeaf.x; x <= maxLeaf.x + 1; ++x)
+          {
+            BlockLeaf *pLeaf = GetLeaf({ x * _leafWidth, y * _leafWidth, z * _leafWidth }, false);
+            if(!pLeaf)
+              continue;
+            ret.reserve(pLeaf->m_points.Size());
+            Voxel voxel;
+            if (pLeaf->bounds.Contains(bounds.m_min) || pLeaf->bounds.Contains(bounds.m_max))
+            {
+              for (auto &kvp : pLeaf->m_points)
+              {
+                voxel.position = { UNPACK_X(kvp.m_key), UNPACK_Y(kvp.m_key), UNPACK_Z(kvp.m_key) };
+                voxel.color = kvp.m_val;
+                if (bounds.Contains(voxel.position))
+                  ret.push_back(voxel);
+              }
+            }
+            else
+            {
+              for (auto &kvp : pLeaf->m_points)
+              {
+                voxel.position = { UNPACK_X(kvp.m_key), UNPACK_Y(kvp.m_key), UNPACK_Z(kvp.m_key) };
+                voxel.color = kvp.m_val;
+                ret.push_back(voxel);
+              }
+            }
+          }
+      return ret;
+    }
+
+    atVec3I position = 0;
+    int64_t layer = 1;
+    Block *m_children[8] = { 0 };
+    BlockLeaf *pLeaf = nullptr;
+  };
+
+  bool AddPoint(const atVec3I &position, const uint32_t color)
+  {
+    Block *pBlock = GetRegion(position / _regionSize);
+    atVec3I regionPos = position % _regionSize;
+    return pBlock->GetLeaf(regionPos)->m_points.TryAdd(PointID(regionPos), color);
+  }
+
+  atVector<Voxel> GetPoints(const atAABB<int64_t> &bounds)
+  {
+    atVector<Voxel> ret;
+    atVec3I minRegion = bounds.m_min / _regionSize;
+    atVec3I maxRegion = bounds.m_max / _regionSize;
+    for (int64_t z = minRegion.z; z <= maxRegion.z + 1; ++z)
+      for (int64_t y = minRegion.y; y <= maxRegion.y + 1; ++y)
+        for (int64_t x = minRegion.x; x <= maxRegion.x + 1; ++x)
+        {
+          Block *pRegion = GetRegion({ x, y, z }, false);
+          if (!pRegion)
+            continue;
+          ret.push_back(pRegion->GetPoints(bounds));
+        }
+
+    return ret;
+  }
+
+  atHashMap<atVec3I, Block*> m_regions;
+
+protected:
+  atVec3I GetPosition(const int64_t id) { return{ UNPACK_X(id), UNPACK_Y(id), UNPACK_Z(id) }; }
+
+  int64_t PointID(const atVec3I &position) { return PACK_XYZ(position.x % _regionSize, position.y % _regionSize, position.z % _regionSize); }
+
+  Block* GetRegion(const atVec3I &position, const bool create = true)
+  {
+    Block **ppBlock = m_regions.TryGet(position);
+    if (!ppBlock && create)
+    {
+      Block *pBlock = atNew<Block>();
+      m_regions.Add(position, pBlock);
+      return pBlock;
+    }
+    return ppBlock ? *ppBlock : nullptr;
+  }
+};
+
+void ExamplePointBlob()
+{
+  atPointBlob blob;
+  for (int64_t y = 0; y < 256; ++y)
+    for (int64_t x = 0; x < 256; ++x)
+      blob.AddPoint({ x, y, 0ll }, atColor::Pack(x, y, 0ll));
+
+  atWindow window;
+  atSimpleCamera cam(&window, { 0, 3, 0 });
+
+  atVector<atPointBlob::Voxel> points = blob.GetPoints(atAABB<int64_t>({ 0,0,0 }, { 256, 256, 256 }));
+  atVector<atVec3F> pos(points.size());
+  atVector<atVec4F> col(points.size());
+
+  for (atPointBlob::Voxel &p : points)
+  {
+    pos.push_back(p.position);
+    col.push_back(atColor::UnPack<float>(p.color));
+  }
+
+  atRenderable ro;
+  ro.SetShader("assets/shaders/pointColor");
+  ro.SetAttribute("POSITION", pos);
+  ro.SetAttribute("COLOUR", col);
+
+  while (atInput::Update())
+  {
+    cam.OnUpdate(0.016);
+    window.Clear({ 0.3, 0.3, 0.3, 1.0 });
+
+    ro.SetUniform("mvp", cam.ProjectionMat() * cam.ViewMat());
+    ro.DrawPoints(false);
+
+    window.Swap();
+  }
+}
+
 int main(int argc, char **argv)
 {
   atUnused(argc, argv);
@@ -427,7 +605,7 @@ int main(int argc, char **argv)
   
   // ExampleRenderText();
   // ExampleRenderMesh();
-  ExampleCreateScene();
+  // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
@@ -437,7 +615,7 @@ int main(int argc, char **argv)
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
   // ExampleRunLua();
-  
+  ExamplePointBlob();
   system("pause");
   return atWindow_GetResult();
 }
