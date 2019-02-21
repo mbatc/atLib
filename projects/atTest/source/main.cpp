@@ -453,9 +453,9 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  // ExampleRenderMesh();
+  ExampleRenderMesh();
   // ExampleCreateScene();
-  ExampleStrings();
+  // ExampleStrings();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
