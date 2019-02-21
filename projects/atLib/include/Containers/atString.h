@@ -88,19 +88,19 @@ public:
   // Returns the index of the char/substring
   // Returns -1 if not found 
 
-  static int64_t _find(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_end(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_reverse(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_reverse(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_first_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_first_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_last_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_last_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_first_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_first_of(const char *str, const int64_t len, const char *set, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_last_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
-  static int64_t _find_last_of(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_end(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_reverse(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_reverse(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_of(const char *str, const int64_t len, const char *set, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_of(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
   static int64_t _find_first(const char *str, const int64_t len, const char _char);
   static int64_t _find_first(const char *str, const int64_t len, const char* find);
   static int64_t _find_last(const char *str, const int64_t len, const char _char);
@@ -111,19 +111,19 @@ public:
   // Returns the index of the char/substring
   // Returns -1 if not found 
 
-  int64_t find(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_end(const  char *str, int64_t start = 0, int64_t end = INT_MAX);
-  int64_t find_reverse(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_reverse(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_first_not(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_first_not(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_last_not(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_last_not(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_first_of(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_first_of(const char *set, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_last_of(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
-  int64_t find_last_of(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find(const char *str, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_end(const  char *str, int64_t start = 0, int64_t end = INT64_MAX);
+  int64_t find_reverse(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_reverse(const char *str, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_first_not(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_first_not(const char *str, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_last_not(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_last_not(const char *str, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_first_of(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_first_of(const char *set, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_last_of(const char _char, int64_t start = 0, int64_t end = INT64_MAX) const;
+  int64_t find_last_of(const char *str, int64_t start = 0, int64_t end = INT64_MAX) const;
   int64_t find_first(const char _char) const;
   int64_t find_first(const char *str) const;
   int64_t find_last(const char _char) const;
