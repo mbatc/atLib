@@ -56,3 +56,6 @@ template <> atTypeDesc atGetTypeDesc<atMatrix<double, 4, 4>>() { return{ atGetTy
 template <> atTypeDesc atGetTypeDesc<atMatrix<float, 2, 2>>() { return{ atGetType<float>(), 4 }; }
 template <> atTypeDesc atGetTypeDesc<atMatrix<float, 3, 3>>() { return{ atGetType<float>(), 9 }; }
 template <> atTypeDesc atGetTypeDesc<atMatrix<float, 4, 4>>() { return{ atGetType<float>(), 16 }; }
+
+template <> inline float atMod(const float a, const float b) { return fmodf(a, b); }
+template <> inline double atMod(const double a, const double b) { return fmodl(a, b); }

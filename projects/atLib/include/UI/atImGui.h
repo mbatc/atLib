@@ -31,7 +31,7 @@
 
 // Consider moving towards an object based system for safer functions
 // e.g. to create a window instantion an atImGui::Window() which will call Begin() on construction
-// and End() in destruction.
+// and End() on destruction.
 // This will hopefully remove mismatched Begin()/End() funcitons
 
 class atImGui
@@ -118,7 +118,6 @@ public:
   static void PushStyle(const char *styleID);
   static void PopStyle(int64_t count);
   static void PopStyle();
-
 };
 
 #endif // atImGui_h__
