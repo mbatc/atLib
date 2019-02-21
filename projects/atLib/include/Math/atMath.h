@@ -26,7 +26,6 @@
 #ifndef _atMath_h__
 #define _atMath_h__
 
-#include "atTypes.h"
 #include "atMatrix.h"
 #include "atVector4.h"
 #include "atReadStream.h"

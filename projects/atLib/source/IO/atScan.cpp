@@ -153,3 +153,7 @@ int64_t atScan::Int(const char *str, int64_t *pLen, const int64_t srcLen) { retu
 int64_t atScan::Hex(const char * str, int64_t * pLen, const int64_t srcLen) { return _scan_integer(str, pLen, atString::Hex(), srcLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen) { return String(pOut, maxLen, str, strlen(str), pLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t *pLen) { return String(pOut, maxLen, pStr, strlen(*pStr), pLen); }
+int64_t atScan::Int(const atString &str, int64_t *pLen) { return Int(str.c_str(), pLen, str.length()); }
+int64_t atScan::Hex(const atString &str, int64_t *pLen) { return Hex(str.c_str(), pLen, str.length()); }
+double atScan::Float(const atString &str, int64_t *pLen) { return Float(str.c_str(), pLen, str.length()); }
+atString atScan::String(const atString &str, int64_t *pLen) { return String(str.c_str(), pLen, str.length()); }

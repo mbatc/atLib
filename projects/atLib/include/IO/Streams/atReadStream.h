@@ -51,7 +51,6 @@ atTrivialStreamRead(char)
 atTrivialStreamRead(double)
 atTrivialStreamRead(float)
 
-
 template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
 
 #endif // atReadStream_h__

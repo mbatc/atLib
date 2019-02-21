@@ -23,9 +23,21 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> atString atPrint::Print(const T &object) { return atToString(object); }
-template<typename T> atString atPrint::Float(const T &val) { return atToString((double)val); }
-template<typename T> atString atPrint::Int(const T &val) { return atToString((int64_t)val); }
+template<typename T> atString atPrint::Print(const T &object)
+{
+  return atToString(object);
+}
+
+template<typename T> atString atPrint::Float(const T &val)
+{
+  return atToString((double)val);
+}
+
+template<typename T> atString atPrint::Int(const T &val)
+{
+  return atToString((int64_t)val);
+}
+
 template<typename T> atString atPrint::Vector(const atVector2<T> &vec, const char *separator) { return atToString(vec.x) + separator + atToString(vec.y); }
 template<typename T> atString atPrint::Vector(const atVector3<T> &vec, const char *separator) { return Vector(vec.xy()) + separator + atToString(vec.z); }
 template<typename T> atString atPrint::Vector(const atVector4<T> &vec, const char *separator) { return Vector(vec.xyz()) + separator + atToString(vec.w); }
