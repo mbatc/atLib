@@ -262,6 +262,17 @@ void atRenderableCore::Clear()
   m_resource.Clear();
 }
 
+void atRenderableCore::SetChannel(const atString &name, const atString &data, const atRenderable_ResourceType type)
+{
+  Resource &res = GetResource(name);
+  res = Resource();
+  res.desc = atGetTypeDesc<char>();
+  res.count = data.length() + 1;
+  res.type = type;
+  res.data.resize(res.count * res.desc.size);
+  memcpy(res.data.data(), data.c_str(), (size_t)res.data.size());
+}
+
 atRenderableCore::Resource& atRenderableCore::GetResource(const atString &name)
 {
   Resource *pRes = m_resource.TryGet(name);

@@ -26,8 +26,8 @@
 #ifndef atImGui_h__
 #define atImGui_h__
 
-#include "atWindow.h"
 #include "../../3rdParty/imgui/imgui.h"
+#include "atWindow.h"
 
 // Consider moving towards an object based system for safer functions
 // e.g. to create a window instantion an atImGui::Window() which will call Begin() on construction

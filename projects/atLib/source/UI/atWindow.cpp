@@ -23,13 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atHashMap.h"
 #include "atWindow.h"
+#include "atImGui.h"
 #include "atInput.h"
 #include <Windowsx.h>
 #include <time.h>
-#include "atImGui.h"
-#include "atHashMap.h"
-#include "atColor.h"
 
 static MSG s_msg;
 static int64_t s_lastClock = 0;

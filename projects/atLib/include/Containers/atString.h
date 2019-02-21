@@ -26,6 +26,7 @@
 #ifndef _atString_h__
 #define _atString_h__
 
+#include "atIterator.h"
 #include "atVector.h"
 #include "atMath.h"
 
@@ -35,188 +36,168 @@ enum atStringCompareOptions
   atSCO_MatchCase,
 };
 
-template <typename T> class atStringBasic
+class atString
 {
 public:
-  typedef T* iterator;
-  typedef const T* const_iterator;
+  typedef char* iterator;
+  typedef const char* const_iterator;
 
-  template <class T1> atStringBasic(const T1 *pStart, const T1 *pEnd);
-  template <class T1> atStringBasic(const atStringBasic<T1> &str);
+  atString();
+  atString(char c);
+  atString(char *str);
+  atString(const char *str);
+  atString(const atString &copy);
+  atString(atString &&move);
+  atString(const atVector<char> &str);
+  atString(atVector<char> &&move);
+  atString(char *pStart, char *pEnd);
+  atString(const char *pStart, const char *pEnd);
+  template <typename T> explicit atString(const T &o);
 
-  atStringBasic();
-  atStringBasic(const T *str);
-  atStringBasic(const atStringBasic &copy);
-  atStringBasic(atStringBasic &&move);
-  atStringBasic(const atVector<T> &str);
-  atStringBasic(atVector<T> &&move);
-    
-  static atStringBasic<T> _to_lower(const T *str, const int64_t len);
-  static atStringBasic<T> _to_upper(const T *str, const int64_t len);
+  // implicit conversion to c-string
+  operator const char* () const;
 
-  atStringBasic<T> to_lower() const;
-  atStringBasic<T> to_upper() const;
+  // explicit conversion to types that define atFromString()
+  template <typename T> explicit operator T();
+
+  static atString _to_lower(const char *str, const int64_t len);
+  static atString _to_upper(const char *str, const int64_t len);
+
+  atString to_lower() const;
+  atString to_upper() const;
 
   //******************
   // Compare functions
-  bool compare(const T *str, const atStringCompareOptions options = atSCO_MatchCase) const;
-  static bool compare(const T *lhs, const T *rhs, const atStringCompareOptions options = atSCO_MatchCase);
+  bool compare(const char *str, const atStringCompareOptions options = atSCO_MatchCase) const;
+  static bool compare(const char *lhs, const char *rhs, const atStringCompareOptions options = atSCO_MatchCase);
 
   //******************
   // Replace functions
 
-  static atStringBasic<T> _replace(const T *str, const int64_t len, const T _char, const T with, const int64_t start = 0, int64_t count = -1);
-  static atStringBasic<T> _replace(const T *str, const int64_t len, const T* find, const T* with, const int64_t start = 0, int64_t count = -1);
-  atStringBasic<T> replace(const T _char, const T with, const int64_t start = 0, int64_t count = -1) const;
-  atStringBasic<T> replace(const T* str, const T* with, const int64_t start = 0, int64_t count = -1) const;
-  void append(const T* str);
-  void append(const T _char);
+  static atString _replace(const char *str, const int64_t len, const char _char, const char with, const int64_t start = 0, int64_t count = -1);
+  static atString _replace(const char *str, const int64_t len, const char* find, const char* with, const int64_t start = 0, int64_t count = -1);
+  atString replace(const char _char, const char with, const int64_t start = 0, int64_t count = -1) const;
+  atString replace(const char* str, const char* with, const int64_t start = 0, int64_t count = -1) const;
+  void append(const char* str);
+  void append(const char _char);
 
-  atStringBasic<T> substr(const int64_t start, const int64_t end) const;
+  atString substr(const int64_t start, const int64_t end) const;
 
   //***************
   // Static Find functions
   // Returns the index of the char/substring
   // Returns -1 if not found 
 
-  static int64_t _find(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find(const T *str, const int64_t len, const T *find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_end(const T *str, const int64_t len, const T *find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_reverse(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_reverse(const T *str, const int64_t len, const T* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_not(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_not(const T *str, const int64_t len, const T* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_not(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_not(const T *str, const int64_t len, const T* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_of(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_of(const T *str, const int64_t len, const T *set, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_of(const T *str, const int64_t len, const T _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_of(const T *str, const int64_t len, const T* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first(const T *str, const int64_t len, const T _char);
-  static int64_t _find_first(const T *str, const int64_t len, const T* find);
-  static int64_t _find_last(const T *str, const int64_t len, const T _char);
-  static int64_t _find_last(const T *str, const int64_t len, const T* find);
+  static int64_t _find(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_end(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_reverse(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_reverse(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_first_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_first_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_last_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_last_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_first_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_first_of(const char *str, const int64_t len, const char *set, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_last_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_last_of(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT_MAX);
+  static int64_t _find_first(const char *str, const int64_t len, const char _char);
+  static int64_t _find_first(const char *str, const int64_t len, const char* find);
+  static int64_t _find_last(const char *str, const int64_t len, const char _char);
+  static int64_t _find_last(const char *str, const int64_t len, const char* find);
 
   //***************
   // Find functions
   // Returns the index of the char/substring
   // Returns -1 if not found 
 
-  int64_t find(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find(const T *str, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_end(const  T *str, int64_t start = 0, int64_t end = INT64_MAX);
-  int64_t find_reverse(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_reverse(const T *str, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_first_not(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_first_not(const T *str, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_last_not(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_last_not(const T *str, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_first_of(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_first_of(const T *set, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_last_of(const T _char, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_last_of(const T *str, int64_t start = 0, int64_t end = INT64_MAX) const;
-  int64_t find_first(const T _char) const;
-  int64_t find_first(const T *str) const;
-  int64_t find_last(const T _char) const;
-  int64_t find_last(const T *str) const;
+  int64_t find(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_end(const  char *str, int64_t start = 0, int64_t end = INT_MAX);
+  int64_t find_reverse(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_reverse(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_first_not(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_first_not(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_last_not(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_last_not(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_first_of(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_first_of(const char *set, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_last_of(const char _char, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_last_of(const char *str, int64_t start = 0, int64_t end = INT_MAX) const;
+  int64_t find_first(const char _char) const;
+  int64_t find_first(const char *str) const;
+  int64_t find_last(const char _char) const;
+  int64_t find_last(const char *str) const;
 
-  static atVector<atStringBasic<T>> _split(const T *src, const int64_t len, const T &_char);
-  static atVector<atStringBasic<T>> _split(const T *src, const int64_t len, const T *split, const bool isSet = false);
-  atVector<atStringBasic<T>> split(const T &_char);
-  atVector<atStringBasic<T>> split(const T *split, bool isSet = false);
-
-  const T* c_str() const;
+  static atVector<atString> _split(const char *src, const int64_t len, const char &_char);
+  static atVector<atString> _split(const char *src, const int64_t len, const char *split, const bool isSet = false);
+  atVector<atString> split(const char &_char);
+  atVector<atString> split(const char *split, bool isSet = false);
+  
+  const char* c_str() const;
   int64_t capacity()  const;
   int64_t length() const;
 
-  atVector<T> &vector();
-  const atVector<T> &vector() const;
+  atVector<char> &vector();
+  const atVector<char> &vector() const;
 
-  void set_string(atVector<T> data);
-  void set_string(const T* str, const int64_t len);
+  void set_string(atVector<char> data);
+  void set_string(const char* str, const int64_t len);
 
-  T& operator[](int64_t index);
-  const T& operator[](int64_t index) const;
+  char& operator[](int64_t index);
+  const char& operator[](int64_t index) const;
 
-  // implicit conversion to c-string
-  operator const T* () const;
+  bool operator==(const char *rhs) const;
+  bool operator!=(const char *rhs) const;
 
-  bool operator==(const T *rhs) const;
-  bool operator!=(const T *rhs) const;
+  atString operator=(const atString &str);
+  atString operator=(const char *rhs);
+  atString operator=(const char rhs);
+  atString operator+=(const atString &rhs);
+  atString operator+=(const char *rhs);
+  atString operator+=(const char rhs);
+  atString operator+=(const atVector<char> &rhs);
+  atString operator+(const char *rhs) const;
+  atString operator+(const char rhs) const;
+  atString operator+(const atVector<char> &rhs) const;
+  atString operator+(const atString &str) const;
 
-  atStringBasic<T> operator=(const atStringBasic<T> &str);
-  atStringBasic<T> operator=(const T *rhs);
-  atStringBasic<T> operator=(const T rhs);
-  atStringBasic<T> operator+=(const atStringBasic<T> &rhs);
-  atStringBasic<T> operator+=(const T *rhs);
-  atStringBasic<T> operator+=(const T rhs);
-  atStringBasic<T> operator+=(const atVector<T> &rhs);
-  atStringBasic<T> operator+(const T *rhs) const;
-  atStringBasic<T> operator+(const T rhs) const;
-  atStringBasic<T> operator+(const atVector<T> &rhs) const;
-  atStringBasic<T> operator+(const atStringBasic<T> &str) const;
+  template <typename T> inline atString operator+(const T &rhs) const;
+  template <typename T> inline atString operator+=(const T &rhs);
 
   iterator begin();
   iterator end();
   const_iterator begin() const;
   const_iterator end() const;
 
-  static const T* Numerals();
-  static const T* Whitespace();
-  static const T* Hex();
-  static const T* Binary();
-  static const T* AlphabetUpper();
-  static const T* AlphabetLower();
-  static const T* AlphabetAll();
+  static const char* Numerals();
+  static const char* Whitespace();
+  static const char* Hex();
+  static const char* Binary();
+  static const char* AlphabetUpper();
+  static const char* AlphabetLower();
+  static const char* AlphabetAll();
 
 protected:
   void validate();
 
-  atVector<T> m_data;
+  atVector<char> m_data;
 };
 
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const atStringBasic<T> &rhs);
-template <typename T> atStringBasic<T> operator+(const T &_char, const atStringBasic<T> &rhs);
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &rhs, const T &_char);
-template <typename T> atStringBasic<T> operator+(const T *lhs, const atStringBasic<T> &rhs);
-template <typename T> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T *rhs);
-template <typename T, typename T2> atStringBasic<T> operator+(const atStringBasic<T> &lhs, const T2 &rhs);
-template <typename T, typename T2> atStringBasic<T> operator+(const T2 &rhs, const atStringBasic<T> &lhs);
-template <typename T, typename T2> atStringBasic<T> operator+=(const atStringBasic<T> &lhs, const T2 &rhs);
+atString operator+(const char _char, const atString &rhs);
+atString operator+(const char *lhs, const atString &rhs);
+atString operator+(char _char, const atString &rhs);
+atString operator+(char *lhs, const atString &rhs);
 
-template <> atTypeDesc atGetTypeDesc(const atStringBasic<char> &str);
-template <> atTypeDesc atGetTypeDesc(const atStringBasic<wchar_t> &str);
+template <> inline atTypeDesc atGetTypeDesc(const atString &str);
+template <typename T> inline atString atToString(const T &o) { static_assert(false, "atToString is not defined for this type."); }
+template <typename T> inline T atFromString(const atString &str) { static_assert(false, "atFromString is not defined for this type."); }
 
-typedef atStringBasic<wchar_t> atWideString;
-typedef atStringBasic<char> atString;
+#include "atFromString.h"
+#include "atToString.h"
 
-atWideString atToWideString(const atString &str);
-atString atToString(const atWideString &str);
-
-atString atToString(const int64_t val);
-atString atToString(const int32_t val);
-atString atToString(const double val);
-atString atToString(const float val);
-
-template <typename T> int64_t atStreamRead(atReadStream *pStream, atStringBasic<T> *pData, const int64_t count)
-{ 
-  atVector<T> bytes;
-  int64_t ret = 0;
-  for (atStringBasic<T> &str : atIterate(pData, count))
-  {
-    ret += atStreamRead(pStream, &bytes, 1);
-    str.set_string(bytes);
-  }
-  return ret;
-}
-
-template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atStringBasic<T> *pData, const int64_t count) 
-{
-  int64_t ret = 0;
-  for(const atStringBasic<T> &str : atIterate(pData, count))
-   ret += atStreamWrite(pStream, &str.vector(), 1);
-  return ret;
-}
+int64_t atStreamRead(atReadStream *pStream, atString *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const atString *pData, const int64_t count);
 
 #include "atString.inl"
 #endif
