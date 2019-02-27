@@ -43,6 +43,11 @@ public:
   static double Float(const char **pStr, int64_t *pLen = nullptr, const int64_t srcLen = -1);
   static atString String(const char **pStr, int64_t *pLen = nullptr, const int64_t srcLen = -1);
 
+  static int64_t Int(const atString &str, int64_t *pLen = nullptr);
+  static int64_t Hex(const atString &str, int64_t *pLen = nullptr);
+  static double Float(const atString &str, int64_t *pLen = nullptr);
+  static atString String(const atString &str, int64_t *pLen = nullptr);
+
   static bool String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen = nullptr);
   static bool String(char *pOut, const int64_t maxLen, const char **str, int64_t *pLen = nullptr);
   static bool String(char *pOut, const int64_t maxLen, const char *str, int64_t strLen, int64_t *pLen = nullptr);

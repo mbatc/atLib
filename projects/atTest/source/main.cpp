@@ -39,6 +39,35 @@
 //
 //---------------------------------------------------------------------------------
 
+void ExampleStrings()
+{
+  { // Assigning
+    atString firstString = "This is a string";
+    atString secondString = "This is another string";
+    firstString = firstString + secondString;
+    secondString += firstString;
+
+    firstString = 'a';
+    firstString = "c-string" + atString("atString");
+  }
+
+  { // Type conversions
+
+    // Type conversions must be explicit (with the exception of the atString = operator)
+
+    atString aNumber = atString(3);
+    atString anotherNumber = atString(4.0f);
+    atString addingAsStrings = aNumber + anotherNumber;
+
+    atString addingToString = atString("I like the number ") + 4;
+    double addingAsValues = double(aNumber) + double(anotherNumber);
+    atUnused(addingToString, addingAsValues);
+    int64_t asValue = int64_t(aNumber);
+    // To wide strings
+    std::wstring wideString = std::wstring(atString(std::wstring(L"jlkjsalkjasp2©ýNc☼¯")));
+    atUnused(wideString);
+  }
+}
 
 // -----------------------------------------------------------
 // Demonstrates loading and rendering a model with simple user 

@@ -45,8 +45,6 @@ public:
     memset(move.data(), 0, sizeof(T) * 4);
   }
 
-  // Approaching Template Town
-
   template <typename T2> atVector4(const std::initializer_list<T2> &list)
   {
     for (int64_t i = 0; i < element_count && i < (int64_t)list.size(); ++i)
@@ -74,15 +72,18 @@ public:
   T& operator[](const int64_t index) { return data()[index]; }
   const T& operator[](const int64_t index) const { return data()[index]; }
 
+
   VecType<T> operator-() const { return atVectorMath::Subtract(VecType<T>::zero(), *this); }
   VecType<T> operator+(const VecType<T> &rhs) const { return atVectorMath::Add(*this, rhs); }
   VecType<T> operator-(const VecType<T> &rhs) const { return atVectorMath::Subtract(*this, rhs); }
   VecType<T> operator*(const VecType<T> &rhs) const { return atVectorMath::Multiply(*this, rhs); }
   VecType<T> operator/(const VecType<T> &rhs) const { return atVectorMath::Divide(*this, rhs); }
+  VecType<T> operator%(const VecType<T> &rhs) const { return{ atMod(x, rhs.x), atMod(y, rhs.y), atMod(z, rhs.z), atMod(w, rhs.w) }; }
   VecType<T> operator+=(const VecType<T> &rhs) { *this = *this + rhs; return *this; }
   VecType<T> operator-=(const VecType<T> &rhs) { *this = *this - rhs; return *this; }
   VecType<T> operator*=(const VecType<T> &rhs) { *this = *this * rhs; return *this; }
   VecType<T> operator/=(const VecType<T> &rhs) { *this = *this / rhs; return *this; }
+  VecType<T> operator%=(const VecType<T> &rhs) { *this = *this % rhs; return *this; }
   VecType<T> operator=(const VecType<T> &rhs) { return atVectorMath::Assign(this, rhs); }
   bool operator==(const VecType<T> &rhs) const { return atVectorMath::Equals(*this, rhs); }
   bool operator!=(const VecType<T> &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
@@ -91,10 +92,12 @@ public:
   template <typename T2> VecType<T> operator-(const VecType<T2> &rhs) const { return atVectorMath::Subtract(*this, rhs); }
   template <typename T2> VecType<T> operator*(const VecType<T2> &rhs) const { return atVectorMath::Multiply(*this, rhs); }
   template <typename T2> VecType<T> operator/(const VecType<T2> &rhs) const { return atVectorMath::Divide(*this, rhs); }
+  template <typename T2> VecType<T> operator%(const VecType<T2> &rhs) const { return{ atMod(x, (T)rhs.x), atMod(y, (T)rhs.y), atMod(z, (T)rhs.z), atMod(w, (T)rhs.w) }; }
   template <typename T2> VecType<T> operator+=(const VecType<T2> &rhs) { *this = *this + rhs; return *this; }
   template <typename T2> VecType<T> operator-=(const VecType<T2> &rhs) { *this = *this - rhs; return *this; }
   template <typename T2> VecType<T> operator*=(const VecType<T2> &rhs) { *this = *this * rhs; return *this; }
   template <typename T2> VecType<T> operator/=(const VecType<T2> &rhs) { *this = *this / rhs; return *this; }
+  template <typename T2> VecType<T> operator%=(const VecType<T2> &rhs) { *this = *this % rhs; return *this; }
   template <typename T2> VecType<T> operator=(const VecType<T2> &rhs) { return atVectorMath::Assign(this, rhs); }
   template <typename T2> bool operator==(const VecType<T2> &rhs) const { return atVectorMath::Equals(*this, rhs); }
   template <typename T2> bool operator!=(const VecType<T2> &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
@@ -103,10 +106,12 @@ public:
   template <typename T2> VecType<T> operator-(const T2 &rhs) const { return atVectorMath::Subtract(*this, rhs); }
   template <typename T2> VecType<T> operator*(const T2 &rhs) const { return atVectorMath::Multiply(*this, rhs); }
   template <typename T2> VecType<T> operator/(const T2 &rhs) const { return atVectorMath::Divide(*this, rhs); }
+  template <typename T2> VecType<T> operator%(const T2 &rhs) const { return{ atMod(x, (T)rhs), atMod(y, (T)rhs), atMod(z, (T)rhs), atMod(w, (T)rhs) }; }
   template <typename T2> VecType<T> operator+=(const T2 &rhs) { *this = *this + rhs; return *this; }
   template <typename T2> VecType<T> operator-=(const T2 &rhs) { *this = *this - rhs; return *this; }
   template <typename T2> VecType<T> operator*=(const T2 &rhs) { *this = *this * rhs; return *this; }
   template <typename T2> VecType<T> operator/=(const T2 &rhs) { *this = *this / rhs; return *this; }
+  template <typename T2> VecType<T> operator%=(const T2 &rhs) { *this = *this % rhs; return *this; }
   template <typename T2> VecType<T> operator=(const T2 &rhs) { return atVectorMath::Assign(this, rhs); }
   template <typename T2> bool operator==(const T2 &rhs) const { return atVectorMath::Equals(*this, rhs); }
   template <typename T2> bool operator!=(const T2 &rhs) const { return atVectorMath::NotEqual(*this, rhs); }

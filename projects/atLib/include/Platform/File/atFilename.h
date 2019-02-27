@@ -28,72 +28,49 @@
 
 #include "atString.h"
 
-template <typename c> class atFilenameBasic
+class atFilename
 {
 public:
-  atFilenameBasic(const c *path);
-  atFilenameBasic(const atStringBasic<c> &path = "");
-  atFilenameBasic(const atFilenameBasic<c> &copy);
-  atFilenameBasic(atFilenameBasic<c> &&move);
+  atFilename(const char *path);
+  atFilename(const atString &path = "");
+  atFilename(const atFilename &copy);
+  atFilename(atFilename &&move);
   
-  atStringBasic<c> Path(const bool withExtension = true) const;
-  atStringBasic<c> Name(const bool withExtension = true) const;
-  atStringBasic<c> Extension() const;
-  atStringBasic<c> Directory() const;
+  atString Path(const bool withExtension = true) const;
+  atString Name(const bool withExtension = true) const;
+  atString Extension() const;
+  atString Directory() const;
 
-  atFilenameBasic<c> ResolveFullPath() const;
-  static atFilenameBasic<c> ResolveFullPath(const atFilenameBasic<c> &path);
+  atFilename ResolveFullPath() const;
+  static atFilename ResolveFullPath(const atFilename &path);
 
   // Not Implemented!
-  atFilenameBasic<c> ResolveRelativePath(const atFilenameBasic<c> &to) const;
-  static atFilenameBasic<c> ResolveRelativePath(const atFilenameBasic<c> &to, const atFilenameBasic<c> &from);
+  atFilename ResolveRelativePath(const atFilename &to) const;
+  static atFilename ResolveRelativePath(const atFilename &to, const atFilename &from);
 
-  void assign(const atStringBasic<c> &path);
+  void assign(const atString &path);
 
   const char* c_str() const;
 
-  bool operator==(const atFilenameBasic<c> &fn) const;
-  bool operator!=(const atFilenameBasic<c> &fn) const;
-  bool operator==(const atStringBasic<c> &fn) const;
-  bool operator!=(const atStringBasic<c> &fn) const;
+  bool operator==(const atFilename &fn) const;
+  bool operator!=(const atFilename &fn) const;
+  bool operator==(const atString &fn) const;
+  bool operator!=(const atString &fn) const;
   bool operator==(const char *fn) const;
   bool operator!=(const char *fn) const;
 
-  atFilenameBasic<c> operator=(const atFilenameBasic<c> &fn);
-  atFilenameBasic<c> operator=(const atStringBasic<c> &fn);
-  atFilenameBasic<c> operator=(const c *fn);
+  atFilename operator=(const atFilename &fn);
+  atFilename operator=(const atString &fn);
+  atFilename operator=(const char *fn);
 
 protected:
-  atStringBasic<c> m_fullpath;
-  atStringBasic<c> m_name;
-  atStringBasic<c> m_extension;
-  atStringBasic<c> m_directory;
+  atString m_fullpath;
+  atString m_name;
+  atString m_extension;
+  atString m_directory;
 };
 
-typedef atFilenameBasic<char> atFilename;
-typedef atFilenameBasic<wchar_t> atWideFilename;
+int64_t atStreamRead(atReadStream *pStream, atFilename *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int64_t count);
 
-template <> atFilenameBasic<char> atFilenameBasic<char>::ResolveFullPath(const atFilenameBasic<char> &path);
-
-template <typename T> int64_t atStreamRead(atReadStream *pStream, atFilenameBasic<T> *pData, const int64_t count)
-{
-  atString path;
-  int64_t ret = 0;
-  for (atFilenameBasic<T> &fn : atIterate(pData, count))
-  {
-    ret += atStreamRead(pStream, &path, 1);
-    fn.assign(path);
-  }
-  return ret;
-}
-
-template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atFilenameBasic<T> *pData, const int64_t count) 
-{
-  int64_t ret = 0;
-  for(const atFilenameBasic<T> &fn : atIterate(pData, count))
-    ret += atStreamWrite(pStream, &fn.Path(), 1);
-  return ret;
-}
-
-#include "atFilename.inl"
 #endif

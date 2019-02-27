@@ -1,0 +1,31 @@
+#Constructing a mesh from a string
+The basic idea is to parse the text to a atMesh file parser based on the prepended extension type and return a atMesh
+this can be done through the atFromString functionality as atString will explicitly cast to any type that defines an atFromString function
+
+atMesh atFromString(const atString &str)
+ - would allow you to cast a string to a mesh. e.g. obj text file to atMesh
+ - will allow for human readable mesh definitions in code (if for example you wanted to debug with a cube you could write a .obj string)
+ - would be pretty neat
+
+```
+  atMesh mesh = (atMesh)atString(
+	"obj\n"
+	"o cube\n"
+	"v 1 0 0\n"
+	"v 1 1 0\n"
+	"v 1 1 1\n"
+	"v 0 0 1\n"
+	"v 0 1 1\n"
+	"v 1 1 1\n"
+	"v 1 0 1\n"
+	"v 0 1 0\n"
+        "f 1 2 3 4"
+	"f 5 6 7 8"
+	"f 1 2 7 8"
+	"f 3 4 5 6"
+	"f 2 3 6 7"
+	"f 1 4 5 8"); // probably not a cude but you get the idea
+
+  // This could also be used to construct atGraphicsModel's e.g.
+  // atGraphicsModel model = (atMesh)atString("...")
+```

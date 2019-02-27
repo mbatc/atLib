@@ -26,7 +26,6 @@
 #ifndef _atMath_h__
 #define _atMath_h__
 
-#include "atTypes.h"
 #include "atMatrix.h"
 #include "atVector4.h"
 #include "atReadStream.h"
@@ -121,6 +120,10 @@ template <typename T> inline T atATan(const T rads) { return atan(rads); }
 template <typename T> inline T atATan2(const atVector2<T> &pos) { return atATan2(pos.x, pos.y); }
 template <typename T> inline T atATan2(const T y, const T x);
 template <typename T> inline atVector2<T> atQuadraticSolve(const T a, const T b, const T c);
+
+template <typename T> inline T atMod(const T a, const T b);
+template <> inline float atMod(const float a, const float b);
+template <> inline double atMod(const double a, const double b);
 
 template <typename T> inline atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
 template <typename T> inline atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
