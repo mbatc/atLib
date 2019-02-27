@@ -61,9 +61,8 @@ static void _UpdateButtons()
 static HWND _GetFocus()
 {
   HWND focus = GetFocus();
-  for (auto& kvp: s_windows)
-    if (focus == (HWND)kvp.m_key)
-      return focus;
+  if (atWinAPI::GetWindow(focus))
+    return focus;
   return NULL;
 }
 
@@ -81,7 +80,7 @@ bool atInput::Update(const bool escExit)
 {
   _UpdateMouse();
   _UpdateButtons();
-  bool res = atWindow_PumpMessage() && (!escExit || !ButtonDown(atKC_Escape));
+  bool res = atWindow::PumpMessage() && (!escExit || !ButtonDown(atKC_Escape));
   return res;
 }
 

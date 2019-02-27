@@ -1,4 +1,4 @@
-
+﻿
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -319,12 +319,52 @@ void ExampleImportExportMesh()
 void ExampleRayTraceMesh()
 {
   atMesh mesh;
-  mesh.Import("assets/test/models/cube.obj");
+  mesh.Import("assets/test/models/bumpMap.obj");
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
-  
-  double time = 0.0;
-  bvh.RayTrace(atRay<double>(atVec3D(0, 0, -10), atVec3D(0, 0, 1)), atMat4D::Identity(), &time);
+  atWindow window("Window", { 800, 600 }, false);
+  atSimpleCamera cam(&window);
+  while (atInput::Update())
+  {
+    window.Clear(0xFF333333);
+    cam.OnUpdate(0.016);
+
+    atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
+    vp = vp.Transpose();
+    atMat4F invVP = vp.Inverse();
+    atMat4F identity = invVP * vp;
+
+    static int64_t res = 10;
+    res = atMax(res, 1);
+    res += atInput::ButtonPressed(atKC_P);
+    res -= atInput::ButtonPressed(atKC_O);
+
+    for (int64_t y = 0; y < window.Height(); y += res)
+      for (int64_t x = 0; x < window.Width(); x += res)
+      {
+        atVec2F ssc = { (float)x / (float)window.Width(), (float)y / (float)window.Height() };
+        //atVec2F ssc = { 0.5, 0.5 };
+        ssc = ssc * 2 - 1;
+
+        atVec4F n(ssc, 0.0f, 1.f);
+        n = invVP * n;
+        n /= n.w;
+
+        atVec4F f(ssc, 1.0f, 1.f);
+        f = invVP * f;
+        f /= f.w;
+        double time = 0.0;
+        if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
+        {
+          time = 255 + time * 255 * 255 + time * 255 * 255 * 255;
+          for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
+            for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
+              window.Pixels()[x2 + y2 * window.Width()] = (uint32_t)time | 0xFF000000;
+        }
+      }
+
+    window.Swap();
+  }
 }
 
 #include "atScene.h"
@@ -425,7 +465,7 @@ int main(int argc, char **argv)
   
   // ExampleRenderText();
   // ExampleRenderMesh();
-  ExampleCreateScene();
+  // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
@@ -433,9 +473,9 @@ int main(int argc, char **argv)
   // Not Quite Functional
   
   // ExampleImportExportMesh();
-  // ExampleRayTraceMesh();
+  ExampleRayTraceMesh();
   // ExampleRunLua();
   
   system("pause");
-  return atWindow_GetResult();
+  return atWindow::GetResult();
 }

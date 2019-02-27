@@ -27,30 +27,25 @@
 #define _atWindow_h__
 
 #include "atRenderTarget.h"
+#include "atWinAPI.h"
 #include "atMath.h"
 
-// TODO: Software window WINAPI https://docs.microsoft.com/en-us/windows/desktop/api/wingdi/nf-wingdi-createdibsection
-
-LRESULT __stdcall atLibDefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-bool atWindow_PumpMessage();
-int atWindow_GetResult();
-
 class atRenderState;
+class atWin32Window;
 
 class atWindow
 {
   friend atRenderState;
+  friend atWin32Window;
 
 public:
-  struct Pixel { Pixel(const unsigned char r = 255, const unsigned char g = 255, const unsigned char b = 255) : r(r), g(g), b(b) {} unsigned char b, g, r; };
+  static bool PumpMessage();
+  static int GetResult();
 
   atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const bool hardware = true, const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const int64_t style = WS_OVERLAPPEDWINDOW);
   ~atWindow();
 
-  void Clear(const Pixel color);
-  void Clear(const char r, const char g, const char b);
-  void Clear(const atCol color);
+  void Clear(const atCol color = 0x000000FF);
   void Clear(const atVec4F &color);
 
   void Swap();
@@ -65,7 +60,7 @@ public:
   int32_t Width() const;
   int32_t Height() const;
 
-  const atVec2I &GetPos() const;
+  const atVec2I &Position() const;
   int32_t GetX() const;
   int32_t GetY() const;
 
@@ -77,7 +72,7 @@ public:
   void SetParent(const atWindow &window);
   void SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM));
 
-  HWND GetHandle() const;
+  HWND Handle() const;
 
   bool MakeWindow();
   void Destroy();
@@ -85,16 +80,14 @@ public:
 
   static atVec2I DisplaySize();
 
-protected:
-  void SetWindowRect();
-  void LoadDefaultResources();
-  void ResizePixels();
+  atCol* Pixels();
 
+protected:
+  const atVector<atCol>& PixelsV();
   bool m_hardware = true;
   bool m_windowed = true;
 
   atString m_title = "Main Window";
-  atString m_wndCls = "atDefaultWndCls";
 
   atVec2I m_clientSize = atVec2I(800, 600);
   atVec2I m_size = atVec2I(800, 600);
@@ -102,21 +95,15 @@ protected:
 
   int64_t m_style = WS_OVERLAPPEDWINDOW;
 
-  // WINAPI
-  bool WINRegister();
-  bool WINCreate();
+#if defined WIN32 || defined WIN64
+  // WINAPI  
+  atWin32Window m_sysWindow;
 
-  HWND m_hWnd = nullptr;
-  HWND m_hParent = NULL;
-  HMENU m_hMenu = NULL;
-  HICON m_hIcon = NULL;
-  HCURSOR m_hCursor = NULL;
-  LRESULT (__stdcall *m_wndProc)(HWND, UINT, WPARAM, LPARAM) = atLibDefWindowProc;
-
-  atVector<Pixel> m_pixels;
-
-  // DirectX
+  // DirectX (ideally atRenderTarget should be a high level interface that supports OpenGl as well as DirectX)
   atRenderTarget m_dxTarget;
+#elif LINUX
+  // Add linux m_sysWindow
+#endif
 };
 
 #endif // _atWindow_h__

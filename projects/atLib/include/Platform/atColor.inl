@@ -23,11 +23,11 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> atVector4<T> atColor::UnPackARGB(const atCol &col) { return atVector4<T>(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }
-template<typename T> atVector4<T> atColor::UnPack(const atCol &col) { return atVector4<T>(atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col)); }
+template<typename T> atVector4<T> atColor::UnPackARGB(atCol col) { return atVector4<T>(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }
+template<typename T> atVector4<T> atColor::UnPack(atCol col) { return atVector4<T>(atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col)); }
 template<typename T> atCol atColor::Pack(const atVector4<T> &col) { return Pack(col.x, col.y, col.z, col.w); }
 template<typename T> atCol atColor::Pack(const atVector3<T> &col) { return Pack(col.x, col.y, col.z, 255); }
-template<typename T> atCol atColor::Pack(const T r, const T g, const T b, const T a) { return atCOL_PACKR(r) | atCOL_PACKG(g) | atCOL_PACKB(b) | atCOL_PACKA(a); }
+template<typename T> atCol atColor::Pack(T r, T g, T b, T a) { return atCOL_PACK_RGBA(r, g, b, a); }
 template<typename T> atCol atColor::PackARGB(const atVector4<T>& col) { return Pack(col.w, col.x, col.y, col.z); }
 template<typename T> atCol atColor::PackARGB(const atVector3<T>& col) { return Pack(255, col.x, col.y, col.z); }
-template<typename T> atCol atColor::PackARGB(const T r, const T g, const T b, const T a) { return Pack(a, r, g, b); }
+template<typename T> atCol atColor::PackARGB(T r, T g, T b, T a) { return Pack(a, r, g, b); }

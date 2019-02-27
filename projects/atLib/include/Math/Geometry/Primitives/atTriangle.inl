@@ -26,11 +26,9 @@
 
 template <typename T> T atTriangle<T>::Area() const
 {
-  const T CtoA = (m_a - m_c).Mag();
-  const T CtoB = (m_b - m_c).Mag();
-  const T AtoB = (m_b - m_a).Mag();
-  const T s = (CtoA + CtoB + AtoB) / 2;
-  return sqrt(s * (s - CtoA) * (s - CtoB) * (s - AtoB));
+  const atVector3<T> a = m_a - m_b;
+  const atVector3<T> b = m_a - m_c;
+  return 0.5 * a.Cross(b).Mag();
 }
 
 template <typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
