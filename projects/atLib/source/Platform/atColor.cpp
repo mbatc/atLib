@@ -25,17 +25,18 @@
 
 #include "atColor.h"
 
-atCol atColor::RGBAtoARGB(const atCol col) { return Pack(atCOL_GETA(col), atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col)); }
-atCol atColor::ARGBtoRGBA(const atCol col) { return Pack(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }
+atCol atColor::RGBAtoBGRA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETB(col), atCOL_GETG(col), atCOL_GETR(col), atCOL_GETA(col)); }
+atCol atColor::RGBAtoARGB(atCol col) { return atCOL_PACK_RGBA(atCOL_GETA(col), atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col)); }
+atCol atColor::ARGBtoRGBA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }
 
-template <> atCol atColor::PackARGB<float>(const float r, const float g, const float b, const float a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
-template <> atCol atColor::PackARGB<double>(const double r, const double g, const double b, const double a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
+template <> atCol atColor::PackARGB<float>(float r, float g, float b, float a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
+template <> atCol atColor::PackARGB<double>(double r, double g, double b, double a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
 
-template <> atCol atColor::Pack<float>(const float r, const float g, const float b, const float a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
-template <> atCol atColor::Pack<double>(const double r, const double g, const double b, const double a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
+template <> atCol atColor::Pack<float>(float r, float g, float b, float a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
+template <> atCol atColor::Pack<double>(double r, double g, double b, double a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
 
-template <> atVector4<float> atColor::UnPackARGB(const atCol &col) { return atVector4<float>(UnPackARGB<int64_t>(col)) / 255.f; }
-template <> atVector4<double> atColor::UnPackARGB(const atCol &col) { return atVector4<double>(UnPackARGB<int64_t>(col)) / 255.0; }
+template <> atVector4<float> atColor::UnPackARGB(atCol col) { return atVector4<float>(UnPackARGB<int64_t>(col)) / 255.f; }
+template <> atVector4<double> atColor::UnPackARGB(atCol col) { return atVector4<double>(UnPackARGB<int64_t>(col)) / 255.0; }
 
-template <> atVector4<float> atColor::UnPack(const atCol &col) { return atVector4<float>(UnPack<int64_t>(col)) / 255.0f; }
-template <> atVector4<double> atColor::UnPack(const atCol &col) { return atVector4<double>(UnPack<int64_t>(col)) / 255.0; }
+template <> atVector4<float> atColor::UnPack(atCol col) { return atVector4<float>(UnPack<int64_t>(col)) / 255.0f; }
+template <> atVector4<double> atColor::UnPack(atCol col) { return atVector4<double>(UnPack<int64_t>(col)) / 255.0; }

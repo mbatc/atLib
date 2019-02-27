@@ -144,15 +144,21 @@ template <class T> void atVector<T>::assign(vector_const_iterator start, vector_
   const int64_t count = end - start;
   resize(0);
   reserve(count);
-  for (int64_t i = 0; i < count; ++i)
-    emplace_back(start[i]);
+  if (std::is_integral<T>::value)
+  {
+    memcpy(m_pData, start, sizeof(T) * count);
+    m_size = count;
+  }
+  else
+    for (int64_t i = 0; i < count; ++i)
+      emplace_back(start[i]);
 }
 
 template <class T> template <class T1> void atVector<T>::assign(T1* start, T1* end)
 {
   const int64_t count = end - start;
   resize(0);
-  reserve(count);
+  reserve(count);;
   for (int64_t i = 0; i < count; ++i)
     push_back((T)start[i]);
 }

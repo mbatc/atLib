@@ -46,7 +46,10 @@ template<typename T, typename T2> bool atIntersects(const atRay<T2> &a, const at
     T2 dist = 0xFFFFFFFF;
     bool hit = node.isLeaf ? atIntersects(a, node.primitive, &dist) : atIntersects(a, node, &dist);
 
-    if (hit && dist < minDist)
+    if (hit && dist < 0)
+      printf("%f", minDist);
+
+    if (hit && dist < minDist && dist >= 0)
     {
       minDist = dist;
       res = true;
@@ -103,7 +106,7 @@ template <typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T>
   
   if (pTime)
     *pTime = time;
-  return testArea <= area;
+  return abs(testArea - area) < 0.000001 && time >= 0;
 }
 
 template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &plane, T *pTime) 
@@ -114,7 +117,7 @@ template <typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &p
 
   if (coeffs.xyz().Dot(rayDir) == 0) return false;
   if (pTime) *pTime = (coeffs.w - rayPos.x * coeffs.x - rayPos.y * coeffs.y - rayPos.z * coeffs.z) / (coeffs.x * rayDir.x + coeffs.y * rayDir.y + coeffs.z * rayDir.z);
-  return true;
+  return !pTime || *pTime >= 0;
 }
 
 template <typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint)

@@ -114,7 +114,7 @@ void atRenderTarget::CreateSwapChain()
   desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
   desc.SampleDesc.Count = 4;
   desc.SampleDesc.Quality = 0;
-  desc.OutputWindow = m_pWindow->GetHandle();
+  desc.OutputWindow = m_pWindow->Handle();
   desc.BufferCount = 1;
   desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   desc.Windowed = m_pWindow->IsWindowed();

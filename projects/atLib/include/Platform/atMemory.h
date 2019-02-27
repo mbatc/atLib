@@ -45,6 +45,7 @@ template <class T, typename... Args> T* atNewArray(const int64_t size, const T &
 // Will Construct/Destruct object of they are non primitive types
 template <class T, typename... Args> void atConstruct(T *pVal, Args... args);
 template <class T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args... args);
+template <class T> void atConstructArray(T *pVal, const int64_t count);
 
 template <class T> typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal);
 template <class T> typename std::enable_if<!std::is_destructible<T>::value>::type atDestruct(T *pVal) { atUnused(pVal); }
@@ -83,6 +84,8 @@ template <class T> void atDelete(T* pBlock)
 
 template <class T> typename std::enable_if<std::is_destructible<T>::value>::type atDestructArray(T *pVal, const int64_t count)
 {
+  if (std::is_integral<T>::value)
+    return;
   for (int64_t i = 0; i < count; ++i)
     atDestruct(&pVal[i]);
 }
@@ -93,11 +96,25 @@ template <class T, typename... Args> void atConstructArray(T *pVal, const int64_
     atConstruct<T, Args...>(pVal + i, std::forward<Args>(args)...);
 }
 
+template <class T> inline void atConstructArray(T *pVal, const int64_t count)
+{
+  if (std::is_integral<T>::value)
+    return;
+  for (int64_t i = 0; i < count; ++i)
+    atConstruct(pVal + i);
+}
+
+template <class T> inline typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal)
+{
+  if (std::is_integral<T>::value)
+    return;
+  pVal->~T();
+}
+
 template <class T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
 template <class T> inline T* atNewArray(const int64_t size) { return atInternal_New(size); }
 template <class T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New(size, copy); }
 template <class T, typename... Args> inline void atConstruct(T *pVal, Args... args) { new(pVal) T(std::forward<Args>(args)...); }
-template <class T> inline typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal) { pVal->~T(); }
 
 #endif
 

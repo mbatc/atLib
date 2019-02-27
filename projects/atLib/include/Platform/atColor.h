@@ -28,10 +28,10 @@
 
 #include "atMath.h"
 
-#define atCOL_MASKR(c) (0x000000FF & c)
-#define atCOL_MASKG(c) (0x0000FF00 & c)
-#define atCOL_MASKB(c) (0x00FF0000 & c)
-#define atCOL_MASKA(c) (0xFF000000 & c)
+#define atCOL_MASKR(c) (0x000000FF & (c))
+#define atCOL_MASKG(c) (0x0000FF00 & (c))
+#define atCOL_MASKB(c) (0x00FF0000 & (c))
+#define atCOL_MASKA(c) (0xFF000000 & (c))
 
 #define atCOL_GETR(c) (atCOL_MASKR(c))
 #define atCOL_GETG(c) (atCOL_MASKR(c >> 8))
@@ -43,6 +43,8 @@
 #define atCOL_PACKB(c) (atCOL_MASKR(c) << 16)
 #define atCOL_PACKA(c) (atCOL_MASKR(c) << 24)
 
+#define atCOL_PACK_RGBA(r, g, b, a) (atCOL_PACKR(r) | atCOL_PACKG(g) | atCOL_PACKB(b) | atCOL_PACKA(a))
+
 typedef uint32_t atCol;
 
 class atColor
@@ -51,10 +53,10 @@ public:
   atColor() = delete;
 
   // Unpacks an ARGB atCol to a RGBA atVector4
-  template <typename T> static atVector4<T> UnPackARGB(const atCol &col);
+  template <typename T> static atVector4<T> UnPackARGB(atCol col);
 
   // Unpacks an RGBA atCol to a RGBA atVector4
-  template <typename T> static atVector4<T> UnPack(const atCol &col);
+  template <typename T> static atVector4<T> UnPack(atCol col);
 
 
   // Packs an RGBA atVector4 to a RGBA atCol
@@ -62,7 +64,7 @@ public:
 
   // Packs an RGB atVector3 to a RGBA atCol with A = 255
   template <typename T> static atCol Pack(const atVector3<T> &col);
-  template <typename T> static atCol Pack(const T r, const T g, const T b, const T a = (T)255);
+  template <typename T> static atCol Pack(T r, T g, T b, T a = (T)255);
 
 
   // Packs an RGB atVector4 to a ARGB atCol with A
@@ -70,24 +72,28 @@ public:
 
   // Packs an RGB atVector3 to a ARGB atCol with A = 255
   template <typename T> static atCol PackARGB(const atVector3<T> &col);
-  template <typename T> static atCol PackARGB(const T r, const T g, const T b, const T a = (T)255);
+  template <typename T> static atCol PackARGB(T r, T g, T b, T a = (T)255);
 
-  static atCol RGBAtoARGB(const atCol col);
-  static atCol ARGBtoRGBA(const atCol col);
+  // Non-Reversible
+  static atCol RGBAtoARGB(atCol col);
+  static atCol ARGBtoRGBA(atCol col);
+
+  // Reversible
+  static atCol RGBAtoBGRA(atCol col);
 };
 
 // Specialization for floating point values (Color values range from 0-1 instead of 0-255)
 
-template <> atCol atColor::Pack<float>(const float r, const float g, const float b, const float a);
-template <> atCol atColor::Pack<double>(const double r, const double g, const double b, const double a);
-template <> atCol atColor::PackARGB<float>(const float r, const float g, const float b, const float a);
-template <> atCol atColor::PackARGB<double>(const double r, const double g, const double b, const double a);
+template <> atCol atColor::Pack<float>(float r, float g, float b, float a);
+template <> atCol atColor::Pack<double>(double r, double g, double b, double a);
+template <> atCol atColor::PackARGB<float>(float r, float g, float b, float a);
+template <> atCol atColor::PackARGB<double>(double r, double g, double b, double a);
 
-template <> atVector4<double> atColor::UnPackARGB(const atCol &col);
-template <> atVector4<double> atColor::UnPack(const atCol &col);
+template <> atVector4<double> atColor::UnPackARGB(atCol col);
+template <> atVector4<double> atColor::UnPack(atCol col);
 
-template <> atVector4<float> atColor::UnPackARGB(const atCol &col);
-template <> atVector4<float> atColor::UnPack(const atCol &col);
+template <> atVector4<float> atColor::UnPackARGB(atCol col);
+template <> atVector4<float> atColor::UnPack(atCol col);
 
 #include "atColor.inl"
 #endif // atColor_h__
