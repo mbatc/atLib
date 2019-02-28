@@ -51,7 +51,7 @@ public:
   // Recursively construct the tree - removes items from pPrimitives as they are assigned to tree node
   void ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves);
 
-  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime);
+  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime);
 
   atBVHNode<T> m_root;
 };

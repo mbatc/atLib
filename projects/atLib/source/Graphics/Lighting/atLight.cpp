@@ -35,7 +35,8 @@ atVec3D atLight::CalcLighting(const atVec3D &normal, const atVec3D &fragPos, con
   const atVec3D &dCol = material.m_cDiffuse.xyz() * material.m_cDiffuse.w;
   const atVec3D &sCol = material.m_cSpecular.xyz() * material.m_cSpecular.w;
   const atVec3D &aCol = material.m_cAmbient.xyz() * material.m_cAmbient.w;
-  return aCol + (m_ambientColor + m_diffuseColor * lambertian) * dCol + sCol * m_specularColor * sIntensity;
+  const atVec4D &difLight = (m_ambientColor + m_diffuseColor * lambertian);
+  return aCol + difLight.xyz() * difLight.w * dCol + sCol * (m_specularColor.xyz() * m_specularColor.w) * sIntensity;
 }
 
 double atLight::CalcLambertian(const atVec3D &normal) { return normal.Dot(-m_direction);  }

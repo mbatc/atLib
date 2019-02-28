@@ -27,57 +27,64 @@
 #define atMatrix_h__
 
 #include <minmax.h>
+#include "atAssert.h"
 #include "atTypes.h"
 
-template <typename T, int64_t col, int64_t row> class atMatrix
+#include "atVector4.h"
+
+template <typename T> class atMatrix4x4
 {
 public:
-  atMatrix();
-  atMatrix(const std::initializer_list<T> &list);
-  atMatrix(const atMatrix<T, col, row> &copy);
-  atMatrix(atMatrix<T, col, row> &&move);
-  template <typename T2> atMatrix(const atMatrix<T2, col, row> &copy);
+  atMatrix4x4(T _m[16]);
+  atMatrix4x4(
+    T _00, T _01, T _02, T _03,
+    T _10, T _11, T _12, T _13,
+    T _20, T _21, T _22, T _23,
+    T _30, T _31, T _32, T _33);
 
-  static atMatrix<T, col, row> Identity();
-  atMatrix<T, row, col> Transpose() const;
-  atMatrix<T, col, row> Cofactors() const;
-  atMatrix<T, col, row> Inverse() const;
+  atMatrix4x4(atMatrix4x4<T> &&move);
+  atMatrix4x4(const atMatrix4x4<T> &copy = Identity());
+  template <typename T2> atMatrix4x4(atMatrix4x4<T2> copy);
+
+  static atMatrix4x4<T> Identity();
+  atMatrix4x4<T> Transpose() const;
+  atMatrix4x4<T> Cofactors() const;
+  atMatrix4x4<T> Inverse() const;
 
   T Determinate() const;
 
-  template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> Mul(const atMatrix<T2, col2, row2> &rhs) const;
-  template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> operator*(const atMatrix<T2, col2, row2> &rhs) const;
+  template <typename T2> atMatrix4x4<T> Mul(const T2 &rhs) const;
+  template <typename T2> atMatrix4x4<T> Mul(const atMatrix4x4<T2> &rhs) const;
+  template <typename T2> atMatrix4x4<T> operator*(const atMatrix4x4<T2> &rhs) const;
 
-  template <int64_t col2, int64_t row2> atMatrix<T, row, col2> Mul(const atMatrix<T, col2, row2> &rhs) const;
-  template <int64_t col2, int64_t row2> atMatrix<T, row, col2> operator*(const atMatrix<T, col2, row2> &rhs) const;
+  template <typename T2> atMatrix4x4<T> Add(const atMatrix4x4<T2> &rhs) const;
+  template <typename T2> atMatrix4x4<T> Sub(const atMatrix4x4<T2> &rhs) const;
 
-  template <typename T2> atMatrix<T, col, row> Add(const atMatrix<T2, col, row> &rhs) const;
-  template <typename T2> atMatrix<T, col, row> Sub(const atMatrix<T2, col, row> &rhs) const;
+  atMatrix4x4<T> Mul(const T &rhs) const;
+  atMatrix4x4<T> Sub(const T &rhs) const;
+  atMatrix4x4<T> Add(const T &rhs) const;
+  atMatrix4x4<T> Mul(const atMatrix4x4<T> &rhs) const;
+  atVector4<T> Mul(const atVector4<T> &rhs) const;
+  atVector3<T> Mul(const atVector3<T> &rhs) const;
 
-  atMatrix<T, col, row> Mul(const T &rhs) const;
-  atMatrix<T, col, row> Sub(const T &rhs) const;
-  atMatrix<T, col, row> Add(const T &rhs) const;
+  atVector4<T> operator*(const atVector4<T> &rhs) const;
+  atVector3<T> operator*(const atVector3<T> &rhs) const;
+  atMatrix4x4<T> operator*(const T &rhs) const;
+  atMatrix4x4<T> operator*(const atMatrix4x4<T> &rhs) const;
 
-  template <typename T2> atMatrix<T, col, row> operator/(const T2 &rhs) const;
-  template <typename T2> atMatrix<T, col, row> operator+(const atMatrix<T2, col, row> &rhs) const;
-  template <typename T2> atMatrix<T, col, row> operator-(const atMatrix<T2, col, row> &rhs) const;
-
-  bool operator==(const atMatrix<T, col, row> &rhs) const;
-  bool operator!=(const atMatrix<T, col, row> &rhs) const;
-  const atMatrix<T, col, row> &operator=(const atMatrix<T, col, row> &copy);
-  template <typename T2> const atMatrix<T, col, row>& operator=(const atMatrix<T2, col, row> &copy);
-
+  bool operator==(const atMatrix4x4<T> &rhs) const;
+  bool operator!=(const atMatrix4x4<T> &rhs) const;
+  const atMatrix4x4<T> &operator=(const atMatrix4x4<T> &copy);
+  template <typename T2> const atMatrix4x4<T>& operator=(const atMatrix4x4<T2> &copy);
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
 
-  T m_data[row * col];
-
-  const int64_t m_rows = row;
-  const int64_t m_columns = col;
-
-protected:
-  template <int64_t dim> atMatrix<T, dim, dim> LowOrderMatrix(const int64_t x, const int64_t y) const;
+  union
+  {
+    T m[16];
+    atVector4<T> r[4];
+  };
 };
 
 #include "atMatrix.inl"

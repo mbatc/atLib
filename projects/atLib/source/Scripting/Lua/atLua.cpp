@@ -28,7 +28,6 @@
 #include "atImGui.h"
 #include "atInput.h"
 #include "atLuaScene.h"
-#include "atVectorMath.h"
 #include "atSceneScript.h"
 #include "atSceneCamera.h"
 #include "atSceneMeshRenderable.h"
@@ -495,23 +494,23 @@ void atLua::ExposeMathTypes()
     "yzw", &atVec4I::yzw);
 
   // Expose Vector Math Functions
-  math["Dot"] = sol::overload(
-    (double(*)(const atVec2D&, const atVec2D&))atVectorMath::Dot,
-    (double(*)(const atVec3D&, const atVec3D&))atVectorMath::Dot,
-    (double(*)(const atVec4D&, const atVec4D&))atVectorMath::Dot);
-  math["Mag"] = sol::overload(
-    (double(*)(const atVec2D&))atVectorMath::Mag,
-    (double(*)(const atVec3D&))atVectorMath::Mag,
-    (double(*)(const atVec4D&))atVectorMath::Mag);
-  math["Reflect"] = sol::overload(
-    (atVec2D(*)(const atVec2D&, const atVec2D&))atVectorMath::Reflect,
-    (atVec3D(*)(const atVec3D&, const atVec3D&))atVectorMath::Reflect,
-    (atVec4D(*)(const atVec4D&, const atVec4D&))atVectorMath::Reflect);
-  math["Cross"] = (atVec3D(*)(const atVec3D&, const atVec3D&))atVectorMath::Cross;
-  math["Normalize"] = sol::overload(
-    (atVec2D(*)(const atVec2D&))atVectorMath::Normalize,
-    (atVec3D(*)(const atVec3D&))atVectorMath::Normalize,
-    (atVec4D(*)(const atVec4D&))atVectorMath::Normalize);
+  // math["Dot"] = sol::overload(
+  //   (double(*)(const atVec2D&, const atVec2D&)))atVec2D::Dot,
+  //   (double(*)(const atVec3D&, const atVec3D&)))atVec3D::Dot,
+  //   (double(*)(const atVec4D&, const atVec4D&)))atVec4D::Dot);
+  // math["Mag"] = sol::overload(
+  //   (double(*)(const atVec2D&))atVec2D::Mag,
+  //   (double(*)(const atVec3D&))atVec3D::Mag,
+  //   (double(*)(const atVec4D&))atVec4D::Mag);
+  // math["Reflect"] = sol::overload(
+  //   (atVec2D(*)(const atVec2D&, const atVec2D&)))atVec2D::Reflect,
+  //   (atVec3D(*)(const atVec3D&, const atVec3D&)))atVec3D::Reflect,
+  //   (atVec4D(*)(const atVec4D&, const atVec4D&)))atVec4D::Reflect);
+  // math["Cross"] = (atVec3D(*)(const atVec3D&, const atVec3D&))atVec3D::Cross;
+  // math["Normalize"] = sol::overload(
+  //   (atVec2D(*)(const atVec2D&)))atVec2D::Normalize,
+  //   (atVec3D(*)(const atVec3D&)))atVec3D::Normalize,
+  //   (atVec4D(*)(const atVec4D&)))atVec4D::Normalize);
 
   // Expose Matrix Class
   // math.new_usertype<atMat4D>("Mat4",

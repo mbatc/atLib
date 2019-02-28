@@ -92,7 +92,7 @@ template<typename T> void atBVH<T>::ConstructRecursive(atBVHNode<T> *pRoot, atVe
   }
 }
 
-template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix<T2, 4, 4> &modelMat, T2 *pTime) 
+template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime) 
 { 
   atMat4D invModel = modelMat.Inverse();
   atVec3D startPos = invModel * ray.m_pos;

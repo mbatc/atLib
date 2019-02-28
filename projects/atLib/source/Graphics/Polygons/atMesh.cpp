@@ -96,7 +96,7 @@ bool atMesh::MakeValid()
       if (tri.verts[v].normal == AT_INVALID_INDEX)
       {
         tri.verts[v].normal = m_normals.size();
-        m_normals.push_back(atVectorMath::Cross(m_positions[tri.verts[v].position] - m_positions[tri.verts[(v - 1) % 3].position],
+        m_normals.push_back(atVec3D::Cross(m_positions[tri.verts[v].position] - m_positions[tri.verts[(v - 1) % 3].position],
           m_positions[tri.verts[v].position] - m_positions[tri.verts[(v + 1) % 3].position]));
       }
 
