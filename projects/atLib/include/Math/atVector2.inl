@@ -71,6 +71,13 @@ template <typename T> inline const atVector2<T>& atVector2<T>::assign(const atVe
   return *this;
 }
 
+template <typename T> template <typename T2> inline const atVector2<T>& atVector2<T>::assign(const atVector2<T2>& rhs)
+{
+  x = (T)rhs.x;
+  y = (T)rhs.y;
+  return *this;
+}
+
 template <typename T> inline atVector2<T> atVector2<T>::Normalize() const { return Normalize(*this); }
 
 template <typename T> inline T atVector2<T>::Length(const atVector2<T> &rhs)
@@ -129,7 +136,7 @@ template <typename T> inline T * atVector2<T>::data() { return &x; }
 
 template <typename T> inline const T* atVector2<T>::data() const { return &x; }
 
-template <typename T> inline T& atVector2<T>::operator[](int64_t index) { data()[index]; }
+template <typename T> inline T& atVector2<T>::operator[](int64_t index) { return data()[index]; }
 template <typename T> inline const T& atVector2<T>::operator[](int64_t index) const { return data()[index]; }
 template <typename T> inline atVector2<T> atVector2<T>::operator-() const { return atVector2<T>(-x, -y); }
 template <typename T> inline atVector2<T> atVector2<T>::operator+(const atVector2<T>& rhs) const { return atVector2<T>(x + rhs.x, y + rhs.y); }

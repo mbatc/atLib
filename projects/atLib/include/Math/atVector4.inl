@@ -162,6 +162,15 @@ template <typename T> template <typename T2> inline const atVector4<T>& atVector
   return *this;
 }
 
+template <typename T> inline const atVector4<T>& atVector4<T>::assign(const atVector4<T>& rhs)
+{
+  x = (T)rhs.x;
+  y = (T)rhs.y;
+  z = (T)rhs.z;
+  w = (T)rhs.w;
+  return *this;
+}
+
 template <typename T> inline T atVector4<T>::Dot(const atVector4<T> &lhs, const atVector4<T> &rhs)
 {
   return lhs.x * rhs.x +

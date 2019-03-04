@@ -66,7 +66,7 @@ bool atSimpleCamera::OnUpdate(const double dt)
 void atSceneCamera::SetViewport(const atVec4I viewport)
 {
   m_viewport = viewport;
-  m_aspect = (double)(viewport.z) / (double)(viewport.w);
+  m_aspect = (double)(viewport.z) / (double)(vie port.w);
 }
 
 atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }

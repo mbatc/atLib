@@ -60,19 +60,27 @@ template <typename T> template <typename T2> inline atVector3<T>::atVector3(atVe
   , z((T)copy.z)
 {}
 
-template <typename T> template <typename T2> inline const atVector3<T>& atVector3<T>::assign(T2 _x, T2 _y, T2 _z)
-{
-  x = (T)_x;
-  y = (T)_y;
-  z = (T)_z;
-  return *this;
-}
-
 template <typename T> inline const atVector3<T>& atVector3<T>::assign(T _x, T _y, T _z)
 {
   x = _x;
   y = _y;
   z = _z;
+  return *this;
+}
+
+template <typename T> inline const atVector3<T>& atVector3<T>::assign(const atVector3<T>& rhs)
+{
+  x = rhs.x;
+  y = rhs.y;
+  z = rhs.z;
+  return *this;
+}
+
+template <typename T> template <typename T2> inline const atVector3<T>& atVector3<T>::assign(T2 _x, T2 _y, T2 _z)
+{
+  x = (T)_x;
+  y = (T)_y;
+  z = (T)_z;
   return *this;
 }
 

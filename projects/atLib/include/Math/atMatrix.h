@@ -35,15 +35,16 @@
 template <typename T> class atMatrix4x4
 {
 public:
-  atMatrix4x4(T _m[16]);
   atMatrix4x4(
-    T _00, T _01, T _02, T _03,
-    T _10, T _11, T _12, T _13,
-    T _20, T _21, T _22, T _23,
-    T _30, T _31, T _32, T _33);
+    T _00 = 1, T _01 = 0, T _02 = 0, T _03 = 0,
+    T _10 = 0, T _11 = 1, T _12 = 0, T _13 = 0,
+    T _20 = 0, T _21 = 0, T _22 = 1, T _23 = 0,
+    T _30 = 0, T _31 = 0, T _32 = 0, T _33 = 1);
 
   atMatrix4x4(atMatrix4x4<T> &&move);
-  atMatrix4x4(const atMatrix4x4<T> &copy = Identity());
+  atMatrix4x4(const atMatrix4x4<T> &copy);
+  ~atMatrix4x4();
+
   template <typename T2> atMatrix4x4(atMatrix4x4<T2> copy);
 
   static atMatrix4x4<T> Identity();
@@ -80,11 +81,7 @@ public:
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
 
-  union
-  {
-    T m[16];
-    atVector4<T> r[4];
-  };
+  T m[16];
 };
 
 #include "atMatrix.inl"

@@ -45,12 +45,12 @@ template <typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, c
   const T f_fn = farPlane / (farPlane - nearPlane);
   const T yScale = 1.0 / atTan(FOV / 2);
   return
-  {
+  atMatrix4x4<T>(
     yScale / aspect, 0,       0,     0,
     0,               yScale,  0,     0,
     0,               0,      -f_fn, -nearPlane * f_fn,
     0,               0,      -1,     0
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane) { return atMatrixOrtho<T>((T)0, width, (T)0, height, nearPlane, farPlane); }
@@ -58,12 +58,12 @@ template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T
 template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane)
 {
   return
-  {
+  atMatrix4x4<T>(
     (T)2 / (right - left),                0,                                0,                                               0,
     0,                                 (T)2 / (top - bottom),               0,                                               0,
     0,                                    0,                                2 / (farPlane - nearPlane),                      0,
     -(right + left) / (right - left),    -(top + bottom) / (top - bottom), -(farPlane + nearPlane) / (farPlane - nearPlane), 1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixRotationX(const T rads)
@@ -72,12 +72,12 @@ template <typename T> inline atMatrix4x4<T> atMatrixRotationX(const T rads)
   const T s = atSin(rads);
   return
 
-  {
+  atMatrix4x4<T>(
     1, 0, 0,  0,
     0, c, -s, 0,
     0, s, c,  0,
     0, 0, 0,  1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixRotationY(const T rads)
@@ -86,12 +86,12 @@ template <typename T> inline atMatrix4x4<T> atMatrixRotationY(const T rads)
   const T s = atSin(rads);
   return
 
-  {
+  atMatrix4x4<T>(
     c,  0, s, 0,
     0,  1, 0, 0,
     -s, 0, c, 0,
     0,  0, 0, 1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixRotationZ(const T rads)
@@ -100,12 +100,12 @@ template <typename T> inline atMatrix4x4<T> atMatrixRotationZ(const T rads)
   const T s = atSin(rads);
   return
 
-  {
+  atMatrix4x4<T>(
     c, -s, 0, 0,
     s, c,  0, 0,
     0, 0,  1, 0,
     0, 0,  0, 1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &axis, const T rads)
@@ -114,60 +114,60 @@ template <typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> 
   T s = atSin(rads);
   return
 
-  {
+  atMatrix4x4<T>(
     c + atSquare(axis.x) * (1 - c),         axis.x * axis.y * (1 - c) - axis.z * s, axis.x * axis.z * (1 - c) + axis.y * s, 0,
     axis.y * axis.x * (1 - c) + axis.z * s, c + atSquare(axis.y) * (1 - c),         axis.y * axis.z * (1 - c) - axis.x * s, 0,
     axis.z * axis.x * (1 - c) - axis.y * s, axis.z * axis.y * (1 - c) + axis.x * s, c + atSquare(axis.z) * (1 - c),         0,
     0,                                      0,                                      0,                                      1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation)
 {
   return 
 
-  {
+  atMatrix4x4<T>(
     1, 0, 0, translation.x,
     0, 1, 0, translation.y,
     0, 0, 1, translation.z,
     0, 0, 0, 1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixScale(const atVector3<T> &scale)
 {
   return
 
-  {
+  atMatrix4x4<T>(
     scale.x, 0,       0,       0,
     0,       scale.y, 0,       0,
     0,       0,       scale.z, 0,
     0,       0,       0,       1
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixScale(const atVector4<T> &scale)
 {
   return
 
-  {
+  atMatrix4x4<T>(
     scale.x, 0,       0,       0,
     0,       scale.y, 0,       0,
     0,       0,       scale.z, 0,
     0,       0,       0,       scale.w
-  };
+  );
 }
 
 template <typename T> inline atMatrix4x4<T> atMatrixScaleUniform(const T &scale)
 {
   return
 
-  {
+  atMatrix4x4<T>(
     1, 0, 0, 0, 
     0, 1, 0, 0, 
     0, 0, 1, 0, 
     0, 0, 0, (T)1 / scale
-  };
+  );
 }
 
 template <typename T> inline void atMatrixDecompose(const atMatrix4x4<T> &mat, atVector3<T>* pTranslation, atVector3<T>* pRotation, atVector3<T>* pScale)
