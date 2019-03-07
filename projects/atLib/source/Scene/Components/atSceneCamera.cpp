@@ -66,11 +66,31 @@ bool atSimpleCamera::OnUpdate(const double dt)
 void atSceneCamera::SetViewport(const atVec4I viewport)
 {
   m_viewport = viewport;
-  m_aspect = (double)(viewport.z) / (double)(vie port.w);
+  m_aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
-atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane) { m_translation = pos; m_rotation = rot; }
-atMat4D atSceneCamera::ProjectionMat() const { return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane); }
-void atSceneCamera::SetViewport(const atWindow *pWnd) { SetViewport(atVec4I(0, 0, pWnd->Width(), pWnd->Height())); }
-atMat4D atSimpleCamera::ViewMat() const { return TransformMat().Inverse(); }
-atVec4I atSceneCamera::Viewport() const { return m_viewport; }
+atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane) 
+{
+  m_translation = pos;
+  m_rotation = rot; 
+}
+
+atMat4D atSceneCamera::ProjectionMat() const 
+{
+  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane);
+}
+
+void atSceneCamera::SetViewport(const atWindow *pWnd)
+{
+  SetViewport(atVec4I(0, 0, pWnd->Width(), pWnd->Height()));
+}
+
+atMat4D atSimpleCamera::ViewMat() const
+{ 
+  return TransformMat().Inverse();
+}
+
+atVec4I atSceneCamera::Viewport() const 
+{
+  return m_viewport;
+}

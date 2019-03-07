@@ -1,4 +1,3 @@
-#include "atMatrix.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -24,15 +23,26 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T> &copy)
+template<typename T>
+inline T atMatrixDet2x2(T a, T b, T c, T d)
 {
-  memcpy(&m, &copy.m, sizeof(T) * 16);
+  return
+    (a * d) -
+    (b * c);
 }
 
 template<typename T>
-inline atMatrix4x4<T>::~atMatrix4x4()
+inline T atMatrixDet3x3(T a, T b, T c, T d, T e, T f, T g, T h, T i)
 {
-  m[0] = 1;
+  return
+    a * atMatrixDet2x2(e, f, h, i) -
+    b * atMatrixDet2x2(d, f, g, i) +
+    c * atMatrixDet2x2(d, e, g, h);
+}
+
+template <typename T> atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T> &copy)
+{
+  memcpy(&m, &copy.m, sizeof(T) * 16);
 }
 
 template <typename T> inline atMatrix4x4<T>::atMatrix4x4(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23, T _30, T _31, T _32, T _33)
@@ -77,30 +87,59 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Transpose() const
 template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Cofactors() const
 {
   return atMatrix4x4<T>(
-     m[0]  * (m[5] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[9] * m[15] - m[11] * m[13]) + m[7] * (m[9] * m[14] - m[10] * m[13])),
-    -m[1]  * (m[4] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[14] - m[10] * m[12])),
-     m[2]  * (m[4] * (m[9]  * m[15] - m[11] * m[13]) - m[5] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[13] - m[9]  * m[12])),
-    -m[3]  * (m[4] * (m[9]  * m[14] - m[10] * m[13]) - m[5] * (m[8] * m[14] - m[10] * m[12]) + m[6] * (m[8] * m[13] - m[9]  * m[12])),
-    -m[4]  * (m[1] * (m[10] * m[15] - m[11] * m[14]) - m[2] * (m[9] * m[15] - m[11] * m[13]) + m[3] * (m[9] * m[14] - m[10] * m[13])),
-     m[5]  * (m[0] * (m[10] * m[15] - m[11] * m[14]) - m[2] * (m[8] * m[15] - m[11] * m[12]) + m[3] * (m[8] * m[14] - m[10] * m[12])),
-    -m[6]  * (m[0] * (m[9]  * m[15] - m[11] * m[13]) - m[1] * (m[8] * m[15] - m[11] * m[12]) + m[3] * (m[8] * m[13] - m[9]  * m[12])),
-     m[7]  * (m[0] * (m[9]  * m[14] - m[10] * m[13]) - m[1] * (m[8] * m[14] - m[10] * m[12]) + m[2] * (m[8] * m[13] - m[9]  * m[12])),
-     m[8]  * (m[1] * (m[6]  * m[15] - m[7]  * m[14]) - m[2] * (m[5] * m[15] - m[7]  * m[13]) + m[3] * (m[5] * m[14] - m[6]  * m[13])),
-    -m[9]  * (m[0] * (m[6]  * m[15] - m[7]  * m[14]) - m[2] * (m[8] * m[15] - m[7]  * m[12]) + m[3] * (m[8] * m[14] - m[6]  * m[12])),
-     m[10] * (m[0] * (m[5]  * m[15] - m[7]  * m[13]) - m[1] * (m[8] * m[15] - m[7]  * m[12]) + m[3] * (m[8] * m[13] - m[5]  * m[12])),
-    -m[11] * (m[0] * (m[5]  * m[14] - m[6]  * m[13]) - m[1] * (m[8] * m[14] - m[6]  * m[12]) + m[2] * (m[8] * m[13] - m[5]  * m[12])),
-    -m[12] * (m[1] * (m[6]  * m[11] - m[7]  * m[10]) - m[2] * (m[5] * m[11] - m[7]  * m[9])  + m[3] * (m[5] * m[10] - m[6]  * m[9])),
-     m[9]  * (m[0] * (m[6]  * m[11] - m[7]  * m[10]) - m[2] * (m[8] * m[11] - m[7]  * m[12]) + m[3] * (m[8] * m[10] - m[6]  * m[12])),
-    -m[10] * (m[0] * (m[5]  * m[11] - m[7]  * m[9])  - m[1] * (m[8] * m[11] - m[7]  * m[12]) + m[3] * (m[8] * m[9]  - m[5]  * m[12])),
-     m[11] * (m[0] * (m[5]  * m[10] - m[6]  * m[9])  - m[1] * (m[8] * m[10] - m[6]  * m[12]) + m[2] * (m[8] * m[9]  - m[5]  * m[12]))
+    atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]),
+    -atMatrixDet3x3(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]),
+    atMatrixDet3x3(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15]),
+    -atMatrixDet3x3(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]),
+    
+    -atMatrixDet3x3(m[1], m[2], m[3], m[9], m[10], m[11], m[13], m[14], m[15]),
+    atMatrixDet3x3(m[0], m[2], m[3], m[8], m[10], m[11], m[12], m[14], m[15]),
+    -atMatrixDet3x3(m[0], m[1], m[3], m[8], m[9], m[11], m[12], m[13], m[15]),
+    atMatrixDet3x3(m[0], m[1], m[2], m[8], m[9], m[10], m[12], m[13], m[14]),
+
+    atMatrixDet3x3(m[1], m[2], m[3], m[5], m[6],  m[7], m[13], m[14], m[15]),
+    -atMatrixDet3x3(m[0], m[2], m[3], m[4], m[6], m[7], m[12], m[14], m[15]),
+    atMatrixDet3x3(m[0], m[1], m[3], m[4], m[5], m[7], m[12], m[13], m[15]),
+    -atMatrixDet3x3(m[0], m[1], m[2], m[4], m[5], m[6], m[12], m[13], m[14]),
+    
+    -atMatrixDet3x3(m[1], m[2], m[3], m[5], m[6], m[7], m[9], m[10], m[11]),
+    atMatrixDet3x3(m[0], m[2], m[3], m[4], m[6], m[7], m[8], m[10], m[11]),
+    -atMatrixDet3x3(m[0], m[1], m[3], m[4], m[5], m[7], m[8], m[9], m[11]),
+    atMatrixDet3x3(m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10])
   );
 }
+//
+//m[0] * m[5] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[9] * m[15] - m[11] * m[13]) + m[7] * (m[9] * m[14] - m[10] * m[13])),
+//m[1] * (m[4] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[14] - m[10] * m[12])),
+//m[2] * (m[4] * (m[9] * m[15] - m[11] * m[13]) - m[5] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[13] - m[9] * m[12])),
+//m[3] * (m[4] * (m[9] * m[14] - m[10] * m[13]) - m[5] * (m[8] * m[14] - m[10] * m[12]) + m[6] * (m[8] * m[13] - m[9] * m[12])),
+//
+//m[4] * (m[1] * (m[10] * m[15] - m[11] * m[14]) - m[2] * (m[9] * m[15] - m[11] * m[13]) + m[3] * (m[9] * m[14] - m[10] * m[13])),
+//m[5] * (m[0] * (m[10] * m[15] - m[11] * m[14]) - m[2] * (m[8] * m[15] - m[11] * m[12]) + m[3] * (m[8] * m[14] - m[10] * m[12])),
+//m[6] * (m[0] * (m[9] * m[15] - m[11] * m[13]) - m[1] * (m[8] * m[15] - m[11] * m[12]) + m[3] * (m[8] * m[13] - m[9] * m[12])),
+//m[7] * (m[0] * (m[9] * m[14] - m[10] * m[13]) - m[1] * (m[8] * m[14] - m[10] * m[12]) + m[2] * (m[8] * m[13] - m[9] * m[12])),
+//
+//m[8] * (m[1] * (m[6] * m[15] - m[7] * m[14]) - m[2] * (m[5] * m[15] - m[7] * m[13]) + m[3] * (m[5] * m[14] - m[6] * m[13])),
+//m[9] * (m[0] * (m[6] * m[15] - m[7] * m[14]) - m[2] * (m[4] * m[15] - m[7] * m[12]) + m[3] * (m[4] * m[14] - m[6] * m[12])),
+//m[10] * (m[0] * (m[5] * m[15] - m[7] * m[13]) - m[1] * (m[4] * m[15] - m[7] * m[12]) + m[3] * (m[4] * m[13] - m[5] * m[12])),
+//m[11] * (m[0] * (m[5] * m[14] - m[6] * m[13]) - m[1] * (m[4] * m[14] - m[6] * m[12]) + m[2] * (m[4] * m[13] - m[5] * m[12])),
+//
+//m[12] * (m[1] * (m[6] * m[11] - m[7] * m[10]) - m[2] * (m[5] * m[11] - m[7] * m[9]) + m[3] * (m[5] * m[10] - m[6] * m[9])),
+//m[13] * (m[0] * (m[6] * m[11] - m[7] * m[10]) - m[2] * (m[4] * m[11] - m[7] * m[8]) + m[3] * (m[4] * m[10] - m[6] * m[8])),
+//m[14] * (m[0] * (m[5] * m[11] - m[7] * m[9]) - m[1] * (m[4] * m[11] - m[7] * m[8]) + m[3] * (m[4] * m[9] - m[5] * m[8])),
+//m[15] * (m[0] * (m[5] * m[10] - m[6] * m[9]) - m[1] * (m[4] * m[10] - m[6] * m[8]) + m[2] * (m[4] * m[9] - m[5] * m[8]))
+
 template <typename T> T atMatrix4x4<T>::Determinate() const
 {
-  return m[0] * (m[5] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[9] * m[15] - m[11] * m[13]) + m[7] * (m[9] * m[14] - m[10] * m[13]))  
-       - m[1] * (m[4] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[14] - m[10] * m[12]))
-       + m[2] * (m[4] * (m[9]  * m[15] - m[11] * m[13]) - m[5] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[13] - m[9]  * m[12]))
-       - m[3] * (m[4] * (m[9]  * m[14] - m[10] * m[13]) - m[5] * (m[8] * m[14] - m[10] * m[12]) + m[6] * (m[8] * m[13] - m[9]  * m[12]));
+  return m[0] * atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15])
+    - m[1] * atMatrixDet3x3(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15])
+    + m[2] * atMatrixDet3x3(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15])
+    - m[3] * atMatrixDet3x3(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
+
+  // return m[0] * (m[5] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[9] * m[15] - m[11] * m[13]) + m[7] * (m[9] * m[14] - m[10] * m[13]))  
+  //      - m[1] * (m[4] * (m[10] * m[15] - m[11] * m[14]) - m[6] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[14] - m[10] * m[12]))
+  //      + m[2] * (m[4] * (m[9]  * m[15] - m[11] * m[13]) - m[5] * (m[8] * m[15] - m[11] * m[12]) + m[7] * (m[8] * m[13] - m[9]  * m[12]))
+  //      - m[3] * (m[4] * (m[9]  * m[14] - m[10] * m[13]) - m[5] * (m[8] * m[14] - m[10] * m[12]) + m[6] * (m[8] * m[13] - m[9]  * m[12]));
 }
 
 template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &rhs) const
@@ -110,18 +149,21 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &r
     m[0]  * rhs.m[1] + m[1]  * rhs.m[5] + m[2]  * rhs.m[9]  + m[3]  * rhs.m[13],
     m[0]  * rhs.m[2] + m[1]  * rhs.m[6] + m[2]  * rhs.m[10] + m[3]  * rhs.m[14],
     m[0]  * rhs.m[3] + m[1]  * rhs.m[7] + m[2]  * rhs.m[11] + m[3]  * rhs.m[15],
-    m[4]  * rhs.m[0] + m[5]  * rhs.m[0] + m[6]  * rhs.m[8]  + m[7]  * rhs.m[12],
-    m[4]  * rhs.m[1] + m[5]  * rhs.m[1] + m[6]  * rhs.m[9]  + m[7]  * rhs.m[13],
-    m[4]  * rhs.m[2] + m[5]  * rhs.m[2] + m[6]  * rhs.m[10] + m[7]  * rhs.m[14],
-    m[4]  * rhs.m[3] + m[5]  * rhs.m[3] + m[6]  * rhs.m[11] + m[7]  * rhs.m[15],
-    m[8]  * rhs.m[0] + m[9]  * rhs.m[0] + m[10] * rhs.m[8]  + m[11] * rhs.m[12],
-    m[8]  * rhs.m[1] + m[9]  * rhs.m[1] + m[10] * rhs.m[9]  + m[11] * rhs.m[13],
-    m[8]  * rhs.m[2] + m[9]  * rhs.m[2] + m[10] * rhs.m[10] + m[12] * rhs.m[14],
-    m[8]  * rhs.m[3] + m[9]  * rhs.m[3] + m[10] * rhs.m[11] + m[12] * rhs.m[15],
-    m[12] * rhs.m[0] + m[13] * rhs.m[0] + m[14] * rhs.m[8]  + m[15] * rhs.m[12],
-    m[12] * rhs.m[1] + m[13] * rhs.m[1] + m[14] * rhs.m[9]  + m[15] * rhs.m[13],
-    m[12] * rhs.m[2] + m[13] * rhs.m[2] + m[14] * rhs.m[10] + m[15] * rhs.m[14],
-    m[12] * rhs.m[3] + m[13] * rhs.m[3] + m[14] * rhs.m[11] + m[15] * rhs.m[15]
+
+    m[4]  * rhs.m[0] + m[5]  * rhs.m[4] + m[6]  * rhs.m[8]  + m[7]  * rhs.m[12],
+    m[4]  * rhs.m[1] + m[5]  * rhs.m[5] + m[6]  * rhs.m[9]  + m[7]  * rhs.m[13],
+    m[4]  * rhs.m[2] + m[5]  * rhs.m[6] + m[6]  * rhs.m[10] + m[7]  * rhs.m[14],
+    m[4]  * rhs.m[3] + m[5]  * rhs.m[7] + m[6]  * rhs.m[11] + m[7]  * rhs.m[15],
+
+    m[8]  * rhs.m[0] + m[9]  * rhs.m[4] + m[10] * rhs.m[8]  + m[11] * rhs.m[12],
+    m[8]  * rhs.m[1] + m[9]  * rhs.m[5] + m[10] * rhs.m[9]  + m[11] * rhs.m[13],
+    m[8]  * rhs.m[2] + m[9]  * rhs.m[6] + m[10] * rhs.m[10] + m[11] * rhs.m[14],
+    m[8]  * rhs.m[3] + m[9]  * rhs.m[7] + m[10] * rhs.m[11] + m[11] * rhs.m[15],
+
+    m[12] * rhs.m[0] + m[13] * rhs.m[4] + m[14] * rhs.m[8]  + m[15] * rhs.m[12],
+    m[12] * rhs.m[1] + m[13] * rhs.m[5] + m[14] * rhs.m[9]  + m[15] * rhs.m[13],
+    m[12] * rhs.m[2] + m[13] * rhs.m[6] + m[14] * rhs.m[10] + m[15] * rhs.m[14],
+    m[12] * rhs.m[3] + m[13] * rhs.m[7] + m[14] * rhs.m[11] + m[15] * rhs.m[15]
   );
 }
 
@@ -142,19 +184,21 @@ template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(
     m[0]  * (T)rhs.m[1] + m[1]  * (T)rhs.m[5] + m[2]  * (T)rhs.m[9]  + m[3]  * (T)rhs.m[13],
     m[0]  * (T)rhs.m[2] + m[1]  * (T)rhs.m[6] + m[2]  * (T)rhs.m[10] + m[3]  * (T)rhs.m[14],
     m[0]  * (T)rhs.m[3] + m[1]  * (T)rhs.m[7] + m[2]  * (T)rhs.m[11] + m[3]  * (T)rhs.m[15],
-    m[4]  * (T)rhs.m[0] + m[5]  * (T)rhs.m[0] + m[6]  * (T)rhs.m[8]  + m[7]  * (T)rhs.m[12],
-    m[4]  * (T)rhs.m[1] + m[5]  * (T)rhs.m[1] + m[6]  * (T)rhs.m[9]  + m[7]  * (T)rhs.m[13],
-    m[4]  * (T)rhs.m[2] + m[5]  * (T)rhs.m[2] + m[6]  * (T)rhs.m[10] + m[7]  * (T)rhs.m[14],
-    m[4]  * (T)rhs.m[3] + m[5]  * (T)rhs.m[3] + m[6]  * (T)rhs.m[11] + m[7]  * (T)rhs.m[15],
-    m[8]  * (T)rhs.m[0] + m[9]  * (T)rhs.m[0] + m[10] * (T)rhs.m[8]  + m[11] * (T)rhs.m[12],
-    m[8]  * (T)rhs.m[1] + m[9]  * (T)rhs.m[1] + m[10] * (T)rhs.m[9]  + m[11] * (T)rhs.m[13],
-    m[8]  * (T)rhs.m[2] + m[9]  * (T)rhs.m[2] + m[10] * (T)rhs.m[10] + m[12] * (T)rhs.m[14],
-    m[8]  * (T)rhs.m[3] + m[9]  * (T)rhs.m[3] + m[10] * (T)rhs.m[11] + m[12] * (T)rhs.m[15],
-    m[12] * (T)rhs.m[0] + m[13] * (T)rhs.m[0] + m[14] * (T)rhs.m[8]  + m[15] * (T)rhs.m[12],
-    m[12] * (T)rhs.m[1] + m[13] * (T)rhs.m[1] + m[14] * (T)rhs.m[9]  + m[15] * (T)rhs.m[13],
-    m[12] * (T)rhs.m[2] + m[13] * (T)rhs.m[2] + m[14] * (T)rhs.m[10] + m[15] * (T)rhs.m[14],
-    m[12] * (T)rhs.m[3] + m[13] * (T)rhs.m[3] + m[14] * (T)rhs.m[11] + m[15] * (T)rhs.m[15]
-  );
+
+    m[4]  * (T)rhs.m[0] + m[5]  * (T)rhs.m[4] + m[6]  * (T)rhs.m[8]  + m[7]  * (T)rhs.m[12],
+    m[4]  * (T)rhs.m[1] + m[5]  * (T)rhs.m[5] + m[6]  * (T)rhs.m[9]  + m[7]  * (T)rhs.m[13],
+    m[4]  * (T)rhs.m[2] + m[5]  * (T)rhs.m[6] + m[6]  * (T)rhs.m[10] + m[7]  * (T)rhs.m[14],
+    m[4]  * (T)rhs.m[3] + m[5]  * (T)rhs.m[7] + m[6]  * (T)rhs.m[11] + m[7]  * (T)rhs.m[15],
+
+    m[8]  * (T)rhs.m[0] + m[9]  * (T)rhs.m[4] + m[10] * (T)rhs.m[8]  + m[11] * (T)rhs.m[12],
+    m[8]  * (T)rhs.m[1] + m[9]  * (T)rhs.m[5] + m[10] * (T)rhs.m[9]  + m[11] * (T)rhs.m[13],
+    m[8]  * (T)rhs.m[2] + m[9]  * (T)rhs.m[6] + m[10] * (T)rhs.m[10] + m[12] * (T)rhs.m[14],
+    m[8]  * (T)rhs.m[3] + m[9]  * (T)rhs.m[7] + m[10] * (T)rhs.m[11] + m[12] * (T)rhs.m[15],
+
+    m[12] * (T)rhs.m[0] + m[13] * (T)rhs.m[4] + m[14] * (T)rhs.m[8]  + m[15] * (T)rhs.m[12],
+    m[12] * (T)rhs.m[1] + m[13] * (T)rhs.m[5] + m[14] * (T)rhs.m[9]  + m[15] * (T)rhs.m[13],
+    m[12] * (T)rhs.m[2] + m[13] * (T)rhs.m[6] + m[14] * (T)rhs.m[10] + m[15] * (T)rhs.m[14],
+    m[12] * (T)rhs.m[3] + m[13] * (T)rhs.m[7] + m[14] * (T)rhs.m[11] + m[15] * (T)rhs.m[15]);
 }
 
 template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Add(const atMatrix4x4<T2> &rhs) const

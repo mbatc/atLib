@@ -5,7 +5,7 @@ template <typename T> inline atVector4<T>::atVector4()
   , w(0)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(T val)
+template <typename T> inline atVector4<T>::atVector4(T val)
   : x(val)
   , y(val)
   , z(val)
@@ -24,8 +24,7 @@ template <typename T> inline atVector4<T>::atVector4(const atVector3<T>& xyz, T 
   , y(xyz.y)
   , z(xyz.z)
   , w(_w)
-{
-}
+{}
 
 template <typename T> inline atVector4<T>::atVector4(T _x, const atVector3<T>& yzw)
   : x(_x)
