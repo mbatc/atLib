@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atMath.h"
+#include <math.h>
 
 template <> atTypeDesc atGetTypeDesc<atVector2<float>>() { return{ atGetType<float>(), 2 }; }
 template <> atTypeDesc atGetTypeDesc<atVector3<float>>() { return{ atGetType<float>(), 3 }; }
@@ -49,13 +50,8 @@ template <> atTypeDesc atGetTypeDesc<atVector2<int16_t>>() { return{ atGetType<i
 template <> atTypeDesc atGetTypeDesc<atVector3<int16_t>>() { return{ atGetType<int16_t>(), 3 }; }
 template <> atTypeDesc atGetTypeDesc<atVector4<int16_t>>() { return{ atGetType<int16_t>(), 4 }; }
 
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 2, 2>>() { return{ atGetType<double>(), 4}; }
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 3, 3>>() { return{ atGetType<double>(), 9}; }
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 4, 4>>() { return{ atGetType<double>(), 16 }; }
-
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 2, 2>>() { return{ atGetType<float>(), 4 }; }
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 3, 3>>() { return{ atGetType<float>(), 9 }; }
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 4, 4>>() { return{ atGetType<float>(), 16 }; }
+template <> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>() { return{ atGetType<double>(), 16 }; }
+template <> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>() { return{ atGetType<float>(), 16 }; }
 
 template <> inline float atMod(const float a, const float b) { return fmodf(a, b); }
 template <> inline double atMod(const double a, const double b) { return fmodl(a, b); }

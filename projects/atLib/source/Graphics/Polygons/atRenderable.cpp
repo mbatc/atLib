@@ -32,15 +32,11 @@ void atRenderable::SetUniform(const atString &name, const uint32_t val) { m_core
 void atRenderable::SetUniform(const atString &name, const atVec2F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atVec3F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atVec4F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
-void atRenderable::SetUniform(const atString &name, const atMat2F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
-void atRenderable::SetUniform(const atString &name, const atMat3F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atMat4F &val) { m_core.SetChannel(name, val, atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const double val) { m_core.SetChannel(name, (float)val, atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atVec2D &val) { m_core.SetChannel(name, atVec2F(val), atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atVec3D &val) { m_core.SetChannel(name, atVec3F(val), atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atVec4D &val) { m_core.SetChannel(name, atVec4F(val), atRRT_Variable); }
-void atRenderable::SetUniform(const atString &name, const atMat2D &val) { m_core.SetChannel(name, atMat2F(val), atRRT_Variable); }
-void atRenderable::SetUniform(const atString &name, const atMat3D &val) { m_core.SetChannel(name, atMat3F(val), atRRT_Variable); }
 void atRenderable::SetUniform(const atString &name, const atMat4D &val) { m_core.SetChannel(name, atMat4F(val), atRRT_Variable); }
 
 bool atRenderable::HasChannel(const atString &name) { return m_core.HasResource(name); }

@@ -214,7 +214,7 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
     float L = pDrawData->DisplayPos.x;
     float T = pDrawData->DisplayPos.y;
     atMat4F ortho = atMatrixOrtho(L, L + pDrawData->DisplaySize.x, T, T + pDrawData->DisplaySize.y, -0.5f, 0.5f);
-    atShaderPool::SetVariable(_shaderID, "ProjectionMatrix", &ortho.m_data, sizeof(ortho.m_data));
+    atShaderPool::SetVariable(_shaderID, "ProjectionMatrix", &ortho.m, sizeof(ortho.m));
   }
   return true;
 }

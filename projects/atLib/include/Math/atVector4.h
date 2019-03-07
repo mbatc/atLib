@@ -31,132 +31,118 @@
 template <typename T> class atVector4
 {
 public:
-  template <typename T> using VecType = atVector4<T>;
+  atVector4();
+  atVector4(T val);
+  atVector4(T _x, T _y, T _z, T _w);
+  atVector4(const atVector3<T> &xyz, T _w);
+  atVector4(T _x, const atVector3<T> &yzw);
+  atVector4(T _x, T _y, const atVector2<T> &zw);
+  atVector4(T _x, const atVector2<T> &yz, T _w);
+  atVector4(const atVector2<T> &xy, T _z, T _w);
+  atVector4(const atVector2<T> &xy, const atVector2<T> &yw);
 
-  static const int64_t element_count = 4;
+  template <typename T2> atVector4(T2 val);
+  template <typename T2> atVector4(T2 _x, T2 _y, T2 _z, T2 _w);
+  template <typename T2> atVector4(const atVector3<T2> &xyz, T2 _w);
+  template <typename T2> atVector4(T2 _x, const atVector3<T2> &yzw);
+  template <typename T2> atVector4(T2 _x, T2 _y, const atVector2<T2> &zw);
+  template <typename T2> atVector4(T2 _x, const atVector2<T2> &yz, T2 _w);
+  template <typename T2> atVector4(const atVector2<T2> &xy, T2 _z, T2 _w);
+  template <typename T2> atVector4(const atVector2<T2> &xy, const atVector2<T2> &yw);
+  template <typename T2> atVector4(atVector4<T2> copy);
 
-  atVector4() : x(0), y(0), z(0), w(0) {}
-  atVector4(const T _x, const T _y, const T _z, const T _w) : x(_x), y(_y), z(_z), w(_w) {}
-  atVector4(const VecType<T> &copy) : x(copy.x), y(copy.y), z(copy.z), w(copy.w) {}
+  atVector4(const atVector4<T> &copy);
+  atVector4(atVector4<T> &&move);
 
-  atVector4(VecType<T> &&move)
-  {
-    memcpy(data(), move.data(), sizeof(T) * 4);
-    memset(move.data(), 0, sizeof(T) * 4);
-  }
+  static atVector4<T> zero();
+  static atVector4<T> one();
 
-  template <typename T2> atVector4(const std::initializer_list<T2> &list)
-  {
-    for (int64_t i = 0; i < element_count && i < (int64_t)list.size(); ++i)
-      data()[i] = (T)*(list.begin() + i);
-  }
+  template <typename T2> const atVector4<T>& assign(T2 _x, T2 _y, T2 _z, T2 _w);
+  template <typename T2> const atVector4<T>& assign(const atVector4<T2> &rhs);
+  const atVector4<T>& assign(T x, T y, T z, T w);
+  const atVector4<T>& assign(const atVector4<T> &rhs);
 
-  template <typename T2> atVector4(const T2 val) : x((T)val), y((T)val), z((T)val), w((T)val) {}
-  template <typename T2> atVector4(const T2 _x, const T2 _y, const T2 _z, const T2 _w) : x((T)_x), y((T)_y), z((T)_z), w((T)_w) {}
-  template <typename T2> atVector4(const VecType<T2> &copy) { assign(copy); }
-  template <typename T2> atVector4(const atVector2<T2> &vec2, const T2 _z, const T2 _w) { assign(vec2.x, vec2.y, _z, _w); }
-  template <typename T2> atVector4(const T2 _x, const atVector2<T2> &vec2, const T2 _w) { assign(_x, vec2.x, vec2.y, _w); }
-  template <typename T2> atVector4(const T2 _x, const T2 _y, const atVector2<T2> &vec2) { assign(_x, _y, vec2.x, vec2.y); }
-  template <typename T2> atVector4(const atVector2<T2> &vec, const atVector2<T2> &vec2) { assign(vec.x, vec.y, vec2.x, vec2.y); }
-  template <typename T2> atVector4(const atVector3<T2> &vec3, const T2 _w) { assign(vec3.x, vec3.y, vec3.z, _w); }
-  template <typename T2> atVector4(const T2 _x, const atVector3<T2> &vec3) { assign(_x, vec3.x, vec3.y, vec3.z); }
+  T& operator[](const int64_t index);
+  const T& operator[](const int64_t index) const;
 
-  static VecType<T> zero() { return VecType<T>(0, 0, 0, 0); }
-  static VecType<T> one() { return VecType<T>(1, 1, 1, 1); }
+  atVector4<T> operator-() const;
+  atVector4<T> operator+(const atVector4<T> &rhs) const;
+  atVector4<T> operator-(const atVector4<T> &rhs) const;
+  atVector4<T> operator*(const atVector4<T> &rhs) const;
+  atVector4<T> operator/(const atVector4<T> &rhs) const;
+  atVector4<T> operator%(const atVector4<T> &rhs) const;
+  const atVector4<T>& operator+=(const atVector4<T> &rhs);
+  const atVector4<T>& operator-=(const atVector4<T> &rhs);
+  const atVector4<T>& operator*=(const atVector4<T> &rhs);
+  const atVector4<T>& operator/=(const atVector4<T> &rhs);
+  const atVector4<T>& operator%=(const atVector4<T> &rhs);
+  const atVector4<T>& operator=(const atVector4<T> &rhs);
+  bool operator==(const atVector4<T> &rhs) const;
+  bool operator!=(const atVector4<T> &rhs) const;
 
-  template <typename T2> void assign(const T2 _x, const T2 _y, const T2 _z, const T2 _w) { x = (T)_x; y = (T)_y; z = (T)_z; w = (T)_w; }
-  template <typename T2> void assign(const VecType<T2> &rhs) { atVectorMath::Assign(this, rhs); }
-  void assign(const T x, const T y) { assign<T>(x, y, z, w); }
-  void assign(const VecType<T> &rhs) { assign<T>(rhs); }
+  template <typename T2> atVector4<T> operator+(const atVector4<T2> &rhs) const;
+  template <typename T2> atVector4<T> operator-(const atVector4<T2> &rhs) const;
+  template <typename T2> atVector4<T> operator*(const atVector4<T2> &rhs) const;
+  template <typename T2> atVector4<T> operator/(const atVector4<T2> &rhs) const;
+  template <typename T2> atVector4<T> operator%(const atVector4<T2> &rhs) const;
+  template <typename T2> const atVector4<T>& operator+=(const atVector4<T2> &rhs);
+  template <typename T2> const atVector4<T>& operator-=(const atVector4<T2> &rhs);
+  template <typename T2> const atVector4<T>& operator*=(const atVector4<T2> &rhs);
+  template <typename T2> const atVector4<T>& operator/=(const atVector4<T2> &rhs);
+  template <typename T2> const atVector4<T>& operator%=(const atVector4<T2> &rhs);
+  template <typename T2> const atVector4<T>& operator=(const atVector4<T2> &rhs);
 
-  T& operator[](const int64_t index) { return data()[index]; }
-  const T& operator[](const int64_t index) const { return data()[index]; }
+  template <typename T2> atVector4<T> operator+(const T2 &rhs) const;
+  template <typename T2> atVector4<T> operator-(const T2 &rhs) const;
+  template <typename T2> atVector4<T> operator*(const T2 &rhs) const;
+  template <typename T2> atVector4<T> operator/(const T2 &rhs) const;
+  template <typename T2> atVector4<T> operator%(const T2 &rhs) const;
+  template <typename T2> const atVector4<T>& operator+=(const T2 &rhs);
+  template <typename T2> const atVector4<T>& operator-=(const T2 &rhs);
+  template <typename T2> const atVector4<T>& operator*=(const T2 &rhs);
+  template <typename T2> const atVector4<T>& operator/=(const T2 &rhs);
+  template <typename T2> const atVector4<T>& operator%=(const T2 &rhs);
+  template <typename T2> const atVector4<T>& operator=(const T2 &rhs);
 
+  atVector2<T> xy() const;
+  atVector2<T> xz() const;
+  atVector2<T> xw() const;
+  atVector2<T> yz() const;
+  atVector2<T> yw() const;
+  atVector2<T> zw() const;
+  atVector3<T> xyz() const;
+  atVector3<T> xzw() const;
+  atVector3<T> xyw() const;
+  atVector3<T> yzw() const;
 
-  VecType<T> operator-() const { return atVectorMath::Subtract(VecType<T>::zero(), *this); }
-  VecType<T> operator+(const VecType<T> &rhs) const { return atVectorMath::Add(*this, rhs); }
-  VecType<T> operator-(const VecType<T> &rhs) const { return atVectorMath::Subtract(*this, rhs); }
-  VecType<T> operator*(const VecType<T> &rhs) const { return atVectorMath::Multiply(*this, rhs); }
-  VecType<T> operator/(const VecType<T> &rhs) const { return atVectorMath::Divide(*this, rhs); }
-  VecType<T> operator%(const VecType<T> &rhs) const { return{ atMod(x, rhs.x), atMod(y, rhs.y), atMod(z, rhs.z), atMod(w, rhs.w) }; }
-  VecType<T> operator+=(const VecType<T> &rhs) { *this = *this + rhs; return *this; }
-  VecType<T> operator-=(const VecType<T> &rhs) { *this = *this - rhs; return *this; }
-  VecType<T> operator*=(const VecType<T> &rhs) { *this = *this * rhs; return *this; }
-  VecType<T> operator/=(const VecType<T> &rhs) { *this = *this / rhs; return *this; }
-  VecType<T> operator%=(const VecType<T> &rhs) { *this = *this % rhs; return *this; }
-  VecType<T> operator=(const VecType<T> &rhs) { return atVectorMath::Assign(this, rhs); }
-  bool operator==(const VecType<T> &rhs) const { return atVectorMath::Equals(*this, rhs); }
-  bool operator!=(const VecType<T> &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
+  atVector4<T> Add(const atVector4<T> &rhs) const;
+  atVector4<T> Sub(const atVector4<T> &rhs) const;
+  atVector4<T> Mul(const atVector4<T> &rhs) const;
+  atVector4<T> Div(const atVector4<T> &rhs) const;
 
-  template <typename T2> VecType<T> operator+(const VecType<T2> &rhs) const { return atVectorMath::Add(*this, rhs); }
-  template <typename T2> VecType<T> operator-(const VecType<T2> &rhs) const { return atVectorMath::Subtract(*this, rhs); }
-  template <typename T2> VecType<T> operator*(const VecType<T2> &rhs) const { return atVectorMath::Multiply(*this, rhs); }
-  template <typename T2> VecType<T> operator/(const VecType<T2> &rhs) const { return atVectorMath::Divide(*this, rhs); }
-  template <typename T2> VecType<T> operator%(const VecType<T2> &rhs) const { return{ atMod(x, (T)rhs.x), atMod(y, (T)rhs.y), atMod(z, (T)rhs.z), atMod(w, (T)rhs.w) }; }
-  template <typename T2> VecType<T> operator+=(const VecType<T2> &rhs) { *this = *this + rhs; return *this; }
-  template <typename T2> VecType<T> operator-=(const VecType<T2> &rhs) { *this = *this - rhs; return *this; }
-  template <typename T2> VecType<T> operator*=(const VecType<T2> &rhs) { *this = *this * rhs; return *this; }
-  template <typename T2> VecType<T> operator/=(const VecType<T2> &rhs) { *this = *this / rhs; return *this; }
-  template <typename T2> VecType<T> operator%=(const VecType<T2> &rhs) { *this = *this % rhs; return *this; }
-  template <typename T2> VecType<T> operator=(const VecType<T2> &rhs) { return atVectorMath::Assign(this, rhs); }
-  template <typename T2> bool operator==(const VecType<T2> &rhs) const { return atVectorMath::Equals(*this, rhs); }
-  template <typename T2> bool operator!=(const VecType<T2> &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
+  T Mag() const;
+  T Length() const;
+  T Dot(const atVector4<T> &rhs) const;
+  T Angle(const atVector4<T> &rhs) const;
 
-  template <typename T2> VecType<T> operator+(const T2 &rhs) const { return atVectorMath::Add(*this, rhs); }
-  template <typename T2> VecType<T> operator-(const T2 &rhs) const { return atVectorMath::Subtract(*this, rhs); }
-  template <typename T2> VecType<T> operator*(const T2 &rhs) const { return atVectorMath::Multiply(*this, rhs); }
-  template <typename T2> VecType<T> operator/(const T2 &rhs) const { return atVectorMath::Divide(*this, rhs); }
-  template <typename T2> VecType<T> operator%(const T2 &rhs) const { return{ atMod(x, (T)rhs), atMod(y, (T)rhs), atMod(z, (T)rhs), atMod(w, (T)rhs) }; }
-  template <typename T2> VecType<T> operator+=(const T2 &rhs) { *this = *this + rhs; return *this; }
-  template <typename T2> VecType<T> operator-=(const T2 &rhs) { *this = *this - rhs; return *this; }
-  template <typename T2> VecType<T> operator*=(const T2 &rhs) { *this = *this * rhs; return *this; }
-  template <typename T2> VecType<T> operator/=(const T2 &rhs) { *this = *this / rhs; return *this; }
-  template <typename T2> VecType<T> operator%=(const T2 &rhs) { *this = *this % rhs; return *this; }
-  template <typename T2> VecType<T> operator=(const T2 &rhs) { return atVectorMath::Assign(this, rhs); }
-  template <typename T2> bool operator==(const T2 &rhs) const { return atVectorMath::Equals(*this, rhs); }
-  template <typename T2> bool operator!=(const T2 &rhs) const { return atVectorMath::NotEqual(*this, rhs); }
+  atVector4<T> Normalize() const;
+  atVector4<T> Reflect(const atVector4<T> &norm) const;
 
-  operator atMatrix<T, 4, 1>() const { return atMatrix<T, 4, 1>( { x ,y ,z ,w } ); }
+  static T Mag(const atVector4<T> &rhs);
+  static T Length(const atVector4<T> &rhs);
+  static T Dot(const atVector4<T> &lhs, const atVector4<T> &rhs);
+  static T Angle(const atVector4<T> &lhs, const atVector4<T> &rhs);
 
-  atVector2<T> xy() const { return atVector2<T>(x, y); }
-  atVector2<T> xz() const { return atVector2<T>(x, z); }
-  atVector2<T> xw() const { return atVector2<T>(x, w); }
-  atVector2<T> yz() const { return atVector2<T>(y, z); }
-  atVector2<T> yw() const { return atVector2<T>(y, w); }
-  atVector2<T> zw() const { return atVector2<T>(z, w); }
-  atVector3<T> xyz() const { return atVector3<T>(x, y, z); }
-  atVector3<T> xzw() const { return atVector3<T>(x, z, w); }
-  atVector3<T> xyw() const { return atVector3<T>(x, y, w); }
-  atVector3<T> yzw() const { return atVector3<T>(y, z, w); }
+  static atVector4<T> Reflect(const atVector4<T> &dir, const atVector4<T> &norm);
+  static atVector4<T> Normalize(const atVector4<T> &rhs);
 
-  VecType<T> Add(const VecType<T> &rhs) { return *this = atVectorMath::Add(*this, rhs); }
-  VecType<T> Sub(const VecType<T> &rhs) { return *this = atVectorMath::Subtract(*this, rhs); }
-  VecType<T> Mul(const VecType<T> &rhs) { return *this = atVectorMath::Multiply(*this, rhs); }
-  VecType<T> Div(const VecType<T> &rhs) { return *this = atVectorMath::Divide(*this, rhs); }
+  T* begin();
+  T* end();
+  const T* begin() const;
+  const T* end() const;
 
-  T Mag() const { return Mag(*this); }
-  T Length() const { return Length(*this); }
-  T Dot(const VecType<T> &rhs) const { return Dot(*this, rhs); }
-  T Angle(const VecType<T> &rhs) const { return Angle(*this, rhs); }
-
-  VecType<T> Normalize() const { return Normalize(*this); }
-  VecType<T> Reflect(const VecType<T> &norm) { return Reflect(*this, norm); }
-
-  static T Mag(const VecType<T> &rhs) { return atVectorMath::Mag(rhs); }
-  static T Length(const VecType<T> &rhs) { return atVectorMath::Length(rhs); }
-  static T Dot(const VecType<T> &lhs, const VecType<T> &rhs) { return atVectorMath::Dot(lhs, rhs); }
-  static T Angle(const VecType<T> &lhs, const VecType<T> &rhs) { return atVectorMath::Angle(lhs, rhs); }
-
-  static VecType<T> Cross(const VecType<T> &lhs, const VecType<T> &rhs) { return atVectorMath::Cross(lhs, rhs); }
-  static VecType<T> Normalize(const VecType<T> &rhs) { return atVectorMath::Normalize(rhs); }
-
-  T* begin() { return data(); }
-  T* end() { return data() + element_count; }
-  const T* begin() const { return data(); }
-  const T* end() const { return data() + element_count; }
-
-  T* data() { return &x; }
-  const T* data() const { return &x; }
+  T* data();
+  const T* data() const;
 
   T x;
   T y;
@@ -164,4 +150,5 @@ public:
   T w;
 };
 
+#include "atVector4.inl"
 #endif // atVector4_h__

@@ -23,136 +23,300 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atAssert.h"
-
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Identity()
+template<typename T>
+inline T atMatrixDet2x2(T a, T b, T c, T d)
 {
-  atAssert(row == col, "rows and col must be equal!");
-  atMatrix<T, col, row> ret;
-  for (int64_t i = 0; i < row; ++i)
-    ret[i + i * col] = (T)1;
-  return ret;
+  return
+    (a * d) -
+    (b * c);
 }
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, row, col> atMatrix<T, col, row>::Transpose() const
+template<typename T>
+inline T atMatrixDet3x3(T a, T b, T c, T d, T e, T f, T g, T h, T i)
 {
-  atMatrix<T, col, row> ret;
-  for (int64_t r = 0; r < row; ++r)
-    for (int64_t c = 0; c < col; ++c)
-      ret.m_data[r + c * row] = m_data[c + r * col];
-  return ret;
+  return
+    a * atMatrixDet2x2(e, f, h, i) -
+    b * atMatrixDet2x2(d, f, g, i) +
+    c * atMatrixDet2x2(d, e, g, h);
 }
 
-template <typename T, int64_t col, int64_t row> T atMatrix<T, col, row>::Determinate() const
+template <typename T> atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T> &copy)
 {
-  if (row == 2)
-    return m_data[0] * m_data[3] - m_data[1] * m_data[2];
-  T ret = 0;
-  for (int64_t c = 0; c < col; ++c)
-    ret += m_data[c] * LowOrderMatrix<max(2, row - 1)>(c, 0).Determinate() * ((c % 2 == 0) ? 1 : -1);
-  return ret;
+  memcpy(&m, &copy.m, sizeof(T) * 16);
 }
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Cofactors() const
+template <typename T> inline atMatrix4x4<T>::atMatrix4x4(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23, T _30, T _31, T _32, T _33)
 {
-  atAssert(row == col, "rows and col must be equal!");
-  atAssert(row >= 2, "Matrix must be at least 2x2!");
-  if(row == 2)
-    return atMatrix<T, row, col>({ m_data[0], -m_data[1], -m_data[2], m_data[3] });
-  atMatrix<T, row, col> ret;
-  for (int64_t r = 0; r < row; ++r)
-    for (int64_t c = 0; c < col; ++c)
-      ret[c + r * col] = LowOrderMatrix<max(2, row - 1)>(c, r).Determinate() * (((r + c) % 2 == 0) ? 1 : -1);
-  return ret;
+  m[0] = _00;  m[1] = _01;  m[2] = _02;  m[3] = _03; 
+  m[4] = _10;  m[5] = _11;  m[6] = _12;  m[7] = _13; 
+  m[8] = _20;  m[9] = _21;  m[10] = _22; m[11] = _23; 
+  m[12] = _30; m[13] = _31; m[14] = _32; m[15] = _33; 
 }
 
-template <typename T, int64_t col, int64_t row> template<int64_t dim> atMatrix<T, dim, dim> atMatrix<T, col, row>::LowOrderMatrix(const int64_t c, const int64_t r) const
+template <typename T> atMatrix4x4<T>::atMatrix4x4(atMatrix4x4<T> &&move)
 {
-  atMatrix<T, dim, dim> ret;
-  for (int64_t r2 = 0; r2 < dim; ++r2)
-    for (int64_t c2 = 0; c2 < dim; ++c2)
-      ret.m_data[c2 + r2 * dim] = m_data[(c2 >= c ? c2 + 1 : c2) + (r2 >= r ? r2 + 1 : r2) * col];
-  return ret;
+  memcpy(&m, &move.m, sizeof(m));
+  move = Identity();
 }
 
-template <typename T, int64_t col, int64_t row> template<typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mul(const atMatrix<T2, col2, row2> &rhs) const
+template <typename T> template <typename T2> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T2> &copy)
 {
-  atMatrix<T, row, col2> ret;
-  for (int64_t r = 0; r < row; ++r)
-    for (int64_t c = 0; c < col2; ++c)
-      for (int64_t i = 0; i < row2; ++i)
-        ret[c + r * col2] += m_data[i + r * col] * (T)rhs.m_data[c + i * col2];
-  return ret;
+  for (int64_t i = 0; i < 16; ++i)
+    m[i] = (T)copy[i];
+  return *this;
 }
 
-template <typename T, int64_t col, int64_t row>  template<typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::Add(const atMatrix<T2, col, row> &rhs) const
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Identity()
 {
-  atMatrix<T, col, row> ret = *this;
-  for (int64_t i = 0; i < col * row; ++i)
-      ret[i] += (T)rhs.m_data[i];
-  return ret;
+  return atMatrix4x4<T>(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1);
 }
 
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::Sub(const atMatrix<T2, col, row> &rhs) const
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Transpose() const
 {
-  atMatrix<T, col, row> ret = *this;
-  for (int64_t i = 0; i < col * row; ++i) 
-    ret[i] -= (T)rhs.m_data[i];
-  return ret;
+  return atMatrix4x4<T>(
+    m[0], m[4], m[8],  m[12],
+    m[1], m[5], m[9],  m[13],
+    m[2], m[6], m[10], m[14],
+    m[3], m[7], m[11], m[15]);
 }
 
-template <typename T, int64_t col, int64_t row>  atMatrix<T, col, row> atMatrix<T, col, row>::Mul(const T &rhs) const
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Cofactors() const
 {
-  atMatrix<T, col, row> ret;
-  for (int64_t i = 0; i < col * row; ++i) 
-    ret[i] = (T)m_data[i] * rhs;
-  return ret;
+  return atMatrix4x4<T>(
+     atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]),
+    -atMatrixDet3x3(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]),
+     atMatrixDet3x3(m[4], m[5], m[7], m[8], m[9],  m[11], m[12], m[13], m[15]),
+    -atMatrixDet3x3(m[4], m[5], m[6], m[8], m[9],  m[10], m[12], m[13], m[14]),
+    
+    -atMatrixDet3x3(m[1], m[2], m[3], m[9], m[10], m[11], m[13], m[14], m[15]),
+     atMatrixDet3x3(m[0], m[2], m[3], m[8], m[10], m[11], m[12], m[14], m[15]),
+    -atMatrixDet3x3(m[0], m[1], m[3], m[8], m[9],  m[11], m[12], m[13], m[15]),
+     atMatrixDet3x3(m[0], m[1], m[2], m[8], m[9],  m[10], m[12], m[13], m[14]),
+
+     atMatrixDet3x3(m[1], m[2], m[3], m[5], m[6],  m[7],  m[13], m[14], m[15]),
+    -atMatrixDet3x3(m[0], m[2], m[3], m[4], m[6],  m[7],  m[12], m[14], m[15]),
+     atMatrixDet3x3(m[0], m[1], m[3], m[4], m[5],  m[7],  m[12], m[13], m[15]),
+    -atMatrixDet3x3(m[0], m[1], m[2], m[4], m[5],  m[6],  m[12], m[13], m[14]),
+    
+    -atMatrixDet3x3(m[1], m[2], m[3], m[5], m[6],  m[7],  m[9],  m[10], m[11]),
+     atMatrixDet3x3(m[0], m[2], m[3], m[4], m[6],  m[7],  m[8],  m[10], m[11]),
+    -atMatrixDet3x3(m[0], m[1], m[3], m[4], m[5],  m[7],  m[8],  m[9],  m[11]),
+     atMatrixDet3x3(m[0], m[1], m[2], m[4], m[5],  m[6],  m[8],  m[9],  m[10])
+  );
 }
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Add(const T &rhs) const
+template <typename T> T atMatrix4x4<T>::Determinate() const
 {
-  atMatrix<T, col, row> ret;
-  for (int64_t i = 0; i < col * row; ++i)
-      ret[i] = (T)m_data[i] + rhs;
-  return ret;
+  return 
+      m[0] * atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15])
+    - m[1] * atMatrixDet3x3(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15])
+    + m[2] * atMatrixDet3x3(m[4], m[5], m[7], m[8], m[9],  m[11], m[12], m[13], m[15])
+    - m[3] * atMatrixDet3x3(m[4], m[5], m[6], m[8], m[9],  m[10], m[12], m[13], m[14]);
 }
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix(const std::initializer_list<T> &list)
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &rhs) const
 {
-  for (int64_t i = 0; i < (int64_t)list.size() && i < row * col; ++i)
-    m_data[i] = (T)(*(list.begin() + i));
+  return atMatrix4x4<T>(
+    m[0]  * rhs.m[0] + m[1]  * rhs.m[4] + m[2]  * rhs.m[8]  + m[3]  * rhs.m[12],
+    m[0]  * rhs.m[1] + m[1]  * rhs.m[5] + m[2]  * rhs.m[9]  + m[3]  * rhs.m[13],
+    m[0]  * rhs.m[2] + m[1]  * rhs.m[6] + m[2]  * rhs.m[10] + m[3]  * rhs.m[14],
+    m[0]  * rhs.m[3] + m[1]  * rhs.m[7] + m[2]  * rhs.m[11] + m[3]  * rhs.m[15],
+
+    m[4]  * rhs.m[0] + m[5]  * rhs.m[4] + m[6]  * rhs.m[8]  + m[7]  * rhs.m[12],
+    m[4]  * rhs.m[1] + m[5]  * rhs.m[5] + m[6]  * rhs.m[9]  + m[7]  * rhs.m[13],
+    m[4]  * rhs.m[2] + m[5]  * rhs.m[6] + m[6]  * rhs.m[10] + m[7]  * rhs.m[14],
+    m[4]  * rhs.m[3] + m[5]  * rhs.m[7] + m[6]  * rhs.m[11] + m[7]  * rhs.m[15],
+
+    m[8]  * rhs.m[0] + m[9]  * rhs.m[4] + m[10] * rhs.m[8]  + m[11] * rhs.m[12],
+    m[8]  * rhs.m[1] + m[9]  * rhs.m[5] + m[10] * rhs.m[9]  + m[11] * rhs.m[13],
+    m[8]  * rhs.m[2] + m[9]  * rhs.m[6] + m[10] * rhs.m[10] + m[11] * rhs.m[14],
+    m[8]  * rhs.m[3] + m[9]  * rhs.m[7] + m[10] * rhs.m[11] + m[11] * rhs.m[15],
+
+    m[12] * rhs.m[0] + m[13] * rhs.m[4] + m[14] * rhs.m[8]  + m[15] * rhs.m[12],
+    m[12] * rhs.m[1] + m[13] * rhs.m[5] + m[14] * rhs.m[9]  + m[15] * rhs.m[13],
+    m[12] * rhs.m[2] + m[13] * rhs.m[6] + m[14] * rhs.m[10] + m[15] * rhs.m[14],
+    m[12] * rhs.m[3] + m[13] * rhs.m[7] + m[14] * rhs.m[11] + m[15] * rhs.m[15]
+  );
 }
 
-template <typename T, int64_t col, int64_t row> template <typename T2> const atMatrix<T, col, row>& atMatrix<T, col, row>::operator=(const atMatrix<T2, col, row> &rhs)
+template <typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T> &rhs) const
 {
-  for (int64_t i = 0; i < row * col; ++i)
-    m_data[i] = (T)rhs.m_data[i];
-  return *this; 
+  return atVector4<T>(
+    rhs.x * m[0] + rhs.y * m[4] + rhs.z * m[8] + rhs.w *  m[12],
+    rhs.x * m[1] + rhs.y * m[5] + rhs.z * m[9] + rhs.w *  m[13],
+    rhs.x * m[2] + rhs.y * m[6] + rhs.z * m[10] + rhs.w * m[14],
+    rhs.x * m[3] + rhs.y * m[7] + rhs.z * m[11] + rhs.w * m[15]
+  );
 }
 
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row>::atMatrix(const atMatrix<T2, col, row> &copy)
+template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T2> &rhs) const
 {
-  for (int64_t i = 0; i < row * col; ++i)
-    m_data[i] = (T)copy.m_data[i];
+  return atMatrix4x4<T>(
+    m[0]  * (T)rhs.m[0] + m[1]  * (T)rhs.m[4] + m[2]  * (T)rhs.m[8]  + m[3]  * (T)rhs.m[12],
+    m[0]  * (T)rhs.m[1] + m[1]  * (T)rhs.m[5] + m[2]  * (T)rhs.m[9]  + m[3]  * (T)rhs.m[13],
+    m[0]  * (T)rhs.m[2] + m[1]  * (T)rhs.m[6] + m[2]  * (T)rhs.m[10] + m[3]  * (T)rhs.m[14],
+    m[0]  * (T)rhs.m[3] + m[1]  * (T)rhs.m[7] + m[2]  * (T)rhs.m[11] + m[3]  * (T)rhs.m[15],
+
+    m[4]  * (T)rhs.m[0] + m[5]  * (T)rhs.m[4] + m[6]  * (T)rhs.m[8]  + m[7]  * (T)rhs.m[12],
+    m[4]  * (T)rhs.m[1] + m[5]  * (T)rhs.m[5] + m[6]  * (T)rhs.m[9]  + m[7]  * (T)rhs.m[13],
+    m[4]  * (T)rhs.m[2] + m[5]  * (T)rhs.m[6] + m[6]  * (T)rhs.m[10] + m[7]  * (T)rhs.m[14],
+    m[4]  * (T)rhs.m[3] + m[5]  * (T)rhs.m[7] + m[6]  * (T)rhs.m[11] + m[7]  * (T)rhs.m[15],
+
+    m[8]  * (T)rhs.m[0] + m[9]  * (T)rhs.m[4] + m[10] * (T)rhs.m[8]  + m[11] * (T)rhs.m[12],
+    m[8]  * (T)rhs.m[1] + m[9]  * (T)rhs.m[5] + m[10] * (T)rhs.m[9]  + m[11] * (T)rhs.m[13],
+    m[8]  * (T)rhs.m[2] + m[9]  * (T)rhs.m[6] + m[10] * (T)rhs.m[10] + m[12] * (T)rhs.m[14],
+    m[8]  * (T)rhs.m[3] + m[9]  * (T)rhs.m[7] + m[10] * (T)rhs.m[11] + m[12] * (T)rhs.m[15],
+
+    m[12] * (T)rhs.m[0] + m[13] * (T)rhs.m[4] + m[14] * (T)rhs.m[8]  + m[15] * (T)rhs.m[12],
+    m[12] * (T)rhs.m[1] + m[13] * (T)rhs.m[5] + m[14] * (T)rhs.m[9]  + m[15] * (T)rhs.m[13],
+    m[12] * (T)rhs.m[2] + m[13] * (T)rhs.m[6] + m[14] * (T)rhs.m[10] + m[15] * (T)rhs.m[14],
+    m[12] * (T)rhs.m[3] + m[13] * (T)rhs.m[7] + m[14] * (T)rhs.m[11] + m[15] * (T)rhs.m[15]);
 }
 
-template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::Mul(const atMatrix<T, col2, row2> &rhs) const { return Mul<T, col2, row2>(rhs); }
-template <typename T, int64_t col, int64_t row> template <int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T, col2, row2>& rhs) const { return Mul<T, col, row2>(rhs); }
-template <typename T, int64_t col, int64_t row> template <typename T2, int64_t col2, int64_t row2> atMatrix<T, row, col2> atMatrix<T, col, row>::operator*(const atMatrix<T2, col2, row2>& rhs) const { return Mul<T2, col2, row2>(rhs); }
-         
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator/(const T2 &rhs) const { return Mul<T2>((T)1 / rhs); }
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator+(const atMatrix<T2, col, row>& rhs) const { return Add(rhs); }
-template <typename T, int64_t col, int64_t row> template <typename T2> atMatrix<T, col, row> atMatrix<T, col, row>::operator-(const atMatrix<T2, col, row>& rhs) const { return Sub(rhs); }
+template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Add(const atMatrix4x4<T2> &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] + (T)rhs.m[0],
+    m[1] + (T)rhs.m[1],
+    m[2] + (T)rhs.m[2],
+    m[3] + (T)rhs.m[3],
+    m[4] + (T)rhs.m[4],
+    m[5] + (T)rhs.m[5],
+    m[6] + (T)rhs.m[6],
+    m[7] + (T)rhs.m[7],
+    m[8] + (T)rhs.m[8],
+    m[9] + (T)rhs.m[9],
+    m[10] + (T)rhs.m[10],
+    m[11] + (T)rhs.m[11],
+    m[12] + (T)rhs.m[12],
+    m[13] + (T)rhs.m[13],
+    m[14] + (T)rhs.m[14],
+    m[15] + (T)rhs.m[15]
+  );
+}
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Inverse() const { return ((row == 2 && col == 2) ? atMatrix<T, col, row>({ m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mul((T)1 / Determinate()); }
-template <typename T, int64_t col, int64_t row> const atMatrix<T, col, row>& atMatrix<T, col, row>::operator=(const atMatrix<T, col, row> &rhs) { memcpy(m_data, rhs.m_data, (int64_t)sizeof(T) * row * col); return *this; }
+template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Sub(const atMatrix4x4<T2> &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] - (T)rhs.m[0],
+    m[1] - (T)rhs.m[1],
+    m[2] - (T)rhs.m[2],
+    m[3] - (T)rhs.m[3],
+    m[4] - (T)rhs.m[4],
+    m[5] - (T)rhs.m[5],
+    m[6] - (T)rhs.m[6],
+    m[7] - (T)rhs.m[7],
+    m[8] - (T)rhs.m[8],
+    m[9] - (T)rhs.m[9],
+    m[10] - (T)rhs.m[10],
+    m[11] - (T)rhs.m[11],
+    m[12] - (T)rhs.m[12],
+    m[13] - (T)rhs.m[13],
+    m[14] - (T)rhs.m[14],
+    m[15] - (T)rhs.m[15]
+  );
+}
 
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix(atMatrix<T, col, row> &&move) { memcpy(m_data, move.m_data, (int64_t)sizeof(T) * row * col); move = atMatrix(); }
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix(const atMatrix<T, col, row> &copy) { memcpy(m_data, copy.m_data, (int64_t)sizeof(T) * row * col); }
-         
-template <typename T, int64_t col, int64_t row> bool atMatrix<T, col, row>::operator==(const atMatrix<T, col, row> &rhs) const { return memcmp(m_data, rhs.m_data, row * col) == 0; }
-template <typename T, int64_t col, int64_t row> bool atMatrix<T, col, row>::operator!=(const atMatrix<T, col, row>& rhs) const { return !(*this == rhs); }
-template <typename T, int64_t col, int64_t row> const T & atMatrix<T, col, row>::operator[](const int64_t index) const { return m_data[index]; }
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row> atMatrix<T, col, row>::Sub(const T &rhs) const { return Add(-rhs); }
-template <typename T, int64_t col, int64_t row> T& atMatrix<T, col, row>::operator[](const int64_t index) { return m_data[index]; }
-template <typename T, int64_t col, int64_t row> atMatrix<T, col, row>::atMatrix() { memset(m_data, 0, sizeof(T) * row * col); }
+template<typename T> template<typename T2> inline atMatrix4x4<T>::atMatrix4x4(atMatrix4x4<T2> copy)
+{ 
+  *this = copy; 
+}
+
+template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T2 &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] * (T)rhs,  m[1] * (T)rhs,  m[2] * (T)rhs,  m[3] * (T)rhs,
+    m[4] * (T)rhs,  m[5] * (T)rhs,  m[6] * (T)rhs,  m[7] * (T)rhs,
+    m[8] * (T)rhs,  m[9] * (T)rhs,  m[10] * (T)rhs, m[11] * (T)rhs,
+    m[12] * (T)rhs, m[13] * (T)rhs, m[14] * (T)rhs, m[15] * (T)rhs
+  );
+}
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] * rhs,  m[1] * rhs,  m[2] * rhs,  m[3] * rhs,
+    m[4] * rhs,  m[5] * rhs,  m[6] * rhs,  m[7] * rhs,
+    m[8] * rhs,  m[9] * rhs,  m[10] * rhs, m[11] * rhs,
+    m[12] * rhs, m[13] * rhs, m[14] * rhs, m[15] * rhs
+  );
+}
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Sub(const T &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] - rhs,
+    m[1] - rhs,
+    m[2] - rhs,
+    m[3] - rhs,
+    m[4] - rhs,
+    m[5] - rhs,
+    m[6] - rhs,
+    m[7] - rhs,
+    m[8] - rhs,
+    m[9] - rhs,
+    m[10] - rhs,
+    m[11] - rhs,
+    m[12] - rhs,
+    m[13] - rhs,
+    m[14] - rhs,
+    m[15] - rhs
+  );
+}
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
+{
+  return atMatrix4x4<T>(
+    m[0] + rhs,
+    m[1] + rhs,
+    m[2] + rhs,
+    m[3] + rhs,
+    m[4] + rhs,
+    m[5] + rhs,
+    m[6] + rhs,
+    m[7] + rhs,
+    m[8] + rhs,
+    m[9] + rhs,
+    m[10] + rhs,
+    m[11] + rhs,
+    m[12] + rhs,
+    m[13] + rhs,
+    m[14] + rhs,
+    m[15] + rhs
+  );
+}
+
+template <typename T> inline atVector3<T> atMatrix4x4<T>::Mul(const atVector3<T> &rhs) const { return ((*this) * atVector4<T>(rhs, 1)).xyz(); }
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const
+{
+  return Cofactors().Transpose().Mul((T)1 / Determinate());
+}
+
+template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs) }
+
+template <typename T> inline atVector4<T> atMatrix4x4<T>::operator*(const atVector4<T> &rhs) const { return Mul(rhs); }
+
+template <typename T> inline atVector3<T> atMatrix4x4<T>::operator*(const atVector3<T> &rhs) const { return Mul(rhs); }
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const T &rhs) const { return Mul(rhs); }
+
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T> &rhs) const { return rhs.Mul(*this); }
+
+template <typename T> bool atMatrix4x4<T>::operator==(const atMatrix4x4<T> &rhs) const { return memcmp(&m, &rhs.m, sizeof(T) * 16) == 0; }
+
+template <typename T> bool atMatrix4x4<T>::operator!=(const atMatrix4x4<T> &rhs) const { return !(*this == rhs); }
+
+template <typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)
+{ 
+  memcpy(&m, &copy.m, sizeof(T) * 16);
+  return *this;
+}
+
+template <typename T> T& atMatrix4x4<T>::operator[](const int64_t index) { return m[index]; }
+
+template <typename T> const T& atMatrix4x4<T>::operator[](const int64_t index) const { return m[index]; }

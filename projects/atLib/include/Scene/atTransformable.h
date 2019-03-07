@@ -32,7 +32,7 @@ template <typename T> class atTransformable
 {
 public:
   typedef atVector3<T> Vec;
-  typedef atMatrix<T, 4, 4> Mat;
+  typedef atMatrix4x4<T> Mat;
 
   atTransformable(const Vec &trans = { 0,0,0 }, const Vec &rot = { 0,0,0 }, const Vec &scale = { 1,1,1 });
   

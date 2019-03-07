@@ -27,7 +27,6 @@
 #define _atMath_h__
 
 #include "atMatrix.h"
-#include "atVector4.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
 
@@ -65,13 +64,13 @@ typedef atVector2<double> atVec2D;
 typedef atVector3<double> atVec3D;
 typedef atVector4<double> atVec4D;
 
-typedef atMatrix<double, 2, 2> atMat2D;
-typedef atMatrix<double, 3, 3> atMat3D;
-typedef atMatrix<double, 4, 4> atMat4D;
+// typedef atMatrix4x4<double, 2, 2> atMat2D;
+// typedef atMatrix4x4<double, 3, 3> atMat3D;
+typedef atMatrix4x4<double> atMat4D;
 
-typedef atMatrix<float, 2, 2> atMat2F;
-typedef atMatrix<float, 3, 3> atMat3F;
-typedef atMatrix<float, 4, 4> atMat4F;
+// typedef atMatrix<float, 2, 2> atMat2F;
+// typedef atMatrix<float, 3, 3> atMat3F;
+typedef atMatrix4x4<float> atMat4F;
 
 template <> atTypeDesc atGetTypeDesc<atVector2<float>>();
 template <> atTypeDesc atGetTypeDesc<atVector3<float>>();
@@ -97,13 +96,8 @@ template <> atTypeDesc atGetTypeDesc<atVector2<int16_t>>();
 template <> atTypeDesc atGetTypeDesc<atVector3<int16_t>>();
 template <> atTypeDesc atGetTypeDesc<atVector4<int16_t>>();
 
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 2, 2>>();
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 3, 3>>();
-template <> atTypeDesc atGetTypeDesc<atMatrix<double, 4, 4>>();
-
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 2, 2>>();
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 3, 3>>();
-template <> atTypeDesc atGetTypeDesc<atMatrix<float, 4, 4>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>();
+template <> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>();
 
 template <typename T> inline T atMin(const T &a) { return a; }
 template <typename T> inline T atMax(const T &a) { return a; }
@@ -125,27 +119,22 @@ template <typename T> inline T atMod(const T a, const T b);
 template <> inline float atMod(const float a, const float b);
 template <> inline double atMod(const double a, const double b);
 
-template <typename T> inline atMatrix<T, 4, 4> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixRotationX(const T rads);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixRotationY(const T rads);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixRotationZ(const T rads);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixRotation(const atVector3<T> &axis, T rads);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixTranslation(const atVector3<T> &translation);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixScale(const atVector3<T> &scale);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixScale(const atVector4<T> &scale);
-template <typename T> inline atMatrix<T, 4, 4> atMatrixScaleUniform(const T &scale);
-template <typename T> inline void atMatrixDecompose(const atMatrix<T, 4, 4> &mat, atVector3<T> *pTranslation, atVector3<T> *pRotation, atVector3<T> *pScale);
-template <typename T> inline atVector3<T> atMatrixExtractTranslation(const atMatrix<T, 4, 4> &mat);
-template <typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix<T, 4, 4> &mat);
-template <typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix<T, 4, 4> &mat);
-
-template <typename T> inline atVector4<T> operator*(const atMatrix<T, 4, 4> &lhs, const atVector4<T> &rhs);
-template <typename T> inline atVector3<T> operator*(const atMatrix<T, 4, 4> &lhs, const atVector3<T> &rhs);
-template <typename T> inline atVector3<T> operator*(const atMatrix<T, 3, 3> &lhs, const atVector3<T> &rhs);
-template <typename T> inline atVector2<T> operator*(const atMatrix<T, 2, 2> &lhs, const atVector2<T> &rhs);
+template <typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
+template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
+template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane);
+template <typename T> inline atMatrix4x4<T> atMatrixRotationX(const T rads);
+template <typename T> inline atMatrix4x4<T> atMatrixRotationY(const T rads);
+template <typename T> inline atMatrix4x4<T> atMatrixRotationZ(const T rads);
+template <typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &axis, T rads);
+template <typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll);
+template <typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation);
+template <typename T> inline atMatrix4x4<T> atMatrixScale(const atVector3<T> &scale);
+template <typename T> inline atMatrix4x4<T> atMatrixScale(const atVector4<T> &scale);
+template <typename T> inline atMatrix4x4<T> atMatrixScaleUniform(const T &scale);
+template <typename T> inline void atMatrixDecompose(const atMatrix4x4<T> &mat, atVector3<T> *pTranslation, atVector3<T> *pRotation, atVector3<T> *pScale);
+template <typename T> inline atVector3<T> atMatrixExtractTranslation(const atMatrix4x4<T> &mat);
+template <typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix4x4<T> &mat);
+template <typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix4x4<T> &mat);
 
 template <typename T> inline atVector4<T> operator*(const T &lhs, const atVector4<T> &rhs);
 template <typename T> inline atVector3<T> operator*(const T &lhs, const atVector3<T> &rhs);

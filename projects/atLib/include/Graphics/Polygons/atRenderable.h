@@ -45,9 +45,6 @@ public:
   void SetUniform(const atString &name, const atVec2F &val);
   void SetUniform(const atString &name, const atVec3F &val);
   void SetUniform(const atString &name, const atVec4F &val);
-
-  void SetUniform(const atString &name, const atMat2F &val);
-  void SetUniform(const atString &name, const atMat3F &val);
   void SetUniform(const atString &name, const atMat4F &val);
 
   // Set Shader Variables
@@ -56,9 +53,6 @@ public:
   void SetUniform(const atString &name, const atVec2D &val);
   void SetUniform(const atString &name, const atVec3D &val);
   void SetUniform(const atString &name, const atVec4D &val);
-
-  void SetUniform(const atString &name, const atMat2D &val);
-  void SetUniform(const atString &name, const atMat3D &val);
   void SetUniform(const atString &name, const atMat4D &val);
 
   bool HasChannel(const atString &name);
