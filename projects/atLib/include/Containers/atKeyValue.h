@@ -26,7 +26,7 @@
 #ifndef _atKeyValue_h__
 #define _atKeyValue_h__
 
-template <class Key, class Val> class atKeyValue
+template<typename Key, class Val> class atKeyValue
 {
 public:
   atKeyValue() {}

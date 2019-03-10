@@ -23,16 +23,16 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atFontRenderer_h__
-#define atFontRenderer_h__
+#ifndef at2DRenderer_h__
+#define at2DRenderer_h__
 
 #include "atFilename.h"
 #include "atWindow.h"
 
-class atPrimitiveRenderer
+class at2DRenderer
 {
 public:
-  atPrimitiveRenderer() = delete;
+  at2DRenderer() = delete;
 
   // TODO: Add a font resolution and font scale
   // - Resolution being the quality of each character
@@ -62,4 +62,4 @@ public:
   static void PopClipRect(const int64_t count = 1);
 };
 
-#endif // atFontRenderer_h__
+#endif // at2DRenderer_h__

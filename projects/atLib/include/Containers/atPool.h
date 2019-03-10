@@ -25,13 +25,13 @@
 
 #include "atVector.h"
 
-template <class T> class atPool
+template<typename T> class atPool
 {
 public:
   atPool(const int64_t size);
 
   void emplace(const int64_t index);
-  template <typename... Args> void emplace();
+  template<typename... Args> void emplace();
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index);

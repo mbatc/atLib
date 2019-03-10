@@ -23,6 +23,6 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> atPlane<T>::atPlane(const atVector4<T> &coeff) { m_coeffs = coeff; m_point = atVector4<T>(0, 0, m_coeffs.w); }
-template <typename T> atPlane<T>::atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c) : atPlane<T>((b - a).Cross(c - a), a) {}
-template <typename T> atPlane<T>::atPlane(const atVector3<T> &normal, const atVector3<T>&point) { m_coeffs = { normal, normal.x * point.x + normal.y * point.y + normal.z * point.z }; }
+template<typename T> atPlane<T>::atPlane(const atVector4<T> &coeff) { m_coeffs = coeff; m_point = atVector4<T>(0, 0, m_coeffs.w); }
+template<typename T> atPlane<T>::atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c) : atPlane<T>((b - a).Cross(c - a), a) {}
+template<typename T> atPlane<T>::atPlane(const atVector3<T> &normal, const atVector3<T>&point) { m_coeffs = { normal, normal.x * point.x + normal.y * point.y + normal.z * point.z }; }

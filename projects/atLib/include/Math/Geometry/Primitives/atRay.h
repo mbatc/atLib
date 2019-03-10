@@ -28,7 +28,7 @@
 
 #include "atVector3.h"
 
-template <typename T> class atRay
+template<typename T> class atRay
 {
 public:
   using Vec3 = atVector3<T>;

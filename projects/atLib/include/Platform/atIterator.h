@@ -28,7 +28,7 @@
 
 #include "atTypes.h"
 
-template <typename T> class atIterator
+template<typename T> class atIterator
 {
 public:
   atIterator(T *pStart, const int64_t len);
@@ -41,7 +41,7 @@ public:
 };
 
 
-template <typename T> class atIteratorConst
+template<typename T> class atIteratorConst
 {
 public:
   atIteratorConst(const T *pStart, const int64_t len);
@@ -53,8 +53,8 @@ public:
   const T* m_pEnd;
 };
 
-template <typename T> atIterator<T> atIterate(T *pStart, int64_t len);
-template <typename T> atIteratorConst<T> atIterate(const T *pStart, int64_t len);
+template<typename T> atIterator<T> atIterate(T *pStart, int64_t len);
+template<typename T> atIteratorConst<T> atIterate(const T *pStart, int64_t len);
 
 #include "atIterator.inl"
 #endif // atIterator_h__

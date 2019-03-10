@@ -44,8 +44,8 @@ public:
   static int64_t Hash(const double val);
   static int64_t Hash(const float val);
 
-  template <typename T> static int64_t Hash(const T &o);
-  template <typename T> static int64_t Hash(const T *o);
+  template<typename T> static int64_t Hash(const T &o);
+  template<typename T> static int64_t Hash(const T *o);
 
 protected:
   static thread_local atMemoryWriter writer;

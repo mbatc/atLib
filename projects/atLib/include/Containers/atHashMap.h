@@ -29,7 +29,7 @@
 #include "atKeyValue.h"
 #include "atVector.h"
 
-template <class Key, class Value> class atHashMap
+template<typename Key, class Value> class atHashMap
 {
 public:
   const double _grow_rate = 1.61803399; // PHI

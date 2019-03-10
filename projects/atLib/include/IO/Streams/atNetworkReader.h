@@ -61,7 +61,7 @@ public:
   bool CanRead();
 
   int64_t Read(void *pBuffer, const int64_t size);
-  template <typename T> int64_t Read(T *pData, const int64_t count = 1);
+  template<typename T> int64_t Read(T *pData, const int64_t count = 1);
 
 protected:
   atSocket *m_pHost;

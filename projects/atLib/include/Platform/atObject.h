@@ -14,17 +14,17 @@ public:
 
   void Assign(const atObject &value);
   bool AddMember(const atString &name, const atObject &value);
-  template <typename T> void Assign(const T &value);
-  template <typename T> bool AddMember(const atString &name, const T &value);
+  template<typename T> void Assign(const T &value);
+  template<typename T> bool AddMember(const atString &name, const T &value);
 
   const atObject& operator=(const atObject &copy);
   const atObject& operator=(atObject &&move);
 
   bool operator==(const atObject &value) const;
   bool operator!=(const atObject &value) const;
-  template <typename T> const atObject& operator=(const T &value);
-  template <typename T> bool operator==(const T &value) const;
-  template <typename T> bool operator!=(const T &value) const;
+  template<typename T> const atObject& operator=(const T &value);
+  template<typename T> bool operator==(const T &value) const;
+  template<typename T> bool operator!=(const T &value) const;
 
   atObject& Get(const atString &name);
   atObject& operator [](const char *name);
@@ -33,7 +33,7 @@ public:
   const atObject& operator [](const char *name) const;
   const atObject& operator [](const atString &name) const;
 
-  template <typename T> operator T();
+  template<typename T> operator T();
 
 protected:
   atTypeDesc m_desc;

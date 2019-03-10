@@ -26,17 +26,17 @@
 #include "atAABB.h"
 #include "atLimits.h"
 
-template <typename T> atAABB<T>::atAABB(const atAABB &copy)
+template<typename T> atAABB<T>::atAABB(const atAABB &copy)
   : m_min(copy.m_min)
   , m_max(copy.m_max)
 {}
 
-template <typename T> atAABB<T>::atAABB(atAABB &&o)
+template<typename T> atAABB<T>::atAABB(atAABB &&o)
   : m_min(std::move(o.m_min))
   , m_max(std::move(o.m_max))
 {}
 
-template <typename T> void atAABB<T>::GrowToContain(const Vec3 &point)
+template<typename T> void atAABB<T>::GrowToContain(const Vec3 &point)
 {
   for (int64_t dim = 0; dim < 3; ++dim)
   {
@@ -45,7 +45,7 @@ template <typename T> void atAABB<T>::GrowToContain(const Vec3 &point)
   }
 }
 
-template <typename T> void atAABB<T>::GrowToContain(const atAABB<T> &box)
+template<typename T> void atAABB<T>::GrowToContain(const atAABB<T> &box)
 {
   for (int64_t dim = 0; dim < 3; ++dim)
   {
@@ -54,7 +54,7 @@ template <typename T> void atAABB<T>::GrowToContain(const atAABB<T> &box)
   }
 }
 
-template <typename T> void atAABB<T>::ShrinkToFit(const atAABB<T> &box)
+template<typename T> void atAABB<T>::ShrinkToFit(const atAABB<T> &box)
 {
   for (int64_t dim = 0; dim < 3; ++dim)
   {
@@ -74,7 +74,7 @@ template<typename T> bool atAABB<T>::Contains(const Vec3 &point) const
   return true;
 }
 
-template <typename T> const atAABB<T>& atAABB<T>::operator=(atAABB<T> &&rhs)
+template<typename T> const atAABB<T>& atAABB<T>::operator=(atAABB<T> &&rhs)
 {
   m_min = rhs.m_min;
   m_max = rhs.m_max;
@@ -83,19 +83,19 @@ template <typename T> const atAABB<T>& atAABB<T>::operator=(atAABB<T> &&rhs)
   return *this;
 }
 
-template <typename T> const atAABB<T>& atAABB<T>::operator=(const atAABB<T> &rhs)
+template<typename T> const atAABB<T>& atAABB<T>::operator=(const atAABB<T> &rhs)
 {
   m_min = rhs.m_min;
   m_max = rhs.m_max;
   return *this;
 }
 
-template <typename T> bool atAABB<T>::operator==(const atAABB<T> &rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }
-template <typename T> bool atAABB<T>::operator!=(const atAABB<T> &rhs) const { return !(*this == rhs); }
-template <typename T> typename atAABB<T>::Vec3 atAABB<T>::Center() const { return (m_min + m_max) / (T)2; }
-template <typename T> typename atAABB<T>::Vec3 atAABB<T>::Dimensions() const { return m_max - m_min; }
-template <typename T> template<typename Type> void atAABB<T>::GrowToContain(const Type &type) { GrowToContain(atBounds(type)); }
-template <typename T> atAABB<T>::atAABB() { m_min = atLimitsMax<T>(); m_max = -m_min; }
-template <typename T> atAABB<T>::atAABB(const Vec3 &min, const Vec3 &max) : m_min(min), m_max(max) {}
-template <typename T> atAABB<T>::atAABB(atVector<Vec3> &points) { GrowToContain(points); }
-template <typename T> void atAABB<T>::GrowToContain(const atVector<Vec3> &points) { for (const Vec3 p : points) GrowToContain(points); }
+template<typename T> bool atAABB<T>::operator==(const atAABB<T> &rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }
+template<typename T> bool atAABB<T>::operator!=(const atAABB<T> &rhs) const { return !(*this == rhs); }
+template<typename T> typename atAABB<T>::Vec3 atAABB<T>::Center() const { return (m_min + m_max) / (T)2; }
+template<typename T> typename atAABB<T>::Vec3 atAABB<T>::Dimensions() const { return m_max - m_min; }
+template<typename T> template<typename Type> void atAABB<T>::GrowToContain(const Type &type) { GrowToContain(atBounds(type)); }
+template<typename T> atAABB<T>::atAABB() { m_min = atLimitsMax<T>(); m_max = -m_min; }
+template<typename T> atAABB<T>::atAABB(const Vec3 &min, const Vec3 &max) : m_min(min), m_max(max) {}
+template<typename T> atAABB<T>::atAABB(atVector<Vec3> &points) { GrowToContain(points); }
+template<typename T> void atAABB<T>::GrowToContain(const atVector<Vec3> &points) { for (const Vec3 p : points) GrowToContain(points); }

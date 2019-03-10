@@ -32,7 +32,7 @@ template<typename T> inline atVector<T*> atSceneNode::Components() const
   return ret;
 }
 
-template <typename T> inline int64_t atSceneNode::ComponentCount() const
+template<typename T> inline int64_t atSceneNode::ComponentCount() const
 {
   int64_t count = 0;
   for (atSceneComponent *pComp : m_components)
@@ -40,7 +40,7 @@ template <typename T> inline int64_t atSceneNode::ComponentCount() const
   return count;
 }
 
-template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
+template<typename T> inline T* atSceneNode::AddComponent(T *pComponent)
 {
   atIsValidSceneComponentType<T>();
   pComponent->m_pNode = this;
@@ -48,5 +48,5 @@ template <typename T> inline T* atSceneNode::AddComponent(T *pComponent)
   return pComponent;
 }
 
-template <typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
-template <typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }
+template<typename T> inline T* atSceneNode::AddComponent() { return AddComponent(atNew<T>()); }
+template<typename T> inline T* atSceneNode::Component(const int64_t index) const { return Components<T>()[index]; }

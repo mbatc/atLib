@@ -23,12 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> inline void atIsValidSceneComponentType()
+template<typename T> inline void atIsValidSceneComponentType()
 { 
   static_assert(std::is_base_of<atSceneComponent, T>::value, "Invalid Component Type: T must be derived from atSceneComponent");
 }
 
-template <typename T> inline bool atSceneComponent::Is() const
+template<typename T> inline bool atSceneComponent::Is() const
 {
   atIsValidSceneComponentType<T>();
   return T::typeID == TypeID();

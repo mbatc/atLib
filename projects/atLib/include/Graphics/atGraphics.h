@@ -67,7 +67,7 @@ public:
   static D3D_FEATURE_LEVEL GetFeatureLevel();
   static DWORD GetCreateFlags();
 
-  template <class T> static void SafeRelease(T &ref);
+  template<typename T> static void SafeRelease(T &ref);
   static int64_t GFXMemorySize();
 
   static int64_t RefreshRateNumerator(const bool vsync = false);
@@ -110,7 +110,7 @@ protected:
   };
 };
 
-template<class T> inline void atGraphics::SafeRelease(T &ref)
+template<typename T> inline void atGraphics::SafeRelease(T &ref)
 {
   if (!ref)
     return;

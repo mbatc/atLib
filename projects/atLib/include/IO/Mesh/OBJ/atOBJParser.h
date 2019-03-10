@@ -53,7 +53,7 @@ public:
   static bool Read(const atFilename &file, atMesh *pMesh);
   
   // This probably belongs in atScan as it is a very generic string parsing function
-  template <typename T> static T ParseVector(char **ppSrc, const int64_t srcLen, int64_t *pLen = nullptr);
+  template<typename T> static T ParseVector(char **ppSrc, const int64_t srcLen, int64_t *pLen = nullptr);
 };
 
 class atOBJWriter

@@ -66,8 +66,10 @@ void ExampleStrings()
     double addingAsValues = double(aNumber) + double(anotherNumber);
     atUnused(addingToString, addingAsValues);
     int64_t asValue = int64_t(aNumber);
+
     // To wide strings
     std::wstring wideString = std::wstring(atString(std::wstring(L"jlkjsalkjasp2©ýNc☼¯")));
+
     atUnused(wideString);
   }
 }
@@ -86,14 +88,14 @@ void ExampleStrings()
 // Shift - Speed up
 // Right Mouse + Mouse Move - Look
 
-#include "atPrimitiveRenderer.h"
+#include "at2DRenderer.h"
 #include "atGraphicsModel.h"
 #include "atRenderState.h"
 #include "atSceneCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
-  atPrimitiveRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
+  at2DRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
   // Set the model being loaded
   const atString path = "assets/test/models/bumpmap.obj";
@@ -143,12 +145,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
     // Drawing Text - See ExampleRenderText() for more examples
-    atPrimitiveRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
+    at2DRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
     {
       atRenderState rs; // State changes are reverted when 'rs' falls out of scope
       rs.SetDepthReadEnabled(false);
       rs.SetBlendEnabled(true);
-      atPrimitiveRenderer::Draw(window);
+      at2DRenderer::Draw(window);
     }
     // Display rendered frame
     window.Swap();
@@ -177,7 +179,7 @@ void ExampleRenderText()
   atWindow window("Font Renderer Example");
 
   // Set/Load a font (.ttf files)
-  atPrimitiveRenderer::SetFont(fontPath);
+  at2DRenderer::SetFont(fontPath);
 
   // Setup correct render state
   atRenderState rs;
@@ -202,33 +204,33 @@ void ExampleRenderText()
     // Bake Text
     if (usePivot)
     {
-      atPrimitiveRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
-      atPrimitiveRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
-      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
-      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+      at2DRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
+      at2DRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
+      at2DRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
+      at2DRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
 
-      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
-      atPrimitiveRenderer::PopColour();
+      at2DRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      at2DRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, at2DRenderer::TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
+      at2DRenderer::PopColour();
 
-      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
+      at2DRenderer::AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
     }
     else
     {
-      atPrimitiveRenderer::AddText(0, 0, "Top Left");
-      atPrimitiveRenderer::AddText(window.Width(), 0, "Top Right");
-      atPrimitiveRenderer::AddText(0, window.Height(), "Bottom Left");
-      atPrimitiveRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
+      at2DRenderer::AddText(0, 0, "Top Left");
+      at2DRenderer::AddText(window.Width(), 0, "Top Right");
+      at2DRenderer::AddText(0, window.Height(), "Bottom Left");
+      at2DRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
 
-      atPrimitiveRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      atPrimitiveRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, atPrimitiveRenderer::TextSize("Center"), { .5f, .5f });
-      atPrimitiveRenderer::PopColour();
+      at2DRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      at2DRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, at2DRenderer::TextSize("Center"), { .5f, .5f });
+      at2DRenderer::PopColour();
 
-      atPrimitiveRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
+      at2DRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
     }
 
     // Render Text
-    atPrimitiveRenderer::Draw(window);
+    at2DRenderer::Draw(window);
 
     window.Swap();
   }
@@ -374,7 +376,6 @@ void ExampleRayTraceMesh()
       for (int64_t x = 0; x < window.Width(); x += res)
       {
         atVec2F ssc = { (float)x / (float)window.Width(), (float)y / (float)window.Height() };
-        //atVec2F ssc = { 0.5, 0.5 };
         ssc = ssc * 2 - 1;
 
         atVec4F n(ssc, atClipNearZ<float>(), 1.f);

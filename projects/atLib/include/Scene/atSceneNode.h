@@ -90,12 +90,12 @@ public:
   int64_t ComponentCount(const int64_t type) const;
   int64_t ComponentCount() const;
 
-  template <typename T> T* Component(const int64_t index) const;
-  template <typename T> atVector<T*> Components() const;
-  template <typename T> int64_t ComponentCount() const;
+  template<typename T> T* Component(const int64_t index) const;
+  template<typename T> atVector<T*> Components() const;
+  template<typename T> int64_t ComponentCount() const;
 
-  template <typename T> T* AddComponent();
-  template <typename T> T* AddComponent(T* pComponent);
+  template<typename T> T* AddComponent();
+  template<typename T> T* AddComponent(T* pComponent);
 
   atScene* Scene();
 

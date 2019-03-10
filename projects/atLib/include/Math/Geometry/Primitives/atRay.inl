@@ -25,7 +25,7 @@
 
 #include "atRay.h"
 
-template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
+template<typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
 {
   T comp = 0;
   // Check which directions have non-zero values
@@ -55,7 +55,7 @@ template <typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
   return res;
 }
 
-template <typename T> bool atRay<T>::GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime) const
+template<typename T> bool atRay<T>::GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime) const
 {
   atAssert(pPoint != nullptr, "pPoint must not be nullptr");
   T time = { 0 };
@@ -107,9 +107,9 @@ template<typename T> bool atRay<T>::GetClosestPoint(const Vec3 &point, Vec3 *pPo
 	return res;
 }
 
-template <typename T> T atRay<T>::TimeX(const T val) const { return (val - m_pos.x) / m_dir.x; }
-template <typename T> T atRay<T>::TimeY(const T val) const { return (val - m_pos.y) / m_dir.y; }
-template <typename T> T atRay<T>::TimeZ(const T val) const { return (val - m_pos.z) / m_dir.z; }
-template <typename T> atRay<T>::atRay(const Vec3 &pos, const Vec3 &dir) : m_pos(pos), m_dir(dir) {}
-template <typename T> typename atRay<T>::Vec3 atRay<T>::At(const T time) const { return m_pos + m_dir * time; }
-template <typename T> typename atRay<T>::Vec3 atRay<T>::GetTime(const Vec3 &point) const { return Vec3(m_dir.x != 0 ? TimeX(point.x) : 0, m_dir.y != 0 ? TimeY(point.y) : 0, m_dir.z != 0 ? TimeZ(point.z) : 0); }
+template<typename T> T atRay<T>::TimeX(const T val) const { return (val - m_pos.x) / m_dir.x; }
+template<typename T> T atRay<T>::TimeY(const T val) const { return (val - m_pos.y) / m_dir.y; }
+template<typename T> T atRay<T>::TimeZ(const T val) const { return (val - m_pos.z) / m_dir.z; }
+template<typename T> atRay<T>::atRay(const Vec3 &pos, const Vec3 &dir) : m_pos(pos), m_dir(dir) {}
+template<typename T> typename atRay<T>::Vec3 atRay<T>::At(const T time) const { return m_pos + m_dir * time; }
+template<typename T> typename atRay<T>::Vec3 atRay<T>::GetTime(const Vec3 &point) const { return Vec3(m_dir.x != 0 ? TimeX(point.x) : 0, m_dir.y != 0 ? TimeY(point.y) : 0, m_dir.z != 0 ? TimeZ(point.z) : 0); }

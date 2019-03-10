@@ -29,7 +29,7 @@
 #include "atVector.h"
 #include "atVector3.h"
 
-template <typename T> class atAABB
+template<typename T> class atAABB
 {
 public:
   using Vec3 = atVector3<T>;
@@ -50,7 +50,7 @@ public:
   Vec3 Center() const;
   Vec3 Dimensions() const;
 
-  template <typename Type> void GrowToContain(const Type &type);
+  template<typename Type> void GrowToContain(const Type &type);
 
   Vec3 m_min;
   Vec3 m_max;
@@ -61,7 +61,7 @@ public:
   bool operator!=(const atAABB<T> &rhs) const;
 };
 
-template <typename T, typename Type> atAABB<T> atBounds(const Type &type) { atAssert(false, "Bounds are not defined for this type"); return atAABB<T>(); }
+template<typename T, typename Type> atAABB<T> atBounds(const Type &type) { atAssert(false, "Bounds are not defined for this type"); return atAABB<T>(); }
 
 #include "atAABB.inl"
 #endif // atAABB_h__

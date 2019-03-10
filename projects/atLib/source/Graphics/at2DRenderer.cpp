@@ -23,7 +23,7 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atPrimitiveRenderer.h"
+#include "at2DRenderer.h"
 #include "atFont.h"
 #include "atRenderable.h"
 #include "atInput.h"
@@ -77,7 +77,7 @@ static atAABB<int32_t> _TextBounds(const atString &text);
 // ------------------------------------------------------
 // API
 
-void atPrimitiveRenderer::SetFont(const atFilename &font, const int64_t scale, const int64_t resolution)
+void at2DRenderer::SetFont(const atFilename &font, const int64_t scale, const int64_t resolution)
 {
   for (const atFont &f : DrawContext::fonts)
     if (f.Filename() == font && f.Height() == scale && f.Resolution() == resolution)
@@ -90,7 +90,7 @@ void atPrimitiveRenderer::SetFont(const atFilename &font, const int64_t scale, c
   DrawContext::activeFont = DrawContext::fonts.size() - 1;
 }
 
-void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
+void at2DRenderer::AddText(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
 {
   atVec4I clip = DrawContext::Clip();
   atAABB<int32_t> bounds = _TextBounds(text);
@@ -136,7 +136,7 @@ void atPrimitiveRenderer::AddText(const int64_t x, const int64_t y, const atStri
   PopTexture();
 }
 
-void atPrimitiveRenderer::Draw(const atVec2I &dimensions)
+void at2DRenderer::Draw(const atVec2I &dimensions)
 {
   atAssert(DrawContext::clip.size() == 0, "Mismatched Push/Pop Clip Rects");
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
@@ -163,14 +163,14 @@ void atPrimitiveRenderer::Draw(const atVec2I &dimensions)
   DrawContext::drawList.clear();
 }
 
-atVec4I atPrimitiveRenderer::TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
+atVec4I at2DRenderer::TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
 {
   atAABB<int32_t> bounds = _TextBounds(text);
   atVec2I offset = { atMin(bounds.m_min.x, 0), atMin(bounds.m_max.y, 0) };
   return atVec4I(bounds.m_min.xy() + offset + atVec2I{ x, y }, bounds.m_max.xy() + offset + atVec2I{ x, y });
 }
 
-void atPrimitiveRenderer::AddRectangle(const atVec2I &topLeft, const atVec2I &bottomRight)
+void at2DRenderer::AddRectangle(const atVec2I &topLeft, const atVec2I &bottomRight)
 {
   if (!atIntersects(DrawContext::Clip(), atVec4I(topLeft, bottomRight)))
     return;
@@ -178,14 +178,14 @@ void atPrimitiveRenderer::AddRectangle(const atVec2I &topLeft, const atVec2I &bo
   _AddPoly({ atVec2F(topLeft), atVec2F(bottomRight.x, topLeft.y), atVec2F(bottomRight), atVec2F(topLeft.x, bottomRight.y) }, font.FindWhitePixel());
 }
 
-void atPrimitiveRenderer::AddRectangle(const int64_t x, const int64_t y, const atVec2I &dimensions, const atVec2F &pivot)
+void at2DRenderer::AddRectangle(const int64_t x, const int64_t y, const atVec2I &dimensions, const atVec2F &pivot)
 {
   atVec2I tl = { x - pivot.x * dimensions.x, y - pivot.y * dimensions.y };
   atVec2I br = tl + dimensions;
   AddRectangle(tl, br);
 }
 
-void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments, double phase, const atVec2F &pivot)
+void at2DRenderer::AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments, double phase, const atVec2F &pivot)
 {
   atVector<atVec2F> points;
   points.reserve(segments + 1);
@@ -200,15 +200,15 @@ void atPrimitiveRenderer::AddCircle(const int64_t x, const int64_t y, const doub
   _AddPoly(points, font.FindWhitePixel());
 }
 
-atVec2I atPrimitiveRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
-void atPrimitiveRenderer::Draw(atWindow &wnd) { Draw(wnd.Size()); }
-void atPrimitiveRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
-void atPrimitiveRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
-void atPrimitiveRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }
-void atPrimitiveRenderer::PushColour(const atVec4F &color) { DrawContext::col.push_back(color); }
-void atPrimitiveRenderer::PushClipRect(const atVec4I &rect) { DrawContext::clip.push_back(rect); }
-void atPrimitiveRenderer::PopColour(const int64_t count) { DrawContext::col.erase(atMax(0, DrawContext::col.size() - count), (atMin(count, DrawContext::col.size()))); }
-void atPrimitiveRenderer::PopClipRect(const int64_t count) { DrawContext::clip.erase(atMax(0, DrawContext::clip.size() - count), (atMin(count, DrawContext::clip.size()))); }
+atVec2I at2DRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
+void at2DRenderer::Draw(atWindow &wnd) { Draw(wnd.Size()); }
+void at2DRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
+void at2DRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
+void at2DRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }
+void at2DRenderer::PushColour(const atVec4F &color) { DrawContext::col.push_back(color); }
+void at2DRenderer::PushClipRect(const atVec4I &rect) { DrawContext::clip.push_back(rect); }
+void at2DRenderer::PopColour(const int64_t count) { DrawContext::col.erase(atMax(0, DrawContext::col.size() - count), (atMin(count, DrawContext::col.size()))); }
+void at2DRenderer::PopClipRect(const int64_t count) { DrawContext::clip.erase(atMax(0, DrawContext::clip.size() - count), (atMin(count, DrawContext::clip.size()))); }
 
 // ------------------------------------------------------
 // Internal Functions

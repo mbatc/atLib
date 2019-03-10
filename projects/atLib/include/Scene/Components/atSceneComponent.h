@@ -36,7 +36,7 @@ enum atSceneComponentType : int64_t
 class atScene;
 class atSceneNode;
 
-template <typename T> void atIsValidSceneComponentType();
+template<typename T> void atIsValidSceneComponentType();
 
 class atSceneComponent
 {
@@ -50,7 +50,7 @@ public:
 
   virtual int64_t TypeID() const = 0;
 
-  template <typename T> bool Is() const;
+  template<typename T> bool Is() const;
 
   atScene* Scene();
   atSceneNode* Node();
