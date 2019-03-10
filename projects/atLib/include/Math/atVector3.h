@@ -28,7 +28,7 @@
 
 #include "atVector2.h"
 
-template <typename T> class atVector3
+template<typename T> class atVector3
 {
 public:
   atVector3();
@@ -39,17 +39,17 @@ public:
   atVector3(const atVector3<T> &copy);
   atVector3(atVector3<T> &&move);
                                     
-  template <typename T2> atVector3(T2 val);
-  template <typename T2> atVector3(T2 _x, T2 _y, T2 _z);
-  template <typename T2> atVector3(T2 _x, const atVector2<T2> &yz);
-  template <typename T2> atVector3(const atVector2<T2> &xy, T2 _z);
-  template <typename T2> atVector3(atVector3<T2> copy);
+  template<typename T2> atVector3(T2 val);
+  template<typename T2> atVector3(T2 _x, T2 _y, T2 _z);
+  template<typename T2> atVector3(T2 _x, const atVector2<T2> &yz);
+  template<typename T2> atVector3(const atVector2<T2> &xy, T2 _z);
+  template<typename T2> atVector3(atVector3<T2> copy);
 
   static atVector3<T> zero();
   static atVector3<T> one();
 
-  template <typename T2> const atVector3<T>& assign(T2 _x, T2 _y, T2 _z);
-  template <typename T2> const atVector3<T>& assign(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& assign(T2 _x, T2 _y, T2 _z);
+  template<typename T2> const atVector3<T>& assign(const atVector3<T2> &rhs);
   const atVector3<T>& assign(T _x, T _y, T _z);
   const atVector3<T>& assign(const atVector3<T> &rhs);
 
@@ -71,33 +71,33 @@ public:
   bool operator==(const atVector3<T> &rhs) const;
   bool operator!=(const atVector3<T> &rhs) const;
 
-  template <typename T2> atVector3<T> operator+(const atVector3<T2> &rhs) const;
-  template <typename T2> atVector3<T> operator-(const atVector3<T2> &rhs) const;
-  template <typename T2> atVector3<T> operator*(const atVector3<T2> &rhs) const;
-  template <typename T2> atVector3<T> operator/(const atVector3<T2> &rhs) const;
-  template <typename T2> atVector3<T> operator%(const atVector3<T2> &rhs) const;
-  template <typename T2> const atVector3<T>& operator+=(const atVector3<T2> &rhs);
-  template <typename T2> const atVector3<T>& operator-=(const atVector3<T2> &rhs);
-  template <typename T2> const atVector3<T>& operator*=(const atVector3<T2> &rhs);
-  template <typename T2> const atVector3<T>& operator/=(const atVector3<T2> &rhs);
-  template <typename T2> const atVector3<T>& operator%=(const atVector3<T2> &rhs);
-  template <typename T2> const atVector3<T>& operator=(const atVector3<T2> &rhs);
-  template <typename T2> bool operator==(const atVector3<T2> &rhs) const;
-  template <typename T2> bool operator!=(const atVector3<T2> &rhs) const;
+  template<typename T2> atVector3<T> operator+(const atVector3<T2> &rhs) const;
+  template<typename T2> atVector3<T> operator-(const atVector3<T2> &rhs) const;
+  template<typename T2> atVector3<T> operator*(const atVector3<T2> &rhs) const;
+  template<typename T2> atVector3<T> operator/(const atVector3<T2> &rhs) const;
+  template<typename T2> atVector3<T> operator%(const atVector3<T2> &rhs) const;
+  template<typename T2> const atVector3<T>& operator+=(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& operator-=(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& operator*=(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& operator/=(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& operator%=(const atVector3<T2> &rhs);
+  template<typename T2> const atVector3<T>& operator=(const atVector3<T2> &rhs);
+  template<typename T2> bool operator==(const atVector3<T2> &rhs) const;
+  template<typename T2> bool operator!=(const atVector3<T2> &rhs) const;
 
-  template <typename T2> atVector3<T> operator+(const T2 &rhs) const;
-  template <typename T2> atVector3<T> operator-(const T2 &rhs) const;
-  template <typename T2> atVector3<T> operator*(const T2 &rhs) const;
-  template <typename T2> atVector3<T> operator/(const T2 &rhs) const;
-  template <typename T2> atVector3<T> operator%(const T2 &rhs) const;
-  template <typename T2> const atVector3<T>& operator+=(const T2 &rhs);
-  template <typename T2> const atVector3<T>& operator-=(const T2 &rhs);
-  template <typename T2> const atVector3<T>& operator*=(const T2 &rhs);
-  template <typename T2> const atVector3<T>& operator/=(const T2 &rhs);
-  template <typename T2> const atVector3<T>& operator%=(const T2 &rhs);
-  template <typename T2> const atVector3<T>& operator=(const T2 &rhs);
-  template <typename T2> bool operator==(const T2 &rhs) const;
-  template <typename T2> bool operator!=(const T2 &rhs) const;
+  template<typename T2> atVector3<T> operator+(const T2 &rhs) const;
+  template<typename T2> atVector3<T> operator-(const T2 &rhs) const;
+  template<typename T2> atVector3<T> operator*(const T2 &rhs) const;
+  template<typename T2> atVector3<T> operator/(const T2 &rhs) const;
+  template<typename T2> atVector3<T> operator%(const T2 &rhs) const;
+  template<typename T2> const atVector3<T>& operator+=(const T2 &rhs);
+  template<typename T2> const atVector3<T>& operator-=(const T2 &rhs);
+  template<typename T2> const atVector3<T>& operator*=(const T2 &rhs);
+  template<typename T2> const atVector3<T>& operator/=(const T2 &rhs);
+  template<typename T2> const atVector3<T>& operator%=(const T2 &rhs);
+  template<typename T2> const atVector3<T>& operator=(const T2 &rhs);
+  template<typename T2> bool operator==(const T2 &rhs) const;
+  template<typename T2> bool operator!=(const T2 &rhs) const;
   
   atVector2<T> xy() const;
   atVector2<T> xz() const;

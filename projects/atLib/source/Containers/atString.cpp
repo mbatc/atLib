@@ -358,7 +358,7 @@ bool atString::compare(const char *lhs, const char *rhs, const atStringCompareOp
   return true;
 }
 
-template <> atTypeDesc atGetTypeDesc(const atString &str)
+template<> atTypeDesc atGetTypeDesc(const atString &str)
 {
   atTypeDesc ret = atGetTypeDesc<char>();
   ret.count = str.length() + 1;

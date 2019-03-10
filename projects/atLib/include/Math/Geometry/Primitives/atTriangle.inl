@@ -24,13 +24,13 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> T atTriangle<T>::Area() const
+template<typename T> T atTriangle<T>::Area() const
 {
   const atVector3<T> a = m_a - m_b;
   const atVector3<T> b = m_a - m_c;
   return 0.5 * a.Cross(b).Mag();
 }
 
-template <typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
-template <typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}
-template <typename T> atVector3<T> atTriangle<T>::Center() { return (m_a + m_b + m_c) / (T)3; }
+template<typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
+template<typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}
+template<typename T> atVector3<T> atTriangle<T>::Center() { return (m_a + m_b + m_c) / (T)3; }

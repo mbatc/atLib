@@ -52,13 +52,13 @@ public:
   atString(atVector<char> &&move);
   atString(char *pStart, char *pEnd);
   atString(const char *pStart, const char *pEnd);
-  template <typename T> explicit atString(const T &o);
+  template<typename T> explicit atString(const T &o);
 
   // implicit conversion to c-string
   operator const char* () const;
 
   // explicit conversion to types that define atFromString()
-  template <typename T> explicit operator T();
+  template<typename T> explicit operator T();
 
   static atString _to_lower(const char *str, const int64_t len);
   static atString _to_upper(const char *str, const int64_t len);
@@ -162,8 +162,8 @@ public:
   atString operator+(const atVector<char> &rhs) const;
   atString operator+(const atString &str) const;
 
-  template <typename T> inline atString operator+(const T &rhs) const;
-  template <typename T> inline atString operator+=(const T &rhs);
+  template<typename T> inline atString operator+(const T &rhs) const;
+  template<typename T> inline atString operator+=(const T &rhs);
 
   iterator begin();
   iterator end();
@@ -189,9 +189,9 @@ atString operator+(const char *lhs, const atString &rhs);
 atString operator+(char _char, const atString &rhs);
 atString operator+(char *lhs, const atString &rhs);
 
-template <> inline atTypeDesc atGetTypeDesc(const atString &str);
-template <typename T> inline atString atToString(const T &o) { static_assert(false, "atToString is not defined for this type."); }
-template <typename T> inline T atFromString(const atString &str) { static_assert(false, "atFromString is not defined for this type."); }
+template<> inline atTypeDesc atGetTypeDesc(const atString &str);
+template<typename T> inline atString atToString(const T &o) { static_assert(false, "atToString is not defined for this type."); }
+template<typename T> inline T atFromString(const atString &str) { static_assert(false, "atFromString is not defined for this type."); }
 
 #include "atFromString.h"
 #include "atToString.h"

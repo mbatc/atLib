@@ -31,7 +31,7 @@
 #include "atWriteStream.h"
 #include <vector>
 
-template <class T> class atVector
+template<typename T> class atVector
 {
   const double _grow_rate = 1.61803399; // PHI
 public:
@@ -43,7 +43,7 @@ public:
   // Creates an empty atVector
   atVector();
 
-  template <typename T2> atVector(const atVector<T2> &vec);
+  template<typename T2> atVector(const atVector<T2> &vec);
 
   // Creates an atVector with an initial capacity of [reserve]
   atVector(const int64_t _reserve);
@@ -76,10 +76,10 @@ public:
   void insert(const int64_t index, const std::vector<T> &items);
   void insert(const int64_t index, vector_const_iterator start, vector_const_iterator end);
 
-  template <class... Args> void emplace_back(Args... args);
-  template <class... Args> void emplace_back_array(const int64_t count, Args... args);
-  template <class... Args> void emplace_array(const int64_t index, const int64_t count, Args... args);
-  template <class... Args> void emplace(const int64_t index, Args... args);
+  template<typename... Args> void emplace_back(Args... args);
+  template<typename... Args> void emplace_back_array(const int64_t count, Args... args);
+  template<typename... Args> void emplace_array(const int64_t index, const int64_t count, Args... args);
+  template<typename... Args> void emplace(const int64_t index, Args... args);
 
   // Memory Management
   void resize(const int64_t size);
@@ -95,7 +95,7 @@ public:
   void assign(vector_const_iterator start, vector_const_iterator end);
 
   // assign and attempt convert
-  template <class T1> void assign(T1* start, T1* end);
+  template<typename T1> void assign(T1* start, T1* end);
 
   void assign(const std::vector<T> &copy);
   void assign(const atVector<T> &copy);
@@ -151,7 +151,7 @@ public:
   const bool operator!=(const atVector<T> &rhs) const;
 
   operator std::vector<T>();
-  template <typename T2> operator std::vector<T2>();
+  template<typename T2> operator std::vector<T2>();
 
 protected:
 
@@ -179,7 +179,7 @@ protected:
   T *m_pData = nullptr;
 };
 
-template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atVector<T> *pData, const int64_t count)
+template<typename T> int64_t atStreamWrite(atWriteStream *pStream, const atVector<T> *pData, const int64_t count)
 {
   int64_t ret = 0;
   for (const atVector<T> &vec : atIterate(pData, count))
@@ -190,7 +190,7 @@ template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atVect
   return ret;
 }
 
-template <typename T> int64_t atStreamRead(atReadStream *pStream, atVector<T> *pData, const int64_t count)
+template<typename T> int64_t atStreamRead(atReadStream *pStream, atVector<T> *pData, const int64_t count)
 {
   int64_t ret = 0;
   for (atVector<T> &vec : atIterate(pData, count))

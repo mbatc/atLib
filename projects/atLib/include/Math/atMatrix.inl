@@ -40,12 +40,12 @@ inline T atMatrixDet3x3(T a, T b, T c, T d, T e, T f, T g, T h, T i)
     c * atMatrixDet2x2(d, e, g, h);
 }
 
-template <typename T> atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T> &copy)
+template<typename T> atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T> &copy)
 {
   memcpy(&m, &copy.m, sizeof(T) * 16);
 }
 
-template <typename T> inline atMatrix4x4<T>::atMatrix4x4(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23, T _30, T _31, T _32, T _33)
+template<typename T> inline atMatrix4x4<T>::atMatrix4x4(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23, T _30, T _31, T _32, T _33)
 {
   m[0] = _00;  m[1] = _01;  m[2] = _02;  m[3] = _03; 
   m[4] = _10;  m[5] = _11;  m[6] = _12;  m[7] = _13; 
@@ -53,20 +53,20 @@ template <typename T> inline atMatrix4x4<T>::atMatrix4x4(T _00, T _01, T _02, T 
   m[12] = _30; m[13] = _31; m[14] = _32; m[15] = _33; 
 }
 
-template <typename T> atMatrix4x4<T>::atMatrix4x4(atMatrix4x4<T> &&move)
+template<typename T> atMatrix4x4<T>::atMatrix4x4(atMatrix4x4<T> &&move)
 {
   memcpy(&m, &move.m, sizeof(m));
   move = Identity();
 }
 
-template <typename T> template <typename T2> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T2> &copy)
+template<typename T> template<typename T2> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T2> &copy)
 {
   for (int64_t i = 0; i < 16; ++i)
     m[i] = (T)copy[i];
   return *this;
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Identity()
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Identity()
 {
   return atMatrix4x4<T>(
     1, 0, 0, 0,
@@ -75,7 +75,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Identity()
     0, 0, 0, 1);
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Transpose() const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Transpose() const
 {
   return atMatrix4x4<T>(
     m[0], m[4], m[8],  m[12],
@@ -84,7 +84,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Transpose() const
     m[3], m[7], m[11], m[15]);
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Cofactors() const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Cofactors() const
 {
   return atMatrix4x4<T>(
      atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]),
@@ -109,7 +109,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Cofactors() const
   );
 }
 
-template <typename T> T atMatrix4x4<T>::Determinate() const
+template<typename T> T atMatrix4x4<T>::Determinate() const
 {
   return 
       m[0] * atMatrixDet3x3(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15])
@@ -118,7 +118,7 @@ template <typename T> T atMatrix4x4<T>::Determinate() const
     - m[3] * atMatrixDet3x3(m[4], m[5], m[6], m[8], m[9],  m[10], m[12], m[13], m[14]);
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &rhs) const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &rhs) const
 {
   return atMatrix4x4<T>(
     m[0]  * rhs.m[0] + m[1]  * rhs.m[4] + m[2]  * rhs.m[8]  + m[3]  * rhs.m[12],
@@ -143,7 +143,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &r
   );
 }
 
-template <typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T> &rhs) const
+template<typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T> &rhs) const
 {
   return atVector4<T>(
     rhs.x * m[0] + rhs.y * m[4] + rhs.z * m[8] + rhs.w *  m[12],
@@ -153,7 +153,7 @@ template <typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T>
   );
 }
 
-template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T2> &rhs) const
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T2> &rhs) const
 {
   return atMatrix4x4<T>(
     m[0]  * (T)rhs.m[0] + m[1]  * (T)rhs.m[4] + m[2]  * (T)rhs.m[8]  + m[3]  * (T)rhs.m[12],
@@ -177,7 +177,7 @@ template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(
     m[12] * (T)rhs.m[3] + m[13] * (T)rhs.m[7] + m[14] * (T)rhs.m[11] + m[15] * (T)rhs.m[15]);
 }
 
-template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Add(const atMatrix4x4<T2> &rhs) const
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Add(const atMatrix4x4<T2> &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] + (T)rhs.m[0],
@@ -199,7 +199,7 @@ template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Add(
   );
 }
 
-template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Sub(const atMatrix4x4<T2> &rhs) const
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Sub(const atMatrix4x4<T2> &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] - (T)rhs.m[0],
@@ -226,7 +226,7 @@ template<typename T> template<typename T2> inline atMatrix4x4<T>::atMatrix4x4(at
   *this = copy; 
 }
 
-template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T2 &rhs) const
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T2 &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] * (T)rhs,  m[1] * (T)rhs,  m[2] * (T)rhs,  m[3] * (T)rhs,
@@ -236,7 +236,7 @@ template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(
   );
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T &rhs) const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] * rhs,  m[1] * rhs,  m[2] * rhs,  m[3] * rhs,
@@ -246,7 +246,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T &rhs) const
   );
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Sub(const T &rhs) const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Sub(const T &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] - rhs,
@@ -268,7 +268,7 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Sub(const T &rhs) const
   );
 }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
 {
   return atMatrix4x4<T>(
     m[0] + rhs,
@@ -290,33 +290,33 @@ template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
   );
 }
 
-template <typename T> inline atVector3<T> atMatrix4x4<T>::Mul(const atVector3<T> &rhs) const { return ((*this) * atVector4<T>(rhs, 1)).xyz(); }
+template<typename T> inline atVector3<T> atMatrix4x4<T>::Mul(const atVector3<T> &rhs) const { return ((*this) * atVector4<T>(rhs, 1)).xyz(); }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const
 {
   return Cofactors().Transpose().Mul((T)1 / Determinate());
 }
 
-template <typename T> template <typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs) }
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs) }
 
-template <typename T> inline atVector4<T> atMatrix4x4<T>::operator*(const atVector4<T> &rhs) const { return Mul(rhs); }
+template<typename T> inline atVector4<T> atMatrix4x4<T>::operator*(const atVector4<T> &rhs) const { return Mul(rhs); }
 
-template <typename T> inline atVector3<T> atMatrix4x4<T>::operator*(const atVector3<T> &rhs) const { return Mul(rhs); }
+template<typename T> inline atVector3<T> atMatrix4x4<T>::operator*(const atVector3<T> &rhs) const { return Mul(rhs); }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const T &rhs) const { return Mul(rhs); }
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const T &rhs) const { return Mul(rhs); }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T> &rhs) const { return Mul(rhs); }
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T> &rhs) const { return Mul(rhs); }
 
-template <typename T> bool atMatrix4x4<T>::operator==(const atMatrix4x4<T> &rhs) const { return memcmp(&m, &rhs.m, sizeof(T) * 16) == 0; }
+template<typename T> bool atMatrix4x4<T>::operator==(const atMatrix4x4<T> &rhs) const { return memcmp(&m, &rhs.m, sizeof(T) * 16) == 0; }
 
-template <typename T> bool atMatrix4x4<T>::operator!=(const atMatrix4x4<T> &rhs) const { return !(*this == rhs); }
+template<typename T> bool atMatrix4x4<T>::operator!=(const atMatrix4x4<T> &rhs) const { return !(*this == rhs); }
 
-template <typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)
+template<typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)
 { 
   memcpy(&m, &copy.m, sizeof(T) * 16);
   return *this;
 }
 
-template <typename T> T& atMatrix4x4<T>::operator[](const int64_t index) { return m[index]; }
+template<typename T> T& atMatrix4x4<T>::operator[](const int64_t index) { return m[index]; }
 
-template <typename T> const T& atMatrix4x4<T>::operator[](const int64_t index) const { return m[index]; }
+template<typename T> const T& atMatrix4x4<T>::operator[](const int64_t index) const { return m[index]; }

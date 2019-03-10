@@ -28,7 +28,7 @@
 
 #include "atVector3.h"
 
-template <typename T> class atVector4
+template<typename T> class atVector4
 {
 public:
   atVector4();
@@ -41,15 +41,15 @@ public:
   atVector4(const atVector2<T> &xy, T _z, T _w);
   atVector4(const atVector2<T> &xy, const atVector2<T> &yw);
 
-  template <typename T2> atVector4(T2 val);
-  template <typename T2> atVector4(T2 _x, T2 _y, T2 _z, T2 _w);
-  template <typename T2> atVector4(const atVector3<T2> &xyz, T2 _w);
-  template <typename T2> atVector4(T2 _x, const atVector3<T2> &yzw);
-  template <typename T2> atVector4(T2 _x, T2 _y, const atVector2<T2> &zw);
-  template <typename T2> atVector4(T2 _x, const atVector2<T2> &yz, T2 _w);
-  template <typename T2> atVector4(const atVector2<T2> &xy, T2 _z, T2 _w);
-  template <typename T2> atVector4(const atVector2<T2> &xy, const atVector2<T2> &yw);
-  template <typename T2> atVector4(atVector4<T2> copy);
+  template<typename T2> atVector4(T2 val);
+  template<typename T2> atVector4(T2 _x, T2 _y, T2 _z, T2 _w);
+  template<typename T2> atVector4(const atVector3<T2> &xyz, T2 _w);
+  template<typename T2> atVector4(T2 _x, const atVector3<T2> &yzw);
+  template<typename T2> atVector4(T2 _x, T2 _y, const atVector2<T2> &zw);
+  template<typename T2> atVector4(T2 _x, const atVector2<T2> &yz, T2 _w);
+  template<typename T2> atVector4(const atVector2<T2> &xy, T2 _z, T2 _w);
+  template<typename T2> atVector4(const atVector2<T2> &xy, const atVector2<T2> &yw);
+  template<typename T2> atVector4(atVector4<T2> copy);
 
   atVector4(const atVector4<T> &copy);
   atVector4(atVector4<T> &&move);
@@ -57,8 +57,8 @@ public:
   static atVector4<T> zero();
   static atVector4<T> one();
 
-  template <typename T2> const atVector4<T>& assign(T2 _x, T2 _y, T2 _z, T2 _w);
-  template <typename T2> const atVector4<T>& assign(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& assign(T2 _x, T2 _y, T2 _z, T2 _w);
+  template<typename T2> const atVector4<T>& assign(const atVector4<T2> &rhs);
   const atVector4<T>& assign(T x, T y, T z, T w);
   const atVector4<T>& assign(const atVector4<T> &rhs);
 
@@ -80,29 +80,29 @@ public:
   bool operator==(const atVector4<T> &rhs) const;
   bool operator!=(const atVector4<T> &rhs) const;
 
-  template <typename T2> atVector4<T> operator+(const atVector4<T2> &rhs) const;
-  template <typename T2> atVector4<T> operator-(const atVector4<T2> &rhs) const;
-  template <typename T2> atVector4<T> operator*(const atVector4<T2> &rhs) const;
-  template <typename T2> atVector4<T> operator/(const atVector4<T2> &rhs) const;
-  template <typename T2> atVector4<T> operator%(const atVector4<T2> &rhs) const;
-  template <typename T2> const atVector4<T>& operator+=(const atVector4<T2> &rhs);
-  template <typename T2> const atVector4<T>& operator-=(const atVector4<T2> &rhs);
-  template <typename T2> const atVector4<T>& operator*=(const atVector4<T2> &rhs);
-  template <typename T2> const atVector4<T>& operator/=(const atVector4<T2> &rhs);
-  template <typename T2> const atVector4<T>& operator%=(const atVector4<T2> &rhs);
-  template <typename T2> const atVector4<T>& operator=(const atVector4<T2> &rhs);
+  template<typename T2> atVector4<T> operator+(const atVector4<T2> &rhs) const;
+  template<typename T2> atVector4<T> operator-(const atVector4<T2> &rhs) const;
+  template<typename T2> atVector4<T> operator*(const atVector4<T2> &rhs) const;
+  template<typename T2> atVector4<T> operator/(const atVector4<T2> &rhs) const;
+  template<typename T2> atVector4<T> operator%(const atVector4<T2> &rhs) const;
+  template<typename T2> const atVector4<T>& operator+=(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& operator-=(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& operator*=(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& operator/=(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& operator%=(const atVector4<T2> &rhs);
+  template<typename T2> const atVector4<T>& operator=(const atVector4<T2> &rhs);
 
-  template <typename T2> atVector4<T> operator+(const T2 &rhs) const;
-  template <typename T2> atVector4<T> operator-(const T2 &rhs) const;
-  template <typename T2> atVector4<T> operator*(const T2 &rhs) const;
-  template <typename T2> atVector4<T> operator/(const T2 &rhs) const;
-  template <typename T2> atVector4<T> operator%(const T2 &rhs) const;
-  template <typename T2> const atVector4<T>& operator+=(const T2 &rhs);
-  template <typename T2> const atVector4<T>& operator-=(const T2 &rhs);
-  template <typename T2> const atVector4<T>& operator*=(const T2 &rhs);
-  template <typename T2> const atVector4<T>& operator/=(const T2 &rhs);
-  template <typename T2> const atVector4<T>& operator%=(const T2 &rhs);
-  template <typename T2> const atVector4<T>& operator=(const T2 &rhs);
+  template<typename T2> atVector4<T> operator+(const T2 &rhs) const;
+  template<typename T2> atVector4<T> operator-(const T2 &rhs) const;
+  template<typename T2> atVector4<T> operator*(const T2 &rhs) const;
+  template<typename T2> atVector4<T> operator/(const T2 &rhs) const;
+  template<typename T2> atVector4<T> operator%(const T2 &rhs) const;
+  template<typename T2> const atVector4<T>& operator+=(const T2 &rhs);
+  template<typename T2> const atVector4<T>& operator-=(const T2 &rhs);
+  template<typename T2> const atVector4<T>& operator*=(const T2 &rhs);
+  template<typename T2> const atVector4<T>& operator/=(const T2 &rhs);
+  template<typename T2> const atVector4<T>& operator%=(const T2 &rhs);
+  template<typename T2> const atVector4<T>& operator=(const T2 &rhs);
 
   atVector2<T> xy() const;
   atVector2<T> xz() const;

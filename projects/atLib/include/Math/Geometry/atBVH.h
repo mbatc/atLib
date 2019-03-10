@@ -30,7 +30,7 @@
 #include "atRay.h"
 #include "atAABB.h"
 
-template <typename T> struct atBVHNode
+template<typename T> struct atBVHNode
 {
   atBVHNode();
   bool isLeaf = false;
@@ -39,9 +39,9 @@ template <typename T> struct atBVHNode
   atVector<atBVHNode<T>> children;
 };
 
-template <typename T> atBVHNode<T>::atBVHNode() {}
+template<typename T> atBVHNode<T>::atBVHNode() {}
 
-template <typename T> class atBVH
+template<typename T> class atBVH
 {
 public:
   atBVH(const atVector<T> &primitives);
@@ -51,12 +51,12 @@ public:
   // Recursively construct the tree - removes items from pPrimitives as they are assigned to tree node
   void ConstructRecursive(atBVHNode<T> *pRoot, atVector<atBVHNode<T>> *pLeaves);
 
-  template <typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime);
+  template<typename T2> bool RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime);
 
   atBVHNode<T> m_root;
 };
 
-template <typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
+template<typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2 *pTime);
 
 #include "atBVH.inl"
 #endif // atBVH_h__

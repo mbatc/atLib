@@ -23,9 +23,9 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template <typename T> atBVH<T>::atBVH(const atVector<T> &primitives) { Construct(std::move(primitives)); }
+template<typename T> atBVH<T>::atBVH(const atVector<T> &primitives) { Construct(std::move(primitives)); }
 
-template <typename T> void atBVH<T>::Construct(const atVector<T> &primitives)
+template<typename T> void atBVH<T>::Construct(const atVector<T> &primitives)
 {
   atVector<atBVHNode<T>> leaves(primitives.size());
   for (const T &prim : primitives)
@@ -92,7 +92,7 @@ template<typename T> void atBVH<T>::ConstructRecursive(atBVHNode<T> *pRoot, atVe
   }
 }
 
-template <typename T> template <typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime) 
+template<typename T> template<typename T2> bool atBVH<T>::RayTrace(const atRay<T2> &ray, atMatrix4x4<T2> &modelMat, T2 *pTime) 
 { 
   atMat4D invModel = modelMat.Inverse();
   atVec3D startPos = invModel * ray.m_pos;

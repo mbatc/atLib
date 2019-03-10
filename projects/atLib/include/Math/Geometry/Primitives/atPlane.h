@@ -28,7 +28,7 @@
 
 #include "atVector4.h"
 
-template <typename T> class atPlane
+template<typename T> class atPlane
 {
 public:
   atPlane(const atVector4<T> &coeff);

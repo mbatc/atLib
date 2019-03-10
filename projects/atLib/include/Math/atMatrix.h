@@ -31,10 +31,10 @@
 #include "atTypes.h"
 #include "atVector4.h"
 
-template <typename T> inline T atMatrixDet2x2(T a, T b, T c, T d);
-template <typename T> inline T atMatrixDet3x3(T a, T b, T c, T d, T e, T f, T g, T h, T i);
+template<typename T> inline T atMatrixDet2x2(T a, T b, T c, T d);
+template<typename T> inline T atMatrixDet3x3(T a, T b, T c, T d, T e, T f, T g, T h, T i);
 
-template <typename T> class atMatrix4x4
+template<typename T> class atMatrix4x4
 {
 public:
   atMatrix4x4(
@@ -46,7 +46,7 @@ public:
   atMatrix4x4(atMatrix4x4<T> &&move);
   atMatrix4x4(const atMatrix4x4<T> &copy);
 
-  template <typename T2> atMatrix4x4(atMatrix4x4<T2> copy);
+  template<typename T2> atMatrix4x4(atMatrix4x4<T2> copy);
 
   static atMatrix4x4<T> Identity();
   atMatrix4x4<T> Transpose() const;
@@ -55,12 +55,12 @@ public:
 
   T Determinate() const;
 
-  template <typename T2> atMatrix4x4<T> Mul(const T2 &rhs) const;
-  template <typename T2> atMatrix4x4<T> Mul(const atMatrix4x4<T2> &rhs) const;
-  template <typename T2> atMatrix4x4<T> operator*(const atMatrix4x4<T2> &rhs) const;
+  template<typename T2> atMatrix4x4<T> Mul(const T2 &rhs) const;
+  template<typename T2> atMatrix4x4<T> Mul(const atMatrix4x4<T2> &rhs) const;
+  template<typename T2> atMatrix4x4<T> operator*(const atMatrix4x4<T2> &rhs) const;
 
-  template <typename T2> atMatrix4x4<T> Add(const atMatrix4x4<T2> &rhs) const;
-  template <typename T2> atMatrix4x4<T> Sub(const atMatrix4x4<T2> &rhs) const;
+  template<typename T2> atMatrix4x4<T> Add(const atMatrix4x4<T2> &rhs) const;
+  template<typename T2> atMatrix4x4<T> Sub(const atMatrix4x4<T2> &rhs) const;
 
   atMatrix4x4<T> Mul(const T &rhs) const;
   atMatrix4x4<T> Sub(const T &rhs) const;
@@ -77,7 +77,7 @@ public:
   bool operator==(const atMatrix4x4<T> &rhs) const;
   bool operator!=(const atMatrix4x4<T> &rhs) const;
   const atMatrix4x4<T> &operator=(const atMatrix4x4<T> &copy);
-  template <typename T2> const atMatrix4x4<T>& operator=(const atMatrix4x4<T2> &copy);
+  template<typename T2> const atMatrix4x4<T>& operator=(const atMatrix4x4<T2> &copy);
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;

@@ -36,7 +36,7 @@
 #define AT_INVALID_LOC (int64_t)-1
 
 void atUnused();
-template <typename T, typename... Args> void atUnused(const T &first, Args... args) { (void)first; atUnused(args...); }
+template<typename T, typename... Args> void atUnused(const T &first, Args... args) { (void)first; atUnused(args...); }
 
 enum atType
 {
@@ -59,9 +59,9 @@ enum atType
 };
 
 // Return the size in bytes of a specific type
-template <typename T> int64_t atSize() { return sizeof(T); };
-template <typename T> int64_t atSize(const T& val) { return sizeof(val); }; 
-template <> int64_t atSize(const atType &val);
+template<typename T> int64_t atSize() { return sizeof(T); };
+template<typename T> int64_t atSize(const T& val) { return sizeof(val); }; 
+template<> int64_t atSize(const atType &val);
 
 struct atTypeDesc
 {
@@ -80,25 +80,25 @@ struct atTypeDesc
 };
 
 // Return an enum representing the type
-template <typename T> atType atGetType() { return atType_Unknown; }
-template <> atType atGetType<bool>();
-template <> atType atGetType<char>();
-template <> atType atGetType<wchar_t>();
-template <> atType atGetType<int8_t>();
-template <> atType atGetType<int16_t>();
-template <> atType atGetType<int32_t>();
-template <> atType atGetType<int64_t>();
-template <> atType atGetType<uint8_t>();
-template <> atType atGetType<uint16_t>();
-template <> atType atGetType<uint32_t>();
-template <> atType atGetType<uint64_t>();
-template <> atType atGetType<float>();
-template <> atType atGetType<double>();
+template<typename T> atType atGetType() { return atType_Unknown; }
+template<> atType atGetType<bool>();
+template<> atType atGetType<char>();
+template<> atType atGetType<wchar_t>();
+template<> atType atGetType<int8_t>();
+template<> atType atGetType<int16_t>();
+template<> atType atGetType<int32_t>();
+template<> atType atGetType<int64_t>();
+template<> atType atGetType<uint8_t>();
+template<> atType atGetType<uint16_t>();
+template<> atType atGetType<uint32_t>();
+template<> atType atGetType<uint64_t>();
+template<> atType atGetType<float>();
+template<> atType atGetType<double>();
 
 // Return a struct containing the atType enum and count of that type
 // Specialized Templates implemented in atMath.h for atVector2/3/4 and atMatrix
 
-template <typename T> atTypeDesc atGetTypeDesc() { return{ atGetType<T>(), 1}; }
-template <typename T> atTypeDesc atGetTypeDesc(const T &unused) { atUnused(unused); return atGetTypeDesc<T>(); }
+template<typename T> atTypeDesc atGetTypeDesc() { return{ atGetType<T>(), 1}; }
+template<typename T> atTypeDesc atGetTypeDesc(const T &unused) { atUnused(unused); return atGetTypeDesc<T>(); }
 
 #endif

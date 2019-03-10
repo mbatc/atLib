@@ -30,7 +30,7 @@
 #include "atPlane.h"
 #include "atAABB.h"
 
-template <typename T> class atTriangle
+template<typename T> class atTriangle
 {
 public:
   atTriangle();
@@ -45,7 +45,7 @@ public:
   T Area() const;
 };
 
-template <typename T> atAABB<T> atBounds(const atTriangle<T> &tri) 
+template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri) 
 { 
   atAABB<T> ret;
   ret.GrowToContain(tri.m_a);

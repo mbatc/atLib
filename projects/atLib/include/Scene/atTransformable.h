@@ -28,7 +28,7 @@
 
 #include "atMath.h"
 
-template <typename T> class atTransformable
+template<typename T> class atTransformable
 {
 public:
   typedef atVector3<T> Vec;

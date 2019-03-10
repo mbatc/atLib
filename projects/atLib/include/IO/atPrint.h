@@ -33,13 +33,13 @@ class atPrint
 public:
   atPrint() = delete;
   
-  template <typename T> static atString Print(const T &object);
-  template <typename T> static atString Float(const T &val);
-  template <typename T> static atString Int(const T &val);
+  template<typename T> static atString Print(const T &object);
+  template<typename T> static atString Float(const T &val);
+  template<typename T> static atString Int(const T &val);
 
-  template <typename T> static atString Vector(const atVector2<T> &vec, const char *separator = " ");
-  template <typename T> static atString Vector(const atVector3<T> &vec, const char *separator = " ");
-  template <typename T> static atString Vector(const atVector4<T> &vec, const char *separator = " ");
+  template<typename T> static atString Vector(const atVector2<T> &vec, const char *separator = " ");
+  template<typename T> static atString Vector(const atVector3<T> &vec, const char *separator = " ");
+  template<typename T> static atString Vector(const atVector4<T> &vec, const char *separator = " ");
 
   static atString Float(const double &val);
   static atString Int(const int64_t &val);

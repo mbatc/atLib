@@ -86,9 +86,9 @@ public:
   void Clear();
 
   void SetChannel(const atString &name, const atString &data, const atRenderable_ResourceType type);
-  template <typename T> void SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type);
-  template <typename T> void SetChannel(const atString &name, const atVector<T> &data, const atRenderable_ResourceType type);
-  template <typename T> void SetChannel(const atString &name, const std::initializer_list<T> &list, const atRenderable_ResourceType type);
+  template<typename T> void SetChannel(const atString &name, const T &data, const atRenderable_ResourceType type);
+  template<typename T> void SetChannel(const atString &name, const atVector<T> &data, const atRenderable_ResourceType type);
+  template<typename T> void SetChannel(const atString &name, const std::initializer_list<T> &list, const atRenderable_ResourceType type);
 
   bool HasResource(const atString &name);
   Resource& GetResource(const atString &name);

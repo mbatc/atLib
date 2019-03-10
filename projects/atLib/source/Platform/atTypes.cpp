@@ -25,7 +25,7 @@
 
 #include "atTypes.h"
 
-template <> int64_t atSize(const atType &val)
+template<> int64_t atSize(const atType &val)
 {
   switch (val)
   {
