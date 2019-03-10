@@ -353,7 +353,7 @@ void ExampleImportExportMesh()
 void ExampleRayTraceMesh()
 {
   atMesh mesh;
-  mesh.Import("assets/test/models/bumpMap.obj");
+  mesh.Import("assets/test/models/level.obj");
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindow window("Window", { 800, 600 }, false);
@@ -388,10 +388,10 @@ void ExampleRayTraceMesh()
         double time = 0.0;
         if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
         {
-          time = 255 + time * 255 * 255 + time * 255 * 255 * 255;
+          time *= time;
           for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
             for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
-              window.Pixels()[x2 + y2 * window.Width()] = (uint32_t)time | 0xFF000000;
+              window.Pixels()[x2 + y2 * window.Width()] = atColor::Pack(int(255.f - time), int(255.f - time), int(255.f - time), 255);
         }
       }
 
