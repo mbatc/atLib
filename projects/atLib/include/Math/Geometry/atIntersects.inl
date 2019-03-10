@@ -83,8 +83,8 @@ template<typename T> bool atIntersects(const atVector4<T> &a, const atVector4<T>
 template <typename T> bool atIntersects(const atRay<T> &ray, const atAABB<T> &box, T* pTime)
 {
   atVector3<T> invDir = (T)1 / ray.m_dir;
-  atVector3<T> tMin3 = (box.m_min - ray.m_pos.x) * invDir;
-  atVector3<T> tMax3 = (box.m_max - ray.m_pos.x) * invDir;
+  atVector3<T> tMin3 = (box.m_min - ray.m_pos) * invDir;
+  atVector3<T> tMax3 = (box.m_max - ray.m_pos) * invDir;
   T tmin = atMax(atMax(atMin(tMin3.x, tMax3.x), atMin(tMin3.y, tMax3.y)), atMin(tMin3.z, tMax3.z));
   T tmax = atMin(atMin(atMax(tMin3.x, tMax3.x), atMax(tMin3.y, tMax3.y)), atMax(tMin3.z, tMax3.z));
   bool intersects = !(tmax < 0 || tmin > tmax);

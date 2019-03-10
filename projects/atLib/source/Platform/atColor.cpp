@@ -29,11 +29,11 @@ atCol atColor::RGBAtoBGRA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETB(col), a
 atCol atColor::RGBAtoARGB(atCol col) { return atCOL_PACK_RGBA(atCOL_GETA(col), atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col)); }
 atCol atColor::ARGBtoRGBA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }
 
-template <> atCol atColor::PackARGB<float>(float r, float g, float b, float a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
-template <> atCol atColor::PackARGB<double>(double r, double g, double b, double a) { return Pack<int64_t>((int64_t)a * 255, (int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255); }
+template <> atCol atColor::PackARGB<float>(float r, float g, float b, float a) { return Pack<int64_t>(int64_t(a * 255), int64_t(r * 255), int64_t(g * 255), int64_t(b * 255)); }
+template <> atCol atColor::PackARGB<double>(double r, double g, double b, double a) { return Pack<int64_t>(int64_t(a * 255), int64_t(r * 255), int64_t(g * 255), int64_t(b * 255)); }
 
-template <> atCol atColor::Pack<float>(float r, float g, float b, float a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
-template <> atCol atColor::Pack<double>(double r, double g, double b, double a) { return Pack<int64_t>((int64_t)r * 255, (int64_t)g * 255, (int64_t)b * 255, (int64_t)a * 255); }
+template <> atCol atColor::Pack<float>(float r, float g, float b, float a) { return Pack<int64_t>(int64_t(r * 255), int64_t(g * 255), int64_t(b * 255), int64_t(a * 255)); }
+template <> atCol atColor::Pack<double>(double r, double g, double b, double a) { return Pack<int64_t>(int64_t(r * 255), int64_t(g * 255), int64_t(b * 255), int64_t(a * 255)); }
 
 template <> atVector4<float> atColor::UnPackARGB(atCol col) { return atVector4<float>(UnPackARGB<int64_t>(col)) / 255.f; }
 template <> atVector4<double> atColor::UnPackARGB(atCol col) { return atVector4<double>(UnPackARGB<int64_t>(col)) / 255.0; }

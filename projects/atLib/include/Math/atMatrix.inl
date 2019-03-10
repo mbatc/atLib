@@ -305,7 +305,7 @@ template <typename T> inline atVector3<T> atMatrix4x4<T>::operator*(const atVect
 
 template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const T &rhs) const { return Mul(rhs); }
 
-template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T> &rhs) const { return rhs.Mul(*this); }
+template <typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T> &rhs) const { return Mul(rhs); }
 
 template <typename T> bool atMatrix4x4<T>::operator==(const atMatrix4x4<T> &rhs) const { return memcmp(&m, &rhs.m, sizeof(T) * 16) == 0; }
 

@@ -171,10 +171,10 @@ template <typename T> inline atVector3<T> atVector3<T>::operator*(const atVector
 template <typename T> inline atVector3<T> atVector3<T>::operator/(const atVector3<T>& rhs) const { return atVector3<T>(x / rhs.x, y / rhs.y, z / rhs.z); }
 template <typename T> inline atVector3<T> atVector3<T>::operator%(const atVector3<T>& rhs) const { return atVector3<T>(atMod(x, rhs.x), atMod(y, rhs.y), atMod(z, rhs.z)); }
 template <typename T> inline const atVector3<T>& atVector3<T>::operator+=(const atVector3<T>& rhs) { return assign(*this + rhs); }
-template <typename T> inline const atVector3<T>& atVector3<T>::operator-=(const atVector3<T>& rhs) { return assign(*this + rhs); }
-template <typename T> inline const atVector3<T>& atVector3<T>::operator*=(const atVector3<T>& rhs) { return assign(*this + rhs); }
-template <typename T> inline const atVector3<T>& atVector3<T>::operator/=(const atVector3<T>& rhs) { return assign(*this + rhs); }
-template <typename T> inline const atVector3<T>& atVector3<T>::operator%=(const atVector3<T>& rhs) { return assign(*this + rhs); }
+template <typename T> inline const atVector3<T>& atVector3<T>::operator-=(const atVector3<T>& rhs) { return assign(*this - rhs); }
+template <typename T> inline const atVector3<T>& atVector3<T>::operator*=(const atVector3<T>& rhs) { return assign(*this * rhs); }
+template <typename T> inline const atVector3<T>& atVector3<T>::operator/=(const atVector3<T>& rhs) { return assign(*this / rhs); }
+template <typename T> inline const atVector3<T>& atVector3<T>::operator%=(const atVector3<T>& rhs) { return assign(*this % rhs); }
 template <typename T> inline const atVector3<T>& atVector3<T>::operator=(const atVector3<T>& rhs) { return assign(rhs); }
 template <typename T> inline bool atVector3<T>::operator==(const atVector3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
 template <typename T> inline bool atVector3<T>::operator!=(const atVector3<T>& rhs) const { return !(*this == rhs); }
