@@ -236,10 +236,10 @@ template <typename T> inline T& atVector4<T>::operator[](int64_t index) { return
 template <typename T> inline const T& atVector4<T>::operator[](int64_t index) const { return data()[index]; }
 template <typename T> inline atVector4<T> atVector4<T>::operator-() const { return atVector4<T>(-x, -y, -z, -w); }
 template <typename T> inline atVector4<T> atVector4<T>::operator+(const atVector4<T>& rhs) const { return atVector4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
-template <typename T> inline atVector4<T> atVector4<T>::operator-(const atVector4<T>& rhs) const { return atVector4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
-template <typename T> inline atVector4<T> atVector4<T>::operator*(const atVector4<T>& rhs) const { return atVector4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
-template <typename T> inline atVector4<T> atVector4<T>::operator/(const atVector4<T>& rhs) const { return atVector4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
-template <typename T> inline atVector4<T> atVector4<T>::operator%(const atVector4<T>& rhs) const { return atVector4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
+template <typename T> inline atVector4<T> atVector4<T>::operator-(const atVector4<T>& rhs) const { return atVector4<T>(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w); }
+template <typename T> inline atVector4<T> atVector4<T>::operator*(const atVector4<T>& rhs) const { return atVector4<T>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); }
+template <typename T> inline atVector4<T> atVector4<T>::operator/(const atVector4<T>& rhs) const { return atVector4<T>(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w); }
+template <typename T> inline atVector4<T> atVector4<T>::operator%(const atVector4<T>& rhs) const { return atVector4<T>(x % rhs.x, y % rhs.y, z % rhs.z, w % rhs.w); }
 template <typename T> inline const atVector4<T>& atVector4<T>::operator+=(const atVector4<T>& rhs) { return assign(*this + rhs); }
 template <typename T> inline const atVector4<T>& atVector4<T>::operator-=(const atVector4<T>& rhs) { return assign(*this - rhs); }
 template <typename T> inline const atVector4<T>& atVector4<T>::operator*=(const atVector4<T>& rhs) { return assign(*this * rhs); }
@@ -250,10 +250,10 @@ template <typename T> inline bool atVector4<T>::operator==(const atVector4<T>& r
 template <typename T> inline bool atVector4<T>::operator!=(const atVector4<T>& rhs) const { return !(*this == rhs); }
 
 template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator+(const atVector4<T2>& rhs) const { return atVector4<T>(x + (T)rhs.x, y + (T)rhs.y, z + (T)rhs.z, w + (T)rhs.w); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator-(const atVector4<T2>& rhs) const { return atVector4<T>(x + (T)rhs.x, y + (T)rhs.y, z + (T)rhs.z, w + (T)rhs.w); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator*(const atVector4<T2>& rhs) const { return atVector4<T>(x + (T)rhs.x, y + (T)rhs.y, z + (T)rhs.z, w + (T)rhs.w); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator/(const atVector4<T2>& rhs) const { return atVector4<T>(x + (T)rhs.x, y + (T)rhs.y, z + (T)rhs.z, w + (T)rhs.w); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator%(const atVector4<T2>& rhs) const { return atVector4<T>(x + (T)rhs.x, y + (T)rhs.y, z + (T)rhs.z, w + (T)rhs.w); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator-(const atVector4<T2>& rhs) const { return atVector4<T>(x - (T)rhs.x, y - (T)rhs.y, z - (T)rhs.z, w - (T)rhs.w); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator*(const atVector4<T2>& rhs) const { return atVector4<T>(x * (T)rhs.x, y * (T)rhs.y, z * (T)rhs.z, w * (T)rhs.w); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator/(const atVector4<T2>& rhs) const { return atVector4<T>(x / (T)rhs.x, y / (T)rhs.y, z / (T)rhs.z, w / (T)rhs.w); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator%(const atVector4<T2>& rhs) const { return atVector4<T>(x % (T)rhs.x, y % (T)rhs.y, z % (T)rhs.z, w % (T)rhs.w); }
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator+=(const atVector4<T2>& rhs) { return assign(*this + rhs); }
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator-=(const atVector4<T2>& rhs) { return assign(*this - rhs); }
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator*=(const atVector4<T2>& rhs) { return assign(*this * rhs); }
@@ -262,9 +262,9 @@ template <typename T> template <typename T2> inline const atVector4<T>& atVector
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator=(const atVector4<T2>& rhs) { return assign(rhs); }
 
 template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator+(const T2 &rhs) const { return atVector4<T>(x + (T)rhs, y + (T)rhs, z + (T)rhs, w + (T)rhs); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator-(const T2 &rhs) const { return atVector4<T>(x + (T)rhs, y + (T)rhs, z + (T)rhs, w + (T)rhs); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator*(const T2 &rhs) const { return atVector4<T>(x + (T)rhs, y + (T)rhs, z + (T)rhs, w + (T)rhs); }
-template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator/(const T2 &rhs) const { return atVector4<T>(x + (T)rhs, y + (T)rhs, z + (T)rhs, w + (T)rhs); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator-(const T2 &rhs) const { return atVector4<T>(x - (T)rhs, y - (T)rhs, z - (T)rhs, w - (T)rhs); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator*(const T2 &rhs) const { return atVector4<T>(x * (T)rhs, y * (T)rhs, z * (T)rhs, w * (T)rhs); }
+template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator/(const T2 &rhs) const { return atVector4<T>(x / (T)rhs, y / (T)rhs, z / (T)rhs, w / (T)rhs); }
 template <typename T> template <typename T2> inline atVector4<T> atVector4<T>::operator%(const T2 &rhs) const { return atVector4<T>(atMod(x, (T)rhs), atMod(y, (T)rhs), atMod(z (T)rhs), atMod(w, (T)rhs)); }
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator+=(const T2 &rhs) { return assign(*this + rhs); }
 template <typename T> template <typename T2> inline const atVector4<T>& atVector4<T>::operator-=(const T2 &rhs) { return assign(*this - rhs); }

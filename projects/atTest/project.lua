@@ -38,7 +38,7 @@ flags { "MultiProcessorCompile" }
 
 -- Project Files
 
-  files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
+  files { "source/**.cpp", "source/**.h", "source/**.inl" , "**.natvis" }
 
   links { "atLib" }
 
