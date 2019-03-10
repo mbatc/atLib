@@ -99,6 +99,9 @@ template <> atTypeDesc atGetTypeDesc<atVector4<int16_t>>();
 template <> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>();
 template <> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>();
 
+template <typename T> inline T atClipNearZ();
+template <typename T> inline T atClipFarZ();
+
 template <typename T> inline T atMin(const T &a) { return a; }
 template <typename T> inline T atMax(const T &a) { return a; }
 template <typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args) { T argMin = (T)atMin(second, Args...); return (argMin < first) ? argMin : first; }
@@ -119,7 +122,7 @@ template <typename T> inline T atMod(const T a, const T b);
 template <> inline float atMod(const float a, const float b);
 template <> inline double atMod(const double a, const double b);
 
-template <typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane);
+template <typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T zClipNear = atClipNearZ<T>(), const T zClipFar = atClipFarZ<T>());
 template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
 template <typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane);
 template <typename T> inline atMatrix4x4<T> atMatrixRotationX(const T rads);

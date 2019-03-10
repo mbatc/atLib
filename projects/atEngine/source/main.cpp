@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#define ATLIB_DIRECTX
+
 #include "atEngine.h"
 
 int main(int argc, char **argv)

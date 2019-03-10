@@ -24,7 +24,7 @@ buildoptions { "/bigobj" }
 
 -- Shared Defines
 
-  defines { "_CRT_SECURE_NO_WARNINGS" }
+  defines { "_CRT_SECURE_NO_WARNINGS", "ATLIB_DIRECTX" }
 
 -- Includes
 

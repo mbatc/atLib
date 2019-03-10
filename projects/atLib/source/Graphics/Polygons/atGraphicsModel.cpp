@@ -41,8 +41,13 @@ void atGraphicsModel::Draw(const atMat4D &VP, const atMat4D &modelMat)
   atMat4F mf = modelMat;
   for (atRenderable &ro : m_mesh)
   {
+#ifdef ATLIB_DIRECTX
     ro.SetUniform("mvp", mvpf.Transpose());
     ro.SetUniform("modelMat", mf.Transpose());
+#elif ATLIB_OPENGL
+    ro.SetUniform("mvp", mvpf);
+    ro.SetUniform("modelMat", mf);
+#endif
     ro.DrawTriangles();
   }
 }

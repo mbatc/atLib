@@ -23,11 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#define ATLIB_DIRECTX
+#define RUN_ATTEST
+
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
-
-#define RUN_ATTEST
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -365,9 +366,9 @@ void ExampleRayTraceMesh()
     atMat4F invVP = vp.Inverse();
 
     static int64_t res = 10;
-    res = atMax(res, 1);
     res += atInput::ButtonPressed(atKC_P);
     res -= atInput::ButtonPressed(atKC_O);
+    res = atMax(res, 1);
 
     for (int64_t y = 0; y < window.Height(); y += res)
       for (int64_t x = 0; x < window.Width(); x += res)
@@ -376,11 +377,11 @@ void ExampleRayTraceMesh()
         //atVec2F ssc = { 0.5, 0.5 };
         ssc = ssc * 2 - 1;
 
-        atVec4F n(ssc, 0.0f, 1.f);
+        atVec4F n(ssc, atClipNearZ<float>(), 1.f);
         n = invVP * n;
         n /= n.w;
 
-        atVec4F f(ssc, 1.0f, 1.f);
+        atVec4F f(ssc, atClipFarZ<float>(), 1.f);
         f = invVP * f;
         f /= f.w;
         double time = 0.0;
