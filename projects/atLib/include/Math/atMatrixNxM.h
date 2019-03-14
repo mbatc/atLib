@@ -23,11 +23,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atMatrix_h__
-#define atMatrix_h__
+#ifndef atMatrixNxM_h__
+#define atMatrixNxM_h__
 
 #include <minmax.h>
 #include "atTypes.h"
+#include "atVector.h"
 
 template <typename T> class atMatrixNxM
 {
@@ -58,6 +59,8 @@ public:
   atMatrixNxM<T> Sub(const T &rhs) const;
   atMatrixNxM<T> Add(const T &rhs) const;
 
+  atMatrixNxM<T> LowOrderMatrix(const int64_t x, const int64_t y, const int64_t dim) const;
+
   template <typename T2> atMatrixNxM<T> operator/(const T2 &rhs) const;
   template <typename T2> atMatrixNxM<T> operator+(const atMatrixNxM<T2> &rhs) const;
   template <typename T2> atMatrixNxM<T> operator-(const atMatrixNxM<T2> &rhs) const;
@@ -72,13 +75,12 @@ public:
   const T& operator[](const int64_t index) const;
 
   atVector<T> m_data;
-
-protected:
   int64_t m_rows;
   int64_t m_columns;
-
-  atMatrixNxM<T> LowOrderMatrix(const int64_t x, const int64_t y, const int64_t dim) const;
 };
 
-#include "atMatrix.inl"
-#endif // atMatrix_h__
+template <typename T> int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T> *pData, const int64_t count);
+template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atMatrixNxM<T> *pData, const int64_t count);
+
+#include "atMatrixNxM.inl"
+#endif // atMatrixNxM_h__

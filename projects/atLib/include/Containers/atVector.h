@@ -29,6 +29,7 @@
 #include "atMemory.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
+#include "atIterator.h"
 #include <vector>
 
 template<typename T> class atVector

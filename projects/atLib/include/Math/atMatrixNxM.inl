@@ -77,11 +77,11 @@ template <typename T> atMatrixNxM<T> atMatrixNxM<T>::LowOrderMatrix(const int64_
 
 template <typename T> template<typename T2> atMatrixNxM<T> atMatrixNxM<T>::Mul(const atMatrixNxM<T2> &rhs) const
 {
-  atMatrixNxM<T,> ret;
+  atMatrixNxM<T> ret(rhs.m_columns, m_rows);
   for (int64_t r = 0; r < m_rows; ++r)
-    for (int64_t c = 0; c < rhs.col; ++c)
-      for (int64_t i = 0; i < rhs.row; ++i)
-        ret[c + r * col2] += m_data[i + r * m_columns] * (T)rhs.m_data[c + i * col2];
+    for (int64_t c = 0; c < rhs.m_columns; ++c)
+      for (int64_t i = 0; i < rhs.m_rows; ++i)
+        ret[c + r * ret.m_columns] += m_data[i + r * m_columns] * (T)rhs.m_data[c + i * rhs.m_columns];
   return ret;
 }
 
@@ -117,7 +117,16 @@ template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Add(const T &rhs) const
   return ret;
 }
 
-template <typename T> atMatrixNxM<T>::atMatrixNxM(const std::initializer_list<T> &list)
+template <typename T> inline atMatrixNxM<T>::atMatrixNxM(int64_t _col, int64_t _row)
+{
+  m_columns = _col;
+  m_rows = _row;
+  m_data.reserve(_col * _row);
+  m_data.resize(_col * _row);
+}
+
+template <typename T> atMatrixNxM<T>::atMatrixNxM(int64_t _col, int64_t _row, const std::initializer_list<T> &list)
+  : atMatrixNxM<T>(_col, _row)
 {
   for (int64_t i = 0; i < (int64_t)list.size() && i < m_rows * m_columns; ++i)
     m_data[i] = (T)(*(list.begin() + i));
@@ -145,14 +154,39 @@ template <typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::oper
 template <typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::operator-(const atMatrixNxM<T2>& rhs) const { return Sub(rhs); }
 
 template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Inverse() const { return ((m_rows == 2 && m_columns == 2) ? atMatrixNxM<T>({ m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mul((T)1 / Determinate()); }
-template <typename T> const atMatrixNxM<T>& atMatrixNxM<T>::operator=(const atMatrixNxM<T> &rhs) { memcpy(m_data, rhs.m_data, (int64_t)sizeof(T) * m_rows * m_columns); return *this; }
+template <typename T> const atMatrixNxM<T>& atMatrixNxM<T>::operator=(const atMatrixNxM<T> &rhs) { m_data = rhs.m_data; m_rows = rhs.m_rows; m_columns = rhs.m_columns; return *this; }
 
-template <typename T> atMatrixNxM<T>::atMatrixNxM(atMatrixNxM<T> &&move) { memcpy(m_data, move.m_data, (int64_t)sizeof(T) * m_rows * m_columns); move = atMatrixNxM(); }
-template <typename T> atMatrixNxM<T>::atMatrixNxM(const atMatrixNxM<T> &copy) { memcpy(m_data, copy.m_data, (int64_t)sizeof(T) * m_rows * m_columns); }
+template <typename T> atMatrixNxM<T>::atMatrixNxM(atMatrixNxM<T> &&move) { m_data = move.m_data, m_columns = move.m_columns; m_rows = move.m_rows; }
+template <typename T> atMatrixNxM<T>::atMatrixNxM(const atMatrixNxM<T> &copy) { m_data = copy.m_data; m_rows = copy.m_rows; m_columns = copy.m_columns; }
 
 template <typename T> bool atMatrixNxM<T>::operator==(const atMatrixNxM<T> &rhs) const { return memcmp(m_data, rhs.m_data, m_rows * m_columns) == 0; }
 template <typename T> bool atMatrixNxM<T>::operator!=(const atMatrixNxM<T>& rhs) const { return !(*this == rhs); }
 template <typename T> const T & atMatrixNxM<T>::operator[](const int64_t index) const { return m_data[index]; }
 template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Sub(const T &rhs) const { return Add(-rhs); }
 template <typename T> T& atMatrixNxM<T>::operator[](const int64_t index) { return m_data[index]; }
-template <typename T> atMatrixNxM<T>::atMatrixNxM() { memset(m_data, 0, sizeof(T) * m_rows * m_columns); }
+
+template<typename T>
+inline int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (int64_t i = 0; i < count; ++i)
+  {
+    ret += atStreamRead(pStream, &pData[i].m_rows, 1);
+    ret += atStreamRead(pStream, &pData[i].m_columns, 1);
+    ret += atStreamRead(pStream, &pData[i].m_data, 1);
+  }
+  return ret;
+}
+
+template<typename T>
+inline int64_t atStreamWrite(atWriteStream *pStream, const atMatrixNxM<T> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (int64_t i = 0; i < count; ++i)
+  {
+    ret += atStreamWrite(pStream, &pData[i].m_rows, 1);
+    ret += atStreamWrite(pStream, &pData[i].m_columns, 1);
+    ret += atStreamWrite(pStream, &pData[i].m_data, 1);
+  }
+  return ret;
+}

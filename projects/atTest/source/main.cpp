@@ -483,7 +483,52 @@ void ExampleImGui()
     window.Swap();
   }
 }
+
+#include "atBPGNetwork.h"
+#include "atFile.h"
+
+void ExampeBackPropagation()
+{
+  atBPGNetwork network(4, 10, 1, 5);
   
+  for (int64_t layer = 0; layer < network.LayerCount(); ++layer)
+  {
+    // Randomize weights
+    atMatrixNxM<double> mat = network.GetLayerWeights(layer);
+    for (double &val : mat.m_data)
+      val = (float)(rand() % 100) / 100;
+    network.SetLayerWeights(layer, mat);
+
+    // Randomize biases
+    mat = network.GetLayerBiases(layer);
+    for (double &val : mat.m_data)
+      val = (float)(rand() % 100) / 100;
+    network.SetLayerBiases(layer, mat);
+  }
+
+  {
+    atFile myFile("atLib.net", atFM_Write);
+    myFile.Write(network);
+  }
+
+  atBPGNetwork otherNetwork(1,1,1);
+  {
+    atFile myFile("atLib.net", atFM_Read);
+    if (myFile.IsOpen())
+      myFile.Read(&otherNetwork);
+  }
+
+  printf("Original Network results: \n");
+  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+  printf("\n\nSaved/Loaded Network results: \n");
+  for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+  printf("\n");
+  printf("Press any key to exit...");
+  getchar();
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 #include "atTest.h"
@@ -510,7 +555,8 @@ int main(int argc, char **argv)
   // Not Quite Functional
   
   // ExampleImportExportMesh();
-  ExampleRayTraceMesh();
+  // ExampleRayTraceMesh();
+  ExampeBackPropagation();
   // ExampleRunLua();
   
 

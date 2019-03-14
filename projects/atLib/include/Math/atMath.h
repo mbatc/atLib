@@ -150,10 +150,12 @@ template<typename T> inline atVector2<T> operator/(const T &lhs, const atVector2
 template<typename T> atTrivialStreamWrite(atVector2<T>)
 template<typename T> atTrivialStreamWrite(atVector3<T>)
 template<typename T> atTrivialStreamWrite(atVector4<T>)
+template<typename T> atTrivialStreamWrite(atMatrix4x4<T>)
 
 template<typename T> atTrivialStreamRead(atVector2<T>)
 template<typename T> atTrivialStreamRead(atVector3<T>)
 template<typename T> atTrivialStreamRead(atVector4<T>)
+template<typename T> atTrivialStreamRead(atMatrix4x4<T>)
 
 #include "atMath.inl"
 #endif // _atMath_h__
