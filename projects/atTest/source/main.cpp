@@ -489,7 +489,7 @@ void ExampleImGui()
 
 void ExampeBackPropagation()
 {
-  atBPGNetwork network(4, 10, 1, 5);
+  atBPGNetwork network(4, 4, 2, 16);
   
   for (int64_t layer = 0; layer < network.LayerCount(); ++layer)
   {
@@ -500,10 +500,10 @@ void ExampeBackPropagation()
     network.SetLayerWeights(layer, mat);
 
     // Randomize biases
-    mat = network.GetLayerBiases(layer);
-    for (double &val : mat.m_data)
-      val = (float)(rand() % 100) / 100;
-    network.SetLayerBiases(layer, mat);
+    // mat = network.GetLayerBiases(layer);
+    // for (double &val : mat.m_data)
+    //   val = (float)(rand() % 100) / 100;
+    // network.SetLayerBiases(layer, mat);
   }
 
   {
@@ -521,11 +521,19 @@ void ExampeBackPropagation()
   printf("Original Network results: \n");
   for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
+
   printf("\n\nSaved/Loaded Network results: \n");
   for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
+
+  for(int64_t i = 0; i < 10000; ++i)
+    network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
+
+  printf("\n\nTrained Network results: \n");
+  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+
   printf("\n");
-  printf("Press any key to exit...");
   getchar();
 }
 

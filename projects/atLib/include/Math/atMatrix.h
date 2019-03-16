@@ -46,7 +46,7 @@ public:
   atMatrix4x4(atMatrix4x4<T> &&move);
   atMatrix4x4(const atMatrix4x4<T> &copy);
 
-  template<typename T2> atMatrix4x4(atMatrix4x4<T2> copy);
+  template<typename T2> atMatrix4x4(const atMatrix4x4<T2> &copy);
 
   static atMatrix4x4<T> Identity();
   atMatrix4x4<T> Transpose() const;
@@ -68,6 +68,7 @@ public:
   atMatrix4x4<T> Mul(const atMatrix4x4<T> &rhs) const;
   atVector4<T> Mul(const atVector4<T> &rhs) const;
   atVector3<T> Mul(const atVector3<T> &rhs) const;
+  atMatrix4x4<T> Apply(T(*func)(const T &)) const;
 
   atVector4<T> operator*(const atVector4<T> &rhs) const;
   atVector3<T> operator*(const atVector3<T> &rhs) const;

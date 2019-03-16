@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atAssert.h"
+#include "atMatrixNxM.h"
 
 template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Identity()
 {
@@ -103,7 +104,7 @@ template <typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::Sub(
 
 template <typename T>  atMatrixNxM<T> atMatrixNxM<T>::Mul(const T &rhs) const
 {
-  atMatrixNxM<T> ret;
+  atMatrixNxM<T> ret(m_columns, m_rows);
   for (int64_t i = 0; i < m_columns * m_rows; ++i)
     ret[i] = (T)m_data[i] * rhs;
   return ret;
@@ -111,9 +112,17 @@ template <typename T>  atMatrixNxM<T> atMatrixNxM<T>::Mul(const T &rhs) const
 
 template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Add(const T &rhs) const
 {
-  atMatrixNxM<T> ret;
+  atMatrixNxM<T> ret(m_columns, m_rows);
   for (int64_t i = 0; i < m_columns * m_rows; ++i)
     ret[i] = (T)m_data[i] + rhs;
+  return ret;
+}
+
+template <typename T> inline atMatrixNxM<T> atMatrixNxM<T>::Apply(T(*func)(const T &))
+{
+  atMatrixNxM<T> ret = *this;
+  for (T &val : ret.m_data)
+    val = func(val);
   return ret;
 }
 
@@ -165,8 +174,7 @@ template <typename T> const T & atMatrixNxM<T>::operator[](const int64_t index) 
 template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Sub(const T &rhs) const { return Add(-rhs); }
 template <typename T> T& atMatrixNxM<T>::operator[](const int64_t index) { return m_data[index]; }
 
-template<typename T>
-inline int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T> *pData, const int64_t count)
+template <typename T> inline int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T> *pData, const int64_t count)
 {
   int64_t ret = 0;
   for (int64_t i = 0; i < count; ++i)
@@ -178,8 +186,7 @@ inline int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T> *pData, const 
   return ret;
 }
 
-template<typename T>
-inline int64_t atStreamWrite(atWriteStream *pStream, const atMatrixNxM<T> *pData, const int64_t count)
+template <typename T> inline int64_t atStreamWrite(atWriteStream *pStream, const atMatrixNxM<T> *pData, const int64_t count)
 {
   int64_t ret = 0;
   for (int64_t i = 0; i < count; ++i)

@@ -1,3 +1,4 @@
+#include "atMatrix.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -153,6 +154,14 @@ template<typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T> 
   );
 }
 
+template<typename T> inline atMatrix4x4<T> atMatrix4x4<T>::Apply(T(*func)(const T &)) const
+{
+  atMatrix4x4<T> ret = *this;
+  for (T &val : ret.m)
+    val = func(val);
+  return ret;
+}
+
 template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T2> &rhs) const
 {
   return atMatrix4x4<T>(
@@ -221,7 +230,7 @@ template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::Sub(co
   );
 }
 
-template<typename T> template<typename T2> inline atMatrix4x4<T>::atMatrix4x4(atMatrix4x4<T2> copy)
+template<typename T> template<typename T2> inline atMatrix4x4<T>::atMatrix4x4(const atMatrix4x4<T2> &copy)
 { 
   *this = copy; 
 }
@@ -290,12 +299,15 @@ template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
   );
 }
 
+template<typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)
+{
+  memcpy(&m, &copy.m, sizeof(T) * 16);
+  return *this;
+}
+
 template<typename T> inline atVector3<T> atMatrix4x4<T>::Mul(const atVector3<T> &rhs) const { return ((*this) * atVector4<T>(rhs, 1)).xyz(); }
 
-template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const
-{
-  return Cofactors().Transpose().Mul((T)1 / Determinate());
-}
+template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const { return Cofactors().Transpose().Mul((T)1 / Determinate()); }
 
 template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs) }
 
@@ -310,12 +322,6 @@ template<typename T> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<
 template<typename T> bool atMatrix4x4<T>::operator==(const atMatrix4x4<T> &rhs) const { return memcmp(&m, &rhs.m, sizeof(T) * 16) == 0; }
 
 template<typename T> bool atMatrix4x4<T>::operator!=(const atMatrix4x4<T> &rhs) const { return !(*this == rhs); }
-
-template<typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)
-{ 
-  memcpy(&m, &copy.m, sizeof(T) * 16);
-  return *this;
-}
 
 template<typename T> T& atMatrix4x4<T>::operator[](const int64_t index) { return m[index]; }
 

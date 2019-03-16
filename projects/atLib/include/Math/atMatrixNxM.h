@@ -33,7 +33,7 @@
 template <typename T> class atMatrixNxM
 {
 public:
-  atMatrixNxM(int64_t _col, int64_t _row);
+  atMatrixNxM(int64_t _col = 0, int64_t _row = 0);
   atMatrixNxM(int64_t _col, int64_t _row, const std::initializer_list<T> &list);
   atMatrixNxM(const atMatrixNxM<T> &copy);
   atMatrixNxM(atMatrixNxM<T> &&move);
@@ -58,6 +58,7 @@ public:
   atMatrixNxM<T> Mul(const T &rhs) const;
   atMatrixNxM<T> Sub(const T &rhs) const;
   atMatrixNxM<T> Add(const T &rhs) const;
+  atMatrixNxM<T> Apply(T (*func)(const T &));
 
   atMatrixNxM<T> LowOrderMatrix(const int64_t x, const int64_t y, const int64_t dim) const;
 

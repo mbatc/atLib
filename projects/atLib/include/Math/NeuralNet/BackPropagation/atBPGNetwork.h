@@ -18,7 +18,11 @@ public:
 
   atVector<double> Run(const atVector<double> &input) const;
 
-  void Train(const atVector<double> &input, const atVector<double> &output);
+  // Train on a specific input/output
+  bool Train(const atVector<double> &input, const atVector<double> &output, double rate = 0.5);
+
+  // Train using batched data
+  bool TrainBatch(const atVector<atVector<double>> &inputs, const atVector<atVector<double>> &outputs, double rate = 0.5);
 
   // To modify a layers weights/bias use the Get functions to retrieve the current
   // values, modify the returned matrices and then use the Set functions to set
@@ -33,12 +37,17 @@ public:
   bool SetLayerBiases(int64_t layer, atMatrixNxM<double> biases);
 
   int64_t LayerCount() const;
+  int64_t InputCount() const;
+  int64_t OutputCount() const;
 
   static int64_t StreamWrite(atWriteStream *pStream, const atBPGNetwork *pData, const int64_t count);
   static int64_t StreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count);
 
 protected:
+  void CalculateWeights(int64_t layer, const atVector<atMatrixNxM<double>> &a, const atVector<atMatrixNxM<double>> &z, atVector<atMatrixNxM<double>> *pWeights, double carriedError);
 
+  int64_t m_nInputs;
+  int64_t m_nOutputs;
   atVector<Layer> m_layers;
 };
 

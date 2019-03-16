@@ -368,7 +368,7 @@ void atLua::ExposeMathFunctions()
   math["Square"] = sol::overload(atSquare<double>, atSquare<int64_t>);
   math["ATan2"] = sol::overload(
     (double(*)(const atVec2D&))atATan2, 
-    (double(*)(double, double))atATan2);
+    (double(*)(const double&, const double&))atATan2);
 
   math["Sin"] = atSin<double>;
   math["Cos"] = atCos<double>;
