@@ -56,47 +56,4 @@ int64_t atStreamWrite(atWriteStream *pStream, const atBPGNetwork::Layer *pData, 
 int64_t atStreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atBPGNetwork *pData, const int64_t count);
 
-// template<typename T>
-// class NetworkLayer
-// {
-// public:
-//   NetworkLayer(const int64_t mySize, const int64_t nextLayerSize);
-//   atMatrixNxM<T> m_biases;
-//   atMatrixNxM<T> m_weights;
-//   atMatrixNxM<T> m_activations;
-// 
-//   
-// 
-//   template <typename T2> atMatrixNxM<T2> CalculateActivations()
-//   {
-//     atMatrixNxM ret = m_weights * m_activations + m_biases;
-//     return ret;
-//   }
-// };
-// 
-// template <typename InType, typename InType2, typename OutType> atMatrixNxM<OutType> atBPGNetworkCalculateActivations(const NetworkLayer<InType> &layer)
-// {
-//   atMatrixNxM<OutType> ret;
-// 
-//   ret.
-// }
-// 
-// template<typename InType, typename OutType, typename LayerType = InType>
-// class atBPGNetwork
-// {
-// public:
-//   atBPGNetwork(int64_t inputSize, int64_t outputSize, int64_t layerCount, int64_t layerSize = 16);
-// 
-//   atVector<OutType> Run(const atVector<InType> &inputs);
-// 
-//   bool Train(const atVector<InType> &inputs, const atVector<OutType> &outputs);
-// 
-// protected:
-// 
-//   NetworkLayer<InType> m_input;
-//   NetworkLayer<OutType> m_output;
-//   atVector<NetworkLayer<LayerType>> m_layers;
-// };
-
-// #include "atBPGNetwork.inl"
 #endif // atBPGNetwork_h__
