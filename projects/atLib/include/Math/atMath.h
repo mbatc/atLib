@@ -107,20 +107,22 @@ template<typename T> inline T atMax(const T &a) { return a; }
 template<typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args) { T argMin = (T)atMin(second, Args...); return (argMin < first) ? argMin : first; }
 template<typename T, typename T2, typename... Args> inline T atMax(const T &first, const T2 &second, Args ...args) { T argMin = (T)atMax(second, Args...); return (argMin > first) ? argMin : first; }
 
-template<typename T> inline T atSquare(const T x) { return x * x; }
-template<typename T> inline T atSin(const T rads) { return sin(rads); }
-template<typename T> inline T atCos(const T rads) { return cos(rads); }
-template<typename T> inline T atTan(const T rads) { return tan(rads); }
-template<typename T> inline T atASin(const T rads) { return asin(rads); }
-template<typename T> inline T atACos(const T rads) { return acos(rads); }
-template<typename T> inline T atATan(const T rads) { return atan(rads); }
+template<typename T> inline T atSquare(const T &x) { return x * x; }
+template<typename T> inline T atSin(const T &rads) { return sin(rads); }
+template<typename T> inline T atCos(const T &rads) { return cos(rads); }
+template<typename T> inline T atTan(const T &rads) { return tan(rads); }
+template<typename T> inline T atASin(const T &rads) { return asin(rads); }
+template<typename T> inline T atACos(const T &rads) { return acos(rads); }
+template<typename T> inline T atATan(const T &rads) { return atan(rads); }
 template<typename T> inline T atATan2(const atVector2<T> &pos) { return atATan2(pos.x, pos.y); }
-template<typename T> inline T atATan2(const T y, const T x);
-template<typename T> inline atVector2<T> atQuadraticSolve(const T a, const T b, const T c);
+template<typename T> inline T atATan2(const T &y, const T &x);
+template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c);
+template<typename T> inline T atSigmoid(const T &val);
+template<typename T> inline T atDerivative(const T &val, T (*func)(const T&), const double step = 0.000001);
 
-template<typename T> inline T atMod(const T a, const T b);
-template<> inline float atMod(const float a, const float b);
-template<> inline double atMod(const double a, const double b);
+template<typename T> inline T atMod(const T &a, const T &b);
+template<> inline float atMod(const float &a, const float &b);
+template<> inline double atMod(const double &a, const double &b);
 
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T zClipNear = atClipNearZ<T>(), const T zClipFar = atClipFarZ<T>());
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
@@ -150,10 +152,12 @@ template<typename T> inline atVector2<T> operator/(const T &lhs, const atVector2
 template<typename T> atTrivialStreamWrite(atVector2<T>)
 template<typename T> atTrivialStreamWrite(atVector3<T>)
 template<typename T> atTrivialStreamWrite(atVector4<T>)
+template<typename T> atTrivialStreamWrite(atMatrix4x4<T>)
 
 template<typename T> atTrivialStreamRead(atVector2<T>)
 template<typename T> atTrivialStreamRead(atVector3<T>)
 template<typename T> atTrivialStreamRead(atVector4<T>)
+template<typename T> atTrivialStreamRead(atMatrix4x4<T>)
 
 #include "atMath.inl"
 #endif // _atMath_h__

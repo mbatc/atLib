@@ -353,7 +353,7 @@ void ExampleImportExportMesh()
 void ExampleRayTraceMesh()
 {
   atMesh mesh;
-  mesh.Import("assets/test/models/bumpMap.obj");
+  mesh.Import("assets/test/models/level.obj");
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindow window("Window", { 800, 600 }, false);
@@ -388,10 +388,10 @@ void ExampleRayTraceMesh()
         double time = 0.0;
         if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
         {
-          time = 255 + time * 255 * 255 + time * 255 * 255 * 255;
+          time *= time;
           for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
             for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
-              window.Pixels()[x2 + y2 * window.Width()] = (uint32_t)time | 0xFF000000;
+              window.Pixels()[x2 + y2 * window.Width()] = atColor::Pack(int(255.f - time), int(255.f - time), int(255.f - time), 255);
         }
       }
 
@@ -483,7 +483,60 @@ void ExampleImGui()
     window.Swap();
   }
 }
+
+#include "atBPGNetwork.h"
+#include "atFile.h"
+
+void ExampeBackPropagation()
+{
+  atBPGNetwork network(4, 4, 2, 16);
   
+  for (int64_t layer = 0; layer < network.LayerCount(); ++layer)
+  {
+    // Randomize weights
+    atMatrixNxM<double> mat = network.GetLayerWeights(layer);
+    for (double &val : mat.m_data)
+      val = (float)(rand() % 100) / 100;
+    network.SetLayerWeights(layer, mat);
+
+    // Randomize biases
+    // mat = network.GetLayerBiases(layer);
+    // for (double &val : mat.m_data)
+    //   val = (float)(rand() % 100) / 100;
+    // network.SetLayerBiases(layer, mat);
+  }
+
+  {
+    atFile myFile("atLib.net", atFM_Write);
+    myFile.Write(network);
+  }
+
+  atBPGNetwork otherNetwork(1,1,1);
+  {
+    atFile myFile("atLib.net", atFM_Read);
+    if (myFile.IsOpen())
+      myFile.Read(&otherNetwork);
+  }
+
+  printf("Original Network results: \n");
+  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+
+  printf("\n\nSaved/Loaded Network results: \n");
+  for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+
+  for(int64_t i = 0; i < 10000; ++i)
+    network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
+
+  printf("\n\nTrained Network results: \n");
+  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+    printf("%lf, ", val);
+
+  printf("\n");
+  getchar();
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 #include "atTest.h"
@@ -510,7 +563,8 @@ int main(int argc, char **argv)
   // Not Quite Functional
   
   // ExampleImportExportMesh();
-  ExampleRayTraceMesh();
+  // ExampleRayTraceMesh();
+  ExampeBackPropagation();
   // ExampleRunLua();
   
 

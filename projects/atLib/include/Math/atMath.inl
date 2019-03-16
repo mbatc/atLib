@@ -1,3 +1,4 @@
+#include "atMath.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,21 +24,28 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> inline T atATan2(const T y, const T x)
+template<typename T> inline T atATan2(const T &y, const T &x)
 {
   if (x == y == 0) return 0;
   const double rad = sqrt(x * x + y * y);
   return 2 * atATan(x <= 0 ? (rad - x) / y : y / (rad + y));
 }
 
-template<typename T> inline atVector2<T> atQuadraticSolve(const T a, const T b, const T c)
+template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c)
 {
   T val = (T)sqrt(b * b - 4 * a * c);
   T ac_2 = 2 * a * c;
   return atVector2<T>((-b - val) / ac_2, (-b + val) / ac_2);
 }
 
-template<typename T> inline T atMod(const T a, const T b) { return a % b; }
+template<typename T> inline T atDerivative(const T &val, T(*func)(const T &), const double step)
+{
+  return (func(val + step) - func(val - step)) / (step * 2);
+}
+
+template<typename T> inline T atSigmoid(const T &val) { return 1 / (1 + exp(-val)); }
+
+template<typename T> inline T atMod(const T &a, const T &b) { return a % b; }
 
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T clipSpaceNearZ, const T clipSpaceFarZ)
 {

@@ -54,9 +54,9 @@ void tests::math::Vector3()
     atVec3I(1, 2, 2) != atVec3I(1, 3, 3) &&
     atVec3I(1, 2, 3) != atVec3I(2, 2, 3), "atVector3::operator!=(atVector3) failed.");
 
-  atRelAssert(atVec3I(2, 3, 4) + atVec3I(5, 6, 7) == atVec3I(8, 9, 11), "atVector3::operator+() failed.");
-  atRelAssert(atVec3I(5, 6, 7) - atVec3I(4, 3, 2) == atVec3I(1, 3, 5), "atVector3::operator-() failed.");
+  atRelAssert(atVec3I(2, 3, 4) + atVec3I(5, 6, 7) == atVec3I(7, 9, 11), "atVector3::operator+() failed.");
   atRelAssert(atVec3I(2, 3, 4) * atVec3I(5, 6, 7) == atVec3I(10, 18, 28), "atVector3::operator*() failed.");
+  atRelAssert(atVec3I(5, 6, 7) - atVec3I(4, 3, 2) == atVec3I(1, 3, 5), "atVector3::operator-() failed.");
   atRelAssert(atVec3I(10, 18, 28) / atVec3I(2, 3, 4) == atVec3I(5, 6, 7), "atVector3::operator/() failed.");
 }
 
