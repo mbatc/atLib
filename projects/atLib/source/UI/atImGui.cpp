@@ -89,21 +89,19 @@ static int64_t _vbSize = AT_INVALID_ID;
 static int64_t _ibSize = AT_INVALID_ID;
 static int64_t _lastTime = -1;
 static int64_t _ticksPerSecond = -1;
-static ImGuiMouseCursor _lastMouseCursor = -1;
 
 static ID3D11Buffer *_pVertexBuffer = nullptr;
 static ID3D11Buffer *_pIndexBuffer = nullptr;
 
 static bool _initialised = false;
 
-static bool _UpdateMouseCursor()
+static bool _UpdateMouseCursor(ImGuiMouseCursor imguiCursor)
 {
   ImGuiIO& io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
     return false;
 
-  ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-  if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
+  if (imguiCursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
   {
     // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
     SetCursor(NULL);
@@ -111,19 +109,19 @@ static bool _UpdateMouseCursor()
   else
   {
     // Show OS mouse cursor
-    LPTSTR win32_cursor = IDC_ARROW;
-    switch (imgui_cursor)
+    LPTSTR win32Cursor = IDC_ARROW;
+    switch (imguiCursor)
     {
-    case ImGuiMouseCursor_Arrow:        win32_cursor = IDC_ARROW; break;
-    case ImGuiMouseCursor_TextInput:    win32_cursor = IDC_IBEAM; break;
-    case ImGuiMouseCursor_ResizeAll:    win32_cursor = IDC_SIZEALL; break;
-    case ImGuiMouseCursor_ResizeEW:     win32_cursor = IDC_SIZEWE; break;
-    case ImGuiMouseCursor_ResizeNS:     win32_cursor = IDC_SIZENS; break;
-    case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
-    case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
-    case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND; break;
+    case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
+    case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
+    case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
+    case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
+    case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
+    case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
+    case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
+    case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
     }
-    SetCursor(LoadCursor(NULL, win32_cursor));
+    SetCursor(LoadCursor(NULL, win32Cursor));
   }
   return true;
 }
@@ -231,12 +229,7 @@ bool atImGui::BeginFrame(atWindow *pWnd)
   io.DeltaTime = (float)(curTime - _lastTime) / (float)_ticksPerSecond;
   _lastTime = curTime;
 
-  ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
-  if (_lastMouseCursor != mouse_cursor)
-  {
-    _lastMouseCursor = mouse_cursor;
-    _UpdateMouseCursor();
-  }
+  _UpdateMouseCursor(io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor());
 
   ImGui::NewFrame();
   return true;
