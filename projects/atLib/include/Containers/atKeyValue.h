@@ -36,6 +36,21 @@ public:
     , m_val(val)
   {}
 
+  atKeyValue(const Key &key, Val &&val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
+  atKeyValue(Key &&key, const Val &val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
+  atKeyValue(Key &&key, Val &&val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
   atKeyValue(const atKeyValue<Key, Val> &copy)
     : m_key(copy.m_key)
     , m_val(copy.m_val)
@@ -53,6 +68,13 @@ public:
   {
     m_val = rhs.m_val;
     m_key = rhs.m_key;
+    return *this;
+  }
+
+  const atKeyValue<Key, Val>& operator=(atKeyValue<Key, Val> &&rhs)
+  {
+    m_val = std::move(rhs.m_val);
+    m_key = std::move(rhs.m_key);
     return *this;
   }
 
