@@ -24,7 +24,6 @@
 // -----------------------------------------------------------------------------
 
 #include "atHash.h"
-#include "atHashMap.h"
 
 template<typename Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
 template<typename Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
