@@ -622,7 +622,6 @@ int main(int argc, char **argv)
   // ExampeBackPropagation();
   // ExampleRunLua();
   
-
   system("pause");
   return atWindow::GetResult();
 }

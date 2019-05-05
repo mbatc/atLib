@@ -1,3 +1,28 @@
+
+// -----------------------------------------------------------------------------
+// The MIT License
+// 
+// Copyright(c) 2018 Michael Batchelor, 
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// -----------------------------------------------------------------------------
+
 template<typename T> inline atVector3<T>::atVector3()
   : x(0)
   , y(0)
@@ -127,7 +152,7 @@ template<typename T> inline atVector3<T> atVector3<T>::Project(const atVector3<T
 
 template<typename T> inline atVector3<T>::atVector3(T _x, const atVector2<T>& yz) : atVector3(_x, yz.x, yz.y) {}
 template<typename T> inline atVector3<T>::atVector3(const atVector2<T>& xy, T _z) : atVector3(xy.x, xy.y, _z) {}
-template<typename T> inline T atVector3<T>::Mag() const { return sqrt(Length(*this)); }
+template<typename T> inline T atVector3<T>::Mag() const { return Mag(*this); }
 template<typename T> inline T atVector3<T>::Length() const { return Length(*this); }
 template<typename T> inline T atVector3<T>::Dot(const atVector3<T> &rhs) const { return Dot(*this, rhs); }
 template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &rhs) const { return Angle(*this, rhs); }
@@ -139,7 +164,7 @@ template<typename T> inline atVector3<T> atVector3<T>::Normalize() const { retur
 template<typename T> inline atVector3<T> atVector3<T>::Reflect(const atVector3<T> &norm) const { return Reflect(*this, norm); }
 template<typename T> inline atVector3<T> atVector3<T>::Cross(const atVector3<T> &rhs) const { return Cross(*this, rhs); }
 template<typename T> inline atVector3<T> atVector3<T>::Project(const atVector3<T>& to) const { return Project(*this, to); }
-template<typename T> inline T atVector3<T>::Mag(const atVector3<T> &rhs) { return sqrt(Length(rhs)); }
+template<typename T> inline T atVector3<T>::Mag(const atVector3<T> &rhs) { return atSqrt(Length(rhs)); }
 template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &lhs, const atVector3<T> &rhs) { return atACos(Dot(lhs, rhs) / (Mag(lhs), Mag(rhs))); }
 template<typename T> inline atVector3<T> atVector3<T>::Normalize(const atVector3<T> &rhs) { return rhs / Mag(rhs); }
 template<typename T> inline atVector3<T> atVector3<T>::zero() { return atVector3<T>(0); }

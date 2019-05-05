@@ -130,6 +130,27 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &
   );
 }
 
+template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T> &quat)
+{
+  atQuaternion q = quat.Normalize();
+  const T sqx2 = atSquare(q.x) * 2;
+  const T sqy2 = atSquare(q.y) * 2;
+  const T sqz2 = atSquare(q.z) * 2;
+  const T sqw2 = atSquare(q.w) * 2;
+  const T xy2 = 2 * q.x * q.y;
+  const T xz2 = 2 * q.x * q.z;
+  const T zw2 = 2 * q.z * q.w;
+  const T yz2 = 2 * q.y * q.z;
+  const T yw2 = 2 * q.y * q.w;
+  const T xw2 = 2 * q.x * q.w;
+  return atMatrix4x4<T>(
+    1 - sqy2 - sqz2, xy2 - zw2,       xz2 + yw2,       0,
+    xy2 + zw2,       1 - sqx2 - sqz2, yz2 + xw2,       0,
+    xz2 - yw2,       yz2 + xw2,       1 - sqx2 - sqy2, 0,
+    0,               0,               0,               1
+  );
+}
+
 template<typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation)
 {
   return 
@@ -207,6 +228,13 @@ template<typename T> inline atVector4<T> operator/(const T &lhs, const atVector4
 template<typename T> inline atVector3<T> operator/(const T &lhs, const atVector3<T>& rhs) { return atVector3<T>(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z); }
 template<typename T> inline atVector2<T> operator/(const T &lhs, const atVector2<T>& rhs) { return atVector2<T>(lhs / rhs.x, lhs / rhs.y); }
 template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll) { return atMatrixRotationY(yaw) * atMatrixRotationX(pitch) * atMatrixRotationZ(roll); }
+
+inline float atSqrt(const float &val) { return sqrtf(val); }
+inline double atSqrt(const double &val) { return sqrtl(val); }
+inline int64_t atSqrt(const int64_t &val) { return (int64_t)sqrt((double)val); }
+inline int32_t atSqrt(const int32_t &val) { return (int32_t)sqrt((double)val); }
+inline int16_t atSqrt(const int16_t &val) { return (int16_t)sqrt((double)val); }
+inline int8_t atSqrt(const int8_t &val) { return (int8_t)sqrt((double)val); }
 
 #ifdef ATLIB_DIRECTX
 template<typename T> inline
