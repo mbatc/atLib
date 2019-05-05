@@ -85,9 +85,9 @@ atSceneNode* atScene::CreateNode(const atString &name, const atVec3D &position, 
 {
   atSceneNode *pNode = atNew<atSceneNode>();
   pNode->m_name = name;
-  pNode->m_translation = position;
-  pNode->m_rotation = rotation;
-  pNode->m_scale = scale;
+  pNode->SetTranslation(position);
+  pNode->SetRotation(rotation);
+  pNode->SetScale(scale);
   pNode->m_pScene = this;
   if (pParent) pParent->AddChild(pNode);
   else if(m_pRoot) m_pRoot->AddChild(pNode);

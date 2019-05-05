@@ -1,3 +1,4 @@
+#include "atVector.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -315,6 +316,9 @@ template<typename T> T& atVector<T>::front() { return at(0); }
 template<typename T> void atVector<T>::push_back(const atVector<T>& item) { for (const T &i : item) push_back(i); }
 template<typename T> void atVector<T>::push_back(const T &item) { emplace_back(item); }
 template<typename T> void atVector<T>::pop_back() { resize(m_size - 1); }
+template<typename T> void atVector<T>::pop_front() { erase(0); }
+template<typename T> void atVector<T>::swap_pop_back(const int64_t index) { std::swap(at(index), back()); pop_back(); }
+template<typename T> void atVector<T>::swap_pop_front(const int64_t index) { std::swap(at(index), front()); pop_front(); }
 template<typename T> void atVector<T>::insert(const int64_t index, const T &item) { emplace(index, item); }
 template<typename T> void atVector<T>::insert(const int64_t index, const atVector<T> &items) { insert(index, items.begin(), items.end()); }
 template<typename T> void atVector<T>::insert(const int64_t index, const std::vector<T> &items) { insert(index, items.begin(), items.end()); }

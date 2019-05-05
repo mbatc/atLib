@@ -105,12 +105,14 @@ public:
 
   atVector2<T> Normalize() const;
   atVector2<T> Reflect(const atVector2<T> &norm);
+  atVector2<T> Project(const atVector2<T> &to) const;
 
   static T Mag(const atVector2<T> &rhs);
   static T Length(const atVector2<T> &rhs);
   static T Dot(const atVector2<T> &lhs, const atVector2<T> &rhs);
   static T Angle(const atVector2<T> &lhs, const atVector2<T> &rhs);
 
+  static atVector2<T> Project(const atVector2<T> &vec, const atVector2<T> &to);
   static atVector2<T> Reflect(const atVector2<T> &dir, const atVector2<T> &norm);
   static atVector2<T> Normalize(const atVector2<T> &rhs);
 

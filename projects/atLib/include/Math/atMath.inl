@@ -185,7 +185,10 @@ template<typename T> inline void atMatrixDecompose(const atMatrix4x4<T> &mat, at
   if (pScale) *pScale = atMatrixExtractScale(mat);
 }
 
-template<typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix4x4<T> &mat) { return 0; }
+template<typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix4x4<T> &mat)
+{
+  return 0;
+}
 
 template<typename T> inline atVector3<T> atMatrixExtractTranslation(const atMatrix4x4<T> &mat) { return atVector3<T>(mat[3], mat[7], mat[11]); }
 

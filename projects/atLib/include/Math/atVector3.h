@@ -116,6 +116,7 @@ public:
   atVector3<T> Normalize() const;
   atVector3<T> Reflect(const atVector3<T> &norm) const;
   atVector3<T> Cross(const atVector3<T> &rhs) const;
+  atVector3<T> Project(const atVector3<T> &to) const;
 
   static T Mag(const atVector3<T> &rhs);
   static T Length(const atVector3<T> &rhs);
@@ -125,6 +126,7 @@ public:
   static atVector3<T> Normalize(const atVector3<T> &rhs);
   static atVector3<T> Cross(const atVector3<T> &lhs, const atVector3<T> &rhs);
   static atVector3<T> Reflect(const atVector3<T> &dir, const atVector3<T> &norm);
+  static atVector3<T> Project(const atVector3<T> &vec, const atVector3<T> &to);
 
   T* begin();
   T* end();

@@ -10,3 +10,6 @@ dofile "projects/atTest/project.lua"
 
 dofile "projects/atEngine/project.lua"
   location "projects/atEngine/"
+
+dofile "projects/Physics Game/project.lua"
+  location "projects/Physics Game/"

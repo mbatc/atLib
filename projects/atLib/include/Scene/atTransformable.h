@@ -35,16 +35,31 @@ public:
   typedef atMatrix4x4<T> Mat;
 
   atTransformable(const Vec &trans = { 0,0,0 }, const Vec &rot = { 0,0,0 }, const Vec &scale = { 1,1,1 });
-  
-  Mat WorldMat() const;
+
   Mat ScaleMat() const;
-  Mat RotationMat() const;
   Mat TranslationMat() const;
   Mat TransformMat() const;
-    
+  Vec Rotation() const;
+
+  const Vec& Scale() const;
+  const Vec& Translation() const;
+  const Mat& RotationMat() const;
+
+  void Rotate(const Vec &ypr);
+  void Rotate(const Mat &rot);
+  void Translate(const Vec &translation);
+  void Scale(const Vec &scale);
+
+  void SetTransform(const Mat &transform);
+  void SetRotation(const Vec &rotation);
+  void SetRotation(const Mat &rotation);
+  void SetTranslation(const Vec &translation);
+  void SetScale(const Vec &scale);
+
+protected:
   Vec m_translation;
-  Vec m_rotation;
   Vec m_scale;
+  Mat m_rotation;
 };
 
 #include "atTransformable.inl"

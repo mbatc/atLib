@@ -138,7 +138,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // Set Lighting Data
     model.SetLighting(light);
     model.EnableLighting(useLighting);
-    model.SetCamera(camera.m_translation);
+    model.SetCamera(camera.Translation());
     useLighting = atInput::ButtonPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
@@ -353,8 +353,8 @@ void ExampleImportExportMesh()
 void ExampleRayTraceMesh()
 {
   atMesh mesh;
-  mesh.Import("assets/test/models/level.obj");
-  
+  mesh.Import("assets/test/models/bumpmap.obj");
+
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindow window("Window", { 800, 600 }, false);
   atSimpleCamera cam(&window);
@@ -362,7 +362,7 @@ void ExampleRayTraceMesh()
   {
     window.Clear(0xFF333333);
     cam.OnUpdate(0.016);
-
+    cam.SetViewport(&window);
     atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
     vp = vp.Transpose();
     atMat4F invVP = vp.Inverse();
@@ -387,7 +387,7 @@ void ExampleRayTraceMesh()
         f /= f.w;
         double time = 0.0;
         if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
-        {
+        {          
           time *= time;
           for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
             for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
@@ -537,6 +537,59 @@ void ExampeBackPropagation()
   getchar();
 }
 
+#include "atPhysicsObject.h"
+
+void ExamplePhysics()
+{
+  atWindow window("Physics Example");
+  atGraphicsModel model("assets/test/models/bumpmap.obj");
+  atPhysicsObject physModel(62);
+  atSimpleCamera camera(&window, {0, 1, 4});
+  physModel.SetTranslation({ 0, 2, 0 });
+  
+  atRenderState rs;
+  rs.SetRenderTarget(&window);
+  
+  while (atInput::Update())
+  {
+    window.Clear(0xFF333333);
+    
+    physModel.AddForce(9.8 * physModel.m_mass, { 0, -1, 0 });
+    if (physModel.Translation().y <= 1)
+    {
+      atForceD force(physModel.m_velocity, atVec3D(0), 0.016, physModel.m_mass);
+  
+      physModel.SetTranslation({ physModel.Translation().x, 1, physModel.Translation().y});
+      physModel.AddForce(force.magnitude, force.direction);
+      physModel.AddForce(9.8 * physModel.m_mass, {0, 1, 0});
+
+      if (atInput::ButtonDown(atKC_Space))
+        physModel.AddForce(3000, { 0, 1, 0 }, 0.1);
+    }
+
+    if (atInput::ButtonPressed(atKC_J))
+      physModel.AddMoment(10, { 0, 0, 1 }, { 1, 1, 0 });
+    if (atInput::ButtonPressed(atKC_L))
+      physModel.AddMoment(10, { 0, 0, 1 }, { -1, -1, 0 });
+
+
+    if (atInput::ButtonPressed(atKC_U))
+      physModel.AddMoment(10, { 0, 0, 1 }, { 0.25, 0, 0 });
+    if (atInput::ButtonPressed(atKC_O))
+      physModel.AddMoment(10, { 0, 0, 1 }, { -0.25, 0, 0 });
+
+    physModel.Apply(0.016);
+    camera.OnUpdate(0.016);
+
+    // Draw Physics cube
+    model.Draw(camera.ProjectionMat() * camera.ViewMat(), physModel.TransformMat());
+
+    // Draw Ground
+    model.Draw(camera.ProjectionMat() * camera.ViewMat(), atMatrixScale(atVec3D{ 10, 0.01, 10 }));
+    window.Swap();
+  }
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 #include "atTest.h"
@@ -559,12 +612,14 @@ int main(int argc, char **argv)
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
+  
+  ExamplePhysics();
 
   // Not Quite Functional
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
-  ExampeBackPropagation();
+  // ExampeBackPropagation();
   // ExampleRunLua();
   
 

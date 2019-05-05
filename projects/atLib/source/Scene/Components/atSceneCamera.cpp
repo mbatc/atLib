@@ -58,8 +58,10 @@ bool atSimpleCamera::OnUpdate(const double dt)
   if (atInput::ButtonDown(atKC_Right)) rot.y -= speed;
   if (atInput::ButtonDown(atKC_Up)) rot.x += speed;
   if (atInput::ButtonDown(atKC_Down)) rot.x -= speed;
-  m_translation += (RotationMat().Inverse() * move);
-  m_rotation += rot;
+
+  Translate(RotationMat().Inverse() * move);
+  Rotate(atVec3D(rot.y, rot.x, rot.z));
+  
   return true;
 }
 
@@ -72,7 +74,7 @@ void atSceneCamera::SetViewport(const atVec4I viewport)
 atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane) 
 {
   m_translation = pos;
-  m_rotation = rot; 
+  SetRotation(rot); 
 }
 
 atMat4D atSceneCamera::ProjectionMat() const 

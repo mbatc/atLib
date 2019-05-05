@@ -71,7 +71,10 @@ public:
   void push_back(const atVector<T> &item);
   void push_back(const T &item);
   void pop_back();
-  
+  void pop_front();
+  void swap_pop_back(const int64_t index);
+  void swap_pop_front(const int64_t index);
+
   void insert(const int64_t index, const T &item);
   void insert(const int64_t index, const atVector<T> &items);
   void insert(const int64_t index, const std::vector<T> &items);

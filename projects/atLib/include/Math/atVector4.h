@@ -127,6 +127,7 @@ public:
 
   atVector4<T> Normalize() const;
   atVector4<T> Reflect(const atVector4<T> &norm) const;
+  atVector4<T> Project(const atVector4<T> &to) const;
 
   static T Mag(const atVector4<T> &rhs);
   static T Length(const atVector4<T> &rhs);
@@ -135,6 +136,7 @@ public:
 
   static atVector4<T> Reflect(const atVector4<T> &dir, const atVector4<T> &norm);
   static atVector4<T> Normalize(const atVector4<T> &rhs);
+  static atVector4<T> Project(const atVector4<T> &vec, const atVector4<T> &to);
 
   T* begin();
   T* end();

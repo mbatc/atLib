@@ -66,6 +66,7 @@ enum atKeyCode
   atKC_R = 'R',
   atKC_S = 'S',
   atKC_T = 'T',
+  atKC_U = 'U',
   atKC_V = 'V',
   atKC_W = 'W',
   atKC_X = 'X',

@@ -54,4 +54,17 @@ template<> uint16_t atLimitsMin<uint16_t>();
 template<> uint32_t atLimitsMin<uint32_t>();
 template<> uint64_t atLimitsMin<uint64_t>();
 
+template<typename T> T atLimitsSmallest() { return{ 0 }; }
+
+template<> double atLimitsSmallest<double>();
+template<> float atLimitsSmallest<float>();
+template<> int8_t atLimitsSmallest<int8_t>();
+template<> int16_t atLimitsSmallest<int16_t>();
+template<> int32_t atLimitsSmallest<int32_t>();
+template<> int64_t atLimitsSmallest<int64_t>();
+template<> uint8_t atLimitsSmallest<uint8_t>();
+template<> uint16_t atLimitsSmallest<uint16_t>();
+template<> uint32_t atLimitsSmallest<uint32_t>();
+template<> uint64_t atLimitsSmallest<uint64_t>();
+
 #endif // atLimits_h__
