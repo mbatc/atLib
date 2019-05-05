@@ -23,7 +23,6 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-
 template<typename T> template<typename T2> atVector<T>::atVector(const atVector<T2> &vec)
 {
   reserve(vec.size());
