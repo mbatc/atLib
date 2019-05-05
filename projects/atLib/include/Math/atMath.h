@@ -29,6 +29,7 @@
 #include "atMatrix.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
+#include <math.h>
 
 #define atE 2.71828182845904523536   // e
 #define atLog2e 1.44269504088896340736   // log2(e)
@@ -64,13 +65,9 @@ typedef atVector2<double> atVec2D;
 typedef atVector3<double> atVec3D;
 typedef atVector4<double> atVec4D;
 
-// typedef atMatrix4x4<double, 2, 2> atMat2D;
-// typedef atMatrix4x4<double, 3, 3> atMat3D;
 typedef atMatrix4x4<double> atMat4D;
-
-// typedef atMatrix<float, 2, 2> atMat2F;
-// typedef atMatrix<float, 3, 3> atMat3F;
 typedef atMatrix4x4<float> atMat4F;
+
 
 template<> atTypeDesc atGetTypeDesc<atVector2<float>>();
 template<> atTypeDesc atGetTypeDesc<atVector3<float>>();
@@ -124,6 +121,21 @@ template<typename T> inline T atMod(const T &a, const T &b);
 template<> inline float atMod(const float &a, const float &b);
 template<> inline double atMod(const double &a, const double &b);
 
+inline float atSqrt(const float &val);
+inline double atSqrt(const double &val);
+inline int64_t atSqrt(const int64_t &val);
+inline int32_t atSqrt(const int32_t &val);
+inline int16_t atSqrt(const int16_t &val);
+inline int8_t atSqrt(const int8_t &val);
+
+#include "atQuaternion.h" // atQuaternion relies on some of the above functions
+
+typedef atQuaternion<double> atQuatD;
+typedef atQuaternion<float> atQuatF;
+
+template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>();
+template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>();
+
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T zClipNear = atClipNearZ<T>(), const T zClipFar = atClipFarZ<T>());
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane);
@@ -131,6 +143,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotationX(const T rads);
 template<typename T> inline atMatrix4x4<T> atMatrixRotationY(const T rads);
 template<typename T> inline atMatrix4x4<T> atMatrixRotationZ(const T rads);
 template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &axis, T rads);
+template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T> &quat);
 template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll);
 template<typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation);
 template<typename T> inline atMatrix4x4<T> atMatrixScale(const atVector3<T> &scale);
@@ -158,6 +171,9 @@ template<typename T> atTrivialStreamRead(atVector2<T>)
 template<typename T> atTrivialStreamRead(atVector3<T>)
 template<typename T> atTrivialStreamRead(atVector4<T>)
 template<typename T> atTrivialStreamRead(atMatrix4x4<T>)
+
+template<typename T> atTrivialStreamWrite(atQuaternion<T>)
+template<typename T> atTrivialStreamRead(atQuaternion<T>)
 
 #include "atMath.inl"
 #endif // _atMath_h__

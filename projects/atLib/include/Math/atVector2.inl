@@ -120,7 +120,7 @@ template<typename T> inline T atVector2<T>::Angle(const atVector2<T> &rhs) const
 
 template<typename T> inline atVector2<T> atVector2<T>::Reflect(const atVector2<T>& norm) { return Reflect(*this, norm); }
 
-template<typename T> inline T atVector2<T>::Mag(const atVector2<T>& rhs) { return sqrt(Length(rhs)); }
+template<typename T> inline T atVector2<T>::Mag(const atVector2<T>& rhs) { return atSqrt(Length(rhs)); }
 
 template<typename T> inline atVector2<T> atVector2<T>::Normalize(const atVector2<T> &rhs) { return rhs / rhs.Mag(); }
 

@@ -564,10 +564,9 @@ int main(int argc, char **argv)
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
-  ExampeBackPropagation();
+  // ExampeBackPropagation();
   // ExampleRunLua();
   
-
   system("pause");
   return atWindow::GetResult();
 }

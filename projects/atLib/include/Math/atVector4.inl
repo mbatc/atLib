@@ -218,7 +218,7 @@ template<typename T> inline atVector4<T> atVector4<T>::Normalize() const { retur
 
 template<typename T> inline atVector4<T> atVector4<T>::Reflect(const atVector4<T>& norm) const { return Reflect(*this, norm); }
 
-template<typename T> inline T atVector4<T>::Mag(const atVector4<T>& rhs) { return sqrt(Length(rhs)); }
+template<typename T> inline T atVector4<T>::Mag(const atVector4<T>& rhs) { return atSqrt(Length(rhs)); }
 
 template<typename T> inline T atVector4<T>::Length(const atVector4<T>& rhs) { return Dot(rhs, rhs); }
 

@@ -124,7 +124,7 @@ template<typename T> inline atVector3<T>::atVector3(T _x, const atVector2<T>& yz
 
 template<typename T> inline atVector3<T>::atVector3(const atVector2<T>& xy, T _z) : atVector3(xy.x, xy.y, _z) {}
 
-template<typename T> inline T atVector3<T>::Mag() const { return sqrt(Length(*this)); }
+template<typename T> inline T atVector3<T>::Mag() const { return Mag(*this); }
 
 template<typename T> inline T atVector3<T>::Length() const { return Length(*this); }
 
@@ -146,7 +146,7 @@ template<typename T> inline atVector3<T> atVector3<T>::Reflect(const atVector3<T
 
 template<typename T> inline atVector3<T> atVector3<T>::Cross(const atVector3<T> &rhs) const { return Cross(*this, rhs); }
 
-template<typename T> inline T atVector3<T>::Mag(const atVector3<T> &rhs) { return sqrt(Length(rhs)); }
+template<typename T> inline T atVector3<T>::Mag(const atVector3<T> &rhs) { return atSqrt(Length(rhs)); }
 
 template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &lhs, const atVector3<T> &rhs) { return atACos(Dot(lhs, rhs) / (Mag(lhs), Mag(rhs))); }
 
