@@ -1,4 +1,28 @@
-#include "atQuaternion.h"
+
+// -----------------------------------------------------------------------------
+// The MIT License
+// 
+// Copyright(c) 2018 Michael Batchelor, 
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// -----------------------------------------------------------------------------
+
 template<typename T> inline atQuaternion<T>::atQuaternion(const atVector3<T> &axis, const T &angle) { Set(axis, angle); }
 template<typename T> inline atQuaternion<T>::atQuaternion(const T &eulerX, const T &eulerY, const T &eulerZ) { Set(eulerX, eulerY, eulerZ); }
 template<typename T> inline atQuaternion<T>::atQuaternion(const atMatrix4x4<T> &rotation) { Set(rotation); }
@@ -223,7 +247,33 @@ template<typename T> inline atVector3<T> atQuaternion<T>::EulerAngles(const atQu
 
 template<typename T> inline atQuaternion<T> atQuaternion<T>::Slerp(const atQuaternion &to, const T &factor) const
 {
-  return atQuaternion<T>();
+  atQuaternion<T> result = *this;
+
+  T mag = atSqrt(Length(), to.Length());
+  if (mag > atLimitsSmallest<T>())
+  {
+    const T product = Dot(to) / mag;
+    const T absProduct = abs(product);
+
+    if (absProduct < T(1) - atLimitsSmallest<T>())
+    {
+      const T theta = atACos(absProduct);
+      const T d = atSin(theta);
+      if (d > 0)
+      {
+        T sign = product < 0 ? -1 : 0;
+        T s0 = atSin((T(1) - factor) * theta) / d;
+        T s1 = atSin(sign * factor * theta) / d;
+        result.Set(
+          x * s0 + to.x() * s1,
+          y * s0 + to.y() * s1,
+          z * s0 + to.z() * s1,
+          w * s0 + to.w() * s1
+        );
+      }
+    }
+  }
+  return result;
 }
 
 template<typename T> inline bool atQuaternion<T>::operator==(const atQuaternion<T> &rhs) const
