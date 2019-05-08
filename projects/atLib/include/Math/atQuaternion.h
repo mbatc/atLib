@@ -31,10 +31,11 @@
 template<typename T> class atQuaternion
 {
 public:
+  atQuaternion();
   atQuaternion(const T &x, const T &y, const T &z, const T &w);
   atQuaternion(const atVector3<T> &axis, const T &angle);
   atQuaternion(const T &eulerX, const T &eulerY, const T &eulerZ);
-  atQuaternion(const atMatrix4x4<T> &rotation);
+  explicit atQuaternion(const atMatrix4x4<T> &rotation);
 
   void Set(const T &x, const T &y, const T &z, const T &w);
   void Set(const atVector3<T> &axis, const T &angle);
@@ -46,7 +47,6 @@ public:
 
   static atQuaternion<T> Normalize(const atQuaternion<T> &quat);
   static atQuaternion<T> Inverse(const atQuaternion<T> &quat);
-  static atQuaternion<T> Mul(const atQuaternion<T> &lhs, const atVector3<T> &rhs);
   static atQuaternion<T> Mul(const atQuaternion<T> &lhs, const atQuaternion<T> &rhs);
   static atQuaternion<T> Mul(const atQuaternion<T> &lhs, const T &rhs);
   static atQuaternion<T> Add(const atQuaternion<T> &lhs, const atQuaternion<T> &rhs);
@@ -66,14 +66,13 @@ public:
   atQuaternion<T> Slerp(const atQuaternion &to, const T &factor) const;
   atQuaternion<T> Normalize() const;
   atQuaternion<T> Inverse() const;
-  atQuaternion<T> Mul(const atVector3<T> &rhs) const;
   atQuaternion<T> Mul(const atQuaternion<T> &rhs) const;
   atQuaternion<T> Mul(const T &rhs) const;
-  atQuaternion<T> Add(const atQuaternion<T> &rhs);
-  atQuaternion<T> Sub(const atQuaternion<T> &rhs);
-  atQuaternion<T> Div(const T &rhs);
+  atQuaternion<T> Add(const atQuaternion<T> &rhs) const;
+  atQuaternion<T> Sub(const atQuaternion<T> &rhs) const;
+  atQuaternion<T> Div(const T &rhs) const;
 
-  T AngleTo(const atQuaternion<T> &to);
+  T AngleTo(const atQuaternion<T> &to) const;
   T Angle() const;
   T Length() const;
   T Mag() const;
@@ -85,8 +84,6 @@ public:
 
   bool operator==(const atQuaternion<T> &rhs) const;
   bool operator!=(const atQuaternion<T> &rhs) const;
-
-  atVector3<T> operator*(const atVector3<T> &rhs) const;
 
   atQuaternion<T> operator*(const atQuaternion<T> &rhs) const;
   atQuaternion<T> operator-(const atQuaternion<T> &rhs) const;
@@ -124,6 +121,9 @@ public:
   T z;
   T w;
 };
+
+template<typename T> atQuaternion<T> operator*(const atVector3<T> &lhs, const atQuaternion<T> &rhs);
+template<typename T> atQuaternion<T> operator*(const atQuaternion<T> &lhs, const atVector3<T> &rhs);
 
 #include "atQuaternion.inl"
 #endif // atQuaternion_h__

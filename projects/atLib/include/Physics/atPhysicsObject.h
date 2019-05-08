@@ -8,38 +8,42 @@
 class atPhysicsObject : public atTransformable<double>
 {
 public:
-  atPhysicsObject(const double &mass = 1, const atVec3D &centerOfMass = 0);
+  atPhysicsObject(const double &mass = 1, const double &rotationalInertia = 1, const atVec3D &pivot = 0);
 
   // Applies all forces added to the object
   void Apply(const double time);
 
-  // Add a force to be calculated when Apply is called
-  void AddForce(const double force, const atVec3D &direction, const double &time = -1.0);
-  void AddMoment(const double force, const atVec3D &direction, const atVec3D &momentArm, const double &time = -1.0);
+  // Add a force to act on the object.
+  // Params:
+  //   force     - Magnitude of the force to apply
+  //
+  //   direction - Direction that the force acts in
+  //
+  //   time      - Amount of time the force is applied for
+  //               if time < 0 then the the force is applied
+  //               for the time passed to the Apply() function
+  //
+  //   position  - Offset from the center of mass to apply the force
+  void AddForce(const double force, const atVec3D &direction, const double &time = -1.0, const atVec3D &position = atVec3D::zero());
 
   atVec3D Momentum() const;
+  atQuatD AngularMomentum() const;
 
-  atVec3D m_centerOfMass;
   atVec3D m_velocity;
-  atMat4D m_momentOfIntertia;
+  atQuatD m_angularVelocity;
 
-  double m_mass;
+  double m_rotationalInertia; // Rotational equivalent of mass
+  double m_mass;              // Mass of the object
 
 protected:
   struct AppliedForce
   {
-    atForceD force;
-    double time;
-  };
-
-  struct AppliedMoment
-  {
-    atMomentD moment;
-    double time;
+    atForceD force;   // The force to be applied
+    atVec3D toCoM;    // Vector from applied position to the center of mass
+    double time;      // Time for the force to be applied
   };
   
   atVector<AppliedForce> m_forces;
-  atVector<AppliedMoment> m_moments;
 };
 
 #endif // atPhysicsObject_h__

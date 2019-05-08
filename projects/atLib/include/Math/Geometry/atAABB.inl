@@ -90,6 +90,12 @@ template<typename T> const atAABB<T>& atAABB<T>::operator=(const atAABB<T> &rhs)
   return *this;
 }
 
+template<typename T> inline T atAABB<T>::LongestEdgeLength() const
+{
+  Vec3 dims = Dimensions();
+  return atMax(dims.x, dims.y, dims.z);
+}
+
 template<typename T> bool atAABB<T>::operator==(const atAABB<T> &rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }
 template<typename T> bool atAABB<T>::operator!=(const atAABB<T> &rhs) const { return !(*this == rhs); }
 template<typename T> typename atAABB<T>::Vec3 atAABB<T>::Center() const { return (m_min + m_max) / (T)2; }

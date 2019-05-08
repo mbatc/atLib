@@ -58,7 +58,7 @@ void atLuaSceneNode::SetScale(const atVec3D &scl) { if (m_pNode) m_pNode->SetSca
 int64_t atLuaSceneNode::ChildCount() const { return m_pNode ? m_pNode->ChildCount() : 0; }
 void atLuaSceneNode::SetName(const char *name) { if(m_pNode) m_pNode->SetName(name); }
 int64_t atLuaSceneNode::GetParentID() const { return m_pNode ? m_pNode->ParentID() : AT_INVALID_ID; }
-atVec3D atLuaSceneNode::GetRotation() const { return m_pNode ? m_pNode->Rotation() : atVec3D::zero(); }
+atVec3D atLuaSceneNode::GetRotation() const { return m_pNode ? m_pNode->RotationEuler() : atVec3D::zero(); }
 const char* atLuaSceneNode::GetName() const { return m_pNode ? m_pNode->Name().c_str() : "Invalid Node"; }
 atVec3D atLuaSceneNode::GetScale() const { return  m_pNode ? m_pNode->Scale() : atVec3D::zero(); }
 int64_t atLuaSceneNode::GetID() const { return  m_pNode ? m_pNode->ID() : -1; }

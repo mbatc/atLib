@@ -46,6 +46,40 @@ template<typename T> inline T atDerivative(const T &val, T(*func)(const T &), co
 template<typename T> inline T atSigmoid(const T &val) { return 1 / (1 + exp(-val)); }
 
 template<typename T> inline T atMod(const T &a, const T &b) { return a % b; }
+//
+//template<typename T> inline T atSquareSin(const T &rads, const T &aspect = 1)
+//{
+//  T r = atMod(atMod(rads, atPi * 2) + atPi * 2, atPi * 2);
+//  T angle = atATan(1 / aspect);
+//  T invAngle = atPi_2 - angle;
+//  T x = atMod(r, atPi_2);
+//
+//  switch ((int)(r / atPi_2))
+//  {
+//  case 0: return x / invAngle * (x < invAngle) + (x >= invAngle);
+//  case 1: return (T(1) - (x >= angle) * (x - angle) / invAngle);
+//  case 2: return -x / invAngle * (x < invAngle) - (x >= invAngle);
+//  case 3: return -(T(1) - (x >= angle) * (x - angle) / invAngle);
+//  default: return 1;
+//  }
+//}
+//
+//template<typename T> inline T atSquareCos(const T &rads, const T &aspect = 1)
+//{
+//  T r = atMod(atMod(rads, atPi * 2) + atPi * 2, atPi * 2);
+//  T angle = atATan(1 / aspect);
+//  T invAngle = atPi_2 - angle;
+//  T x = atMod(r, atPi_2);
+//
+//  switch ((int)(r / atPi_2))
+//  {
+//  case 0: return aspect * (T(1) - (x >= angle) * (x - angle) / invAngle);
+//  case 1: return -aspect * x / invAngle * (x < invAngle) - (x >= invAngle) * aspect;
+//  case 2: return -aspect * (T(1) - (x >= angle) * (x - angle) / invAngle);
+//  case 3: return aspect * x / invAngle * (x < invAngle) + (x >= invAngle) * aspect;
+//  default: return aspect;
+//  }
+//}
 
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T clipSpaceNearZ, const T clipSpaceFarZ)
 {
@@ -132,23 +166,20 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &
 
 template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T> &quat)
 {
-  atQuaternion q = quat.Normalize();
-  const T sqx2 = atSquare(q.x) * 2;
-  const T sqy2 = atSquare(q.y) * 2;
-  const T sqz2 = atSquare(q.z) * 2;
-  const T sqw2 = atSquare(q.w) * 2;
-  const T xy2 = 2 * q.x * q.y;
-  const T xz2 = 2 * q.x * q.z;
-  const T zw2 = 2 * q.z * q.w;
-  const T yz2 = 2 * q.y * q.z;
-  const T yw2 = 2 * q.y * q.w;
-  const T xw2 = 2 * q.x * q.w;
+  const atQuaternion<T> &q = quat; // for shorter notation
+  const T d = q.Length();
+  if (d < atLimitsSmallest<T>())
+    return atMatrix4x4<T>::Identity();
+  T s = T(2) / d;
+  T xs = q.x * s, ys = q.y * s, zs = q.z * s;
+  T wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
+  T xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
+  T yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
   return atMatrix4x4<T>(
-    1 - sqy2 - sqz2, xy2 - zw2,       xz2 + yw2,       0,
-    xy2 + zw2,       1 - sqx2 - sqz2, yz2 + xw2,       0,
-    xz2 - yw2,       yz2 + xw2,       1 - sqx2 - sqy2, 0,
-    0,               0,               0,               1
-  );
+    T(1) - (yy + zz), xy - wz,          xz + wy,          0,
+    xy + wz,          T(1) - (xx + zz), yz - wx,          0,
+    xz - wy,          yz + wx,          T(1) - (xx + yy), 0,
+    0,                0,                0,                1);
 }
 
 template<typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation)

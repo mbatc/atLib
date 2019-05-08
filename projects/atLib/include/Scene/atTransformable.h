@@ -33,33 +33,69 @@ template<typename T> class atTransformable
 public:
   typedef atVector3<T> Vec;
   typedef atMatrix4x4<T> Mat;
+  typedef atQuaternion<T> Quat;
 
   atTransformable(const Vec &trans = { 0,0,0 }, const Vec &rot = { 0,0,0 }, const Vec &scale = { 1,1,1 });
 
+  // Get the scale matrix
   Mat ScaleMat() const;
+
+  // Get the translation matrix
   Mat TranslationMat() const;
+
+  // Get the transformation matrix. This matrix consists of the following
+  // transformations:
+  //
+  //  - Translation by -pivot
+  //  - Non-Uniform Scale by m_scale
+  //  - Rotation by m_rotation
+  //  - Translation by m_translation
+  //
+  //  Applied in the described order
   Mat TransformMat() const;
-  Vec Rotation() const;
 
+  // Get the rotation as euler angles (x-pitch, y-yaw, z-roll)
+  Vec RotationEuler() const;
+
+  // Get the rotation as a quaternion
+  const Quat& Orientation() const;
+
+  // Get the scale
   const Vec& Scale() const;
-  const Vec& Translation() const;
-  const Mat& RotationMat() const;
 
-  void Rotate(const Vec &ypr);
+  // Get the translation
+  const Vec& Translation() const;
+
+  // Get the rotation matrix
+  Mat RotationMat() const;
+
+  // Get the pivot
+  const Vec& Pivot() const;
+
+  // Apply a rotation 
+  void Rotate(const Vec &rot);
   void Rotate(const Mat &rot);
+  void Rotate(const Quat &rot);
+
+  // Apply a translation
   void Translate(const Vec &translation);
+  
+  // Apply a scale
   void Scale(const Vec &scale);
 
   void SetTransform(const Mat &transform);
   void SetRotation(const Vec &rotation);
   void SetRotation(const Mat &rotation);
+  void SetRotation(const Quat &rotation);
   void SetTranslation(const Vec &translation);
   void SetScale(const Vec &scale);
+  void SetPivot(const Vec &pivot);
 
 protected:
   Vec m_translation;
+  Vec m_pivot;
   Vec m_scale;
-  Mat m_rotation;
+  Quat m_rotation;
 };
 
 #include "atTransformable.inl"

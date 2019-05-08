@@ -40,13 +40,14 @@ atSceneCamera::atSceneCamera(const double aspect, const double FOV, const double
 bool atSimpleCamera::OnUpdate(const double dt)
 {
   atVec2D dMouse = atInput::MouseDelta();
-  atVec3D rot;
+  atVec2D rot;
   const double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
+
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);
   else
-    rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect, 0 };
+    rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect };
   atVec3D move;
   if (atInput::ButtonDown(atKC_W)) move.z -= speed;
   if (atInput::ButtonDown(atKC_S)) move.z += speed;
@@ -59,9 +60,10 @@ bool atSimpleCamera::OnUpdate(const double dt)
   if (atInput::ButtonDown(atKC_Up)) rot.x += speed;
   if (atInput::ButtonDown(atKC_Down)) rot.x -= speed;
 
-  Translate(RotationMat().Inverse() * move);
-  Rotate(atVec3D(rot.y, rot.x, rot.z));
-  
+  Translate(Orientation().Rotate(move));
+  m_yaw *= atQuatD(atVec3D(0, 1, 0), rot.y);
+  m_pitch *= atQuatD(atVec3D(1, 0, 0), rot.x);
+  SetRotation(m_yaw * m_pitch);
   return true;
 }
 

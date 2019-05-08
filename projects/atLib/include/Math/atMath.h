@@ -113,6 +113,11 @@ template<typename T> inline T atACos(const T &rads) { return acos(rads); }
 template<typename T> inline T atATan(const T &rads) { return atan(rads); }
 template<typename T> inline T atATan2(const atVector2<T> &pos) { return atATan2(pos.x, pos.y); }
 template<typename T> inline T atATan2(const T &y, const T &x);
+
+// Linear trig functions
+//template<typename T> inline T atSquareSin(const T &rads, const T &aspect = 1);
+//template<typename T> inline T atSquareCos(const T &rads, const T &aspect = 1);
+
 template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c);
 template<typename T> inline T atSigmoid(const T &val);
 template<typename T> inline T atDerivative(const T &val, T (*func)(const T&), const double step = 0.000001);

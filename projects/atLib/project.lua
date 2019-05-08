@@ -18,8 +18,6 @@ objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
 flags { "FatalWarnings" }
 flags { "MultiProcessorCompile" }
 
-disablewarnings { "4204" }
-
 -- Build Options
 
 buildoptions { "/bigobj" }
@@ -53,8 +51,8 @@ buildoptions { "/bigobj" }
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
-    libdirs {"3rdParty/lua/Release/"}
-    -- libdirs {"3rdParty/lua/Debug/"}
+    -- libdirs {"3rdParty/lua/Release/"}
+    libdirs {"3rdParty/lua/Debug/"}
 
 -- Release Configuration Settings
 

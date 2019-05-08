@@ -29,6 +29,7 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
+#include "atPrint.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -538,54 +539,283 @@ void ExampeBackPropagation()
 }
 
 #include "atPhysicsObject.h"
+#include "atIntersects.h"
+
+bool SphereOnSphere(double r1, const atVec3D &p1, double r2, const atVec3D &p2, atVec3D *pPoint1 = nullptr, atVec3D *pPoint2 = nullptr)
+{
+  atVec3D dir = (p2 - p1).Normalize();
+  atVec3D a = (p1 + dir * r1);
+  atVec3D b = (p2 - dir * r2);
+  atVec3D col = ((a) + (b)) / 2;
+  
+  if ((p1 - col).Mag() < r1 || (p2 - col).Mag() < r2)
+  {
+    if (pPoint1) 
+      *pPoint1 = a;
+    if (pPoint2)
+      *pPoint2 = b;
+    return true;
+  }
+  return false;
+}
+
+void CubeColData(atVec3D *pI, atVec3D *pJ, atVec3D *pK, const atQuatD &o1)
+{
+  *pI = o1.Rotate(atVec3D(1, 0, 0));
+  *pJ = o1.Rotate(atVec3D(0, 1, 0));
+  *pK = o1.Rotate(atVec3D(0, 0, 1));
+}
+
+bool CubeOnCube(const atMat4D &projection, const atVec3D &dim, const atVec3D &pos, const atQuatD &ori, atVec3D *pPoint = nullptr)
+{
+  atVec3D corners[8] =
+  {
+    { dim.x, dim.y, dim.z },
+    { -dim.x, dim.y, dim.z },
+    { dim.x, -dim.y, dim.z },
+    { -dim.x, -dim.y, dim.z },
+
+    { dim.x, dim.y, -dim.z },
+    { -dim.x, dim.y, -dim.z },
+    { dim.x, -dim.y, -dim.z },
+    { -dim.x, -dim.y, -dim.z },
+  };
+
+  static atAABB<double> bounds({ -1, -1, -1 }, { 1, 1, 1 });
+  atVec3D avg = 0;
+  int64_t nPoints = 0;
+  for (int64_t i = 0; i < 8; ++i)
+  {
+    atVec3D rotated = ori.Rotate(corners[i]);
+    atVec3D p = rotated + pos;
+    atVec3D projected = projection * p;
+    if (bounds.Contains(projected))
+    {
+      avg += p;
+      nPoints++;
+    }
+  }
+
+  if (nPoints > 0 && pPoint)
+    *pPoint = avg / nPoints;
+  return nPoints > 0;
+}
+//
+//bool CubeOnCube2(const atVec3D &dims1, const atVec3D &p1, const atQuatD &o1, const atVec3D &dims2, const atVec3D &p2, const atQuatD &o2, atVec3D *pPoint = nullptr)
+//{
+//  atVec3D i, j, k;
+//  CubeColData(&i, &j, &k, o2);
+//}
+
+bool AABBonOBB(const atVec3D &halfDims, const atVec3D &pos, const atVec3D &obbHalfDim, const atVec3D &obbPos, const atQuatD &obbOri, atVec3D *pPoint = nullptr)
+{
+  atVec3D corner;
+  atVec3D avgPos;
+  atAABB<double> aabb(pos - halfDims, pos + halfDims);
+  atAABB<double> obbProj(atLimitsMax<double>(), atLimitsMin<double>());
+  for (int64_t i = 0; i < 8; ++i)
+  {
+    corner.x = obbHalfDim.x * (((i % 2) == 0) * -2 + 1);
+    corner.y = obbHalfDim.y * (((i % 4) < 2) * -2 + 1);
+    corner.z = obbHalfDim.z * (((i % 8) < 4) * -2 + 1);
+    corner = obbOri.Rotate(corner) + obbPos;
+    obbProj.GrowToContain(corner);
+  }
+
+  if (!atIntersects(obbProj, aabb))
+    return false;
+
+  if (pPoint)
+    *pPoint = (obbProj.Center() + aabb.Center()) / 2;
+  return true;
+}
+
+bool OBBonOBB(const atVec3D &hDims, const atVec3D &pos, const atQuatD &ori, const atVec3D &hDims2, const atVec3D &pos2, const atQuatD &ori2, atVec3D *pPoint = nullptr)
+{
+  atVec3D point;
+  atQuatD invOri = ori.Inverse();
+  
+  if (!AABBonOBB(hDims, invOri.Rotate(pos), hDims2, invOri.Rotate(pos2), ori2 * invOri, &point))
+    return false;
+  
+  if (pPoint)
+    *pPoint += ori.Rotate(point);
+  
+  invOri = ori2.Inverse();
+  if (!AABBonOBB(hDims2, invOri.Rotate(pos2), hDims, invOri.Rotate(pos), ori * invOri, &point))
+    return false;
+
+  if (pPoint)
+  {
+    *pPoint += ori2.Rotate(point);
+    *pPoint /= 2;
+  }
+
+  return true;
+}
+//
+//bool CubeOnCube(const atVec3D &halfDim1, const atVec3D &p1, const atQuatD &o1, const atVec3D &halfDim2, const atVec3D &p2, const atQuatD &o2, atVec3D *pPoint = nullptr)
+//{
+//  atVec3D a;
+//  atVec3D b;
+//  { // exit early if outside the cubes radius
+//    if (!SphereOnSphere(halfDim1.Mag(), p1, halfDim2.Mag(), p2, &a, &b))
+//      return false;
+//  }
+//
+//  // try collision using mid-point between centers
+//  atVec3D i, j, k;
+//  CubeColData(&i, &j, &k, o1);
+//
+//  // Project ray to other bounding box
+//  atVec3D toPoint = p2 - p1;
+//  atRay<double> r(o2.Inverse().Rotate(p1), o2.Inverse().Rotate(toPoint));
+//  double t = 0;
+//  atIntersects(r, atAABB<double>(-halfDim2 + p2, halfDim2 + p2), &t);
+//  toPoint = toPoint * t;
+//  if (toPoint.Project(i).Mag() <= halfDim1.x &&
+//    toPoint.Project(j).Mag() <= halfDim1.y &&
+//    toPoint.Project(k).Mag() <= halfDim1.z)
+//  {
+//    if (pPoint)
+//      *pPoint = a;
+//    return true;
+//  }
+//
+//
+//  CubeColData(&i, &j, &k, o2);
+//  // Project ray to other bounding box
+//  toPoint = p1 - p2;
+//  r = atRay<double>(o1.Inverse().Rotate(p2), o1.Inverse().Rotate(toPoint));
+//  t = 0;
+//  atIntersects(r, atAABB<double>(-halfDim1 + p1, halfDim1 + p1), &t);
+//  toPoint = toPoint * t;
+//
+//  if (toPoint.Project(i).Mag() <= halfDim2.x &&
+//    toPoint.Project(j).Mag() <= halfDim2.y &&
+//    toPoint.Project(k).Mag() <= halfDim2.z)
+//  {
+//    if (pPoint)
+//      *pPoint = b;
+//    return true;
+//  }
+//
+//  // try collision using all 8 corners of each cube
+//  atVec3D colPoint;
+//  atMat4D scale = atMatrixScale(1.0 / halfDim1);
+//  atMat4D trans = atMatrixTranslation(-p1);
+//  atMat4D rot = atMatrixRotation(o1.Inverse());
+//  atVec3D avg = 0;
+//  int64_t nCols = 0;
+//  if (CubeOnCube(scale * trans, halfDim2, p2, o2, &colPoint))
+//  {
+//    avg += colPoint;
+//    nCols++;
+//  }
+//
+//  scale = atMatrixScale(1.0 / halfDim2);
+//  trans = atMatrixTranslation(-p2);
+//  rot = atMatrixRotation(o2.Inverse());
+//  if (CubeOnCube(scale * trans, halfDim1, p1, o1, &colPoint))
+//  {
+//    avg += colPoint;
+//    nCols++;
+//  }
+//
+//  if (nCols > 0 && pPoint)
+//    *pPoint = avg / nCols;
+//  return nCols > 0;
+//}
 
 void ExamplePhysics()
 {
+  // Set up window + draw target
   atWindow window("Physics Example");
-  atGraphicsModel model("assets/test/models/bumpmap.obj");
-  atPhysicsObject physModel(62);
-  atSimpleCamera camera(&window, {0, 1, 4});
-  physModel.SetTranslation({ 0, 2, 0 });
-  
   atRenderState rs;
   rs.SetRenderTarget(&window);
   
+  // Setup models
+  atGraphicsModel cube("assets/test/models/cube1x1.obj");
+  atGraphicsModel sphere("assets/test/models/sphereR.5.obj");
+  atLight l;
+  l.m_diffuseColor = atVec4D(0.7, 0.4, 0.4, 1.0);
+  l.m_ambientColor = atVec4D(0.3, 0.3, 0.3, 1.0);
+  l.m_specularColor = atVec4D(0.7, 0.4, 0.4, 1.0);
+  l.m_direction = atVec3D(1, -1, 1).Normalize();
+  sphere.SetLighting(l);
+  cube.SetLighting(l);
+
+  // Create camera
+  atSimpleCamera camera(&window, {0, 1, 4});
+  
+  // Create physics objects
+  atPhysicsObject b1;
+  atPhysicsObject b2;
+
+  atMat4D mat = atMatrixTranslation(atVec3D(1, 2, 3));
+  atVec3D pos = mat * atVec3D(0);
+
+  // b1.AddForce(8, atVec3D(0, 0, 1), -1, atVec3D(1, 0, 0));
+  // b2.AddForce(16, atVec3D(0, 1, 0), -1, atVec3D(1, 0, 0));
+  // b2.Apply(0.016);
+  // b1.Apply(0.016);
+  b1.SetTranslation(atVec3D(2, 0, 0));
+  b2.SetTranslation(atVec3D(0, 0, 0));
+
+  // https://cse442-17f.github.io/Gilbert-Johnson-Keerthi-Distance-Algorithm/ // LOOK AT THIS
+
+  atPhysicsObject *pActive = &b1;
+  at2DRenderer::SetFont("D:/Programming Projects/atLib/builds/bin/Assets/Fonts/RomanSerif.ttf");
   while (atInput::Update())
   {
     window.Clear(0xFF333333);
-    
-    physModel.AddForce(9.8 * physModel.m_mass, { 0, -1, 0 });
-    if (physModel.Translation().y <= 1)
-    {
-      atForceD force(physModel.m_velocity, atVec3D(0), 0.016, physModel.m_mass);
-  
-      physModel.SetTranslation({ physModel.Translation().x, 1, physModel.Translation().y});
-      physModel.AddForce(force.magnitude, force.direction);
-      physModel.AddForce(9.8 * physModel.m_mass, {0, 1, 0});
-
-      if (atInput::ButtonDown(atKC_Space))
-        physModel.AddForce(3000, { 0, 1, 0 }, 0.1);
-    }
-
-    if (atInput::ButtonPressed(atKC_J))
-      physModel.AddMoment(10, { 0, 0, 1 }, { 1, 1, 0 });
-    if (atInput::ButtonPressed(atKC_L))
-      physModel.AddMoment(10, { 0, 0, 1 }, { -1, -1, 0 });
-
-
-    if (atInput::ButtonPressed(atKC_U))
-      physModel.AddMoment(10, { 0, 0, 1 }, { 0.25, 0, 0 });
-    if (atInput::ButtonPressed(atKC_O))
-      physModel.AddMoment(10, { 0, 0, 1 }, { -0.25, 0, 0 });
-
-    physModel.Apply(0.016);
     camera.OnUpdate(0.016);
 
-    // Draw Physics cube
-    model.Draw(camera.ProjectionMat() * camera.ViewMat(), physModel.TransformMat());
+    sphere.SetCamera(camera.Translation());
+    cube.SetCamera(camera.Translation());
+
+    {
+      atVec3D m;
+      if (atInput::ButtonDown(atKC_L)) m.x -= 0.01;
+      if (atInput::ButtonDown(atKC_J)) m.x += 0.01;
+      if (atInput::ButtonDown(atKC_I)) m.z -= 0.01;
+      if (atInput::ButtonDown(atKC_K)) m.z += 0.01;
+      if (atInput::ButtonDown(atKC_O)) m.y += 0.01;
+      if (atInput::ButtonDown(atKC_U)) m.y -= 0.01;
+      pActive->Translate(m);
+    }
+
+    if (atInput::ButtonPressed(atKC_Tab)) pActive = pActive == &b1 ? &b2 : &b1;
+    at2DRenderer::AddText(0, 0, pActive == &b1 ? "box 1 active" : "box 2 active");
+
+    atMat4D vp = camera.ProjectionMat() * camera.ViewMat();
+    atVec3D point;
+    if (OBBonOBB(b1.Scale() / 2, b1.Translation(), b1.Orientation(), b2.Scale() / 2, b2.Translation(), b2.Orientation(), &point))
+    {
+      sphere.Draw(vp, atMatrixTranslation(point) * atMatrixScaleUniform(0.1));
+      atString pointPos = "Point {" + atPrint::Vector(point, ", ") + "}";
+      at2DRenderer::AddText(0, 10, "Colliding at " + pointPos);
+    }
+
+    // b2.Apply(0.016);
+    // b1.Apply(0.016);
+
+    // Cube 1
+    cube.Draw(vp, b1.TransformMat());
+
+    // Cube 2
+    cube.Draw(vp, b2.TransformMat());
 
     // Draw Ground
-    model.Draw(camera.ProjectionMat() * camera.ViewMat(), atMatrixScale(atVec3D{ 10, 0.01, 10 }));
+    // cube.Draw(vp, atMatrixScale(atVec3D{ 10, 0.01, 10 }));
+    {
+      atRenderState textState;
+      textState.SetDepthReadEnabled(false);
+      textState.SetDepthWriteEnabled(false);
+      textState.SetScissorEnabled(true);
+      textState.SetBlendEnabled(true);
+      at2DRenderer::Draw(window);
+    }
     window.Swap();
   }
 }

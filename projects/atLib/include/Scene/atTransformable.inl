@@ -30,22 +30,29 @@ template<typename T> atTransformable<T>::atTransformable(const Vec& trans, const
   , m_scale(scale) 
 {}
 
-template<typename T> inline typename const atTransformable<T>::Mat& atTransformable<T>::RotationMat() const
+template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::RotationMat() const
 {
-  return m_rotation;
+  return atMatrixRotation(m_rotation);
 }
 
-template<typename T> inline void atTransformable<T>::Rotate(const Vec &ypr)
+template<typename T> inline typename const atTransformable<T>::Vec& atTransformable<T>::Pivot() const
 {
-  atVector3<T> xAxis = m_rotation.Transpose() * atVector3<T>(1, 0, 0);
-  atVector3<T> yAxis = m_rotation.Transpose() * atVector3<T>(0, 1, 0);
-  atVector3<T> zAxis = m_rotation.Transpose() * atVector3<T>(0, 0, 1);
-  Rotate(atMatrixRotation(yAxis, ypr.x) * atMatrixRotation(xAxis, ypr.y) * atMatrixRotation(zAxis, ypr.z));
+  return m_pivot;
+}
+
+template<typename T> inline void atTransformable<T>::Rotate(const Vec &rot)
+{
+  Rotate(Quat(rot.x, rot.y, rot.z));
 }
 
 template<typename T> inline void atTransformable<T>::Rotate(const Mat &rot)
 {
-  m_rotation = rot * m_rotation;
+  Rotate(Quat(rot));
+}
+
+template<typename T> inline void atTransformable<T>::Rotate(const Quat &rot)
+{
+  m_rotation *= rot;
 }
 
 template<typename T> inline void atTransformable<T>::Translate(const Vec &translation)
@@ -69,10 +76,15 @@ template<typename T> inline void atTransformable<T>::SetTransform(const Mat &tra
 
 template<typename T> inline void atTransformable<T>::SetRotation(const Vec &rotation)
 {
-  m_rotation = atMatrixYawPitchRoll(rotation.y, rotation.x, rotation.z);
+  m_rotation.Set(rotation.x, rotation.y, rotation.z);
 }
 
 template<typename T> inline void atTransformable<T>::SetRotation(const Mat &rotation)
+{
+  m_rotation.Set(rotation);
+}
+
+template<typename T> inline void atTransformable<T>::SetRotation(const Quat &rotation)
 {
   m_rotation = rotation;
 }
@@ -87,6 +99,11 @@ template<typename T> inline void atTransformable<T>::SetScale(const Vec &scale)
   m_scale = scale;
 }
 
+template<typename T> inline void atTransformable<T>::SetPivot(const Vec &pivot)
+{
+  m_pivot = pivot;
+}
+
 template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::ScaleMat() const
 {
   return atMatrixScale(m_scale);
@@ -99,12 +116,17 @@ template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>:
 
 template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>::TransformMat() const
 {
-  return TranslationMat() * RotationMat() * ScaleMat();
+  return TranslationMat() * RotationMat() * ScaleMat() * atMatrixTranslation(-m_pivot);
 }
 
-template<typename T> inline typename atTransformable<T>::Vec atTransformable<T>::Rotation() const
+template<typename T> inline typename atTransformable<T>::Vec atTransformable<T>::RotationEuler() const
 {
-  return atMatrixExtractRotation(m_rotation);
+  return m_rotation.EulerAngles();
+}
+
+template<typename T> inline const typename atTransformable<T>::Quat& atTransformable<T>::Orientation() const
+{
+  return m_rotation;
 }
 
 template<typename T> inline const typename atTransformable<T>::Vec& atTransformable<T>::Scale() const

@@ -41,12 +41,6 @@ template <typename T> struct atForce
   T magnitude;
 };
 
-template <typename T> struct atMoment
-{
-  atForce<T> force;
-  atVector3<T> arm;
-};
-
 template<typename T> atVector3<T> atAcceleration(const atForce<T> &force, const T &mass);
 template<typename T> atVector3<T> atAcceleration(const atVector3<T> &initialVelocity, const T &displacement, const atVector3<T> &finalVelocity);
 template<typename T> atVector3<T> atAcceleration(const atVector3<T> &initialVelocity, const atVector3<T> &finalVelocity, const T &time);
@@ -62,8 +56,6 @@ template<typename T> atVector3<T> atMomentum(const atVector3<T> &velocity, const
 
 typedef atForce<double> atForceD;
 typedef atForce<float> atForceF;
-typedef atMoment<double> atMomentD;
-typedef atMoment<float> atMomentF;
 
 #include "atPhysicsMath.inl"
 #endif // atPhysicsMath_h__
