@@ -85,10 +85,14 @@ public:
   void Clear();
   int64_t Size() const;
 
+  void Add(const Key &key, Value &&val);
   void Add(const Key &key, const Value &val = Value());
   void Add(const KVP &kvp);
+  void Add(KVP &&kvp);
+  bool TryAdd(const Key &key, Value &&val);
   bool TryAdd(const Key &key, const Value &val = Value());
   bool TryAdd(const KVP &kvp);
+  bool TryAdd(KVP &&kvp);
 
   bool Contains(const Key &key) const;
 

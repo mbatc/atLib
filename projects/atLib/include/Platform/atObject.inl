@@ -1,4 +1,4 @@
-\
+
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
@@ -23,63 +23,72 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef _atKeyValue_h__
-#define _atKeyValue_h__
-
-template<typename Key, class Val> class atKeyValue
+template<typename T>
+inline bool atObject::Is() const
 {
-public:
-  atKeyValue() {}
+  return m_typeInfo == typeid(T);
+}
 
-  atKeyValue(const Key &key, const Val &val)
-    : m_key(key)
-    , m_val(val)
-  {}
+template<typename T>
+inline const T& atObject::As() const
+{
+  return *(T*)m_data.data();
+}
 
-  atKeyValue(const Key &key, Val &&val)
-    : m_key(key)
-    , m_val(val)
-  {}
+template<typename T>
+inline const atObject& atObject::operator=(const T &val)
+{
+  Assign(val);
+  return *this;
+}
 
-  atKeyValue(Key &&key, const Val &val)
-    : m_key(key)
-    , m_val(val)
-  {}
+template<typename T>
+inline const atObject& atObject::operator=(T &&val)
+{
+  Assign(val);
+  return *this;
+}
 
-  atKeyValue(Key &&key, Val &&val)
-    : m_key(key)
-    , m_val(val)
-  {}
+template<typename T>
+inline bool atObject::operator==(const T &val) const
+{
+  return Is<T>() && (As<T>() == val);
+}
 
-  atKeyValue(const atKeyValue<Key, Val> &copy)
-    : m_key(copy.m_key)
-    , m_val(copy.m_val)
-  {}
+template<typename T>
+inline bool atObject::operator!=(const T &val) const
+{
+  return !(*this == val);
+}
 
-  atKeyValue(atKeyValue<Key, Val> &&move)
-    : m_key(move.m_key)
-    , m_val(move.m_val)
-  {}
+template<typename T>
+inline atObject::atObject(const T &val)
+  : atObject()
+{
+  Assign(val);
+}
 
-  bool compare(const atKeyValue<Key, Val> &rhs) { return rhs.m_key == m_key && rhs.m_val == m_val; }
-  bool operator==(const atKeyValue<Key, Val> &rhs) { return compare(rhs); }
+template<typename T>
+inline void atObject::Assign(const T &value)
+{
+  if (m_destructFunc)
+    m_destructFunc(m_data.data());
+  m_typeInfo = typeid(T);
+  m_data.resize(sizeof(T));
+  T* pMem = (T*)m_data.data();
+  new(pMem) T(value);
+  m_destructFunc = atObjectDestructFunc<T>;
+}
 
-  const atKeyValue<Key, Val>& operator=(const atKeyValue<Key, Val> &rhs)
-  {
-    m_val = rhs.m_val;
-    m_key = rhs.m_key;
-    return *this;
-  }
+template<typename T>
+inline void atObject::SetMember(const atString &name, const T &value)
+{
+  SetMember(name, atObject(value));
+}
 
-  const atKeyValue<Key, Val>& operator=(atKeyValue<Key, Val> &&rhs)
-  {
-    m_val = std::move(rhs.m_val);
-    m_key = std::move(rhs.m_key);
-    return *this;
-  }
-
-  Key m_key;
-  Val m_val;
-};
-
-#endif
+template<typename T>
+inline void atObjectDestructFunc(void * pData)
+{
+  T* pObj = (T*)pData;
+  pObj->~T();
+}

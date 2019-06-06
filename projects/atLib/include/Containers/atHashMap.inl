@@ -64,6 +64,20 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::TryAdd(const KVP
   return true;
 }
 
+template<typename Key, class Value> bool atHashMap<Key, Value>::TryAdd(KVP &&kvp)
+{
+  Bucket &bucket = GetBucket(kvp.m_key);
+  for (KVP &item : bucket)
+    if (item.m_key == kvp.m_key)
+      return false;
+  bucket.push_back(kvp);
+  ++m_size;
+
+  if (m_size > m_itemCount * m_buckets.size())
+    Rehash((int64_t)(atMax(m_buckets.size() * _grow_rate, 2)));
+  return true;
+}
+
 template<typename Key, class Value> bool atHashMap<Key, Value>::Contains(const Key &key) const
 {
   for (const KVP &kvp : GetBucket(key))
@@ -160,9 +174,15 @@ template<typename Key, class Value> typename atHashMap<Key, Value>::ConstIterato
 template<typename Key, class Value> typename atHashMap<Key, Value>::Iterator atHashMap<Key, Value>::begin() { return Iterator(this, 0, m_buckets[0].data()); }
 template<typename Key, class Value> typename atHashMap<Key, Value>::Iterator atHashMap<Key, Value>::end() { return Iterator(this, m_buckets.size() - 1, m_buckets[m_buckets.size() - 1].end()); }
 template<typename Key, class Value> typename atHashMap<Key, Value>::Bucket& atHashMap<Key, Value>::GetBucket(const Key &key) { return m_buckets[m_buckets.size() > 1 ? FindBucket(key) : 0]; }
+
+template<typename Key, class Value> void atHashMap<Key, Value>::Add(const Key &key, Value &&val) { atAssert(TryAdd(key, val), "Duplicate Key!"); }
 template<typename Key, class Value> void atHashMap<Key, Value>::Add(const Key &key, const Value &val) { atAssert(TryAdd(key, val), "Duplicate Key!"); }
-template<typename Key, class Value> bool atHashMap<Key, Value>::TryAdd(const Key &key, const Value &val) { return TryAdd(KVP(key, val)); }
 template<typename Key, class Value> void atHashMap<Key, Value>::Add(const KVP &kvp) { atAssert(TryAdd(kvp), "Duplicate Key!"); }
+template<typename Key, class Value> void atHashMap<Key, Value>::Add(KVP && kvp) { atAssert(TryAdd(kvp), "Duplicate Key!"); }
+
+template<typename Key, class Value> bool atHashMap<Key, Value>::TryAdd(const Key &key, const Value &val) { return TryAdd(KVP(key, val)); }
+template<typename Key, class Value> bool atHashMap<Key, Value>::TryAdd(const Key &key, Value &&val) { return TryAdd(KVP(key, val)); }
+
 template<typename Key, class Value> const Value& atHashMap<Key, Value>::operator[](const Key &key) const { return Get(key); }
 template<typename Key, class Value> Value& atHashMap<Key, Value>::operator[](const Key &key) { return Get(key); }
 

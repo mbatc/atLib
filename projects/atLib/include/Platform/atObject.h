@@ -1,77 +1,104 @@
+
+// -----------------------------------------------------------------------------
+// The MIT License
+// 
+// Copyright(c) 2018 Michael Batchelor, 
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// -----------------------------------------------------------------------------
+
 #ifndef atObject_h__
 #define atObject_h__
 
 #include "atString.h"
 #include "atHashMap.h"
+#include <typeindex>
 
 class atObject
 {
 public:
   atObject();
-  atObject(atObject &&move);
   atObject(const atObject &copy);
+  atObject(atObject &&move);
   ~atObject();
 
   void Assign(const atObject &value);
-  bool AddMember(const atString &name, const atObject &value);
-  template<typename T> void Assign(const T &value);
-  template<typename T> bool AddMember(const atString &name, const T &value);
+  void Assign(atObject &&value);
+  void SetMember(const atString &name, const atObject &value);
+  void SetMember(const atString &name, atObject &&value);
 
-  const atObject& operator=(const atObject &copy);
-  const atObject& operator=(atObject &&move);
+  bool HasMember(const atString &name) const;
 
-  bool operator==(const atObject &value) const;
-  bool operator!=(const atObject &value) const;
-  template<typename T> const atObject& operator=(const T &value);
-  template<typename T> bool operator==(const T &value) const;
-  template<typename T> bool operator!=(const T &value) const;
+  atObject& GetMember(const atString &name);
+  const atObject& GetMember(const atString &name) const;
 
-  atObject& Get(const atString &name);
-  atObject& operator [](const char *name);
-  atObject& operator [](const atString &name);
-  const atObject& Get(const atString &name) const;
-  const atObject& operator [](const char *name) const;
-  const atObject& operator [](const atString &name) const;
+  const atObject& operator=(const atObject &rhs);
+  const atObject& operator=(atObject &&rhs);
 
-  template<typename T> operator T();
+  atObject& operator[](const atString &name);
+  const atObject& operator[](const atString &name) const;
+
+  template<typename T>
+  bool Is() const;
+
+  template<typename T>
+  const T& As() const;
+
+  template<typename T>
+  const atObject& operator=(const T &val);
+
+  template<typename T>
+  const atObject& operator=(T &&val);
+
+  template<typename T>
+  bool operator==(const T &val) const;
+  
+  template<typename T>
+  bool operator!=(const T &val) const;
+
+  template<typename T>
+  atObject(const T &val);
+
+  template<typename T>
+  void Assign(const T &value);
+
+  // template<typename T>
+  // void Assign(T &&value);
+
+  template<typename T>
+  void SetMember(const atString &name, const T &value);
+
+  template<typename T>
+  T& GetMember(const atString &name);
+
+  template<typename T>
+  const T& GetMember(const atString &name) const;
 
 protected:
-  atTypeDesc m_desc;
+  std::type_index m_typeInfo;
   atVector<uint8_t> m_data;
   atHashMap<atString, atObject> m_members;
+
+  void (*m_destructFunc) (void*);
 };
 
-template<typename T> void atObject::Assign(const T &value)
-{
-  atAssert(m_data.size() == 0 || (atGetType<T>() == m_desc.type && sizeof(T) == m_data.size()), "Assigning an atObject of different type or size");
-  m_desc = atGetTypeDesc(value);
-  m_data.resize(sizeof(T));
-  memcpy(m_data.data(), &value, (size_t)m_data.size());
-}
+template<typename T> void atObjectDestructFunc(void *pData);
 
-template<typename T> bool atObject::AddMember(const atString &name, const T &value)
-{
-  if (m_members.Contains(name))
-    return false;
-  m_members.Add(name, atObject());
-  m_members[name].Assign(value);
-  return true;
-}
-
-template<typename T> bool atObject::operator==(const T &value) const
-{
-  atObject val;
-  val.Assign(value);
-  return val == *this;
-}
-
-template<typename T> atObject::operator T()
-{
-  atAssert(atGetTypeDesc<T>() == m_desc, "Cannot cast atObject to type T");
-  return *(T*)m_data.data();
-}
-
-template<typename T> const atObject& atObject::operator=(const T &value) { Assign(value); return *this; }
-template<typename T> bool atObject::operator!=(const T &value) const { return !(value == *this); }
-
+#include "atObject.inl"
 #endif // atObject_h__
