@@ -44,7 +44,7 @@ bool s_mouseSet = false;
 static void _UpdateMouse()
 {
   if (s_mouseSet)
-    atInput::OnMouseMove(s_mousePos, 0);
+    atInput::OnMouseMove(s_mousePos, s_dt);
   if (s_mouseLocked)
     if (GetFocus())
       atInput::SetMousePos(s_lockPos);

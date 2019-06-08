@@ -292,7 +292,7 @@ void atString::validate()
     m_data.push_back(0); // make sure there is a null terminating character
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char &_char)
+atVector<atString> atString::_split(const char *src, const int64_t len, const char &_char, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
@@ -304,14 +304,14 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
     start = end + 1;
     end = _find(src, len, _char, start);
 
-    if (atStr.length() > 0)
+    if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
   ret.emplace_back(src + start, src + len);
   return ret;
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char *split, const bool isSet)
+atVector<atString> atString::_split(const char *src, const int64_t len, const char *split, const bool isSet, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
@@ -328,7 +328,7 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
     atStr.set_string(src + start, end - start);
     start = end + setLen;
     end = find_func(src, len, split, start, INT64_MAX);
-    if (atStr.length() > 0)
+    if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
   if (start < len)
@@ -363,6 +363,19 @@ template<> atTypeDesc atGetTypeDesc(const atString &str)
   atTypeDesc ret = atGetTypeDesc<char>();
   ret.count = str.length() + 1;
   ret.size = atSize(ret.type) * ret.count;
+  return ret;
+}
+
+atString atString::join(const atVector<atString> &strings, const atString &separator, const bool ignoreEmpty)
+{
+  atString ret;
+  for (const atString &str : strings)
+    if (!ignoreEmpty || str.length() > 0)
+    {
+      ret += str;
+      if (&str - &strings.back())
+        ret += separator;
+    }
   return ret;
 }
 
@@ -405,8 +418,8 @@ int64_t atString::find_first(const char _char) const { return find(_char, 0); }
 int64_t atString::find_first(const char *str) const { return find(str, 0); }
 int64_t atString::find_last(const char _char) const { return find_reverse(_char); }
 int64_t atString::find_last(const char *str) const { return find_reverse(str); }
-atVector<atString> atString::split(const char & _char) { return _split(m_data.data(), length(), _char); }
-atVector<atString> atString::split(const char * split, bool isSet) { return _split(m_data.data(), length(), split, isSet); }
+atVector<atString> atString::split(const char & _char, const bool dropEmpty) const { return _split(m_data.data(), length(), _char, dropEmpty); }
+atVector<atString> atString::split(const char * split, bool isSet, const bool dropEmpty) const { return _split(m_data.data(), length(), split, isSet, dropEmpty); }
 const char *atString::c_str() const { return m_data.data(); }
 int64_t atString::capacity()  const { return m_data.capacity(); }
 int64_t atString::length() const { return m_data.size() - 1; }

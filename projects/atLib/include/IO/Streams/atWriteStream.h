@@ -26,11 +26,11 @@
 #ifndef atWriteStream_h__
 #define atWriteStream_h__
 
-#include "atTypes.h"
+#include "atStreamSeekable.h"
 
 #define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (void*)pData, (int64_t)sizeof(type) * count); }
 
-class atWriteStream
+class atWriteStream : public atStreamSeekable
 {
 public:
   // Writes pData to the file
@@ -53,6 +53,7 @@ atTrivialStreamWrite(uint64_t);
 atTrivialStreamWrite(uint32_t);
 atTrivialStreamWrite(uint16_t);
 atTrivialStreamWrite(uint8_t);
+atTrivialStreamWrite(bool)
 atTrivialStreamWrite(wchar_t);
 atTrivialStreamWrite(char);
 atTrivialStreamWrite(double);

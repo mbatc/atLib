@@ -28,6 +28,7 @@
 
 #include "atKeyValue.h"
 #include "atVector.h"
+#include "atHash.h"
 
 template<typename Key, class Value> class atHashMap
 {
@@ -98,6 +99,7 @@ public:
 
   void Remove(const Key &key);
 
+  Value& GetOrAdd(const Key &key);
   Value& Get(const Key &key);
   Value* TryGet(const Key &key);
   Value& operator[](const Key &key);
@@ -116,6 +118,9 @@ public:
 
   const atHashMap<Key, Value>& operator=(const atHashMap<Key, Value> &rhs);
 
+  static int64_t StreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count);
+  static int64_t StreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count);
+
 protected:
   Bucket &GetBucket(const Key &key);
   const Bucket &GetBucket(const Key &key) const;
@@ -126,6 +131,16 @@ protected:
   atVector<Bucket> m_buckets;
   int64_t m_size;
 };
+
+template<typename Key, typename Value> int64_t atStreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count)
+{
+  return atHashMap<Key, Value>::StreamWrite(pStream, pData, count);
+}
+
+template<typename Key, typename Value> int64_t atStreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count)
+{
+  return atHashMap<Key, Value>::StreamRead(pStream, pData, count);
+}
 
 #include "atHashMap.inl"
 #endif // atHashMap_h__

@@ -25,6 +25,7 @@
 
 #include "atNetworkWriter.h"
 #include <time.h>
+#include <windows.h>
 
 atNetworkWriter::atNetworkWriter() : m_pConn(nullptr) {}
 atNetworkWriter::atNetworkWriter(const atString &addr, const atString &port, const int64_t timeout) : m_pConn(nullptr) { Open(addr, port, timeout); }

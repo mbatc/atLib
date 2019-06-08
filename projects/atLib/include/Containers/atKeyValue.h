@@ -23,6 +23,9 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atReadStream.h"
+#include "atWriteStream.h"
+
 #ifndef _atKeyValue_h__
 #define _atKeyValue_h__
 
@@ -81,5 +84,27 @@ public:
   Key m_key;
   Val m_val;
 };
+
+template<typename Key, class Val> int64_t atStreamWrite(atWriteStream *pStream, const atKeyValue<Key, Val> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (const atKeyValue<Key, Val> &vec : atIterate(pData, count))
+  {
+    ret += atStreamWrite(pStream, &pData->m_key, 1);
+    ret += atStreamWrite(pStream, &pData->m_val, 1);
+  }
+  return ret;
+}
+
+template<typename Key, class Val> int64_t atStreamRead(atReadStream *pStream, atKeyValue<Key, Val> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (atKeyValue<Key, Val> &vec : atIterate(pData, count))
+  {
+    ret += atStreamRead(pStream, &pData->m_key, 1);
+    ret += atStreamRead(pStream, &pData->m_val, 1);
+  }
+  return ret;
+}
 
 #endif

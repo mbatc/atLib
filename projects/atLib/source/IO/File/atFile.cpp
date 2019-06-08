@@ -52,6 +52,7 @@ bool atFile::Open(const atFilename &file, const int64_t mode)
     m_mode = mode;
     m_fn = file;
     m_info.SetFile(file);
+    m_pos = Tell();
   }
 
   return m_pFile != nullptr;
@@ -70,17 +71,33 @@ bool atFile::Close()
   return true;
 }
 
-int64_t atFile::Seek(const int64_t loc)
+bool atFile::Seek(const int64_t loc, const atSeekOrigin origin)
 {
-  atUnused(loc);
-  return int64_t();
+  if (!m_pFile)
+    return false;
+
+  switch (origin)
+  {
+  case atSO_Current: m_pos = m_pos + loc; break;
+  case atSO_Start: m_pos = loc; break;
+  case atSO_End: m_pos = m_info.Size() - loc; break;
+  }
+
+  return fseek(m_pFile, (long)loc, origin) == 0;
+}
+
+int64_t atFile::Tell() const
+{
+  return IsOpen() ? ftell(m_pFile) : 0;
 }
 
 int64_t atFile::Write(void *pData, const int64_t len)
 {
   if (!IsOpen())
     return 0;
-  return fwrite(pData, sizeof(uint8_t), (size_t)len / sizeof(uint8_t), m_pFile);
+  int64_t bytesWritten = fwrite(pData, len, 1, m_pFile);
+  m_pos += bytesWritten;
+  return bytesWritten;
 }
 
 atString atFile::ReadText()
@@ -103,16 +120,18 @@ atString atFile::ReadText(const atFilename &filename)
 
 bool atFile::Flush()
 {
-  if (!IsOpen())
-    return false;
-  return fflush(m_pFile) == 0;
+  return IsOpen() ? fflush(m_pFile) == 0 : false;
 }
 
 int64_t atFile::Read(void *pBuffer, const int64_t size)
 {
   if (!IsOpen())
     return 0;
-  return fread_s(pBuffer, (size_t)size, sizeof(uint8_t), (size_t)size / sizeof(uint8_t), m_pFile);
+  if (fread_s(pBuffer, (size_t)size, (size_t)size, 1, m_pFile) != 1)
+    if (!feof(m_pFile))
+      atAssert(false, "Read failed with error: " + atString(ferror(m_pFile)));
+  m_pos += size;
+  return size;
 }
 
 bool atFile::Exists(const atFilename &fn)
@@ -131,5 +150,5 @@ bool atFile::Copy(const atFilename &fn) { atUnused(fn); return false; }
 bool atFile::Move(const atFilename &fn) { atUnused(fn); return false; }
 const atFileInfo& atFile::Info() { return m_info; }
 int64_t atFile::GetMode() { return m_mode; }
-bool atFile::IsOpen() { return m_mode != atFM_None; }
+bool atFile::IsOpen() const { return m_pFile && m_mode != atFM_None; }
 bool atFile::Delete(const atFilename &fn) { return remove(fn.Path().c_str()) == 0; }

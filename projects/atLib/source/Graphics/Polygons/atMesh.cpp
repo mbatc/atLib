@@ -387,19 +387,17 @@ int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count)
   int64_t size = 0;
   for (atMesh &mesh : atIterate(pData, count))
   {
-    size += pStream->Read(&mesh.m_sourceFile);
-    size += pStream->Read(&mesh.m_resourceDir);
-    size += pStream->Read(&mesh.m_default);
-
-    size += pStream->Read(&mesh.m_triangles);
-    size += pStream->Read(&mesh.m_positions);
-    size += pStream->Read(&mesh.m_normals);
-    size += pStream->Read(&mesh.m_colors);
-    size += pStream->Read(&mesh.m_tangents);
-    size += pStream->Read(&mesh.m_binormals);
-    size += pStream->Read(&mesh.m_texCoords);
-
-    size += pStream->Read(&mesh.m_materials);
+    size += atStreamRead(pStream, &mesh.m_sourceFile, 1);
+    size += atStreamRead(pStream, &mesh.m_resourceDir, 1);
+    size += atStreamRead(pStream, &mesh.m_default, 1);
+    size += atStreamRead(pStream, &mesh.m_triangles, 1);
+    size += atStreamRead(pStream, &mesh.m_positions, 1);
+    size += atStreamRead(pStream, &mesh.m_normals, 1);
+    size += atStreamRead(pStream, &mesh.m_colors, 1);
+    size += atStreamRead(pStream, &mesh.m_tangents, 1);
+    size += atStreamRead(pStream, &mesh.m_binormals, 1);
+    size += atStreamRead(pStream, &mesh.m_texCoords, 1);
+    size += atStreamRead(pStream, &mesh.m_materials, 1);
   }
   return size;
 }
@@ -409,19 +407,17 @@ int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t
   int64_t size = 0;
   for (const atMesh &mesh : atIterate(pData, count))
   {
-    size += pStream->Write(mesh.m_sourceFile);
-    size += pStream->Write(mesh.m_resourceDir);
-    size += pStream->Write(mesh.m_default);
-
-    size += pStream->Write(mesh.m_triangles);
-    size += pStream->Write(mesh.m_positions);
-    size += pStream->Write(mesh.m_normals);
-    size += pStream->Write(mesh.m_colors);
-    size += pStream->Write(mesh.m_tangents);
-    size += pStream->Write(mesh.m_binormals);
-    size += pStream->Write(mesh.m_texCoords);
-
-    size += pStream->Write(mesh.m_materials);
+    size += atStreamWrite(pStream, &mesh.m_sourceFile, 1);
+    size += atStreamWrite(pStream, &mesh.m_resourceDir, 1);
+    size += atStreamWrite(pStream, &mesh.m_default, 1);
+    size += atStreamWrite(pStream, &mesh.m_triangles, 1);
+    size += atStreamWrite(pStream, &mesh.m_positions, 1);
+    size += atStreamWrite(pStream, &mesh.m_normals, 1);
+    size += atStreamWrite(pStream, &mesh.m_colors, 1);
+    size += atStreamWrite(pStream, &mesh.m_tangents, 1);
+    size += atStreamWrite(pStream, &mesh.m_binormals, 1);
+    size += atStreamWrite(pStream, &mesh.m_texCoords, 1);
+    size += atStreamWrite(pStream, &mesh.m_materials, 1);
   }
   return size;
 }
