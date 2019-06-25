@@ -47,7 +47,7 @@ public:
   bool IsValid() const;
 
   bool CanAccept() const;
-  bool CanRead() const;
+  bool CanRead(int64_t *pNumBytes = nullptr) const;
   bool CanWrite() const;
   
   atSocket Accept() const;

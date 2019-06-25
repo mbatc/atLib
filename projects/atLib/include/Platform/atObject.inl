@@ -87,7 +87,7 @@ inline void atObject::SetMember(const atString &name, const T &value)
 }
 
 template<typename T>
-inline void atObjectDestructFunc(void * pData)
+inline void atObjectDestructFunc(void *pData)
 {
   T* pObj = (T*)pData;
   pObj->~T();

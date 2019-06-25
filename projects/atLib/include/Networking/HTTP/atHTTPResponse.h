@@ -1,12 +1,12 @@
 #ifndef atHTTPResponse_h__
 #define atHTTPResponse_h__
 
-#include "atWebResponse.h"
 #include "atHTTPHeader.h"
 
-class atHTTPResponse : atWebResponseInterface<atHTTPResponse>
+class atHTTPResponse
 {
 public:
+  atHTTPResponse();
   atHTTPResponse(const atHTTPResponseCode &code, const atHTTPProtocol &protocol = atHTTP_Ver_1_1);
   atHTTPResponse(const atString &response);
 

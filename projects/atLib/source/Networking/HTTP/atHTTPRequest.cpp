@@ -1,5 +1,7 @@
 #include "atHTTPRequest.h"
 
+atHTTPRequest::atHTTPRequest() {}
+
 atHTTPRequest::atHTTPRequest(const atHTTPMethod &method, const atString &uri, const atHTTPProtocol &protocol)
 {
   SetMethod(method);

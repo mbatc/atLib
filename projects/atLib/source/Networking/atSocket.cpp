@@ -40,8 +40,23 @@ enum atSocketState
 
 int64_t atSocket::s_nSockets = 0;
 
-static void _InitialiseSockets() { WSAData wsaData; atAssert(WSAStartup(MAKEWORD(atWSAMajorVer, atWSAMinorVer), &wsaData) == 0, "WSAStartup Failed()"); }
-static void _DeInitSockets() { atAssert(WSACleanup() == 0, "WSACleanup Failed()"); }
+static void _InitialiseSockets()
+{
+  WSAData wsaData;
+  atAssert(WSAStartup(MAKEWORD(atWSAMajorVer, atWSAMinorVer), &wsaData) == 0, "WSAStartup Failed()");
+}
+
+static void _DeInitSockets()
+{
+  atAssert(WSACleanup() == 0, "WSACleanup Failed()");
+}
+
+static int64_t _GetBytesAvailable(atSocketHandle handle)
+{
+  unsigned long byteCount = 0;
+  ioctlsocket((SOCKET)handle, FIONREAD, &byteCount);
+  return (int64_t)byteCount;
+}
 
 static int64_t _Status(atSocketHandle handle, const int64_t timeout = -1)
 {
@@ -113,7 +128,7 @@ static atSocketHandle _CreateSocket(const char *addr, const char *port, const bo
   if (host)
     listen(handle, SOMAXCONN);
 
-  unsigned long mode = 0;
+  unsigned long mode = 1; // non-blocking
   ioctlsocket(handle, FIONBIO, &mode);
 
   freeaddrinfo(pInfo);
@@ -203,19 +218,19 @@ const atSocket& atSocket::operator=(atSocket &&move)
   return *this;
 }
 
-bool atSocket::CanRead() const
+bool atSocket::CanRead(int64_t *pNumBytes) const
 {
-  return (_Status(m_handle, -1) & atSS_Read) > 0;
+  if (!IsValid())
+    return false;
+  int64_t nBytes = 0;
+  if ((_Status(m_handle, -1) & atSS_Read) > 0)
+  {
+    if (pNumBytes)
+      *pNumBytes = _GetBytesAvailable(m_handle);
+  }
+  return nBytes > 0;
 }
 
-const atString& atSocket::Port() const { return m_port; }
-const atString& atSocket::Address() const { return m_addr; }
-const atSocketHandle& atSocket::Handle() const { return m_handle; }
-
-bool atSocket::IsHost() const { return m_isHost; }
-bool atSocket::CanAccept() const { return IsHost() && CanRead(); }
-bool atSocket::IsValid() const { return m_handle != INVALID_SOCKET; }
-bool atSocket::CanWrite() const { return (_Status(m_handle, -1) & atSS_Write) > 0; }
 int64_t atSocket::Read(uint8_t *pData, const int64_t maxLen) const
 {
   if (!IsValid())
@@ -227,4 +242,13 @@ int64_t atSocket::Read(uint8_t *pData, const int64_t maxLen) const
   }
   return res;
 }
+
+const atString& atSocket::Port() const { return m_port; }
+const atString& atSocket::Address() const { return m_addr; }
+const atSocketHandle& atSocket::Handle() const { return m_handle; }
+
+bool atSocket::IsHost() const { return m_isHost; }
+bool atSocket::CanAccept() const { return IsHost() && CanRead(); }
+bool atSocket::IsValid() const { return m_handle != INVALID_SOCKET; }
+bool atSocket::CanWrite() const { return (_Status(m_handle, -1) & atSS_Write) > 0; }
 int64_t atSocket::Write(const uint8_t *pData, const int64_t len) const { return IsValid() ? send(Handle(), (char*)pData, (int)len, 0) : 0; }

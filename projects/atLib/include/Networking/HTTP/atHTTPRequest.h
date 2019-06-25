@@ -1,12 +1,12 @@
 #ifndef atHTTPRequest_h__
 #define atHTTPRequest_h__
 
-#include "atWebRequest.h"
 #include "atHTTPHeader.h"
 
-class atHTTPRequest : public atWebRequestInterface<atHTTPRequest>
+class atHTTPRequest
 {
 public:
+  atHTTPRequest();
   atHTTPRequest(const atString &request);
   atHTTPRequest(const atHTTPMethod &method, const atString &uri = "/", const atHTTPProtocol &protocol = atHTTP_Ver_1_1);
   

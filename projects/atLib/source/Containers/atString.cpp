@@ -384,6 +384,9 @@ atString operator+(const char *lhs, const atString &rhs) { return atString(lhs).
 atString operator+(char _char, const atString &rhs) { return atString(_char).operator+(rhs); }
 atString operator+(char *lhs, const atString &rhs) { return atString(lhs).operator+(rhs); }
 
+atString::operator atVector<uint8_t>() const { return atVector<uint8_t>((uint8_t*)m_data.begin(), m_data.size() - 1); }
+atString::atString(const atVector<uint8_t> &data) { set_string((const char*)data.data(), data.size()); }
+
 bool atString::compare(const char *str, const atStringCompareOptions options) const { return compare(c_str(), str, options); }
 atString atString::to_lower() const { return _to_lower(c_str(), length()); }
 atString atString::to_upper() const { return _to_upper(c_str(), length()); }

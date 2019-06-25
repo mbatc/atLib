@@ -54,6 +54,9 @@ public:
   atString(const char *pStart, const char *pEnd);
 
   template<typename T> explicit atString(const T &o);
+  
+  atString(const atVector<uint8_t> &str);
+  explicit operator atVector<uint8_t>() const;
 
   // implicit conversion to c-string
   operator const char* () const;

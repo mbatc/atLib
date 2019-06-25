@@ -1,3 +1,4 @@
+#include "atVector.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,26 +24,31 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> template<typename T2> atVector<T>::atVector(const atVector<T2> &vec)
+template<typename T>
+template<typename T2>
+inline atVector<T>::atVector(const atVector<T2> &vec)
 {
   reserve(vec.size());
   for (const T2 &i : vec)
     push_back(T2(i));
 }
 
-template<typename T> atVector<T>::atVector(atVector<T> &&move)
+template<typename T>
+inline atVector<T>::atVector(atVector<T> &&move)
 {
   swap(move);
   move.make_empty();
 }
 
-template<typename T> T& atVector<T>::at(const int64_t index)
+template<typename T>
+inline T& atVector<T>::at(const int64_t index)
 {
   atAssert(index >= 0 && index < m_size, "Index out of Range");
   return m_pData[index];
 }
 
-template<typename T> void atVector<T>::set_data(T* pBuffer, const int64_t size, const int64_t capacity)
+template<typename T>
+inline void atVector<T>::set_data(T* pBuffer, const int64_t size, const int64_t capacity)
 {
   make_empty();
   m_pData = pBuffer;
@@ -50,7 +56,8 @@ template<typename T> void atVector<T>::set_data(T* pBuffer, const int64_t size, 
   m_capacity = capacity;
 }
 
-template<typename T> T* atVector<T>::take_data()
+template<typename T>
+inline T* atVector<T>::take_data()
 {
   T* ret = m_pData;
   m_pData = 0;
@@ -59,7 +66,8 @@ template<typename T> T* atVector<T>::take_data()
   return ret;
 }
 
-template<typename T> void atVector<T>::insert(const int64_t index, vector_const_iterator start, vector_const_iterator end)
+template<typename T>
+inline void atVector<T>::insert(const int64_t index, vector_const_iterator start, vector_const_iterator end)
 {
   if (start >= end)
     return;
@@ -72,76 +80,89 @@ template<typename T> void atVector<T>::insert(const int64_t index, vector_const_
 }
 
 
-template<typename T> template<typename... Args> void atVector<T>::emplace_back_array(const int64_t count, Args... args)
+template<typename T>
+template<typename... Args>
+inline void atVector<T>::emplace_back_array(const int64_t count, Args... args)
 {
   grow_reserve(m_size + count);
   atConstructArray<T, Args...>(m_pData + m_size, count, std::forward<Args>(args)...);
   m_size += count;
 }
 
-template<typename T> template<typename... Args> void atVector<T>::emplace_array(const int64_t index, const int64_t count, Args... args)
+template<typename T>
+template<typename... Args>
+inline void atVector<T>::emplace_array(const int64_t index, const int64_t count, Args... args)
 {
   emplace_back_array(count, std::forward<Args>(args)...);
   move_to_index(size() - count, index, count);
 }
 
-template<typename T> template<typename... Args> void atVector<T>::emplace(const int64_t index, Args... args)
+template<typename T>
+template<typename... Args>
+inline void atVector<T>::emplace(const int64_t index, Args... args)
 {
   emplace_back(index, std::forward<Args>(args)...);
   move_item(size() - 1, index);
 }
 
-template<typename T> void atVector<T>::resize(const int64_t size)
+template<typename T>
+inline void atVector<T>::resize(const int64_t size, const T &initial)
 {
-  if (try_resize(size))
+  if (try_resize(size, initial))
     return;
   atAssert(try_grow(size), "Could not resize, try_grow failed!");
-  atAssert(try_resize(size), "Could not resize atVector");
+  atAssert(try_resize(size, initial), "Could not resize atVector");
 }
 
-template<typename T> void atVector<T>::reserve(const int64_t capacity)
+template<typename T>
+inline void atVector<T>::reserve(const int64_t capacity)
 {
   if (capacity == m_capacity)
     return; // no need to realloc
   if (try_realloc(capacity))
     return; // [capacity] is > [m_size] so realloc succeeded
 
-            // [capacity] is < [m_size] so resize the vector before realloc
-  atAssert(try_resize(capacity), "Could not resize, reserve failed!");
+  // [capacity] is < [m_size] so resize the vector before realloc
+  atAssert(shrink_by(m_size - capacity), "Could not resize, reserve failed!");
   try_realloc(capacity);
 }
 
-template<typename T> void atVector<T>::make_empty()
+template<typename T>
+inline void atVector<T>::make_empty()
 {
   clear();
   shrink_to_fit();
 }
 
-template<typename T> void atVector<T>::erase(const int64_t index)
+template<typename T>
+inline void atVector<T>::erase(const int64_t index)
 {
   move_to_back(index, 1);
   pop_back();
 }
 
-template<typename T> void atVector<T>::erase(const int64_t start, const int64_t end)
+template<typename T>
+inline void atVector<T>::erase(const int64_t start, const int64_t end)
 {
   move_to_back(start, end - start);
-  resize(size() - (end - start));
+  shrink_by(end - start);
 }
 
 
-template<typename T> void atVector<T>::assign(const T &item, const int64_t count)
+template<typename T>
+inline void atVector<T>::assign(const T &item, const int64_t count)
 {
+  clear();
   reserve(count);
-  resize(0);
   for (int64_t i = 0; i < count; ++i)
     emplace_back(item);
 }
 
-template<typename T> void atVector<T>::assign(vector_const_iterator start, vector_const_iterator end)
+template<typename T>
+inline void atVector<T>::assign(vector_const_iterator start, vector_const_iterator end)
 {
   const int64_t count = end - start;
-  resize(0);
+  clear();
   reserve(count);
   if (std::is_integral<T>::value)
   {
@@ -153,16 +174,20 @@ template<typename T> void atVector<T>::assign(vector_const_iterator start, vecto
       emplace_back(start[i]);
 }
 
-template<typename T> template<typename T1> void atVector<T>::assign(T1* start, T1* end)
+template<typename T>
+template<typename T1>
+inline void atVector<T>::assign(const T1* start, const T1* end)
 {
   const int64_t count = end - start;
-  resize(0);
-  reserve(count);;
+  clear();
+  reserve(count);
   for (int64_t i = 0; i < count; ++i)
     push_back((T)start[i]);
 }
 
-template<typename T> template<typename T2> inline atVector<T>::operator std::vector<T2>()
+template<typename T>
+template<typename T2>
+inline atVector<T>::operator std::vector<T2>()
 {
   std::vector<T2> ret;
   ret.reserve(size());
@@ -171,7 +196,8 @@ template<typename T> template<typename T2> inline atVector<T>::operator std::vec
   return ret;
 }
 
-template<typename T> inline atVector<T>::operator std::vector<T>()
+template<typename T> 
+inline atVector<T>::operator std::vector<T>()
 {
   std::vector<T> ret;
   ret.reserve(size());
@@ -180,32 +206,37 @@ template<typename T> inline atVector<T>::operator std::vector<T>()
   return ret;
 }
 
-template<typename T> const T& atVector<T>::at(const int64_t index) const
+template<typename T>
+inline const T& atVector<T>::at(const int64_t index) const
 {
   atAssert(index >= 0 && index < m_size, "Index out of Range");
   return m_pData[index];
 }
 
-template<typename T> const atVector<T> &atVector<T>::operator=(atVector<T> &&rhs)
+template<typename T>
+inline const atVector<T> &atVector<T>::operator=(atVector<T> &&rhs)
 {
   swap(rhs);
   rhs.make_empty();
   return *this;
 }
 
-template<typename T> const atVector<T> &atVector<T>::operator=(const atVector<T> &rhs)
+template<typename T>
+inline const atVector<T> &atVector<T>::operator=(const atVector<T> &rhs)
 {
   assign(rhs);
   return *this;
 }
 
-template<typename T> const atVector<T> &atVector<T>::operator+=(const atVector<T> &rhs)
+template<typename T>
+inline const atVector<T> &atVector<T>::operator+=(const atVector<T> &rhs)
 {
   insert(size(), rhs);
   return *this;
 }
 
-template<typename T> const atVector<T> &atVector<T>::operator+(const atVector<T> &rhs)
+template<typename T>
+inline const atVector<T> &atVector<T>::operator+(const atVector<T> &rhs)
 {
   atVector<T> ret(size() + rhs.size());
   ret += *this;
@@ -213,21 +244,24 @@ template<typename T> const atVector<T> &atVector<T>::operator+(const atVector<T>
   return ret;
 }
 
-template<typename T> void atVector<T>::swap(atVector<T> &with) 
+template<typename T>
+inline void atVector<T>::swap(atVector<T> &with)
 {
   std::swap(m_pData, with.m_pData);
   std::swap(m_size, with.m_size);
   std::swap(m_capacity, with.m_capacity);
 }
 
-template<typename T> void atVector<T>::move_item(const int64_t from, const int64_t to)
+template<typename T>
+inline void atVector<T>::move_item(const int64_t from, const int64_t to)
 {
   const int64_t dir = from < to ? 1 : -1;
   for (int64_t i = from; i != to; i += dir)
     std::swap(at(i), at(i + dir));
 }
 
-template<typename T> void atVector<T>::move_to_index(const int64_t index, const int64_t to, const int64_t count = 1) 
+template<typename T>
+inline void atVector<T>::move_to_index(const int64_t index, const int64_t to, const int64_t count = 1) 
 {
   if (index == to)
     return;
@@ -235,14 +269,26 @@ template<typename T> void atVector<T>::move_to_index(const int64_t index, const 
     move_item(index + i, to + i);
 }
 
-template<typename T> void atVector<T>::grow_reserve(const int64_t capacity)
+template<typename T>
+inline bool atVector<T>::shrink_by(const int64_t count)
+{
+  if (count > m_size || count < 0)
+    return false;
+  atDestructArray<T>(m_pData + m_size - count, count);
+  m_size -= count;
+  return true;
+}
+
+template<typename T>
+inline void atVector<T>::grow_reserve(const int64_t capacity)
 {
   if (capacity <= m_capacity)
     return;
   try_grow(capacity);
 }
 
-template<typename T> bool atVector<T>::try_grow(const int64_t minSize) 
+template<typename T>
+inline bool atVector<T>::try_grow(const int64_t minSize)
 {
   int64_t allocSize = (int64_t)((double)m_capacity * _grow_rate + 0.5);
   if (allocSize < minSize)
@@ -250,19 +296,21 @@ template<typename T> bool atVector<T>::try_grow(const int64_t minSize)
   return try_realloc(allocSize);
 }
 
-template<typename T> bool atVector<T>::try_resize(const int64_t size) 
+template<typename T>
+inline bool atVector<T>::try_resize(const int64_t size, const T &initial)
 {
   if (m_capacity < size)
     return false;
   if (m_size < size)
-    emplace_back_array(size - m_size); // emplace will call the default constructor of the new elements
+    emplace_back_array(size - m_size, initial); // emplace will call the default constructor of the new elements
   else if (m_size > size)
-    atDestructArray<T>(m_pData + size, m_size - size);
+    shrink_by(m_size - size);
   m_size = size;
   return true;
 }
 
-template<typename T> bool atVector<T>::try_realloc(const int64_t size) 
+template<typename T>
+inline bool atVector<T>::try_realloc(const int64_t size)
 {
   if (size < m_size)
     return false;
@@ -270,7 +318,8 @@ template<typename T> bool atVector<T>::try_realloc(const int64_t size)
   return true;
 }
 
-template<typename T> void atVector<T>::realloc(const int64_t size) 
+template<typename T>
+inline void atVector<T>::realloc(const int64_t size)
 {
   atAssert(size >= m_size, "Realloc size not large enough to contain all items");
   T *pNew = nullptr;
@@ -288,6 +337,14 @@ template<typename T> void atVector<T>::realloc(const int64_t size)
   m_capacity = size;
 }
 
+template<typename T> atVector<T>::atVector() {}
+template<typename T> atVector<T>::atVector(const int64_t _reserve) { reserve(_reserve); }
+template<typename T> atVector<T>::atVector(const std::initializer_list<T> &list) { assign(list.begin(), list.end()); }
+template<typename T> atVector<T>::atVector(const T* pData, int64_t len) { assign(pData, pData + len); }
+template<typename T> atVector<T>::atVector(const int64_t size, const T &initial) { assign(initial, size); }
+template<typename T> atVector<T>::atVector(const atVector<T> &copy) { assign(copy); }
+template<typename T> atVector<T>::atVector(const std::vector<T> &copy) { assign(copy); }
+
 template<typename T> void atVector<T>::move_to_back(const int64_t index, const int64_t count = 1) { move_to_index(index, m_size - count, count); }
 template<typename T> void atVector<T>::move_to_front(const int64_t index, const int64_t count = 1) { move_to_index(index, 0, count); }
 template<typename T> typename atVector<T>::vector_iterator atVector<T>::begin() { return m_pData; }
@@ -301,25 +358,18 @@ template<typename T> const T& atVector<T>::operator[](const int32_t index) const
 template<typename T> const T& atVector<T>::operator[](const int16_t index) const { return at((int64_t)index); }
 template<typename T> const T& atVector<T>::operator[](const int8_t index) const { return at((int64_t)index); }
 template<typename T> atVector<T>::~atVector() { make_empty(); }
-template<typename T> atVector<T>::atVector() {}
-template<typename T> atVector<T>::atVector(const int64_t _reserve) { reserve(_reserve); }
-template<typename T> atVector<T>::atVector(const std::initializer_list<T> &list) { assign(list.begin(), list.end()); }
-template<typename T> atVector<T>::atVector(T* pData, int64_t len) { assign(pData, pData + len); }
-template<typename T> atVector<T>::atVector(const int64_t size, const T &initial) { assign(initial, size); }
-template<typename T> atVector<T>::atVector(const atVector<T> &copy) { assign(copy); }
-template<typename T> atVector<T>::atVector(const std::vector<T> &copy) { assign(copy); }
 template<typename T> T* atVector<T>::data() { return m_pData; }
 template<typename T> T& atVector<T>::back() { return at(m_size - 1); }
 template<typename T> T& atVector<T>::front() { return at(0); }
-template<typename T> void atVector<T>::push_back(const atVector<T>& item) { for (const T &i : item) push_back(i); }
+template<typename T> void atVector<T>::push_back(const atVector<T> &item) { for (const T &i : item) push_back(i); }
 template<typename T> void atVector<T>::push_back(const T &item) { emplace_back(item); }
-template<typename T> void atVector<T>::pop_back() { resize(m_size - 1); }
+template<typename T> void atVector<T>::pop_back() { shrink_by(1); }
 template<typename T> void atVector<T>::insert(const int64_t index, const T &item) { emplace(index, item); }
 template<typename T> void atVector<T>::insert(const int64_t index, const atVector<T> &items) { insert(index, items.begin(), items.end()); }
 template<typename T> void atVector<T>::insert(const int64_t index, const std::vector<T> &items) { insert(index, items.begin(), items.end()); }
 template<typename T> template<typename... Args> void atVector<T>::emplace_back(Args... args) { emplace_back_array(1, std::forward<Args>(args)...); }
 template<typename T> void atVector<T>::shrink_to_fit() { reserve(m_size); }
-template<typename T> void atVector<T>::clear() { resize(0); }
+template<typename T> void atVector<T>::clear() { shrink_by(m_size); }
 template<typename T> void atVector<T>::erase(vector_iterator start, vector_iterator end) { erase(start - m_pData, end - m_pData); }
 template<typename T> T& atVector<T>::operator[](const int64_t index) { return at(index); }
 template<typename T> T& atVector<T>::operator[](const int32_t index) { return at((int64_t)index); }

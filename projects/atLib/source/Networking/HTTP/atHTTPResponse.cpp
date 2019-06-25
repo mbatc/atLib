@@ -1,5 +1,7 @@
 #include "atHTTPResponse.h"
 
+atHTTPResponse::atHTTPResponse() {}
+
 atHTTPResponse::atHTTPResponse(const atHTTPResponseCode &code, const atHTTPProtocol &protocol)
 {
   SetCode(code);
