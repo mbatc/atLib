@@ -35,15 +35,10 @@ enum atFileMode
   atFM_Write = 1 << 1,
   atFM_Append = 1 << 2,
   atFM_ReadWrite = atFM_Read | atFM_Write,
-  atFM_Binary = 1 << 5
-};
-
-enum atFileSeek
-{
-  atFS_Invalid = -1,
-  atFS_Start = 0,
-  atFS_End = 1,
-  atFS_Current = 2
+  atFM_Binary = 1 << 5,
+  atFM_ReadBinary = atFM_Read | atFM_Binary,
+  atFM_WriteBinary = atFM_Write | atFM_Binary,
+  atFM_ReadWriteBinary = atFM_ReadWrite | atFM_Binary,
 };
 
 enum atFileExtension

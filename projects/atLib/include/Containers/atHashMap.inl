@@ -1,3 +1,4 @@
+#include "atHashMap.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -22,8 +23,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
-
-#include "atHash.h"
 
 template<typename Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
 template<typename Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
@@ -99,6 +98,17 @@ template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key
     }
 }
 
+template<typename Key, class Value> Value& atHashMap<Key, Value>::GetOrAdd(const Key &key)
+{
+  Value *pVal = TryGet(key);
+  if (!pVal)
+  {
+    Add(key, Value());
+    pVal = TryGet(key);
+  }
+  return *pVal;
+}
+
 template<typename Key, class Value> Value& atHashMap<Key, Value>::Get(const Key &key)
 {
   for (KVP &kvp : GetBucket(key))
@@ -156,6 +166,28 @@ template<typename Key, class Value> const atHashMap<Key, Value>& atHashMap<Key, 
   m_buckets = rhs.m_buckets;
   m_size = rhs.m_size;
   return *this;
+}
+
+template<typename Key, class Value> int64_t atHashMap<Key, Value>::StreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (const atHashMap<Key, Value> &map : atIterate(pData, count))
+  {
+    ret += atStreamWrite(pStream, &map.m_size, 1);
+    ret += atStreamWrite(pStream, &map.m_buckets, 1);
+  }
+  return ret;
+}
+
+template<typename Key, class Value> int64_t atHashMap<Key, Value>::StreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (atHashMap<Key, Value> &map : atIterate(pData, count))
+  {
+    ret += atStreamRead(pStream, &map.m_size, 1);
+    ret += atStreamRead(pStream, &map.m_buckets, 1);
+  }
+  return ret;
 }
 
 template<typename Key, class Value> bool atHashMap<Key, Value>::Rehash(const int64_t bucketCount) 

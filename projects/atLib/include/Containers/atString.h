@@ -52,13 +52,17 @@ public:
   atString(atVector<char> &&move);
   atString(char *pStart, char *pEnd);
   atString(const char *pStart, const char *pEnd);
+
   template<typename T> explicit atString(const T &o);
+  
+  atString(const atVector<uint8_t> &str);
+  explicit operator atVector<uint8_t>() const;
 
   // implicit conversion to c-string
   operator const char* () const;
 
   // explicit conversion to types that define atFromString()
-  template<typename T> explicit operator T();
+  template<typename T> explicit operator T() const;
 
   static atString _to_lower(const char *str, const int64_t len);
   static atString _to_upper(const char *str, const int64_t len);
@@ -129,11 +133,13 @@ public:
   int64_t find_last(const char _char) const;
   int64_t find_last(const char *str) const;
 
-  static atVector<atString> _split(const char *src, const int64_t len, const char &_char);
-  static atVector<atString> _split(const char *src, const int64_t len, const char *split, const bool isSet = false);
-  atVector<atString> split(const char &_char);
-  atVector<atString> split(const char *split, bool isSet = false);
+  static atVector<atString> _split(const char *src, const int64_t len, const char &_char, const bool dropEmpty = true);
+  static atVector<atString> _split(const char *src, const int64_t len, const char *split, const bool isSet = false, const bool dropEmpty = true);
+  atVector<atString> split(const char &_char, const bool dropEmpty = true) const;
+  atVector<atString> split(const char *split, bool isSet = false, const bool dropEmpty = true) const;
   
+  static atString join(const atVector<atString> &strings, const atString &separator, const bool ignoreEmpty = true);
+
   const char* c_str() const;
   int64_t capacity()  const;
   int64_t length() const;
@@ -190,8 +196,9 @@ atString operator+(char _char, const atString &rhs);
 atString operator+(char *lhs, const atString &rhs);
 
 template<> inline atTypeDesc atGetTypeDesc(const atString &str);
-template<typename T> inline atString atToString(const T &o) { static_assert(false, "atToString is not defined for this type."); }
 template<typename T> inline T atFromString(const atString &str) { static_assert(false, "atFromString is not defined for this type."); }
+
+template<typename T> atString atToString(const T &o) { static_assert(false, "atToString is not defined for type T"); }
 
 #include "atFromString.h"
 #include "atToString.h"

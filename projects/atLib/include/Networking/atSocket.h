@@ -27,19 +27,16 @@
 #define atSocket_h__
 
 #include "atString.h"
-#include <WinSock2.h>
-
-#pragma comment(lib, "Ws2_32.lib")
 
 #define atWSAMajorVer 2
 #define atWSAMinorVer 2
 
-typedef SOCKET atSocketHandle;
+typedef int64_t atSocketHandle;
 
 class atSocket
 {
-  atSocket();
 public:
+  atSocket();
   atSocket(atSocket &&move);
   ~atSocket();
 
@@ -50,7 +47,7 @@ public:
   bool IsValid() const;
 
   bool CanAccept() const;
-  bool CanRead() const;
+  bool CanRead(int64_t *pNumBytes = nullptr) const;
   bool CanWrite() const;
   
   atSocket Accept() const;
@@ -61,12 +58,13 @@ public:
   const atString &Port() const;
   const atString &Address() const;
 
+  const atSocket& operator=(atSocket &&move);
+
 protected:
   atSocketHandle m_handle;
   atString m_addr;
   atString m_port;
   bool m_isHost;
-
 
   static int64_t s_nSockets;
 };

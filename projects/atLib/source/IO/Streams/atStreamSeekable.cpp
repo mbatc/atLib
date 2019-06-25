@@ -23,38 +23,20 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atReadStream_h__
-#define atReadStream_h__
-
 #include "atStreamSeekable.h"
+#include "atAssert.h"
 
-#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (void*)pData, sizeof(type) * count); }
-
-class atReadStream : public atStreamSeekable
+bool atStreamSeekable::Seek(const int64_t loc, const atSeekOrigin origin)
 {
-public:
-  // Read data into pBuffer. 
-  // Returns the number of bytes read
-  virtual int64_t Read(void *pBuffer, const int64_t size) = 0;
-  template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
-};
+  atAssert(false, "Seek operation not supported.");
+  return false;
+}
 
-int64_t atStreamRead(atReadStream *pStream, void *pData, const int64_t count);
+int64_t atStreamSeekable::Tell() const
+{
+  atAssert(false, "Tell operation not supported.");
+  return 0;
+}
 
-atTrivialStreamRead(int64_t)
-atTrivialStreamRead(int32_t)
-atTrivialStreamRead(int16_t)
-atTrivialStreamRead(int8_t)
-atTrivialStreamRead(uint64_t)
-atTrivialStreamRead(uint32_t)
-atTrivialStreamRead(uint16_t)
-atTrivialStreamRead(uint8_t)
-atTrivialStreamRead(bool)
-atTrivialStreamRead(wchar_t)
-atTrivialStreamRead(char)
-atTrivialStreamRead(double)
-atTrivialStreamRead(float)
-
-template<typename T> int64_t atReadStream::Read(T *pBuffer, const int64_t count) { return atStreamRead(this, pBuffer, count); }
-
-#endif // atReadStream_h__
+bool atStreamSeekable::SeekToStart() { return Seek(0, atSO_Start); }
+bool atStreamSeekable::SeekToEnd() { return Seek(0, atSO_End); }
