@@ -4,6 +4,7 @@
 class atString;
 
 atString atToString(const std::wstring &str);
+atString atToString(const std::string &str);
 atString atToString(const int8_t val);
 atString atToString(const int16_t val);
 atString atToString(const int64_t val);

@@ -2,7 +2,7 @@
 #include "atScan.h"
 #include <codecvt>
 
-template<> std::wstring atFromString<std::wstring>(const atString &str) { std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; return converter.from_bytes(str); }
+template<> std::wstring atFromString<std::wstring>(const atString &str) { std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; return converter.from_bytes(str.c_str()); }
 template<> std::string atFromString<std::string>(const atString &str) { return str.c_str(); }
 template<> double atFromString<double>(const atString &str) { return atScan::Float(str); }
 template<> float atFromString<float>(const atString &str) { return (float)atScan::Float(str); }

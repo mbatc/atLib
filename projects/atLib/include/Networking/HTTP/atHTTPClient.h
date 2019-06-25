@@ -1,7 +1,15 @@
 #ifndef atHTTPClient_h__
 #define atHTTPClient_h__
 
-#include "atNetwork.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#undef min
+#undef max
+
+#include "server_https.hpp"
+#include "client_https.hpp"
+
 #include "atHTTPRequest.h"
 #include "atHTTPResponse.h"
 
@@ -11,17 +19,17 @@ class atHTTPClient
 {
 public:
   atHTTPClient(const atString &url, const uint16_t &port = 80);
-  ~atHTTPClient();
 
   bool Send(const atHTTPRequest &request, atHTTPResponse *pResponse);
   atString URL() const;
+  uint16_t Port() const;
 
   atVector<atHTTPResponseHandler*> m_handlers;
 
 protected:
   atString m_url;
-  atNetwork m_network;
-  atConnectionHandle m_serverHandle;
+  uint16_t m_port;
+  SimpleWeb::Client<SimpleWeb::HTTPS> m_client;
 };
 
 class atHTTPResponseHandler
