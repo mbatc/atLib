@@ -1,4 +1,5 @@
 #include "atMathTest.h"
+#include "atContainerTest.h"
 
 void atTest()
 {
@@ -7,4 +8,8 @@ void atTest()
   tests::math::Vector3();
   tests::math::Vector4();
   tests::math::Matrix();
+
+  tests::containers::HashMap();
+  tests::containers::Vector();
+  tests::containers::String();
 }
