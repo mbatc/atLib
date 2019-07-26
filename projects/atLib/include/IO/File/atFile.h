@@ -57,13 +57,16 @@ public:
   int64_t Tell() const override;
 
   // Writes pData to the file
-  int64_t Write(void *pData, const int64_t len);
+  int64_t Write(const void *pData, const int64_t len) override;
 
   // Writes pData to the file
   int64_t WriteText(const atString &text);
 
   atString ReadText();
   static atString ReadText(const atFilename &filename);
+
+  static int64_t WriteFile(const atFilename &filename, const void *pData, const int64_t &len);
+  static int64_t WriteTextFile(const atFilename &filename, const atString &content);
 
   bool Flush();
 

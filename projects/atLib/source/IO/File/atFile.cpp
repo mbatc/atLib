@@ -91,7 +91,7 @@ int64_t atFile::Tell() const
   return IsOpen() ? ftell(m_pFile) : 0;
 }
 
-int64_t atFile::Write(void *pData, const int64_t len)
+int64_t atFile::Write(const void *pData, const int64_t len)
 {
   if (!IsOpen())
     return 0;
@@ -116,6 +116,19 @@ atString atFile::ReadText(const atFilename &filename)
   if (file.Open(filename))
     ret = file.ReadText();
   return ret;
+}
+
+int64_t atFile::WriteFile(const atFilename &filename, const void *pData, const int64_t &len)
+{
+  atFile output;
+  if (!output.Open(filename, atFM_WriteBinary))
+    return 0;
+  return output.Write(pData, len);
+}
+
+int64_t atFile::WriteTextFile(const atFilename &filename, const atString &content)
+{
+  return WriteFile(filename, content.c_str(), content.length());
 }
 
 bool atFile::Flush()

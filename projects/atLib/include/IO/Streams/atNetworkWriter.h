@@ -60,7 +60,7 @@ public:
   
   bool CanWrite();
 
-  int64_t Write(void *pData, const int64_t len);
+  int64_t Write(const void *pData, const int64_t len) override;
   template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T &data);
 

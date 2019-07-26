@@ -87,11 +87,13 @@ public:
   int64_t Size() const;
 
   void Add(const Key &key, Value &&val);
-  void Add(const Key &key, const Value &val = Value());
+  void Add(const Key &key);
+  void Add(const Key &key, const Value &val);
   void Add(const KVP &kvp);
   void Add(KVP &&kvp);
   bool TryAdd(const Key &key, Value &&val);
-  bool TryAdd(const Key &key, const Value &val = Value());
+  bool TryAdd(const Key &key);
+  bool TryAdd(const Key &key, const Value &val);
   bool TryAdd(const KVP &kvp);
   bool TryAdd(KVP &&kvp);
 
@@ -104,8 +106,8 @@ public:
   Value* TryGet(const Key &key);
   Value& operator[](const Key &key);
 
-  const Value& Get(const Key &key) const;
   const Value* TryGet(const Key &key) const;
+  const Value& Get(const Key &key) const;
   const Value& operator[](const Key &key) const;
 
   atVector<Key> GetKeys() const;
