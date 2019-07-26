@@ -43,6 +43,7 @@ public:
 
   static atString Float(const double &val);
   static atString Int(const int64_t &val);
+  static atString Bool(const bool &val, const bool &verbose = true);
 };
 
 #include "atPrint.inl"

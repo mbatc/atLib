@@ -336,26 +336,28 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
   return ret;
 }
 
-bool atString::compare(const char *lhs, const char *rhs, const atStringCompareOptions options)
+bool atString::compare(const char *lhs, const char *rhs, const atStringCompareOptions options, const int64_t &compareLen)
 {
   if (options == atSCO_MatchCase)
     return !strcmp(lhs, rhs);
-  int64_t len = strlen(lhs);
-  int64_t len2 = strlen(rhs);
-  if (len != len2) return false;
-
+  
   char cUpper = 0;
   char cLower = 0;
-
-  for (int64_t i = 0; i < len; ++i)
+  const char *start = lhs;
+  while (*lhs != 0 && *rhs != 0)
   {
-    char c = rhs[i];
-    cUpper = _ToUpper(c);
-    cLower = _ToLower(c);
-    if (lhs[i] != cUpper && lhs[i] != cLower)
+    cUpper = _ToUpper(*rhs);
+    cLower = _ToLower(*rhs);
+    if (*lhs != cUpper && *lhs != cLower)
       return false;
+
+    if (lhs - start == compareLen)
+      return true;
+    ++lhs;
+    ++rhs;
   }
-  return true;
+
+  return *lhs == 0 && *rhs == 0;
 }
 
 template<> atTypeDesc atGetTypeDesc(const atString &str)
@@ -384,6 +386,7 @@ atString operator+(const char *lhs, const atString &rhs) { return atString(lhs).
 atString operator+(char _char, const atString &rhs) { return atString(_char).operator+(rhs); }
 atString operator+(char *lhs, const atString &rhs) { return atString(lhs).operator+(rhs); }
 
+atString::operator std::string() const { return std::string(c_str(), length() + 1); }
 atString::operator atVector<uint8_t>() const { return atVector<uint8_t>((uint8_t*)m_data.begin(), m_data.size() - 1); }
 atString::atString(const atVector<uint8_t> &data) { set_string((const char*)data.data(), data.size()); }
 
@@ -428,7 +431,7 @@ int64_t atString::capacity()  const { return m_data.capacity(); }
 int64_t atString::length() const { return m_data.size() - 1; }
 atVector<char> &atString::vector() { return m_data; }
 const atVector<char> &atString::vector() const { return m_data; }
-void atString::set_string(atVector<char> data) { set_string(data.data(), data.size()); }
+void atString::set_string(const atVector<char> &data) { set_string(data.data(), data.size()); }
 char& atString::operator[](int64_t index) { return m_data.at(index); }
 const char& atString::operator[](int64_t index) const { return m_data.at(index); }
 atString::operator const char* () const { return c_str(); }

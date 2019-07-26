@@ -29,6 +29,7 @@
 #include "atIterator.h"
 #include "atVector.h"
 #include "atMath.h"
+#include <string>
 
 enum atStringCompareOptions
 {
@@ -57,6 +58,7 @@ public:
   
   atString(const atVector<uint8_t> &str);
   explicit operator atVector<uint8_t>() const;
+  explicit operator std::string() const;
 
   // implicit conversion to c-string
   operator const char* () const;
@@ -73,7 +75,7 @@ public:
   //******************
   // Compare functions
   bool compare(const char *str, const atStringCompareOptions options = atSCO_MatchCase) const;
-  static bool compare(const char *lhs, const char *rhs, const atStringCompareOptions options = atSCO_MatchCase);
+  static bool compare(const char *lhs, const char *rhs, const atStringCompareOptions options = atSCO_MatchCase, const int64_t &compareLen = -1);
 
   //******************
   // Replace functions
@@ -147,7 +149,7 @@ public:
   atVector<char> &vector();
   const atVector<char> &vector() const;
 
-  void set_string(atVector<char> data);
+  void set_string(const atVector<char> &data);
   void set_string(const char* str, const int64_t len);
 
   char& operator[](int64_t index);

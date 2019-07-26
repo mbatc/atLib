@@ -59,6 +59,15 @@ atString atScan::String(const char *str, int64_t *pLen, int64_t srcLen)
   return ret;
 }
 
+bool atScan::Bool(const char **pStr, int64_t *pLen, const int64_t srcLen)
+{
+  int64_t len = 0;
+  bool res = Bool(*pStr, &len, srcLen);
+  if (pLen) *pLen = len;
+  *pStr += len;
+  return res;
+}
+
 int64_t atScan::Int(const char **pStr, int64_t *pLen, int64_t srclen)
 {
   int64_t len = 0;
@@ -149,11 +158,60 @@ double atScan::Float(const char *str, int64_t *pLen, int64_t srclen)
   return value * pow(10, -exponent) * (isNegative ? -1 : 1);
 }
 
+bool atScan::Bool(const char *str, int64_t *pLen, int64_t srclen)
+{
+  const int64_t len = srclen < 0 ? strlen(str) : srclen;
+  const int64_t nextChar = atString::_find_first_not(str, len, atString::Whitespace());
+  int64_t end = atString::_find_first_of(str, srclen, atString::Whitespace(), nextChar);
+  
+  if (nextChar < 0 || nextChar >= srclen)
+    return false;
+
+  if (end < 0) end = srclen;
+
+  bool res = false;
+  switch (str[nextChar])
+  {
+  case 't': case 'T':
+    res = atString::compare(str, "true", atSCO_None, nextChar - end) && atString::_find_first_of(str + end, srclen - end, atString::Whitespace(), 0, 1) == 0;
+    break;
+  default:
+    if (atString::_find_first_of(str + nextChar, srclen - nextChar, atString::Numerals(), 0, 1) == 0)
+      res = atScan::Int(str + nextChar, pLen, len - nextChar) > 0;
+  }
+
+  if (pLen)
+    *pLen = end;
+  return res;
+}
+
+atString atScan::Quote(const char *str, int64_t *pLen, int64_t srclen)
+{
+  srclen = srclen < 0 ? strlen(str) : srclen;
+  int64_t start = atString::_find_first_of(str, srclen, "'\"", 0, srclen - 1);
+  if (start < 0) return "";
+  int64_t end = atString::_find_first_of(str, srclen, str[start], start + 1);
+  if (end < 0) return "";
+  if (pLen) *pLen = end;
+  return atString(str + start + 1, str + end);
+}
+
+atString atScan::Quote(const char **pStr, int64_t *pLen, const int64_t srcLen)
+{
+  int64_t len = 0;
+  atString res = Quote(*pStr, &len, srcLen);
+  if (pLen) *pLen = len;
+  *pStr += len;
+  return res;
+}
+
 int64_t atScan::Int(const char *str, int64_t *pLen, const int64_t srcLen) { return _scan_integer(str, pLen, atString::Numerals(), srcLen); }
 int64_t atScan::Hex(const char * str, int64_t * pLen, const int64_t srcLen) { return _scan_integer(str, pLen, atString::Hex(), srcLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char *str, int64_t *pLen) { return String(pOut, maxLen, str, strlen(str), pLen); }
 bool atScan::String(char *pOut, const int64_t maxLen, const char **pStr, int64_t *pLen) { return String(pOut, maxLen, pStr, strlen(*pStr), pLen); }
+bool atScan::Bool(const atString &str, int64_t *pLen) { return Bool(str.c_str(), pLen, str.length()); }
 int64_t atScan::Int(const atString &str, int64_t *pLen) { return Int(str.c_str(), pLen, str.length()); }
 int64_t atScan::Hex(const atString &str, int64_t *pLen) { return Hex(str.c_str(), pLen, str.length()); }
 double atScan::Float(const atString &str, int64_t *pLen) { return Float(str.c_str(), pLen, str.length()); }
 atString atScan::String(const atString &str, int64_t *pLen) { return String(str.c_str(), pLen, str.length()); }
+atString atScan::Quote(const atString &str, int64_t *pLen) { return Quote(str.c_str(), pLen, str.length()); }

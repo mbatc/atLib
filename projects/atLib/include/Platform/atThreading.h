@@ -77,17 +77,17 @@ public:
 
   // Returns true if the thread is still running.
   // Will be false once the thread has exited after a call to Stop()
-  bool IsRunning() const;
+  bool IsRunning();
 
   // Returns true if the thread is still active.
   // Will be false once the thread has paused after a call to Pause()
-  bool IsPaused() const;
+  bool IsPaused();
 
   // Returns true if the thread is currently asleep.
-  bool IsSleeping() const;
+  bool IsSleeping();
 
   // Returns the hash of std::thread::id object accosiated with this thread
-  int64_t ID() const;
+  uint64_t ID() const;
 
   // Returns the std::thread::id object accosiated with this thread
   std::thread::id ThreadID() const;
@@ -96,7 +96,7 @@ public:
   //  1. CO_Stop is returned (causing the thread to exit)
   //  2. Stop() is called.
   // The return value of this function determines how the thread shall continue
-  virtual ControlOption Process(void *pUserData) = 0;
+  virtual ControlOption Execute(void *pUserData) = 0;
 
   // Overload this function to specify the time for the thread to sleep
   // when OC_Sleep is returned from Process()

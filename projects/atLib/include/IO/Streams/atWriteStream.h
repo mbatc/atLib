@@ -28,18 +28,18 @@
 
 #include "atStreamSeekable.h"
 
-#define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (void*)pData, (int64_t)sizeof(type) * count); }
+#define atTrivialStreamWrite(type) inline int64_t atStreamWrite(atWriteStream *pStream, const type *pData, const int64_t count) { return atStreamWrite(pStream, (const void*)pData, (int64_t)sizeof(type) * count); }
 
 class atWriteStream : public atStreamSeekable
 {
 public:
   // Writes pData to the file
-  virtual int64_t Write(void *pData, const int64_t len) = 0;
+  virtual int64_t Write(const void *pData, const int64_t len) = 0;
   template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T &data);
 };
 
-int64_t atStreamWrite(atWriteStream *pStream, void *pData, const int64_t count);
+int64_t atStreamWrite(atWriteStream *pStream, const void *pData, const int64_t count);
 
 template<typename T> int64_t atWriteStream::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
 template<typename T> int64_t atWriteStream::Write(const T &data) { return Write(&data, 1); }

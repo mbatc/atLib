@@ -46,7 +46,7 @@ void atNetworkWriter::Close()
   m_pConn = nullptr;
 }
 
-int64_t atNetworkWriter::Write(void *pData, const int64_t len)
+int64_t atNetworkWriter::Write(const void *pData, const int64_t len)
 {
   if (!CanWrite())
     return 0;

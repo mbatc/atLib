@@ -26,7 +26,7 @@
 #include "atWriteStream.h"
 #include "atAssert.h"
 
-int64_t atStreamWrite(atWriteStream *pStream, void *pData, const int64_t size)
+int64_t atStreamWrite(atWriteStream *pStream, const void *pData, const int64_t size)
 {
   return pStream->Write(pData, size);
 }

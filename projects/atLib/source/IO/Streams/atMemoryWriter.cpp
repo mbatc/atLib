@@ -30,7 +30,7 @@ atMemoryWriter::atMemoryWriter(atMemoryWriter &&move) : m_data(std::move(move.m_
 atMemoryWriter::atMemoryWriter(const atMemoryWriter &copy) : m_data(copy.m_data) {}
 atMemoryWriter::~atMemoryWriter() {}
 
-int64_t atMemoryWriter::Write(void *pData, const int64_t len)
+int64_t atMemoryWriter::Write(const void *pData, const int64_t len)
 {
   m_data.resize(atMax(m_pos + len, m_data.size()));
   memcpy(m_data.data() + m_pos, pData, (size_t)len);

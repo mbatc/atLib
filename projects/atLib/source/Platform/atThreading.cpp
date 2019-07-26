@@ -50,10 +50,10 @@ atThreadedObject::atThreadedObject(void *pUserData)
   , m_isRunning(true)
   , m_shouldStop(false)
   , m_nextSleepTime(0)
-  , m_threadID(-1)
+  , m_threadID(0)
   , m_thread(&atThreadedObject::Run, this)
 {
-  m_threadID = std::hash<std::thread::id>()(m_thread.get_id());
+  m_threadID = (uint64_t)std::hash<std::thread::id>()(m_thread.get_id());
 }
 
 atThreadedObject::~atThreadedObject()
@@ -81,7 +81,7 @@ void atThreadedObject::Run(atThreadedObject *pBase)
   {
     if (!pBase->IsPaused())
     {
-      switch (pBase->Process(pBase->m_pUserData))
+      switch (pBase->Execute(pBase->m_pUserData))
       {
       case CO_Pause: pBase->Pause(); break;
       case CO_Sleep: pBase->Sleep(); break;
@@ -94,8 +94,11 @@ void atThreadedObject::Run(atThreadedObject *pBase)
       pBase->Sleep();
     }
 
-    pBase->m_isPaused = pBase->m_shouldPause;
-    pBase->m_isRunning = !pBase->m_shouldStop;
+    {
+      atScopeLock lock(pBase->m_writeLock);
+      pBase->m_isPaused = pBase->m_shouldPause;
+      pBase->m_isRunning = !pBase->m_shouldStop;
+    }
   }
 }
 
@@ -113,8 +116,23 @@ void atThreadedObject::Sleep()
 
 void atThreadedObject::Pause() { m_shouldPause = true; }
 void atThreadedObject::Stop() { m_shouldStop = true; }
-bool atThreadedObject::IsRunning() const { return m_isRunning; }
-bool atThreadedObject::IsPaused() const { return m_isPaused; }
-bool atThreadedObject::IsSleeping() const { return m_isSleeping; }
-int64_t atThreadedObject::ID() const { return m_threadID; }
+
+bool atThreadedObject::IsRunning()
+{
+  atScopeLock lock(m_writeLock);
+  return m_isRunning;
+}
+
+bool atThreadedObject::IsPaused()
+{
+  atScopeLock lock(m_writeLock);
+  return m_isPaused;
+}
+bool atThreadedObject::IsSleeping()
+{
+  atScopeLock lock(m_writeLock);
+  return m_isSleeping;
+}
+
+uint64_t atThreadedObject::ID() const { return m_threadID; }
 std::thread::id atThreadedObject::ThreadID() const { return m_thread.get_id(); }
