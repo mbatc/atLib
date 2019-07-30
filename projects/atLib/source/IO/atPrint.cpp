@@ -13,3 +13,8 @@ atString atPrint::Int(const int64_t &val)
   sprintf(buffer, "%lld", val);
   return buffer;
 }
+
+atString atPrint::Bool(const bool &val, const bool &verbose)
+{
+  return verbose ? (val ? "true" : "false") : (val ? "1" : "0");
+}

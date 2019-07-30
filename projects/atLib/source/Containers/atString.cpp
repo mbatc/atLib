@@ -292,7 +292,7 @@ void atString::validate()
     m_data.push_back(0); // make sure there is a null terminating character
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char &_char)
+atVector<atString> atString::_split(const char *src, const int64_t len, const char &_char, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
@@ -304,14 +304,14 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
     start = end + 1;
     end = _find(src, len, _char, start);
 
-    if (atStr.length() > 0)
+    if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
   ret.emplace_back(src + start, src + len);
   return ret;
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char *split, const bool isSet)
+atVector<atString> atString::_split(const char *src, const int64_t len, const char *split, const bool isSet, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
@@ -328,7 +328,7 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
     atStr.set_string(src + start, end - start);
     start = end + setLen;
     end = find_func(src, len, split, start, INT64_MAX);
-    if (atStr.length() > 0)
+    if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
   if (start < len)
@@ -336,26 +336,28 @@ atVector<atString> atString::_split(const char *src, const int64_t len, const ch
   return ret;
 }
 
-bool atString::compare(const char *lhs, const char *rhs, const atStringCompareOptions options)
+bool atString::compare(const char *lhs, const char *rhs, const atStringCompareOptions options, const int64_t &compareLen)
 {
   if (options == atSCO_MatchCase)
     return !strcmp(lhs, rhs);
-  int64_t len = strlen(lhs);
-  int64_t len2 = strlen(rhs);
-  if (len != len2) return false;
-
+  
   char cUpper = 0;
   char cLower = 0;
-
-  for (int64_t i = 0; i < len; ++i)
+  const char *start = lhs;
+  while (*lhs != 0 && *rhs != 0)
   {
-    char c = rhs[i];
-    cUpper = _ToUpper(c);
-    cLower = _ToLower(c);
-    if (lhs[i] != cUpper && lhs[i] != cLower)
+    cUpper = _ToUpper(*rhs);
+    cLower = _ToLower(*rhs);
+    if (*lhs != cUpper && *lhs != cLower)
       return false;
+
+    if (lhs - start == compareLen)
+      return true;
+    ++lhs;
+    ++rhs;
   }
-  return true;
+
+  return *lhs == 0 && *rhs == 0;
 }
 
 template<> atTypeDesc atGetTypeDesc(const atString &str)
@@ -366,10 +368,27 @@ template<> atTypeDesc atGetTypeDesc(const atString &str)
   return ret;
 }
 
+atString atString::join(const atVector<atString> &strings, const atString &separator, const bool ignoreEmpty)
+{
+  atString ret;
+  for (const atString &str : strings)
+    if (!ignoreEmpty || str.length() > 0)
+    {
+      ret += str;
+      if (&str - &strings.back())
+        ret += separator;
+    }
+  return ret;
+}
+
 atString operator+(const char &_char, const atString &rhs) { return atString(_char).operator+(rhs); }
 atString operator+(const char *lhs, const atString &rhs) { return atString(lhs).operator+(rhs); }
 atString operator+(char _char, const atString &rhs) { return atString(_char).operator+(rhs); }
 atString operator+(char *lhs, const atString &rhs) { return atString(lhs).operator+(rhs); }
+
+atString::operator std::string() const { return std::string(c_str(), length() + 1); }
+atString::operator atVector<uint8_t>() const { return atVector<uint8_t>((uint8_t*)m_data.begin(), m_data.size() - 1); }
+atString::atString(const atVector<uint8_t> &data) { set_string((const char*)data.data(), data.size()); }
 
 bool atString::compare(const char *str, const atStringCompareOptions options) const { return compare(c_str(), str, options); }
 atString atString::to_lower() const { return _to_lower(c_str(), length()); }
@@ -405,14 +424,14 @@ int64_t atString::find_first(const char _char) const { return find(_char, 0); }
 int64_t atString::find_first(const char *str) const { return find(str, 0); }
 int64_t atString::find_last(const char _char) const { return find_reverse(_char); }
 int64_t atString::find_last(const char *str) const { return find_reverse(str); }
-atVector<atString> atString::split(const char & _char) { return _split(m_data.data(), length(), _char); }
-atVector<atString> atString::split(const char * split, bool isSet) { return _split(m_data.data(), length(), split, isSet); }
+atVector<atString> atString::split(const char & _char, const bool dropEmpty) const { return _split(m_data.data(), length(), _char, dropEmpty); }
+atVector<atString> atString::split(const char * split, bool isSet, const bool dropEmpty) const { return _split(m_data.data(), length(), split, isSet, dropEmpty); }
 const char *atString::c_str() const { return m_data.data(); }
 int64_t atString::capacity()  const { return m_data.capacity(); }
 int64_t atString::length() const { return m_data.size() - 1; }
 atVector<char> &atString::vector() { return m_data; }
 const atVector<char> &atString::vector() const { return m_data; }
-void atString::set_string(atVector<char> data) { set_string(data.data(), data.size()); }
+void atString::set_string(const atVector<char> &data) { set_string(data.data(), data.size()); }
 char& atString::operator[](int64_t index) { return m_data.at(index); }
 const char& atString::operator[](int64_t index) const { return m_data.at(index); }
 atString::operator const char* () const { return c_str(); }

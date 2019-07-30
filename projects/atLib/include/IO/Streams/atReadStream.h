@@ -26,11 +26,11 @@
 #ifndef atReadStream_h__
 #define atReadStream_h__
 
-#include "atTypes.h"
+#include "atStreamSeekable.h"
 
-#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (uint8_t*)pData, sizeof(type) * count); }
+#define atTrivialStreamRead(type) inline int64_t atStreamRead(atReadStream *pStream, type *pData, const int64_t count) { return atStreamRead(pStream, (void*)pData, sizeof(type) * count); }
 
-class atReadStream
+class atReadStream : public atStreamSeekable
 {
 public:
   // Read data into pBuffer. 
@@ -39,14 +39,18 @@ public:
   template<typename T> int64_t Read(T *pBuffer, const int64_t count = 1);
 };
 
-int64_t atStreamRead(atReadStream *pStream, uint8_t *pData, const int64_t count);
+int64_t atStreamRead(atReadStream *pStream, void *pData, const int64_t count);
 
 atTrivialStreamRead(int64_t)
 atTrivialStreamRead(int32_t)
 atTrivialStreamRead(int16_t)
+atTrivialStreamRead(int8_t)
 atTrivialStreamRead(uint64_t)
 atTrivialStreamRead(uint32_t)
 atTrivialStreamRead(uint16_t)
+atTrivialStreamRead(uint8_t)
+atTrivialStreamRead(bool)
+atTrivialStreamRead(wchar_t)
 atTrivialStreamRead(char)
 atTrivialStreamRead(double)
 atTrivialStreamRead(float)

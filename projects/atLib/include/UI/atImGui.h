@@ -42,6 +42,9 @@ public:
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+  static bool WantMouseInput();
+  static bool WantKeyboardInput();
+
   // Lua friendly wrappers for ImGui functions
 
   static atVec2D GetWindowSize();

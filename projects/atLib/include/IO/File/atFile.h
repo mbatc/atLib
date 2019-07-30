@@ -41,7 +41,7 @@ public:
   ~atFile();
 
   // Open [file] in the specified [mode]
-  bool Open(const atFilename &file, const int64_t mode = atFM_ReadWrite);
+  bool Open(const atFilename &file, const int64_t mode = atFM_ReadWriteBinary);
 
   // Close the file previously opened with Open()
   // Returns false if no file has been opened
@@ -51,16 +51,22 @@ public:
   // Seek to the specified byte in a file
   // Returns the current seek location
   // Returns atFS_Invalid if [loc] is invalid
-  int64_t Seek(const int64_t loc);
+  bool Seek(const int64_t loc, const atSeekOrigin origin = atSO_Start) override;
+
+  // Returns the current position in the file
+  int64_t Tell() const override;
 
   // Writes pData to the file
-  int64_t Write(void *pData, const int64_t len);
+  int64_t Write(const void *pData, const int64_t len) override;
 
   // Writes pData to the file
   int64_t WriteText(const atString &text);
 
   atString ReadText();
   static atString ReadText(const atFilename &filename);
+
+  static int64_t WriteFile(const atFilename &filename, const void *pData, const int64_t &len);
+  static int64_t WriteTextFile(const atFilename &filename, const atString &content);
 
   bool Flush();
 
@@ -71,7 +77,7 @@ public:
   const atFileInfo &Info();
 
   int64_t GetMode();
-  bool IsOpen();
+  bool IsOpen() const;
 
   template<typename T> int64_t Read(T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
@@ -86,6 +92,7 @@ public:
 protected:
   FILE *m_pFile;
   int64_t m_mode;
+  int64_t m_pos;
   atFilename m_fn;
   atFileInfo m_info;
 };

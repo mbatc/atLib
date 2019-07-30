@@ -23,6 +23,9 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atReadStream.h"
+#include "atWriteStream.h"
+
 #ifndef _atKeyValue_h__
 #define _atKeyValue_h__
 
@@ -32,6 +35,21 @@ public:
   atKeyValue() {}
 
   atKeyValue(const Key &key, const Val &val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
+  atKeyValue(const Key &key, Val &&val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
+  atKeyValue(Key &&key, const Val &val)
+    : m_key(key)
+    , m_val(val)
+  {}
+
+  atKeyValue(Key &&key, Val &&val)
     : m_key(key)
     , m_val(val)
   {}
@@ -56,8 +74,37 @@ public:
     return *this;
   }
 
+  const atKeyValue<Key, Val>& operator=(atKeyValue<Key, Val> &&rhs)
+  {
+    m_val = std::move(rhs.m_val);
+    m_key = std::move(rhs.m_key);
+    return *this;
+  }
+
   Key m_key;
   Val m_val;
 };
+
+template<typename Key, class Val> int64_t atStreamWrite(atWriteStream *pStream, const atKeyValue<Key, Val> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (const atKeyValue<Key, Val> &vec : atIterate(pData, count))
+  {
+    ret += atStreamWrite(pStream, &pData->m_key, 1);
+    ret += atStreamWrite(pStream, &pData->m_val, 1);
+  }
+  return ret;
+}
+
+template<typename Key, class Val> int64_t atStreamRead(atReadStream *pStream, atKeyValue<Key, Val> *pData, const int64_t count)
+{
+  int64_t ret = 0;
+  for (atKeyValue<Key, Val> &vec : atIterate(pData, count))
+  {
+    ret += atStreamRead(pStream, &pData->m_key, 1);
+    ret += atStreamRead(pStream, &pData->m_val, 1);
+  }
+  return ret;
+}
 
 #endif

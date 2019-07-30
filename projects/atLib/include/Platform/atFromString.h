@@ -14,5 +14,6 @@ template<> uint8_t atFromString<uint8_t>(const atString &str);
 template<> uint16_t atFromString<uint16_t>(const atString &str);
 template<> uint32_t atFromString<uint32_t>(const atString &str);
 template<> uint64_t atFromString<uint64_t>(const atString &str);
+template<> bool atFromString<bool>(const atString &str);
 
 #endif // atFromString_h__

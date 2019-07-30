@@ -105,7 +105,7 @@ bool atRenderableCore::Draw(const atRenderable_PrimitiveType type /*= atRPT_Tria
     {
     case atRRT_Texture: 
       if(kvp.m_val.desc.type == atType_Uint8) 
-        kvp.m_val.id = atHardwareTexture::UploadTexture(atString((char*)kvp.m_val.data.data())); 
+        kvp.m_val.id = atHardwareTexture::UploadTexture(atString((const char*)kvp.m_val.data.data())); 
       else if (kvp.m_val.desc.type == atType_Int64) 
         kvp.m_val.id = *(int64_t*)kvp.m_val.data.data();
       else 
