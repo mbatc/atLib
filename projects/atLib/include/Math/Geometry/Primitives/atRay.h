@@ -27,6 +27,7 @@
 #define atRay_h__
 
 #include "atVector3.h"
+#include "atIntersects.h"
 
 template<typename T> class atRay
 {
@@ -38,9 +39,9 @@ public:
   Vec3 At(const T time) const;
   Vec3 GetTime(const Vec3 &point) const;
   bool IsOnRay(const Vec3 &point, T *pTime) const;
-  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime = nullptr) const;
-  bool GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T* pTime, T* pDist) const;
-  bool GetClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime = nullptr, T* pDist = nullptr) const;
+  bool ClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime = nullptr) const;
+  bool ClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T* pTime, T* pDist) const;
+  bool ClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime = nullptr, T* pDist = nullptr) const;
 
   T TimeX(const T val) const;
   T TimeY(const T val) const;
@@ -49,6 +50,11 @@ public:
   Vec3 m_pos;
   Vec3 m_dir;
 };
+
+typedef atRay<int32_t> atRayI;
+typedef atRay<int64_t> atRayI64;
+typedef atRay<float> atRayF;
+typedef atRay<double> atRayD;
 
 #include "atRay.inl"
 #endif // atRay_h__

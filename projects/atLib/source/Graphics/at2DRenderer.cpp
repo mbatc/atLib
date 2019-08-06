@@ -27,8 +27,8 @@
 #include "atFont.h"
 #include "atRenderable.h"
 #include "atInput.h"
-#include "atIntersects.h"
 #include "atRenderState.h"
+#include "atRect.h"
 
 struct DrawData
 {
@@ -97,7 +97,7 @@ void at2DRenderer::AddText(const int64_t x, const int64_t y, const atString &tex
   atVec2I offset = { atMin(bounds.m_min.x, 0), atMin(bounds.m_min.y, 0) };
   atVec2I tl = atVec2I{ x, y } - pivot * bounds.Dimensions().xy();
   
-  if (!atIntersects(clip, atVec4I(tl, tl + bounds.Dimensions().xy())))
+  if (!atIntersects(atRectI(clip), atRectI(tl, tl + bounds.Dimensions().xy())))
     return;
 
   PushTexture(DrawContext::Font().GetTextureID());
@@ -124,7 +124,7 @@ void at2DRenderer::AddText(const int64_t x, const int64_t y, const atString &tex
     };
 
     _AdvanceCursor(c, g, &rowHeight, &cursor, tl);
-    if (!atIntersects(clip, atVec4I(rect)))
+    if (!atIntersects(atRectI(clip), atRectI(atVec4I(rect))))
       continue;
 
     _AddPoly(
@@ -146,7 +146,6 @@ void at2DRenderer::Draw(const atVec2I &dimensions)
   atRenderState rs;
   for (atFont &f : DrawContext::fonts)
     f.GetTextureID();
-
   ro.SetShader("assets/shaders/text");
   ro.SetSampler("samplerType", AT_INVALID_ID);
   ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
@@ -172,7 +171,7 @@ atVec4I at2DRenderer::TextRect(const int64_t x, const int64_t y, const atString 
 
 void at2DRenderer::AddRectangle(const atVec2I &topLeft, const atVec2I &bottomRight)
 {
-  if (!atIntersects(DrawContext::Clip(), atVec4I(topLeft, bottomRight)))
+  if (!atIntersects(atRectI(DrawContext::Clip()), atRectI(topLeft, bottomRight)))
     return;
   atFont &font = DrawContext::Font();
   _AddPoly({ atVec2F(topLeft), atVec2F(bottomRight.x, topLeft.y), atVec2F(bottomRight), atVec2F(topLeft.x, bottomRight.y) }, font.FindWhitePixel());

@@ -23,33 +23,39 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atTriangle_h__
-#define atTriangle_h__
+#ifndef atOBB_h__
+#define atOBB_h__
 
-#include "atPlane.h"
 #include "atAABB.h"
 
-template<typename T> class atTriangle
+template<typename T> class atOBB
 {
 public:
-  atTriangle();
-  atTriangle(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
+  using Vec3 = atVector3<T>;
 
-  atVector3<T> Center();
+  atOBB();
+  atOBB(const atAABB<T> &aabb, const atQuaternion<T> &orientation = atQuaternion<T>::Identity());
+  atOBB(const atAABB<T> &aabb, const atMatrix4x4<T> &rotation = atMatrix4x4<T>::Identity());
+  atOBB(const atAABB<T> &aabb, const atVector3<T> &rotation = { 0 });
+  atOBB(const atVector3<T> &min, const atVector3<T> &max, const atQuaternion<T> &orientation = atQuaternion<T>::Identity());
+  atOBB(const atVector3<T> &min, const atVector3<T> &max, const atMatrix4x4<T> &rotation = atMatrix4x4<T>::Identity());
+  atOBB(const atVector3<T> &min, const atVector3<T> &max, const atVector3<T> &rotation = { 0 });
 
-  atVector3<T> m_a;
-  atVector3<T> m_b;
-  atVector3<T> m_c;
+  Vec3 Center() const;
+  Vec3 Dimensions() const;
+  Vec3 ClosestPoint(const Vec3 &point) const;
+  Vec3 ClosestPointBounds(const Vec3 &point) const;
+  bool Contains(const Vec3 &point) const;
 
-  T Area() const;
+  // Rotate a point so that it is aligned with the OBB's local axis
+  Vec3 WorldToOBB(const Vec3 &point) const;
+  Vec3 OBBToWorld(const Vec3 &point) const;
+  
+  atAABB<T> m_aabb;
+  atQuaternion<T> m_orientation;
 };
 
-template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri);
+template<typename T> atAABB<T> atBounds(const atOBB<T> &obb);
 
-typedef atTriangle<int32_t> atTriangleI;
-typedef atTriangle<int64_t> atTriangleI64;
-typedef atTriangle<float> atTriangleF;
-typedef atTriangle<double> atTriangleD;
-
-#include "atTriangle.inl"
-#endif // atTriangle_h__
+#include "atOBB.inl"
+#endif // atOBB_h__

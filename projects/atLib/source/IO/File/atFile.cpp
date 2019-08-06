@@ -113,7 +113,7 @@ atString atFile::ReadText(const atFilename &filename)
 {
   atFile file;
   atString ret;
-  if (file.Open(filename))
+  if (file.Open(filename, atFM_Read))
     ret = file.ReadText();
   return ret;
 }

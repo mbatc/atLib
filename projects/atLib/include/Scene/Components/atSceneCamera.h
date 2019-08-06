@@ -63,6 +63,9 @@ public:
   bool OnUpdate(const double dt) override;
 
   double m_moveSpeed = 1.0;
+
+  atQuatD m_yaw;
+  atQuatD m_pitch;
 };
 
 #endif // atCamera_h__

@@ -31,8 +31,9 @@
 class atFilename
 {
 public:
+  atFilename();
   atFilename(const char *path);
-  atFilename(const atString &path = "");
+  atFilename(const atString &path);
   atFilename(const atFilename &copy);
   atFilename(atFilename &&move);
   

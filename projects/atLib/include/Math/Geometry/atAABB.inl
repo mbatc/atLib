@@ -90,6 +90,36 @@ template<typename T> const atAABB<T>& atAABB<T>::operator=(const atAABB<T> &rhs)
   return *this;
 }
 
+template<typename T> inline T atAABB<T>::LongestEdgeLength() const
+{
+  Vec3 dims = Dimensions();
+  return atMax(dims.x, dims.y, dims.z);
+}
+
+template<typename T> inline typename atAABB<T>::Vec3 atAABB<T>::ClosestPointBounds(const Vec3 &point) const
+{
+  Vec3 closestPoint = ClosestPoint(point);
+  Vec3 distToMin[2] = { closestPoint - m_min, closestPoint - m_max };
+  int64_t smallestIndex = 0;
+  T smallest = atLimitsMax<T>();
+  for (int64_t i = 0; i < 6; ++i)
+  {
+    const T &val = distToMin[i / 3][i % 3];
+    const T absVal = abs(val);
+    if (absVal < smallest)
+    {
+      smallestIndex = i;
+      smallest = absVal;
+    }
+  }
+
+  closestPoint[smallestIndex % 3] -= distToMin[smallestIndex / 3][smallestIndex % 3];
+
+  return closestPoint;
+}
+
+template<typename T> inline typename atAABB<T>::Vec3 atAABB<T>::ClosestPoint(const Vec3 &point) const { return point.Clamp(m_min, m_max); }
+template<typename T> inline atAABB<T> atAABB<T>::OverlappingBox(const atAABB<T> &box) const { return atAABB<T>(m_min.Max(box.m_min), m_max.Min(box.m_max)); }
 template<typename T> bool atAABB<T>::operator==(const atAABB<T> &rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }
 template<typename T> bool atAABB<T>::operator!=(const atAABB<T> &rhs) const { return !(*this == rhs); }
 template<typename T> typename atAABB<T>::Vec3 atAABB<T>::Center() const { return (m_min + m_max) / (T)2; }

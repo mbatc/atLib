@@ -92,7 +92,7 @@ psOutput main(vsOutput In) : SV_Target
 
     lambertian = max(0.0, dot(lNorm, vNorm));
 
-    if(lambertian > 0)
+    if(lambertian > 0 && hasCamPos > 0)
     {
       float3 fragToEye = normalize(camPos - In.worldPos);
       float3 reflected = normalize(reflect(lightDir0, vNorm));
@@ -111,14 +111,14 @@ psOutput main(vsOutput In) : SV_Target
   // Specular Mapping
   if(hasSpecularMap > 0)
   {
-    tCol = specularMap0.Sample(samplerType, In.texCoord);
-    sCol *= tCol.xyz * tCol.w;
+   tCol = specularMap0.Sample(samplerType, In.texCoord);
+   sCol *= tCol.xyz * tCol.w;
   }
 
   if(hasSpecularHiMap > 0)
   {
-    tCol = specularHiMap0.Sample(samplerType, In.texCoord);
-    sIntensity *= (tCol.x + tCol.y + tCol.z) * tCol.w / 3;
+   tCol = specularHiMap0.Sample(samplerType, In.texCoord);
+   sIntensity *= (tCol.x + tCol.y + tCol.z) * tCol.w / 3;
   }
 
   // Ambient Mapping
@@ -137,5 +137,7 @@ psOutput main(vsOutput In) : SV_Target
 
   psOutput Out;
   Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
+  Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
+  // Out.color = float4(vNorm, 1);
   return Out;
 }

@@ -39,11 +39,11 @@ public:
   atVector3(const atVector3<T> &copy);
   atVector3(atVector3<T> &&move);
                                     
-  template<typename T2> atVector3(T2 val);
   template<typename T2> atVector3(T2 _x, T2 _y, T2 _z);
   template<typename T2> atVector3(T2 _x, const atVector2<T2> &yz);
   template<typename T2> atVector3(const atVector2<T2> &xy, T2 _z);
   template<typename T2> atVector3(atVector3<T2> copy);
+  template<typename T2> explicit atVector3(T2 val);
 
   static atVector3<T> zero();
   static atVector3<T> one();
@@ -116,6 +116,16 @@ public:
   atVector3<T> Normalize() const;
   atVector3<T> Reflect(const atVector3<T> &norm) const;
   atVector3<T> Cross(const atVector3<T> &rhs) const;
+  atVector3<T> Project(const atVector3<T> &to) const;
+
+  // Returns a vector with where each component is the max of this and the input vectors components.
+  atVector3<T> Max(const atVector3<T> &b) const;
+
+  // Returns a vector with where each component is the min of this and the input vectors components.
+  atVector3<T> Min(const atVector3<T> &b) const;
+
+  // Returns a vector with where each component is clamped to the min/max of this and the input vectors components
+  atVector3<T> Clamp(const atVector3<T> &min, const atVector3<T> &max) const;
 
   static T Mag(const atVector3<T> &rhs);
   static T Length(const atVector3<T> &rhs);
@@ -125,6 +135,16 @@ public:
   static atVector3<T> Normalize(const atVector3<T> &rhs);
   static atVector3<T> Cross(const atVector3<T> &lhs, const atVector3<T> &rhs);
   static atVector3<T> Reflect(const atVector3<T> &dir, const atVector3<T> &norm);
+  static atVector3<T> Project(const atVector3<T> &vec, const atVector3<T> &to);
+
+  // Returns a vector with where each component is the max of the input vectors components.
+  static atVector3<T> Max(const atVector3<T> &a, const atVector3<T> &b);
+
+  // Returns a vector with where each component is the min of the input vectors components.
+  static atVector3<T> Min(const atVector3<T> &a, const atVector3<T> &b);
+
+  // Returns a vector with where each component is clamped to the min/max of the input vectors components
+  static atVector3<T> Clamp(const atVector3<T> &vec, const atVector3<T> &min, const atVector3<T> &max);
 
   T* begin();
   T* end();

@@ -54,7 +54,7 @@ bool atSceneNode::AddChild(atSceneNode *pChild, const bool preserveTransform)
 
   if (preserveTransform)
   {
-    pChild->m_rotation -= GlobalRotation();
+    pChild->m_rotation = atQuatD(GlobalRotationMat().Inverse()) * pChild->m_rotation;
     pChild->m_scale /= GlobalScale();
     pChild->m_translation -= GlobalWorldMat().Inverse() * atVec3D::zero();
   }
@@ -91,7 +91,7 @@ bool atSceneNode::RemoveChild(atSceneNode *pChild, const bool preserveTransform)
 
   if (preserveTransform)
   {
-    pChild->m_rotation += GlobalRotation();
+    pChild->m_rotation = atQuatD(GlobalRotationMat()) * pChild->m_rotation;
     pChild->m_scale *= GlobalScale();
     pChild->m_translation = GlobalWorldMat() * pChild->m_translation;
   }
@@ -185,11 +185,11 @@ const atVector<atSceneNode*>& atSceneNode::Siblings() const { return m_siblings;
 atMat4D atSceneNode::GlobalTranslationMat() const { return ParentTranslationMat() * TranslationMat(); }
 atMat4D atSceneNode::GlobalRotationMat() const { return ParentRotationMat() * RotationMat(); }
 atMat4D atSceneNode::GlobalScaleMat() const { return ParentScaleMat() * ScaleMat(); }
-atMat4D atSceneNode::GlobalWorldMat() const { return  ParentWorldMat() * WorldMat(); }
+atMat4D atSceneNode::GlobalWorldMat() const { return  ParentWorldMat() * TransformMat(); }
 
-atVec3D atSceneNode::GlobalPosition() const { return ParentWorldMat() * m_translation; }
-atVec3D atSceneNode::GlobalRotation() const { return ParentRotation() + m_rotation; }
-atVec3D atSceneNode::GlobalScale() const { return ParentScale() * m_scale; }
+atVec3D atSceneNode::GlobalPosition() const { return ParentWorldMat() * Translation(); }
+atVec3D atSceneNode::GlobalRotation() const { return ParentRotation() + RotationEuler(); }
+atVec3D atSceneNode::GlobalScale() const { return ParentScale() * Scale(); }
 
 atScene* atSceneNode::Scene() { return m_pScene; }
 

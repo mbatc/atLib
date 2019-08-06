@@ -1,3 +1,4 @@
+#include "atVector2.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -122,43 +123,52 @@ template<typename T> inline T atVector2<T>::Angle(const atVector2<T> &lhs, const
   return atACos(Dot(lhs, rhs) / (lhs.Mag() * rhs.Mag()));
 }
 
+template<typename T> inline atVector2<T> atVector2<T>::Project(const atVector2<T>& vec, const atVector2<T>& to)
+{
+  return vec * to.Normalize();
+}
+
 template<typename T> inline atVector2<T> atVector2<T>::Reflect(const atVector2<T> &dir, const atVector2<T> &norm)
 {
   return dir - norm * Dot(dir, norm) * 2;
 }
 
+template<typename T> inline atVector2<T> atVector2<T>::Max(const atVector2<T> &a, const atVector2<T> &b)
+{
+  return atVector3<T>(atMax(a.x, b.x), atMax(a.y, b.y), atMax(a.z, b.z));
+}
+
+template<typename T> inline atVector2<T> atVector2<T>::Min(const atVector2<T> &a, const atVector2<T> &b)
+{
+  return atVector3<T>(atMin(a.x, b.x), atMin(a.y, b.y), atMin(a.z, b.z));
+}
+
+template<typename T> inline atVector2<T> atVector2<T>::Clamp(const atVector2<T> &vec, const atVector2<T> &min, const atVector2<T> &max)
+{
+  return Max(min, Min(vec, max));
+}
+
 template<typename T> inline atVector2<T> atVector2<T>::Add(const atVector2<T>& rhs) { return *this + rhs; }
-
 template<typename T> inline atVector2<T> atVector2<T>::Sub(const atVector2<T>& rhs) { return *this - rhs; }
-
 template<typename T> inline atVector2<T> atVector2<T>::Mul(const atVector2<T>& rhs) { return *this * rhs; }
-
 template<typename T> inline atVector2<T> atVector2<T>::Div(const atVector2<T>& rhs) { return *this / rhs; }
 
 template<typename T> inline T atVector2<T>::Mag() const { return Mag(*this); }
-
 template<typename T> inline T atVector2<T>::Length() const { return Length(*this); }
-
 template<typename T> inline T atVector2<T>::Dot(const atVector2<T>& rhs) const { return Dot(*this, rhs); }
-
 template<typename T> inline T atVector2<T>::Angle(const atVector2<T> &rhs) const { return Angle(*this, rhs); }
-
-template<typename T> inline atVector2<T> atVector2<T>::Reflect(const atVector2<T>& norm) { return Reflect(*this, norm); }
-
+template<typename T> inline atVector2<T> atVector2<T>::Reflect(const atVector2<T>& norm) const { return Reflect(*this, norm); }
+template<typename T> inline atVector2<T> atVector2<T>::Project(const atVector2<T>& to) const { return Project(*this, to); }
+template<typename T> inline atVector2<T> atVector2<T>::Max(const atVector2<T> &b) const { return Max(*this, b); }
+template<typename T> inline atVector2<T> atVector2<T>::Min(const atVector2<T> &b) const { return Min(*this, b); }
+template<typename T> inline atVector2<T> atVector2<T>::Clamp(const atVector2<T> &min, const atVector2<T> &max) const { return Clamp(*this, min, max); }
 template<typename T> inline T atVector2<T>::Mag(const atVector2<T>& rhs) { return atSqrt(Length(rhs)); }
-
 template<typename T> inline atVector2<T> atVector2<T>::Normalize(const atVector2<T> &rhs) { return rhs / rhs.Mag(); }
-
 template<typename T> inline const T* atVector2<T>::end() const { return data() + 2; }
-
 template<typename T> inline const T* atVector2<T>::begin() const { return data(); }
-
 template<typename T> inline T* atVector2<T>::end() { return data() + 2; }
-
 template<typename T> inline T* atVector2<T>::begin() { return data(); }
-
 template<typename T> inline T * atVector2<T>::data() { return &x; }
-
 template<typename T> inline const T* atVector2<T>::data() const { return &x; }
 
 template<typename T> inline T& atVector2<T>::operator[](int64_t index) { return data()[index]; }
