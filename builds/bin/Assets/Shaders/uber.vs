@@ -2,6 +2,7 @@ cbuffer matrices
 {
   float4x4 mvp;
   float4x4 modelMat;
+  float4x4 modelMatInvTrans;
 }
 
 struct vsInput
@@ -33,8 +34,8 @@ vsOutput main(vsInput In)
   Out.worldPos = (float3)mul(modelMat, pos4);
   Out.color = In.vColor;
   Out.texCoord = In.vTexCoord;
-  Out.normal = normalize(mul(In.vNormal, (float3x3)modelMat));
-  Out.tangent = normalize(mul(In.vTangent, (float3x3)modelMat));
-  Out.bitangent = normalize(mul(In.vBitangent, (float3x3)modelMat));
+  Out.normal = normalize(mul(In.vNormal, (float3x3)modelMatInvTrans));
+  Out.tangent = normalize(mul(In.vTangent, (float3x3)modelMatInvTrans));
+  Out.bitangent = normalize(mul(In.vBitangent, (float3x3)modelMatInvTrans));
   return Out;
 }

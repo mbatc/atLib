@@ -42,8 +42,8 @@ public:
   bool Distance(const atVector3<T> &point) const;
   bool Distance2(const atVector3<T> &point) const;
 
-  atVector3<T> ClosestPoint(const atVector3<T> &point);
-  atVector3<T> ClosestPointBounds(const atVector3<T> &point);
+  atVector3<T> ClosestPoint(const atVector3<T> &point) const;
+  atVector3<T> ClosestPointBounds(const atVector3<T> &point) const;
 
   double m_radius;
   atVector3<T> m_position;

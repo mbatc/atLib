@@ -157,6 +157,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
       rs.SetBlendEnabled(true);
       at2DRenderer::Draw(window);
     }
+
     // Display rendered frame
     window.Swap();
   }
@@ -540,6 +541,7 @@ void ExampeBackPropagation()
 
 #include "atPhysicsObject.h"
 #include "atCollision.h"
+#include "atPhysicsScene.h"
 
 void ExamplePhysics()
 {
@@ -549,103 +551,61 @@ void ExamplePhysics()
   rs.SetRenderTarget(&window);
   
   // Setup models
-  atGraphicsModel cube("assets/test/models/cube1x1.obj");
-  atGraphicsModel sphere("assets/test/models/sphereR.5.obj");
-
-  atLight l;
-  l.m_diffuseColor = atVec4D(0.7, 0.4, 0.4, 1.0);
-  l.m_ambientColor = atVec4D(0.3, 0.3, 0.3, 1);
-  l.m_specularColor = atVec4D(0.7, 0.4, 0.4, 1.0);
-  l.m_direction = atVec3D(1, -1, 1).Normalize();
-  sphere.SetLighting(l);
-  cube.SetLighting(l);
-
-  // Create camera
-  atSimpleCamera camera(&window, {0, 1, 4});
-  
-  // Create physics objects
-  atPhysicsObject b1;
-  atPhysicsObject b2;
-
-  atMat4D mat = atMatrixTranslation(atVec3D(1, 2, 3));
-  atVec3D pos = mat * atVec3D(0);
-
-  // b2.AddForce(8, atVec3D(0, 0, 1), -1, atVec3D(1, 0, 0));
-  // b2.AddForce(16, atVec3D(0, 1, 0), -1, atVec3D(1, 0, 0));
-  // b2.Apply(0.016);
-  // b1.Apply(0.016);
-  b1.SetTranslation(atVec3D(2, 0, 0));
-  b2.SetTranslation(atVec3D(0, 0, 0));
-  b1.SetRotation(atVec3D(atDegs2Rads(45), 0, 0));
-
-  // https://cse442-17f.github.io/Gilbert-Johnson-Keerthi-Distance-Algorithm/ // LOOK AT THIS
-
-  atPhysicsObject *pActive = &b1;
-  at2DRenderer::SetFont("D:/Programming Projects/atLib/builds/bin/Assets/Fonts/RomanSerif.ttf");
-
-  while (atInput::Update())
   {
-    window.Clear(0xFF333333);
-    camera.OnUpdate(0.016);
+    atGraphicsModel cube("assets/test/models/cube1x1.obj");
+    atGraphicsModel sphere("assets/test/models/sphereR.5.obj");
 
-    sphere.SetCamera(camera.Translation());
-    cube.SetCamera(camera.Translation());
+    atLight l;
+    l.m_diffuseColor = atVec4D(0.7, 0.4, 0.4, 1.0);
+    l.m_ambientColor = atVec4D(0.3, 0.3, 0.3, 1);
+    l.m_specularColor = atVec4D(0.7, 0.4, 0.4, 1.0);
+    l.m_direction = atVec3D(1, 1, 1).Normalize();
+    sphere.SetLighting(l);
+    cube.SetLighting(l);
 
+    // Create camera
+    atSimpleCamera camera(&window, { 0, 1, 4 });
+
+    atPhysicsScene scene;
+    scene.AddBody(atRigidBody(atVec3D(1, 1, 1)), { 0, 5, -2 });
+    scene.AddBody(atRigidBody(1.0), { 0, 5, 2 });
+    scene.AddBody(atRigidBody(atVec3D(10, 1, 10)), { 0, 0, 0 });
+
+    // https://cse442-17f.github.io/Gilbert-Johnson-Keerthi-Distance-Algorithm/ // LOOK AT THIS
+
+    at2DRenderer::SetFont("D:/Programming Projects/atLib/builds/bin/Assets/Fonts/RomanSerif.ttf");
+
+    while (atInput::Update())
     {
-      atVec3D m;
-      if (atInput::ButtonDown(atKC_L)) m.x -= 0.01;
-      if (atInput::ButtonDown(atKC_J)) m.x += 0.01;
-      if (atInput::ButtonDown(atKC_I)) m.z -= 0.01;
-      if (atInput::ButtonDown(atKC_K)) m.z += 0.01;
-      if (atInput::ButtonDown(atKC_O)) m.y += 0.01;
-      if (atInput::ButtonDown(atKC_U)) m.y -= 0.01;
-      pActive->Translate(m);
+      window.Clear(0xFF440000);
+
+      camera.OnUpdate(0.016);
+      scene.Update();
+
+      sphere.SetCamera(camera.Translation());
+      cube.SetCamera(camera.Translation());
+
+      atMat4D vp = camera.ProjectionMat() * camera.ViewMat();
+
+      for (const atRigidBody &body : scene.Bodies())
+      {
+        switch (body.Type())
+        {
+        case atRBT_Sphere: sphere.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScaleUniform(body.AsSphere().m_radius)); break;
+        case atRBT_Cube: cube.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScale(body.AsOBB().Dimensions())); break;
+        }
+      }
+
+      {
+        atRenderState textState;
+        textState.SetDepthReadEnabled(false);
+        textState.SetDepthWriteEnabled(false);
+        textState.SetScissorEnabled(true);
+        textState.SetBlendEnabled(true);
+        at2DRenderer::Draw(window);
+      }
+      window.Swap();
     }
-
-    if (atInput::ButtonPressed(atKC_Tab))
-      pActive = pActive == &b1 ? &b2 : &b1;
-
-    at2DRenderer::AddText(0, 0, pActive == &b1 ? "box 1 active" : "box 2 active");
-
-    atMat4D vp = camera.ProjectionMat() * camera.ViewMat();
-
-    atCollisionD b1Col;
-    atCollisionD b2Col;
-    atOBB<double> b1Obb(b1.Translation() - b1.Scale() / 2, b1.Translation() + b1.Scale() / 2, b1.Orientation());
-    atOBB<double> b2Obb(b2.Translation() - b2.Scale() / 2, b2.Translation() + b2.Scale() / 2, b2.Orientation());
-
-    if (atCollisionD::Collision(b1Obb, b2Obb, &b1Col, &b2Col))
-    {
-      b1.AddForce(b1.m_velocity.Mag() * 100, -b1Col.Normal(), -1.0, b1.Translation() - b1Col.Point());
-      b2.AddForce(b2.m_velocity.Mag() * 100, -b2Col.Normal(), -1.0, b1.Translation() - b2Col.Point());
-
-      sphere.Draw(vp, atMatrixTranslation(b1Col.Point()) * atMatrixScaleUniform(0.1));
-      sphere.Draw(vp, atMatrixTranslation(b2Col.Point()) * atMatrixScaleUniform(0.1));
-
-      atString pointPos = "Point {" + atPrint::Vector(b1Col.Point(), ", ") + "}";
-      at2DRenderer::AddText(0, 10, "Colliding at " + pointPos);
-    }
-
-    b2.Apply(0.016);
-    b1.Apply(0.016);
-
-    // Cube 1
-    cube.Draw(vp, b1.TransformMat());
-
-    // Cube 2
-    cube.Draw(vp, b2.TransformMat());
-
-    // Draw Ground
-    // cube.Draw(vp, atMatrixScale(atVec3D{ 10, 0.01, 10 }));
-    {
-      atRenderState textState;
-      textState.SetDepthReadEnabled(false);
-      textState.SetDepthWriteEnabled(false);
-      textState.SetScissorEnabled(true);
-      textState.SetBlendEnabled(true);
-      at2DRenderer::Draw(window);
-    }
-    window.Swap();
   }
 }
 
@@ -666,7 +626,7 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  ExampleRenderMesh();
+  // ExampleRenderMesh();
   // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

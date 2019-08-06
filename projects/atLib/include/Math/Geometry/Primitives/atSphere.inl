@@ -43,12 +43,12 @@ template<typename T> inline T atSphere<T>::SurfaceArea() const
 
 template<typename T> inline void atSphere<T>::GrowToContain(const atVector3<T> &point)
 {
-  m_radius = atMax(m_radius, (point - m_pos).Mag());
+  m_radius = atMax(m_radius, (point - m_position).Mag());
 }
 
 template<typename T> inline bool atSphere<T>::Contains(const atVector3<T> &point) const
 {
-  return (m_pos - point).Length() < m_radius * m_radius;
+  return (m_position - point).Length() < m_radius * m_radius;
 }
 
 template<typename T> inline bool atSphere<T>::Distance(const atVector3<T> &point) const
@@ -58,17 +58,17 @@ template<typename T> inline bool atSphere<T>::Distance(const atVector3<T> &point
 
 template<typename T> inline bool atSphere<T>::Distance2(const atVector3<T> &point) const
 {
-  return (m_pos - point).Length();
+  return (m_position - point).Length();
 }
 
-template<typename T> inline atVector3<T> atSphere<T>::ClosestPoint(const atVector3<T> &point)
+template<typename T> inline atVector3<T> atSphere<T>::ClosestPoint(const atVector3<T> &point) const
 {
   atVector3<T> fromCenter = point - m_pos;
   T dist = fromCenter.Mag();
   return atMin(dist, m_radius) * fromCenter.Normalize();
 }
 
-template<typename T> inline atVector3<T> atSphere<T>::ClosestPointBounds(const atVector3<T> &point)
+template<typename T> inline atVector3<T> atSphere<T>::ClosestPointBounds(const atVector3<T> &point) const
 {
-  return (point - m_pos).Normalize() * m_radius;
+  return (point - m_position).Normalize() * m_radius;
 }

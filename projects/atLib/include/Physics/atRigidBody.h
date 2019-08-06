@@ -5,23 +5,26 @@
 #include "atCollision.h"
 #include "atPhysicsObject.h"
 
+enum atRigidBodyType
+{
+  atRBT_Cube,
+  atRBT_Sphere,
+  atRBT_Capsule,
+  atRBT_Cylinder,
+  atRBT_Mesh,
+  atRBT_None
+};
+
 class atRigidBody : public atPhysicsObject
 {
-  enum atRigidBodyType
-  {
-    atRBT_Cube,
-    atRBT_Sphere,
-    atRBT_Capsule,
-    atRBT_Cylinder,
-    atRBT_Mesh,
-    atRBT_None
-  };
 
 public:
-  atRigidBody(const atMesh &bounds);         // Construct mesh
-  atRigidBody(const atVec3D &dims);          // Construct rectangular prism
-  atRigidBody(const double &radius);         // Construct sphere
-  atRigidBody(const double &height, const double &radius, const bool &isCapsule = false); // Construct cylinder or capsule
+  atRigidBody(const atMesh &bounds, const double &mass = 1);         // Construct mesh
+  atRigidBody(const atVec3D &dims, const double &mass = 1);          // Construct rectangular prism
+  atRigidBody(const double &radius, const double &mass = 1);         // Construct sphere
+  atRigidBody(const double &height, const double &radius, const bool &isCapsule = false, const double &mass = 1); // Construct cylinder or capsule
+
+  atRigidBodyType Type() const;
 
   void SetCube(const atVec3D &dims);
   void SetSphere(const double &radius);
@@ -29,13 +32,15 @@ public:
   void SetCapsule(const double &height, const double &radius);
   void SetMesh(const atMesh &mesh);
 
-  bool Collide(const atRigidBody &body, atCollisionD *pThis = nullptr, atCollisionD *pWith = nullptr) const;
+  void ApplyCollision(const atRigidBody &body, const atCollisionD &colData);
+
+  bool TestCollision(const atRigidBody &body, atCollisionD *pThis = nullptr, atCollisionD *pWith = nullptr) const;
+
+  atOBB<double> AsOBB() const;
+  atSphere<double> AsSphere() const;
 
 protected:
   template<typename T> bool CollidePrimitive(const atRigidBody &body, const T &primitive, atCollisionD *pThis = nullptr, atCollisionD *pWith = nullptr) const;
-
-  atOBB<double> OBB() const;
-  atSphere<double> Sphere() const;
 
   void Clear();
 

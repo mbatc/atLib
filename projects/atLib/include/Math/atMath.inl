@@ -1,3 +1,4 @@
+#include "atMath.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -281,6 +282,8 @@ template<typename T> inline atVector3<T> operator/(const T &lhs, const atVector3
 template<typename T> inline atVector2<T> operator/(const T &lhs, const atVector2<T>& rhs) { return atVector2<T>(lhs / rhs.x, lhs / rhs.y); }
 
 template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll) { return atMatrixRotationY(yaw) * atMatrixRotationX(pitch) * atMatrixRotationZ(roll); }
+
+template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const atVector3<T> &ypr) { return atMatrixYawPitchRoll(ypr.x, ypr.y, ypr.z); }
 
 inline float atSqrt(const float &val) { return sqrtf(val); }
 

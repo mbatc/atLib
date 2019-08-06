@@ -64,7 +64,7 @@ psOutput main(vsOutput In) : SV_Target
   float4 tCol = float4(1, 1, 1, 1);
   float3 vNorm = In.normal;
 
-  float3 lNorm = normalize(-lightDir0);
+  float3 lNorm = normalize(float3(1,1,1));
   float3 lDif = 1;
   float3 lSpec = 0;
   float3 lAmb = 0;
@@ -137,7 +137,7 @@ psOutput main(vsOutput In) : SV_Target
 
   psOutput Out;
   Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
-  Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
-  // Out.color = float4(vNorm, 1);
+  // Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
+  // Out.color = float4(In.normal, 1);
   return Out;
 }
