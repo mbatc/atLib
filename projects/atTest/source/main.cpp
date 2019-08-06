@@ -29,6 +29,7 @@
 #include "atInput.h"
 #include "atBVH.h"
 #include <time.h>
+#include "atShaderPool.h"
 #include "atPrint.h"
 
 //---------------------------------------------------------------------------------
@@ -99,7 +100,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   at2DRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
   // Set the model being loaded
-  const atString path = "assets/test/models/bumpmap.obj";
+  const atString path = "assets/test/models/cube1x1.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = atVec4F(.3f, .3f, .3f, 1.f);
@@ -110,7 +111,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   light.m_specularColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
   
   // Import the model
-  atGraphicsModel model(path);
+  atGraphicsModel model(path.c_str());
 
   // Create a window
   atWindow window("Default Window", wndSize);
@@ -127,6 +128,9 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   rs.SetRenderTarget(&window);
   while (atInput::Update(true)) // Process user inputs
   {
+    if (atInput::ButtonPressed(atKC_Apostraphe))
+      atShaderPool::ReloadShaders();
+
     // Update camera
     camera.OnUpdate(0.016);
     camera.SetViewport(&window);
@@ -662,7 +666,7 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  // ExampleRenderMesh();
+  ExampleRenderMesh();
   // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

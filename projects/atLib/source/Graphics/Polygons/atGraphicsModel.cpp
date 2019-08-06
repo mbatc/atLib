@@ -73,7 +73,7 @@ void atGraphicsModel::SetLighting(const atLight &light)
   EnableLighting(true);
 }
 
-void atGraphicsModel::SetMaterials(const atVector<atMaterial>& materials, const int64_t start)
+void atGraphicsModel::SetMaterials(const atVector<atMaterial> &materials, const int64_t start)
 {
   for(int64_t i = 0; i < materials.size() && i + start < m_mesh.size(); ++i)
   {
@@ -122,6 +122,8 @@ void atGraphicsModel::SetMaterials(const atVector<atMaterial>& materials, const 
     mesh.SetUniform("hasSpecularHiMap", (int32_t)hasSpecularHiMap);
     mesh.SetUniform("hasDisplacementMap", (int32_t)hasDisplacementMap);
     mesh.SetUniform("hasBumpMap", (int32_t)hasBumpMap);
+    mesh.SetUniform("hasLighting", (int32_t)0);
+    mesh.SetUniform("hasCamPos", (int32_t)0);
   }
 }
 
