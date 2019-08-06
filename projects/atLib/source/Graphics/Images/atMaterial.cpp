@@ -37,20 +37,21 @@ int64_t atStreamRead(atReadStream *pStream, atMaterial *pData, const int64_t cou
   int64_t size = 0;
   for (atMaterial &mat : atIterate(pData, count))
   {
-    size += pStream->Read(&mat.m_name);
-    size += pStream->Read(&mat.m_alpha);
-    size += pStream->Read(&mat.m_specularPower);
-    size += pStream->Read(&mat.m_cAmbient);
-    size += pStream->Read(&mat.m_cDiffuse);
-    size += pStream->Read(&mat.m_cSpecular);
-    size += pStream->Read(&mat.m_tAmbient);
-    size += pStream->Read(&mat.m_tDiffuse);
-    size += pStream->Read(&mat.m_tSpecular);
-    size += pStream->Read(&mat.m_tSpecularHigh);
-    size += pStream->Read(&mat.m_tDisplacement);
-    size += pStream->Read(&mat.m_tBump);
-    size += pStream->Read(&mat.m_tAlpha);
+    size += atStreamRead(pStream, &mat.m_name, 1);
+    size += atStreamRead(pStream, &mat.m_alpha, 1);
+    size += atStreamRead(pStream, &mat.m_specularPower, 1);
+    size += atStreamRead(pStream, &mat.m_cAmbient, 1);
+    size += atStreamRead(pStream, &mat.m_cDiffuse, 1);
+    size += atStreamRead(pStream, &mat.m_cSpecular, 1);
+    size += atStreamRead(pStream, &mat.m_tAmbient, 1);
+    size += atStreamRead(pStream, &mat.m_tDiffuse, 1);
+    size += atStreamRead(pStream, &mat.m_tSpecular, 1);
+    size += atStreamRead(pStream, &mat.m_tSpecularHigh, 1);
+    size += atStreamRead(pStream, &mat.m_tDisplacement, 1);
+    size += atStreamRead(pStream, &mat.m_tBump, 1);
+    size += atStreamRead(pStream, &mat.m_tAlpha, 1);
   }
+
   return size;
 }
 
@@ -59,19 +60,19 @@ int64_t atStreamWrite(atWriteStream *pStream, const atMaterial *pData, const int
   int64_t size = 0;
   for (const atMaterial &mat : atIterate(pData, count))
   {
-    size += pStream->Write(mat.m_name);
-    size += pStream->Write(mat.m_alpha);
-    size += pStream->Write(mat.m_specularPower);
-    size += pStream->Write(mat.m_cAmbient);
-    size += pStream->Write(mat.m_cDiffuse);
-    size += pStream->Write(mat.m_cSpecular);
-    size += pStream->Write(mat.m_tAmbient);
-    size += pStream->Write(mat.m_tDiffuse);
-    size += pStream->Write(mat.m_tSpecular);
-    size += pStream->Write(mat.m_tSpecularHigh);
-    size += pStream->Write(mat.m_tDisplacement);
-    size += pStream->Write(mat.m_tBump);
-    size += pStream->Write(mat.m_tAlpha);
+    size += atStreamWrite(pStream, &mat.m_name, 1);
+    size += atStreamWrite(pStream, &mat.m_alpha, 1);
+    size += atStreamWrite(pStream, &mat.m_specularPower, 1);
+    size += atStreamWrite(pStream, &mat.m_cAmbient, 1);
+    size += atStreamWrite(pStream, &mat.m_cDiffuse, 1);
+    size += atStreamWrite(pStream, &mat.m_cSpecular, 1);
+    size += atStreamWrite(pStream, &mat.m_tAmbient, 1);
+    size += atStreamWrite(pStream, &mat.m_tDiffuse, 1);
+    size += atStreamWrite(pStream, &mat.m_tSpecular, 1);
+    size += atStreamWrite(pStream, &mat.m_tSpecularHigh, 1);
+    size += atStreamWrite(pStream, &mat.m_tDisplacement, 1);
+    size += atStreamWrite(pStream, &mat.m_tBump, 1);
+    size += atStreamWrite(pStream, &mat.m_tAlpha, 1);
   }
   return size;
 }

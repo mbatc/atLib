@@ -28,6 +28,7 @@
 
 #include "atKeyValue.h"
 #include "atVector.h"
+#include "atHash.h"
 
 template<typename Key, class Value> class atHashMap
 {
@@ -85,21 +86,28 @@ public:
   void Clear();
   int64_t Size() const;
 
-  void Add(const Key &key, const Value &val = Value());
+  void Add(const Key &key, Value &&val);
+  void Add(const Key &key);
+  void Add(const Key &key, const Value &val);
   void Add(const KVP &kvp);
-  bool TryAdd(const Key &key, const Value &val = Value());
+  void Add(KVP &&kvp);
+  bool TryAdd(const Key &key, Value &&val);
+  bool TryAdd(const Key &key);
+  bool TryAdd(const Key &key, const Value &val);
   bool TryAdd(const KVP &kvp);
+  bool TryAdd(KVP &&kvp);
 
   bool Contains(const Key &key) const;
 
   void Remove(const Key &key);
 
+  Value& GetOrAdd(const Key &key);
   Value& Get(const Key &key);
   Value* TryGet(const Key &key);
   Value& operator[](const Key &key);
 
-  const Value& Get(const Key &key) const;
   const Value* TryGet(const Key &key) const;
+  const Value& Get(const Key &key) const;
   const Value& operator[](const Key &key) const;
 
   atVector<Key> GetKeys() const;
@@ -112,6 +120,9 @@ public:
 
   const atHashMap<Key, Value>& operator=(const atHashMap<Key, Value> &rhs);
 
+  static int64_t StreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count);
+  static int64_t StreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count);
+
 protected:
   Bucket &GetBucket(const Key &key);
   const Bucket &GetBucket(const Key &key) const;
@@ -122,6 +133,16 @@ protected:
   atVector<Bucket> m_buckets;
   int64_t m_size;
 };
+
+template<typename Key, typename Value> int64_t atStreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count)
+{
+  return atHashMap<Key, Value>::StreamWrite(pStream, pData, count);
+}
+
+template<typename Key, typename Value> int64_t atStreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count)
+{
+  return atHashMap<Key, Value>::StreamRead(pStream, pData, count);
+}
 
 #include "atHashMap.inl"
 #endif // atHashMap_h__

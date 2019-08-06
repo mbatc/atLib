@@ -2,7 +2,7 @@
 #include "atScan.h"
 #include <codecvt>
 
-template<> std::wstring atFromString<std::wstring>(const atString &str) { std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; return converter.from_bytes(str); }
+template<> std::wstring atFromString<std::wstring>(const atString &str) { std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; return converter.from_bytes(str.c_str()); }
 template<> std::string atFromString<std::string>(const atString &str) { return str.c_str(); }
 template<> double atFromString<double>(const atString &str) { return atScan::Float(str); }
 template<> float atFromString<float>(const atString &str) { return (float)atScan::Float(str); }
@@ -14,3 +14,4 @@ template<> uint8_t atFromString<uint8_t>(const atString &str) { return (uint8_t)
 template<> uint16_t atFromString<uint16_t>(const atString &str) { return (uint16_t)atScan::Int(str); }
 template<> uint32_t atFromString<uint32_t>(const atString &str) { return (uint32_t)atScan::Int(str); }
 template<> uint64_t atFromString<uint64_t>(const atString &str) { return (uint64_t)atScan::Int(str); }
+template<> bool atFromString<bool>(const atString &str) { return atScan::Bool(str); }

@@ -50,3 +50,17 @@
 *.vcxproj
 *.filters
 *.user
+/builds/bin/*.ipdb
+/builds/bin/*.iobj
+/builds/bin/*.net
+/builds/bin/*.ini
+/builds/bin/*.mtl
+/builds/bin/*.jpg
+/builds/output/_Debug/Debug/PhysicsGame/*.cache
+/builds/output/_Debug/Debug/atDesigner/*.cache
+/builds/output/_Debug/Debug/atEngine/*.cache
+/builds/output/_Debug/Debug/atTest/*.cache
+/builds/output/_Release/Release/PhysicsGame/*.cache
+/builds/output/_Release/Release/atEngine/*.cache
+/builds/output/_Release/Release/atTest/*.cache
+/projects/atLib/source/*.TMP

@@ -35,7 +35,7 @@ static bool _CreateFoldersRecursive(const atString &done, const atString &remain
   int64_t res = _mkdir(done + nextFolder);
   if (res < 0 && errno != EEXIST) 
     return false;
-  return nextSlash != -1 ? _CreateFoldersRecursive(done + nextFolder + "/", remaining.substr(nextSlash, -1)) : true;
+  return nextSlash != -1 ? _CreateFoldersRecursive(done + nextFolder + "/", remaining.substr(nextSlash + 1, -1)) : true;
 }
 
 atFileSystem::atFileSystem() {}

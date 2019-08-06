@@ -49,7 +49,7 @@ public:
   // Creates an atVector with an initial capacity of [reserve]
   atVector(const int64_t _reserve);
   atVector(const std::initializer_list<T> &list);
-  atVector(T* pData, int64_t len);
+  atVector(const T* pData, int64_t len);
   // Creates an atVector with size [size] and copies [initial] into each element
   atVector(const int64_t size, const T &initial);
   atVector(const atVector<T> &copy);
@@ -86,7 +86,7 @@ public:
   template<typename... Args> void emplace(const int64_t index, Args... args);
 
   // Memory Management
-  void resize(const int64_t size);
+  void resize(const int64_t size, const T &initial = T());
   void reserve(const int64_t capacity);
 
   void shrink_to_fit();
@@ -99,7 +99,7 @@ public:
   void assign(vector_const_iterator start, vector_const_iterator end);
 
   // assign and attempt convert
-  template<typename T1> void assign(T1* start, T1* end);
+  template<typename T1> void assign(const T1 *start, const T1 *end);
 
   void assign(const std::vector<T> &copy);
   void assign(const atVector<T> &copy);
@@ -159,13 +159,15 @@ public:
 
 protected:
 
+  bool shrink_by(const int64_t count);
+
   // Vector will only resize if [capacity] > [m_capacity]
   void grow_reserve(const int64_t capacity);
   bool try_grow(const int64_t minSize);
 
   // Return false if [m_capacity] < [size]
   // Sets [m_size] to [size] on success
-  bool try_resize(const int64_t size);
+  bool try_resize(const int64_t size, const T &initial = T());
 
   // Returns false if [size] < [m_size]
   // Sets [m_pData] to new memory block on success

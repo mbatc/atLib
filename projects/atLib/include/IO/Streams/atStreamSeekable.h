@@ -26,10 +26,26 @@
 #ifndef atStreamSeekable_h__
 #define atStreamSeekable_h__
 
+#include "atTypes.h"
+
+enum atSeekOrigin
+{
+  atSO_Start = SEEK_SET,
+  atSO_End = SEEK_END,
+  atSO_Current = SEEK_CUR
+};
+
 class atStreamSeekable
 {
 public:
+  // Seek to a position in the stream
+  virtual bool Seek(const int64_t loc, const atSeekOrigin origin = atSO_Start);
 
+  // Returns the current position in the stream
+  virtual int64_t Tell() const;
+
+  bool SeekToStart();
+  bool SeekToEnd();
 };
 
 #endif // atStreamSeekable_h__

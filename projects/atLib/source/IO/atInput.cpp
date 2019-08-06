@@ -44,7 +44,7 @@ bool s_mouseSet = false;
 static void _UpdateMouse()
 {
   if (s_mouseSet)
-    atInput::OnMouseMove(s_mousePos, 0);
+    atInput::OnMouseMove(s_mousePos, s_dt);
   if (s_mouseLocked)
     if (GetFocus())
       atInput::SetMousePos(s_lockPos);
@@ -189,6 +189,7 @@ atString atInput::ToString(const int64_t code)
   case atKC_R:                  return "R";
   case atKC_S:                  return "S";
   case atKC_T:                  return "T";
+  case atKC_U:                  return "U";
   case atKC_V:                  return "V";
   case atKC_W:                  return "W";
   case atKC_X:                  return "X";

@@ -37,9 +37,9 @@ public:
   ~atMemoryWriter();
 
   void Clear();
-  bool Seek(const int64_t offset, const atFileSeek start = atFS_Current);
+  bool Seek(const int64_t offset, const atSeekOrigin origin = atSO_Start) override;
 
-  int64_t Write(void *pData, const int64_t len);
+  int64_t Write(const void *pData, const int64_t len) override;
   template<typename T> int64_t Write(const T &data);
   template<typename T> int64_t Write(const T *pData, const int64_t count);
 
