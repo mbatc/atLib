@@ -147,10 +147,10 @@ template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const atMatrix4x4<T> &rh
 template<typename T> inline atVector4<T> atMatrix4x4<T>::Mul(const atVector4<T> &rhs) const
 {
   return atVector4<T>(
-    rhs.x * m[0] + rhs.y * m[4] + rhs.z * m[8] + rhs.w *  m[12],
-    rhs.x * m[1] + rhs.y * m[5] + rhs.z * m[9] + rhs.w *  m[13],
-    rhs.x * m[2] + rhs.y * m[6] + rhs.z * m[10] + rhs.w * m[14],
-    rhs.x * m[3] + rhs.y * m[7] + rhs.z * m[11] + rhs.w * m[15]
+    rhs.x * m[0] + rhs.y * m[1] + rhs.z * m[2] + rhs.w *  m[3],
+    rhs.x * m[4] + rhs.y * m[5] + rhs.z * m[6] + rhs.w *  m[7],
+    rhs.x * m[8] + rhs.y * m[9] + rhs.z * m[10] + rhs.w * m[11],
+    rhs.x * m[12] + rhs.y * m[13] + rhs.z * m[14] + rhs.w * m[15]
   );
 }
 

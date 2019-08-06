@@ -69,6 +69,7 @@ bool atFilename::operator!=(const atString &fn) const { return !(*this == fn); }
 bool atFilename::operator==(const char *fn) const { return *this == atString(fn); }
 bool atFilename::operator!=(const char *fn) const { return *this != atString(fn); }
 const char* atFilename::c_str() const { return m_fullpath.c_str(); }
+atFilename::atFilename() : atFilename("") {}
 atFilename::atFilename(const char *path) { assign(path); }
 atFilename::atFilename(const atString &path) { assign(path); }
 atFilename::atFilename(const atFilename &copy) { assign(copy.m_fullpath); }

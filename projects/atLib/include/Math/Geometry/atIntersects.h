@@ -26,22 +26,38 @@
 #ifndef atIntersects_h__
 #define atIntersects_h__
 
-#include "atRay.h"
-#include "atBVH.h"
-#include "atAABB.h"
-#include "atTriangle.h"
 #include "atMath.h"
 
-template<typename T> bool atIntersects(const atAABB<T> &a, const atAABB<T> &b);
-template<typename T> bool atIntersects(const atVector4<T> &a, const atVector4<T> &b);
-template<typename T> bool atIntersects(const atRay<T> &b, const atAABB<T> &a, T* pTime = nullptr);
-template<typename T> bool atIntersects(const atRay<T> &a, const atRay<T> &b, T *pTime);
-template<typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
-template<typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
+template<typename T> class atRay;
+template<typename T> class atBVH;
+template<typename T> class atOBB;
+template<typename T> class atAABB;
+template<typename T> class atRect;
+template<typename T> class atPlane;
+template<typename T> class atSphere;
+template<typename T> class atTriangle;
+template<typename T> struct atBVHNode;
+
+// Geometry intersections
+template<typename T> bool atIntersects(const atAABB<T> &ray, const atAABB<T> &ray2);
+template<typename T> bool atIntersects(const atSphere<T> &ray, const atSphere<T> &ray2, const atVector3<T> *pPoint = nullptr);
 template<typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint);
-template<typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atRay<T> &b, T2* pTime);
-template<typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVH<T> &b, T2* pTime);
-template<typename T, typename T2> bool atIntersects(const atRay<T2> &a, const atBVHNode<T> &b, T2* pTime);
+template<typename T> bool atIntersects(const atRect<T> &ray, const atRect<T> &ray2);
+template<typename T> bool atIntersects(const atAABB<T> &ray2, const atSphere<T> &ray);
+template<typename T> bool atIntersects(const atOBB<T> &ray, const atSphere<T> &ray2);
+template<typename T> bool atIntersects(const atOBB<T> &obb, const atOBB<T> &obb2);
+template<typename T> bool atIntersects(const atAABB<T> &aabb, const atOBB<T> &obb);
+
+// Ray intersections
+template<typename T> bool atIntersects(const atRay<T> &ray, const atRay<T> &ray2, T *pTime);
+template<typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &tri, T* pTime = nullptr);
+template<typename T> bool atIntersects(const atRay<T> &ray, const atSphere<T> &sphere, T* pTime = nullptr);
+template<typename T> bool atIntersects(const atRay<T> &ray, const atAABB<T> &box, T* pTime = nullptr);
+template<typename T> bool atIntersects(const atRay<T> &ray, const atOBB<T> &obb, T* pTime = nullptr);
+template<typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T* pTime = nullptr);
+template<typename T, typename T2> bool atIntersects(const atRay<T2> &ray, const atRay<T> &ray2, T2* pTime);
+template<typename T, typename T2> bool atIntersects(const atRay<T2> &ray, const atBVH<T> &bvh, T2* pTime);
+template<typename T, typename T2> bool atIntersects(const atRay<T2> &ray, const atBVHNode<T> &bvhNode, T2* pTime);
 
 #include "atIntersects.inl"
 #endif // atIntersects_h__

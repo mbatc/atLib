@@ -1,3 +1,4 @@
+#include "atVector3.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -145,46 +146,51 @@ template<typename T> inline atVector3<T> atVector3<T>::Reflect(const atVector3<T
   return dir - norm * Dot(dir, norm) * 2;
 }
 
+template<typename T> inline atVector3<T> atVector3<T>::Project(const atVector3<T>& vec, const atVector3<T>& to)
+{
+  double toMag = to.Mag();
+  return vec.Dot(to) / toMag * (to / toMag);
+}
+
+template<typename T> inline atVector3<T> atVector3<T>::Max(const atVector3<T> &a, const atVector3<T> &b)
+{
+  return atVector3<T>(atMax(a.x, b.x), atMax(a.y, b.y), atMax(a.z, b.z));
+}
+
+template<typename T> inline atVector3<T> atVector3<T>::Min(const atVector3<T> &a, const atVector3<T> &b)
+{
+  return atVector3<T>(atMin(a.x, b.x), atMin(a.y, b.y), atMin(a.z, b.z));
+}
+
+template<typename T> inline atVector3<T> atVector3<T>::Clamp(const atVector3<T> &vec, const atVector3<T> &min, const atVector3<T> &max)
+{
+  return Max(min, Min(vec, max));
+}
+
 template<typename T> inline atVector3<T>::atVector3(T _x, const atVector2<T>& yz) : atVector3(_x, yz.x, yz.y) {}
-
 template<typename T> inline atVector3<T>::atVector3(const atVector2<T>& xy, T _z) : atVector3(xy.x, xy.y, _z) {}
-
 template<typename T> inline T atVector3<T>::Mag() const { return Mag(*this); }
-
 template<typename T> inline T atVector3<T>::Length() const { return Length(*this); }
-
 template<typename T> inline T atVector3<T>::Dot(const atVector3<T> &rhs) const { return Dot(*this, rhs); }
-
 template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &rhs) const { return Angle(*this, rhs); }
-
 template<typename T> inline atVector3<T> atVector3<T>::Add(const atVector3<T> &rhs) { return *this + rhs; }
-
 template<typename T> inline atVector3<T> atVector3<T>::Sub(const atVector3<T> &rhs) { return *this - rhs; }
-
 template<typename T> inline atVector3<T> atVector3<T>::Mul(const atVector3<T> &rhs) { return *this * rhs; }
-
 template<typename T> inline atVector3<T> atVector3<T>::Div(const atVector3<T> &rhs) { return *this / rhs; }
-
 template<typename T> inline atVector3<T> atVector3<T>::Normalize() const { return Normalize(*this); }
-
 template<typename T> inline atVector3<T> atVector3<T>::Reflect(const atVector3<T> &norm) const { return Reflect(*this, norm); }
-
 template<typename T> inline atVector3<T> atVector3<T>::Cross(const atVector3<T> &rhs) const { return Cross(*this, rhs); }
-
+template<typename T> inline atVector3<T> atVector3<T>::Project(const atVector3<T>& to) const { return Project(*this, to); }
+template<typename T> inline atVector3<T> atVector3<T>::Max(const atVector3<T> &b) const { return Max(*this, b); }
+template<typename T> inline atVector3<T> atVector3<T>::Min(const atVector3<T> &b) const { return Min(*this, b); }
+template<typename T> inline atVector3<T> atVector3<T>::Clamp(const atVector3<T> &min, const atVector3<T> &max) const { return Clamp(*this, min, max); }
 template<typename T> inline T atVector3<T>::Mag(const atVector3<T> &rhs) { return atSqrt(Length(rhs)); }
-
-template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &lhs, const atVector3<T> &rhs) { return atACos(Dot(lhs, rhs) / (Mag(lhs), Mag(rhs))); }
-
+template<typename T> inline T atVector3<T>::Angle(const atVector3<T> &lhs, const atVector3<T> &rhs) { return atACos(Dot(lhs, rhs) / (Mag(lhs) * Mag(rhs))); }
 template<typename T> inline atVector3<T> atVector3<T>::Normalize(const atVector3<T> &rhs) { return rhs / Mag(rhs); }
-
 template<typename T> inline atVector3<T> atVector3<T>::zero() { return atVector3<T>(0); }
-
 template<typename T> inline atVector3<T> atVector3<T>::one() { return atVector3<T>(1); }
-
 template<typename T> inline atVector2<T> atVector3<T>::xy() const { return atVector2<T>(x, y); }
-
 template<typename T> inline atVector2<T> atVector3<T>::xz() const { return atVector2<T>(x, z); }
-
 template<typename T> inline atVector2<T> atVector3<T>::yz() const { return atVector2<T>(y, z); }
 
 template<typename T> inline T& atVector3<T>::operator[](int64_t index) { return data()[index]; }

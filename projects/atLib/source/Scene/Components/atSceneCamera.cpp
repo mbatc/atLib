@@ -40,13 +40,14 @@ atSceneCamera::atSceneCamera(const double aspect, const double FOV, const double
 bool atSimpleCamera::OnUpdate(const double dt)
 {
   atVec2D dMouse = atInput::MouseDelta();
-  atVec3D rot;
+  atVec2D rot;
   const double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
   const double rotSpeed = 0.4 * dt;
+
   if (!atInput::RightMouseDown())
     atInput::LockMouse(false);
   else
-    rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect, 0 };
+    rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect };
   atVec3D move;
   if (atInput::ButtonDown(atKC_W)) move.z -= speed;
   if (atInput::ButtonDown(atKC_S)) move.z += speed;
@@ -58,8 +59,11 @@ bool atSimpleCamera::OnUpdate(const double dt)
   if (atInput::ButtonDown(atKC_Right)) rot.y -= speed;
   if (atInput::ButtonDown(atKC_Up)) rot.x += speed;
   if (atInput::ButtonDown(atKC_Down)) rot.x -= speed;
-  m_translation += (RotationMat().Inverse() * move);
-  m_rotation += rot;
+
+  Translate(Orientation().Rotate(move));
+  m_yaw *= atQuatD(atVec3D(0, 1, 0), rot.y);
+  m_pitch *= atQuatD(atVec3D(1, 0, 0), rot.x);
+  SetRotation(m_yaw * m_pitch);
   return true;
 }
 
@@ -69,10 +73,18 @@ void atSceneCamera::SetViewport(const atVec4I viewport)
   m_aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
-atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane) : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane) 
+atSimpleCamera::atSimpleCamera(double aspect, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane)
+  : atSceneCamera(aspect, FOV, nearPlane, farPlane)
 {
   m_translation = pos;
-  m_rotation = rot; 
+  SetRotation(rot);
+}
+
+atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane)
+  : atSceneCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane)
+{
+  m_translation = pos;
+  SetRotation(rot); 
 }
 
 atMat4D atSceneCamera::ProjectionMat() const 

@@ -47,18 +47,18 @@ bool atLuaSceneNode::RemoveChildByID(const int64_t id) { return m_pNode ? m_pNod
 bool atLuaSceneNode::AddChildByID(const int64_t id) { return m_pNode ? AddChildByIDP(id, true) : false; }
 atVec3D atLuaSceneNode::GetGlobalPosition() const { return m_pNode ? m_pNode->GlobalPosition() : 0; }
 atVec3D atLuaSceneNode::GetGlobalRotation() const { return m_pNode ? m_pNode->GlobalRotation() : 0; }
-void atLuaSceneNode::SetPosition(const atVec3D &pos) { if(m_pNode) m_pNode->m_translation = pos; }
-void atLuaSceneNode::SetRotation(const atVec3D &rot) { if(m_pNode) m_pNode->m_rotation = rot; }
+void atLuaSceneNode::SetPosition(const atVec3D &pos) { if(m_pNode) m_pNode->SetTranslation(pos); }
+void atLuaSceneNode::SetRotation(const atVec3D &rot) { if(m_pNode) m_pNode->SetRotation(rot); }
 atVec3D atLuaSceneNode::GetGlobalScale() const { return m_pNode ? m_pNode->GlobalScale() : 0; }
 int64_t atLuaSceneNode::SiblingCount() const { return m_pNode ? m_pNode->SiblingCount() : 0; }
-atVec3D atLuaSceneNode::GetPosition() const { return m_pNode ? m_pNode->m_translation : atVec3D::zero(); }
+atVec3D atLuaSceneNode::GetPosition() const { return m_pNode ? m_pNode->Translation() : atVec3D::zero(); }
 atLuaSceneNode atLuaSceneNode::GetParent() const { return m_pNode->Parent(); }
 int64_t atLuaSceneNode::ComponentCount() { return m_pNode ? m_pNode->ComponentCount() : 0; }
-void atLuaSceneNode::SetScale(const atVec3D &scl) { if (m_pNode) m_pNode->m_scale = scl; }
+void atLuaSceneNode::SetScale(const atVec3D &scl) { if (m_pNode) m_pNode->SetScale(scl); }
 int64_t atLuaSceneNode::ChildCount() const { return m_pNode ? m_pNode->ChildCount() : 0; }
 void atLuaSceneNode::SetName(const char *name) { if(m_pNode) m_pNode->SetName(name); }
 int64_t atLuaSceneNode::GetParentID() const { return m_pNode ? m_pNode->ParentID() : AT_INVALID_ID; }
-atVec3D atLuaSceneNode::GetRotation() const { return m_pNode ? m_pNode->m_rotation : atVec3D::zero(); }
+atVec3D atLuaSceneNode::GetRotation() const { return m_pNode ? m_pNode->RotationEuler() : atVec3D::zero(); }
 const char* atLuaSceneNode::GetName() const { return m_pNode ? m_pNode->Name().c_str() : "Invalid Node"; }
-atVec3D atLuaSceneNode::GetScale() const { return  m_pNode ? m_pNode->m_scale : atVec3D::zero(); }
+atVec3D atLuaSceneNode::GetScale() const { return  m_pNode ? m_pNode->Scale() : atVec3D::zero(); }
 int64_t atLuaSceneNode::GetID() const { return  m_pNode ? m_pNode->ID() : -1; }
