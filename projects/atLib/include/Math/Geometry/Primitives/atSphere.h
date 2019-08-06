@@ -23,33 +23,31 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#ifndef atTriangle_h__
-#define atTriangle_h__
+#ifndef atSphere_h__
+#define atSphere_h__
 
-#include "atPlane.h"
-#include "atAABB.h"
+#include "atMath.h"
 
-template<typename T> class atTriangle
+template <typename T> class atSphere
 {
 public:
-  atTriangle();
-  atTriangle(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
+  atSphere(const T &_radius, const atVector3<T> &_position = { 0 });
 
-  atVector3<T> Center();
+  T Volume() const;
+  T Diameter() const;
+  T SurfaceArea() const;
 
-  atVector3<T> m_a;
-  atVector3<T> m_b;
-  atVector3<T> m_c;
+  void GrowToContain(const atVector3<T> &point);
+  bool Contains(const atVector3<T> &point) const;
+  bool Distance(const atVector3<T> &point) const;
+  bool Distance2(const atVector3<T> &point) const;
 
-  T Area() const;
+  atVector3<T> ClosestPoint(const atVector3<T> &point);
+  atVector3<T> ClosestPointBounds(const atVector3<T> &point);
+
+  double m_radius;
+  atVector3<T> m_position;
 };
 
-template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri);
-
-typedef atTriangle<int32_t> atTriangleI;
-typedef atTriangle<int64_t> atTriangleI64;
-typedef atTriangle<float> atTriangleF;
-typedef atTriangle<double> atTriangleD;
-
-#include "atTriangle.inl"
-#endif // atTriangle_h__
+#include "atSphere.inl"
+#endif // atSphere_h__

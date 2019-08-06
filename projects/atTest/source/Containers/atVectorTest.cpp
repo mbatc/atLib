@@ -1,5 +1,6 @@
 #include "atVectorTest.h"
 #include "atTypes.h"
+#include "atMemoryWriter.h"
 
 void atVectorTestConstructor()
 {
@@ -36,14 +37,14 @@ template <typename T> void _TestStreamRead()
 
 template <typename T> void _TestStreamWrite(int64_t size, T (*getItemFunc)(int64_t index))
 {
-  atVector<uint8_t> vec;
+  atVector<T> vec;
   for (int64_t i = 0; i < size; ++i)
     vec.push_back(getItemFunc(i));
 
   atMemoryWriter memWriter;
   memWriter.Write(vec);
   atRelAssert(memcmp(memWriter.m_data.data(), &vec.size(), sizeof(int64_t)) == 0, "Size written incorrect");
-  atRelAssert(memcmp(memWriter.m_data.data() + sizeof(int64_t), &vec.data(), sizeof(T) * vec.) == 0, "Data written incorrect");
+  atRelAssert(memcmp(memWriter.m_data.data() + sizeof(int64_t), vec.data(), sizeof(T) * vec.size()) == 0, "Data written incorrect");
 }
 
 void _atVectorTestStreamReadAllTrivial(int64_t vectorSize)

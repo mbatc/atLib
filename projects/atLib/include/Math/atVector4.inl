@@ -1,3 +1,4 @@
+#include "atVector4.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -203,6 +204,21 @@ template<typename T> inline T atVector4<T>::Dot(const atVector4<T> &lhs, const a
     lhs.w * rhs.w;
 }
 
+template<typename T> inline atVector4<T> atVector4<T>::Max(const atVector4<T> &a, const atVector4<T> &b)
+{
+  return atVector4<T>(atMax(a.x, b.x), atMax(a.y, b.y), atMax(a.z, b.z), atMax(a.w, b.w));
+}
+
+template<typename T> inline atVector4<T> atVector4<T>::Min(const atVector4<T> &a, const atVector4<T> &b)
+{
+  return atVector4<T>(atMin(a.x, b.x), atMin(a.y, b.y), atMin(a.z, b.z), atMin(a.w, b.w));
+}
+
+template<typename T> inline atVector4<T> atVector4<T>::Clamp(const atVector4<T> &vec, const atVector4<T> &min, const atVector4<T> &max)
+{
+  return Max(min, Min(vec, max));
+}
+
 template<typename T> inline atVector2<T> atVector4<T>::xy() const { return atVector2<T>(x, y); }
 template<typename T> inline atVector2<T> atVector4<T>::xz() const { return atVector2<T>(x, z); }
 template<typename T> inline atVector2<T> atVector4<T>::xw() const { return atVector2<T>(x, w); }
@@ -226,6 +242,10 @@ template<typename T> inline T atVector4<T>::Angle(const atVector4<T> &rhs) const
 template<typename T> inline atVector4<T> atVector4<T>::Normalize() const { return Normalize(*this); }
 template<typename T> inline atVector4<T> atVector4<T>::Reflect(const atVector4<T>& norm) const { return Reflect(*this, norm); }
 template<typename T> inline atVector4<T> atVector4<T>::Project(const atVector4<T>& to) const { return Project(*this, to); }
+
+template<typename T> inline atVector4<T> atVector4<T>::Max(const atVector4<T> &b) const { return Max(*this, b); }
+template<typename T> inline atVector4<T> atVector4<T>::Min(const atVector4<T> &b) const { return Min(*this, b); }
+template<typename T> inline atVector4<T> atVector4<T>::Clamp(const atVector4<T> &min, const atVector4<T> &max) const { return Clamp(*this, min, max); }
 
 template<typename T> inline T atVector4<T>::Mag(const atVector4<T>& rhs) { return atSqrt(Length(rhs)); }
 template<typename T> inline T atVector4<T>::Length(const atVector4<T>& rhs) { return Dot(rhs, rhs); }

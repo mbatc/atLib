@@ -73,23 +73,24 @@ public:
   const Vec& Pivot() const;
 
   // Apply a rotation 
-  void Rotate(const Vec &rot);
-  void Rotate(const Mat &rot);
-  void Rotate(const Quat &rot);
+  virtual void Rotate(const Vec &rot);
+  virtual void Rotate(const Mat &rot);
+  virtual void Rotate(const Quat &rot);
 
   // Apply a translation
-  void Translate(const Vec &translation);
+  virtual void Translate(const Vec &translation);
   
   // Apply a scale
-  void Scale(const Vec &scale);
+  virtual void Scale(const Vec &scale);
+
+  virtual void SetRotation(const Vec &rotation);
+  virtual void SetRotation(const Mat &rotation);
+  virtual void SetRotation(const Quat &rotation);
+  virtual void SetTranslation(const Vec &translation);
+  virtual void SetScale(const Vec &scale);
+  virtual void SetPivot(const Vec &pivot);
 
   void SetTransform(const Mat &transform);
-  void SetRotation(const Vec &rotation);
-  void SetRotation(const Mat &rotation);
-  void SetRotation(const Quat &rotation);
-  void SetTranslation(const Vec &translation);
-  void SetScale(const Vec &scale);
-  void SetPivot(const Vec &pivot);
 
 protected:
   Vec m_translation;

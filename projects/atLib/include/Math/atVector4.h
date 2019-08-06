@@ -41,7 +41,7 @@ public:
   atVector4(const atVector2<T> &xy, T _z, T _w);
   atVector4(const atVector2<T> &xy, const atVector2<T> &yw);
 
-  template<typename T2> atVector4(T2 val);
+  template<typename T2> explicit atVector4(T2 val);
   template<typename T2> atVector4(T2 _x, T2 _y, T2 _z, T2 _w);
   template<typename T2> atVector4(const atVector3<T2> &xyz, T2 _w);
   template<typename T2> atVector4(T2 _x, const atVector3<T2> &yzw);
@@ -129,6 +129,15 @@ public:
   atVector4<T> Reflect(const atVector4<T> &norm) const;
   atVector4<T> Project(const atVector4<T> &to) const;
 
+  // Returns a vector with where each component is the max of this and the input vectors components.
+  atVector4<T> Max(const atVector4<T> &b) const;
+
+  // Returns a vector with where each component is the min of this and the input vectors components.
+  atVector4<T> Min(const atVector4<T> &b) const;
+
+  // Returns a vector with where each component is clamped to the min/max of this and the input vectors components
+  atVector4<T> Clamp(const atVector4<T> &min, const atVector4<T> &max) const;
+
   static T Mag(const atVector4<T> &rhs);
   static T Length(const atVector4<T> &rhs);
   static T Dot(const atVector4<T> &lhs, const atVector4<T> &rhs);
@@ -137,6 +146,15 @@ public:
   static atVector4<T> Reflect(const atVector4<T> &dir, const atVector4<T> &norm);
   static atVector4<T> Normalize(const atVector4<T> &rhs);
   static atVector4<T> Project(const atVector4<T> &vec, const atVector4<T> &to);
+
+  // Returns a vector with where each component is the max of the input vectors components.
+  static atVector4<T> Max(const atVector4<T> &a, const atVector4<T> &b);
+
+  // Returns a vector with where each component is the min of the input vectors components.
+  static atVector4<T> Min(const atVector4<T> &a, const atVector4<T> &b);
+
+  // Returns a vector with where each component is clamped to the min/max of the input vectors components
+  static atVector4<T> Clamp(const atVector4<T> &vec, const atVector4<T> &min, const atVector4<T> &max);
 
   T* begin();
   T* end();

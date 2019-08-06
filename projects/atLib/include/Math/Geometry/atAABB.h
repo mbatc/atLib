@@ -28,6 +28,7 @@
 
 #include "atVector.h"
 #include "atVector3.h"
+#include "atIntersects.h"
 
 template<typename T> class atAABB
 {
@@ -40,12 +41,20 @@ public:
   atAABB(const atAABB &copy);
   atAABB(atAABB &&o);
 
+  atAABB<T> OverlappingBox(const atAABB<T> &box) const;
+
   void GrowToContain(const atVector<Vec3> &points);
   void GrowToContain(const Vec3 &point);
   void GrowToContain(const atAABB<T> &box);
   void ShrinkToFit(const atAABB<T> &box);
 
   bool Contains(const Vec3 &point) const;
+
+  // Returns the point within the AABB3 that is closest to 'point'
+  Vec3 ClosestPoint(const Vec3 &point) const;
+
+  // Returns the closest point that lies on the bounds of the AABB
+  Vec3 ClosestPointBounds(const Vec3 &point) const;
 
   Vec3 Center() const;
   Vec3 Dimensions() const;
@@ -64,6 +73,11 @@ public:
 };
 
 template<typename T, typename Type> atAABB<T> atBounds(const Type &type) { atAssert(false, "Bounds are not defined for this type"); return atAABB<T>(); }
+
+typedef atAABB<int32_t> atAABBI;
+typedef atAABB<int64_t> atAABBI64;
+typedef atAABB<float> atAABBF;
+typedef atAABB<double> atAABBD;
 
 #include "atAABB.inl"
 #endif // atAABB_h__

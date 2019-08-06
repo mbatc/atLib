@@ -1,4 +1,3 @@
-#include "atMath.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -31,6 +30,51 @@ template<typename T> inline T atATan2(const T &y, const T &x)
   return 2 * atATan(x <= 0 ? (rad - x) / y : y / (rad + y));
 }
 
+template<typename T> inline T atMin(const T &a) { return a; }
+
+template<typename T> inline T atMax(const T &a) { return a; }
+
+template<typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args)
+{
+  T argMin = (T)atMin(second, Args...);
+  return (argMin < first) ? argMin : first;
+}
+
+template<typename T, typename T2, typename... Args> inline T atMax(const T &first, const T2 &second, Args ...args)
+{
+  T argMin = (T)atMax(second, Args...);
+  return (argMin > first) ? argMin : first;
+}
+
+template<typename T> inline T atSquare(const T &x) { return x * x; }
+
+template<typename T> inline T atSin(const T &rads) { return sin(rads); }
+
+template<typename T> inline T atCos(const T &rads) { return cos(rads); }
+
+template<typename T> inline T atTan(const T &rads) { return tan(rads); }
+
+template<typename T> inline T atASin(const T &rads) { return asin(rads); }
+
+template<typename T> inline T atACos(const T &rads) { return acos(rads); }
+
+template<typename T> inline T atATan(const T &rads) { return atan(rads); }
+
+template<typename T> inline T atATan2(const atVector2<T> &pos)
+{
+  return atATan2(pos.x, pos.y);
+}
+
+template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time)
+{
+  return a + (b - a) * (time);
+}
+
+template<typename T, typename T2, typename T3> inline T atClamp(const T &val, const T2 &min, const T3 &max)
+{
+  return atMin(max, atMax(min, val));
+}
+
 template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c)
 {
   T val = (T)sqrt(b * b - 4 * a * c);
@@ -46,40 +90,6 @@ template<typename T> inline T atDerivative(const T &val, T(*func)(const T &), co
 template<typename T> inline T atSigmoid(const T &val) { return 1 / (1 + exp(-val)); }
 
 template<typename T> inline T atMod(const T &a, const T &b) { return a % b; }
-//
-//template<typename T> inline T atSquareSin(const T &rads, const T &aspect = 1)
-//{
-//  T r = atMod(atMod(rads, atPi * 2) + atPi * 2, atPi * 2);
-//  T angle = atATan(1 / aspect);
-//  T invAngle = atPi_2 - angle;
-//  T x = atMod(r, atPi_2);
-//
-//  switch ((int)(r / atPi_2))
-//  {
-//  case 0: return x / invAngle * (x < invAngle) + (x >= invAngle);
-//  case 1: return (T(1) - (x >= angle) * (x - angle) / invAngle);
-//  case 2: return -x / invAngle * (x < invAngle) - (x >= invAngle);
-//  case 3: return -(T(1) - (x >= angle) * (x - angle) / invAngle);
-//  default: return 1;
-//  }
-//}
-//
-//template<typename T> inline T atSquareCos(const T &rads, const T &aspect = 1)
-//{
-//  T r = atMod(atMod(rads, atPi * 2) + atPi * 2, atPi * 2);
-//  T angle = atATan(1 / aspect);
-//  T invAngle = atPi_2 - angle;
-//  T x = atMod(r, atPi_2);
-//
-//  switch ((int)(r / atPi_2))
-//  {
-//  case 0: return aspect * (T(1) - (x >= angle) * (x - angle) / invAngle);
-//  case 1: return -aspect * x / invAngle * (x < invAngle) - (x >= invAngle) * aspect;
-//  case 2: return -aspect * (T(1) - (x >= angle) * (x - angle) / invAngle);
-//  case 3: return aspect * x / invAngle * (x < invAngle) + (x >= invAngle) * aspect;
-//  default: return aspect;
-//  }
-//}
 
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T clipSpaceNearZ, const T clipSpaceFarZ)
 {
@@ -87,6 +97,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, co
   const T B = (clipSpaceFarZ - clipSpaceNearZ) * farPlane * nearPlane / (nearPlane - farPlane);
   const T yScale = 1.0 / atTan(FOV / 2);
   return
+
   atMatrix4x4<T>(
     yScale / aspect, 0,       0,     0,
     0,               yScale,  0,     0,
@@ -100,6 +111,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T 
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane)
 {
   return
+
   atMatrix4x4<T>(
     (T)2 / (right - left),                0,                                0,                                               0,
     0,                                 (T)2 / (top - bottom),               0,                                               0,
@@ -170,12 +182,16 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T
   const T d = q.Length();
   if (d < atLimitsSmallest<T>())
     return atMatrix4x4<T>::Identity();
+
   T s = T(2) / d;
   T xs = q.x * s, ys = q.y * s, zs = q.z * s;
   T wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
   T xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
   T yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
-  return atMatrix4x4<T>(
+
+  return
+    
+  atMatrix4x4<T>(
     T(1) - (yy + zz), xy - wz,          xz + wy,          0,
     xy + wz,          T(1) - (xx + zz), yz - wx,          0,
     xz - wy,          yz + wx,          T(1) - (xx + yy), 0,
@@ -239,7 +255,7 @@ template<typename T> inline void atMatrixDecompose(const atMatrix4x4<T> &mat, at
 
 template<typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix4x4<T> &mat)
 {
-  return 0;
+  return atRelAssert(false, "atMatrixExtractRotation not implemented.");
 }
 
 template<typename T> inline atVector3<T> atMatrixExtractTranslation(const atMatrix4x4<T> &mat) { return atVector3<T>(mat[3], mat[7], mat[11]); }
@@ -253,18 +269,29 @@ template<typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix4x4<
 }
 
 template<typename T> inline atVector4<T> operator*(const T &lhs, const atVector4<T>& rhs) { return rhs * lhs; }
+
 template<typename T> inline atVector3<T> operator*(const T &lhs, const atVector3<T>& rhs) { return rhs * lhs; }
+
 template<typename T> inline atVector2<T> operator*(const T &lhs, const atVector2<T>& rhs) { return rhs * lhs; }
+
 template<typename T> inline atVector4<T> operator/(const T &lhs, const atVector4<T>& rhs) { return atVector4<T>(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z, lhs / rhs.w); }
+
 template<typename T> inline atVector3<T> operator/(const T &lhs, const atVector3<T>& rhs) { return atVector3<T>(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z); }
+
 template<typename T> inline atVector2<T> operator/(const T &lhs, const atVector2<T>& rhs) { return atVector2<T>(lhs / rhs.x, lhs / rhs.y); }
+
 template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll) { return atMatrixRotationY(yaw) * atMatrixRotationX(pitch) * atMatrixRotationZ(roll); }
 
 inline float atSqrt(const float &val) { return sqrtf(val); }
+
 inline double atSqrt(const double &val) { return sqrtl(val); }
+
 inline int64_t atSqrt(const int64_t &val) { return (int64_t)sqrt((double)val); }
+
 inline int32_t atSqrt(const int32_t &val) { return (int32_t)sqrt((double)val); }
+
 inline int16_t atSqrt(const int16_t &val) { return (int16_t)sqrt((double)val); }
+
 inline int8_t atSqrt(const int8_t &val) { return (int8_t)sqrt((double)val); }
 
 #ifdef ATLIB_DIRECTX

@@ -57,6 +57,18 @@ void atPhysicsObject::AddForce(const double force, const atVec3D &direction, con
   m_forces.push_back(applied);
 }
 
+void atPhysicsObject::Translate(const atVector3<double> &translation)
+{
+  m_velocity = translation;
+  atTransformable::Translate(translation);
+}
+
+void atPhysicsObject::Rotate(const atVector3<double> &rotation)
+{
+  m_rotation = atQuatD(rotation.x, rotation.y, rotation.z);
+  atTransformable::Rotate(rotation);
+}
+
 atVec3D atPhysicsObject::Momentum() const
 {
   return m_velocity * m_mass;

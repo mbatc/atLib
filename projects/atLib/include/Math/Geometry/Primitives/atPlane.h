@@ -27,6 +27,7 @@
 #define atPlane_h__
 
 #include "atVector4.h"
+#include "atRay.h"
 
 template<typename T> class atPlane
 {
@@ -35,9 +36,16 @@ public:
   atPlane(const atVector3<T> &normal, const atVector3<T> &point);
   atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
 
+  atVector3<T> Project(const atVector3<T> &point);
+
   atVector4<T> m_coeffs;
   atVector4<T> m_point;
 };
+
+typedef atPlane<int32_t> atPlaneI;
+typedef atPlane<int64_t> atPlaneI64;
+typedef atPlane<float> atPlaneF;
+typedef atPlane<double> atPlaneD;
 
 #include "atPlane.inl"
 #endif // atPlane_h__

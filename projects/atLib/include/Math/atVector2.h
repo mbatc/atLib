@@ -26,7 +26,8 @@
 #ifndef _atVector2_h__
 #define _atVector2_h__
 
-#include "atMatrix.h"
+#include "atAssert.h"
+#include "atTypes.h"
 
 template<typename T> class atVector2
 {
@@ -37,7 +38,7 @@ public:
   atVector2(const atVector2<T> &copy);
   atVector2(atVector2<T> &&move);
 
-  template<typename T2> atVector2(T2 val);
+  template<typename T2> explicit atVector2(T2 val);
   template<typename T2> atVector2(T2 _x, T2 _y);
   template<typename T2> atVector2(atVector2<T2> copy);
 
@@ -104,8 +105,17 @@ public:
   T Angle(const atVector2<T> &rhs) const;
 
   atVector2<T> Normalize() const;
-  atVector2<T> Reflect(const atVector2<T> &norm);
+  atVector2<T> Reflect(const atVector2<T> &norm) const;
   atVector2<T> Project(const atVector2<T> &to) const;
+
+  // Returns a vector with where each component is the max of this and the input vectors components.
+  atVector2<T> Max(const atVector2<T> &b) const;
+
+  // Returns a vector with where each component is the min of this and the input vectors components.
+  atVector2<T> Min(const atVector2<T> &b) const;
+
+  // Returns a vector with where each component is clamped to the min/max of this and the input vectors components
+  atVector2<T> Clamp(const atVector2<T> &min, const atVector2<T> &max) const;
 
   static T Mag(const atVector2<T> &rhs);
   static T Length(const atVector2<T> &rhs);
@@ -115,6 +125,15 @@ public:
   static atVector2<T> Project(const atVector2<T> &vec, const atVector2<T> &to);
   static atVector2<T> Reflect(const atVector2<T> &dir, const atVector2<T> &norm);
   static atVector2<T> Normalize(const atVector2<T> &rhs);
+
+  // Returns a vector with where each component is the max of the input vectors components.
+  static atVector2<T> Max(const atVector2<T> &a, const atVector2<T> &b);
+
+  // Returns a vector with where each component is the min of the input vectors components.
+  static atVector2<T> Min(const atVector2<T> &a, const atVector2<T> &b);
+
+  // Returns a vector with where each component is clamped to the min/max of the input vectors components
+  static atVector2<T> Clamp(const atVector2<T> &vec, const atVector2<T> &min, const atVector2<T> &max);
 
   T* begin();
   T* end();

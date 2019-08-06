@@ -55,33 +55,24 @@ template<typename T> bool atRay<T>::IsOnRay(const Vec3 &point, T * pTime) const
   return res;
 }
 
-template<typename T> bool atRay<T>::GetClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime) const
+template<typename T> bool atRay<T>::ClosestPoint(const atRay<T> &ray, Vec3 *pPoint, T *pTime) const
 {
   atAssert(pPoint != nullptr, "pPoint must not be nullptr");
   T time = { 0 };
-  // Calculate required Dot Products
-  T dA_dB = m_dir.Dot(ray.m_dir);
-  const T dA_dA = m_dir.Dot(m_dir);
-  const T den = dA_dB + dA_dA;
-  if (den == 0)
-    return false;
-  const T dB_B = ray.m_dir.Dot(ray.m_pos);
-  const T dB_A = ray.m_dir.Dot(m_pos);
-  const T dA_A = m_dir.Dot(m_pos);
-  const T dA_B = m_dir.Dot(ray.m_pos);
-  const T num = dB_B * dA_dB - dB_A * dA_dB - dA_B - dA_A;
+  atVector3<T> n1 = m_dir.Cross(ray.m_dir);
+  atVector3<T> n2 = ray.m_dir.Cross(n1);
+  atVector3<T> P1toP2 = ray.m_pos - m_pos;
+  *pPoint = m_pos + P1toP2.Dot(n2) / m_dir.Dot(n2) * m_dir;
 
-  // Calculate Time
-  time = num / den;
   if (pTime)
-    *pTime = time;
-  *pPoint = At(time);
+    *pTime = ((*pPoint - m_pos) / m_dir).Mag();
+
   return true;
 }
 
-template<typename T> bool atRay<T>::GetClosestPoint(const atRay<T>& ray, Vec3 *pPoint, T *pTime, T *pDist) const
+template<typename T> bool atRay<T>::ClosestPoint(const atRay<T>& ray, Vec3 *pPoint, T *pTime, T *pDist) const
 {
-  if (!GetClosestPoint(ray, pPoint, pTime))
+  if (!ClosestPoint(ray, pPoint, pTime))
     return false;
   Vec3 p2; 
   ray.GetClosestPoint(*this, &p2);
@@ -89,7 +80,7 @@ template<typename T> bool atRay<T>::GetClosestPoint(const atRay<T>& ray, Vec3 *p
   return true;
 }
 
-template<typename T> bool atRay<T>::GetClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime, T* pDist) const
+template<typename T> bool atRay<T>::ClosestPoint(const Vec3 &point, Vec3 *pPoint, T *pTime, T* pDist) const
 {
   atAssert(pPoint != nullptr, "pPoint must not be nullptr");
   T time = 0;

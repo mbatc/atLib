@@ -26,6 +26,9 @@ public:
   //   position  - Offset from the center of mass to apply the force
   void AddForce(const double force, const atVec3D &direction, const double &time = -1.0, const atVec3D &position = atVec3D::zero());
 
+  void Translate(const atVector3<double> &translation);
+  void Rotate(const atVector3<double> &rotation);
+
   atVec3D Momentum() const;
   atQuatD AngularMomentum() const;
 
