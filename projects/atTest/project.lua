@@ -27,7 +27,8 @@ flags { "MultiProcessorCompile" }
 
   -- atLib Includes
   includedirs { "include", "include/**" } 
-  includedirs { "../atLib/include", "../atLib/include/**" } 
+  includedirs { "source", "source/**" } 
+  includedirs { "../atLib/include", "../atLib/include/**" }
 
   -- Third Party
   includedirs { "3rdParty/**" } 
