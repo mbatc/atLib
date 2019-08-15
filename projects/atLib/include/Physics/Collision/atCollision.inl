@@ -3,10 +3,11 @@ template<typename T> inline atCollisionData<T>::atCollisionData()
   : m_collided(false)
 {}
 
-template<typename T> inline atCollisionData<T>::atCollisionData(const atVec3D &point, const atVec3D &normal)
+template<typename T> inline atCollisionData<T>::atCollisionData(const atVec3D &point, const atVec3D &normal, const atVec3D &midPoint)
   : m_collided(true)
   , m_normal(normal.Normalize())
   , m_point(point)
+  , m_midPoint(midPoint)
 {}
 
 template<typename T> inline bool atCollisionData<T>::Collided() const { return m_collided; }
@@ -14,6 +15,8 @@ template<typename T> inline bool atCollisionData<T>::Collided() const { return m
 template<typename T> inline const atVec3D& atCollisionData<T>::Point() const { return m_point; }
 
 template<typename T> inline const atVec3D& atCollisionData<T>::Normal() const { return m_normal; }
+
+template<typename T> inline const atVec3D& atCollisionData<T>::MidPoint() const { return m_midPoint; }
 
 template<typename T> inline bool atCollision(const atOBB<T> &obb, const atOBB<T> &obb2, atCollisionData<T> *pOBBCol, atCollisionData<T> *pOBB2Col)
 {
@@ -27,8 +30,8 @@ template<typename T> inline bool atCollision(const atOBB<T> &obb, const atOBB<T>
     atVector3<T> obb2Point = obb2.ClosestPointBounds(testPoint);
 
     // Get the normals of the colliding planes
-    atVector3<T> p1 = (obb1Point - testPoint).Normalize();
-    atVector3<T> p2 = (obb2Point - testPoint).Normalize();
+    atVector3<T> p1 = obb.ClosestFaceNormal(testPoint);
+    atVector3<T> p2 = obb2.ClosestFaceNormal(testPoint);
 
     if (1.0 - abs(p1.Dot(p2)) > 0.001)
     {
@@ -41,9 +44,10 @@ template<typename T> inline bool atCollision(const atOBB<T> &obb, const atOBB<T>
 
       ray2.ClosestPoint(ray1, &testPoint);
     }
-
-    if (pOBBCol) *pOBBCol = atCollisionData<T>(testPoint, p2);
-    if (pOBB2Col) *pOBB2Col = atCollisionData<T>(testPoint, p1);
+    
+    atVec3D midPoint = (p2 + p1) / 2;
+    if (pOBBCol) *pOBBCol = atCollisionData<T>(testPoint, p2, testPoint);
+    if (pOBB2Col) *pOBB2Col = atCollisionData<T>(testPoint, p1, testPoint);
 
     return true;
   }
@@ -60,9 +64,17 @@ template<typename T> inline bool atCollision(const atAABB<T> &aabb, const atAABB
 {
   if (atIntersects(aabb, aabb2))
   {
-    atVector3<T> colPoint = aabb.OverlappingBox(aabb2).Center();
-    if (pAABBCol) *pAABBCol = atCollisionData<T>(colPoint, aabb2.ClosestPointBounds(colPoint) - colPoint);
-    if (pAABB2Col) *pAABB2Col = atCollisionData<T>(colPoint, aabb.ClosestPointBounds(colPoint) - colPoint);
+    atVector3<T> midPoint = aabb.OverlappingBox(aabb2).Center();
+    if (pAABBCol)
+    {
+      atVector3<T> colPoint = aabb.ClosestPointBounds(midPoint);
+      *pAABBCol = atCollisionData<T>(colPoint, aabb2.GetClosestFaceNormal(colPoint), midPoint);
+    }
+    if (pAABB2Col)
+    {
+      atVector3<T> colPoint = aabb2.ClosestPointBounds(midPoint);
+      *pAABB2Col = atCollisionData<T>(colPoint, aabb.GetClosestFaceNormal(colPoint), midPoint);
+    }
     return true;
   }
 
@@ -71,14 +83,25 @@ template<typename T> inline bool atCollision(const atAABB<T> &aabb, const atAABB
 
 template<typename T> inline bool atCollision(const atSphere<T> &sphere, const atOBB<T> &obb, atCollisionData<T> *pSphereCol, atCollisionData<T> *pOBBCol)
 {
+  atSphere<T> obbSphere = sphere;
+  obbSphere.m_position = obb.WorldToOBB(obbSphere.m_position);
+
   if (atCollision(sphere, obb.m_aabb, pSphereCol, pOBBCol))
   {
     if (pOBBCol)
     {
       atVector3<T> point = obb.OBBToWorld(pOBBCol->Point());
+      atVector3<T> midPoint = obb.OBBToWorld(pOBBCol->MidPoint());
       atVector3<T> normal = obb.m_orientation.Rotate(pOBBCol->Normal());
-      if (pOBBCol)
-        *pOBBCol = atCollisionData<T>(point, normal);
+      *pOBBCol = atCollisionData<T>(point, normal, midPoint);
+    }
+
+    if (pSphereCol)
+    {
+      atVector3<T> point = obb.OBBToWorld(pSphereCol->Point());
+      atVector3<T> midPoint = obb.OBBToWorld(pSphereCol->MidPoint());
+      atVector3<T> normal = obb.m_orientation.Rotate(pSphereCol->Normal());
+      *pSphereCol = atCollisionData<T>(point, normal, midPoint);
     }
     return true;
   }
@@ -90,18 +113,11 @@ template<typename T> inline bool atCollision(const atSphere<T> &sphere, const at
 {
   if (atIntersects(aabb, sphere))
   {
-    atVector3<T> sphereColPoint = sphere.ClosestPointBounds(aabb.Center());
-    atVector3<T> aabbColPoint = aabb.ClosestPointBounds(sphereColPoint);
-    if (pSphereCol) *pSphereCol = atCollisionData<T>(sphereColPoint, sphere.m_position - sphereColPoint);
-    if (pAABBCol)
-    {
-      // Take the most major axis and set it as the collision normal
-      atVector3<T> testVec = sphere.m_position - sphereColPoint;
-      if (abs(testVec.x) < abs(testVec.y) || abs(testVec.x) < abs(testVec.z)) testVec.x = 0;
-      if (abs(testVec.y) < abs(testVec.x) || abs(testVec.y) < abs(testVec.z)) testVec.y = 0;
-      if (abs(testVec.z) < abs(testVec.x) || abs(testVec.z) < abs(testVec.y)) testVec.z = 0;
-      *pAABBCol = atCollisionData<T>(aabbColPoint, testVec);
-    }
+    atVector3<T> aabbColPoint = aabb.ClosestPointBounds(sphere.m_position);
+    atVector3<T> sphereColPoint = sphere.ClosestPointBounds(aabbColPoint);
+    atVector3<T> midPoint = (sphereColPoint + aabbColPoint) / 2;
+    if (pSphereCol) *pSphereCol = atCollisionData<T>(sphereColPoint, aabb.GetClosestFaceNormal(sphere.m_position), midPoint);
+    if (pAABBCol) *pAABBCol = atCollisionData<T>(aabbColPoint, aabbColPoint - sphere.m_position, midPoint);
     return true;
   }
 
@@ -113,8 +129,8 @@ template<typename T> inline bool atCollision(const atSphere<T> &sphere, const at
   atVector3<T> colPoint = 0;
   if (atIntersects(sphere, sphere2, &colPoint))
   {
-    if (pSphereCol) *pSphereCol = atCollisionData<T>(colPoint, sphere2.m_position - sphere.m_position);
-    if (pSphere2Col) *pSphere2Col = atCollisionData<T>(colPoint, sphere.m_position - sphere2.m_position);
+    if (pSphereCol) *pSphereCol = atCollisionData<T>(sphere.ClosestPointBounds(colPoint), sphere.m_position - sphere2.m_position, colPoint);
+    if (pSphere2Col) *pSphere2Col = atCollisionData<T>(sphere2.ClosestPointBounds(colPoint), sphere2.m_position - sphere.m_position, colPoint);
     return true;
   }
 

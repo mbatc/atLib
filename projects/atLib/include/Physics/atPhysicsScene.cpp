@@ -14,10 +14,35 @@ const double& atPhysicsScene::TimeStep() {  return m_timestep; }
 
 void atPhysicsScene::Update()
 {
+  for (int64_t i = 0; i < m_bodies.size(); ++i)
+    for (int64_t j = i + 1; j < m_bodies.size(); ++j)
+    {
+      atRigidBody &bodyA = m_bodies[i];
+      atRigidBody &bodyB = m_bodies[j];
+      atCollisionD collisionA;
+      atCollisionD collisionB;
+      if (!bodyA.TestCollision(bodyB, &collisionA, &collisionB))
+        continue;
+      bodyA.ApplyCollision(&bodyB, collisionA, collisionB);
+      bodyB.ApplyCollision(&bodyA, collisionB, collisionA);
+    }
+
+  for (atRigidBody &body : m_bodies)
+    body.Apply(m_timestep);
 }
 
-void atPhysicsScene::AddForce()
+void atPhysicsScene::AddForce(const double &magnitude, const atVec3D &direction, const double &time)
 {
+  for (atRigidBody &body : m_bodies)
+    if (!body.IsStatic())
+      body.AddForce(magnitude, direction, time);
+}
+
+void atPhysicsScene::AddAcceleration(const double &magnitude, const atVec3D &direction, const double &time)
+{
+  for (atRigidBody &body : m_bodies)
+    if (!body.IsStatic())
+      body.AddAcceleration(magnitude, direction, time);
 }
 
 atRigidBody& atPhysicsScene::GetBody(const int64_t &id) { return m_bodies[id]; }

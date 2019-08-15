@@ -1,3 +1,4 @@
+
 template<typename T> inline atForce<T>::atForce(const T &magnitude, const atVector3<T> &direction)
   : magnitude(magnitude)
   , direction(direction)
@@ -14,8 +15,7 @@ template<typename T> inline atForce<T>::atForce(const atVector3<T> &acceleration
 
 template<typename T> inline atForce<T>::atForce(const atVector3<T> &initialVelocity, const atVector3<T> &finalVelocity, const T &time, const T &mass)
   : atForce(atAcceleration(initialVelocity, finalVelocity, time), mass)
-{
-}
+{}
 
 template<typename T> inline atForce<T>::atForce(const atVector3<T> &initialVelocity, const T &displacement, const atVector3<T> &finalVelocity, const T &mass)
   : atForce(atAcceleration(initialVelocity, finalVelocity, displacement), mass)
@@ -51,12 +51,12 @@ template<typename T> inline atVector3<T> atDisplacementA(const atVector3<T> &ini
   return initialVelocity * time + acceleration * time * time;
 }
 
-template<typename T> inline atVector3<T> atDisplacementV(const atVector3<T>& initialVelocity, const atVector3<T>& finalVelocity, const T &time)
+template<typename T> inline atVector3<T> atDisplacementV(const atVector3<T> &initialVelocity, const atVector3<T> &finalVelocity, const T &time)
 {
   return 0.5 * (initialVelocity + finalVelocity) * time;
 }
 
-template<typename T> inline atVector3<T> atDisplacementA(const atVector3<T>& initialVelocity, const atVector3<T>& finalVelocity, const atVector3<T>& acceleration)
+template<typename T> inline atVector3<T> atDisplacementA(const atVector3<T> &initialVelocity, const atVector3<T> &finalVelocity, const atVector3<T> &acceleration)
 {
   return (atSquare(finalVelocity) - atSquare(initialVelocity)) / (2 * acceleration);
 }
@@ -64,4 +64,9 @@ template<typename T> inline atVector3<T> atDisplacementA(const atVector3<T>& ini
 template<typename T> inline atVector3<T> atMomentum(const atVector3<T> &velocity, const T &mass)
 {
   return velocity * mass;
+}
+
+template<typename T> inline atVector3<T> atCollisionVelocity(const atVector3<T> &v1, const T &m1, const atVector3<T> &v2, const T &m2, const T &elasticity)
+{
+  return ((m1 - m2) * v1 / (m1 + m2) + (2 * m2) * v2 / (m1 + m2)) * elasticity + (m1 * v1 + m2 * v2) / (m1 + m2) * (T(1) - elasticity);
 }

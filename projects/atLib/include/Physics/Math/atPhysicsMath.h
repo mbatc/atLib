@@ -54,6 +54,8 @@ template<typename T> atVector3<T> atDisplacementA(const atVector3<T> &initialVel
 
 template<typename T> atVector3<T> atMomentum(const atVector3<T> &velocity, const T &mass);
 
+template<typename T> atVector3<T> atCollisionVelocity(const atVector3<T> &v1, const T &m1, const atVector3<T> &v2, const T &m2,const T &elasticity = 1);
+
 typedef atForce<double> atForceD;
 typedef atForce<float> atForceF;
 

@@ -122,14 +122,14 @@ template<typename T> inline void atGraphics::SafeRelease(T &ref)
 // DirectX Type Description Comparison Functions
 
 bool operator==(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs);
-bool operator==(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs);
-bool operator==(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs);
-bool operator==(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs);
+bool operator==(const D3D11_BLEND_DESC &lhs, const D3D11_BLEND_DESC &rhs);
+bool operator==(const D3D11_RASTERIZER_DESC &lhs, const D3D11_RASTERIZER_DESC &rhs);
+bool operator==(const D3D11_DEPTH_STENCIL_DESC &lhs, const D3D11_DEPTH_STENCIL_DESC &rhs);
 
 bool operator!=(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs);
-bool operator!=(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs);
-bool operator!=(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs);
-bool operator!=(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs);
+bool operator!=(const D3D11_BLEND_DESC &lhs, const D3D11_BLEND_DESC &rhs);
+bool operator!=(const D3D11_RASTERIZER_DESC &lhs, const D3D11_RASTERIZER_DESC &rhs);
+bool operator!=(const D3D11_DEPTH_STENCIL_DESC &lhs, const D3D11_DEPTH_STENCIL_DESC &rhs);
 
 atTrivialStreamRead(D3D11_BLEND_DESC);
 atTrivialStreamRead(D3D11_SAMPLER_DESC);

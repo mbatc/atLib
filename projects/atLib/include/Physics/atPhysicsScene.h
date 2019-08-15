@@ -12,7 +12,9 @@ public:
   const double& TimeStep();
 
   void Update();
-  void AddForce();
+
+  void AddForce(const double &magnitude, const atVec3D &direction, const double &time = -1);
+  void AddAcceleration(const double &magnitude, const atVec3D &direction, const double &time = -1);
 
   atRigidBody& GetBody(const int64_t &id);
   const atRigidBody& GetBody(const int64_t &id) const;

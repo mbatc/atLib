@@ -11,16 +11,18 @@ template <typename T> class atCollisionData
 {
 public:
   atCollisionData();
-  atCollisionData(const atVec3D &point, const atVec3D &normal);
+  atCollisionData(const atVec3D &point, const atVec3D &normal, const atVec3D &midPoint);
   
   bool Collided() const;
-  const atVec3D &Point() const;
-  const atVec3D &Normal() const;
+  const atVec3D& Point() const;
+  const atVec3D& Normal() const;
+  const atVec3D& MidPoint() const;
 
 protected:
   bool m_collided;
   atVec3D m_point;
   atVec3D m_normal;
+  atVec3D m_midPoint;
 };
 
 template<typename T> bool atCollision(const atOBB<T> &obb, const atOBB<T> &obb2, atCollisionData<T> *pOBBCol, atCollisionData<T> *pOBB2Col);

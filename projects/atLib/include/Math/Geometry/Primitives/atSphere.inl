@@ -70,5 +70,5 @@ template<typename T> inline atVector3<T> atSphere<T>::ClosestPoint(const atVecto
 
 template<typename T> inline atVector3<T> atSphere<T>::ClosestPointBounds(const atVector3<T> &point) const
 {
-  return (point - m_position).Normalize() * m_radius;
+  return (point - m_position).Normalize() * m_radius + m_position;
 }

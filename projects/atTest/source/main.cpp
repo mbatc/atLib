@@ -552,24 +552,28 @@ void ExamplePhysics()
   
   // Setup models
   {
-    atGraphicsModel cube("assets/test/models/cube1x1.obj");
-    atGraphicsModel sphere("assets/test/models/sphereR.5.obj");
+    atGraphicsModel cubeModel("assets/test/models/cube1x1_textured.obj");
+    atGraphicsModel sphereModel("assets/test/models/sphereR.5_textured.obj");
 
     atLight l;
-    l.m_diffuseColor = atVec4D(0.7, 0.4, 0.4, 1.0);
-    l.m_ambientColor = atVec4D(0.3, 0.3, 0.3, 1);
-    l.m_specularColor = atVec4D(0.7, 0.4, 0.4, 1.0);
-    l.m_direction = atVec3D(1, 1, 1).Normalize();
-    sphere.SetLighting(l);
-    cube.SetLighting(l);
+    l.m_diffuseColor = atVec4D(1, 1, 1, 1.0);
+    l.m_ambientColor = atVec4D(0.4, 0.4, 0.4, 1);
+    l.m_specularColor = atVec4D(1, 1, 1, 1);
+    l.m_direction = atVec3D(0, 1, 0).Normalize();
+
+    sphereModel.SetLighting(l);
+    cubeModel.SetLighting(l);
 
     // Create camera
-    atSimpleCamera camera(&window, { 0, 1, 4 });
+    atSimpleCamera camera(&window, { 0, 4, 4 });
 
     atPhysicsScene scene;
     scene.AddBody(atRigidBody(atVec3D(1, 1, 1)), { 0, 5, -2 });
     scene.AddBody(atRigidBody(1.0), { 0, 5, 2 });
-    scene.AddBody(atRigidBody(atVec3D(10, 1, 10)), { 0, 0, 0 });
+    scene.AddBody(atRigidBody(atVec3D(50, 1, 50), 1, true), { 0, 0, 0 }, { 0, 0, 0 });
+
+    int64_t camSphere = scene.AddBody(atRigidBody(1.0), { 0, 1, 4 });
+    scene.GetBody(camSphere).elasticity = 1;
 
     // https://cse442-17f.github.io/Gilbert-Johnson-Keerthi-Distance-Algorithm/ // LOOK AT THIS
 
@@ -578,21 +582,49 @@ void ExamplePhysics()
     while (atInput::Update())
     {
       window.Clear(0xFF440000);
-
+      rs.SetViewport({ 0,0, window.Size() });
+      camera.SetViewport(&window);
       camera.OnUpdate(0.016);
+
+      // Gravity
+      scene.AddAcceleration(9.8, {0, -1, 0});
+
+      // Camera acceleration
+      atVec3D move = 0;
+      if (atInput::ButtonDown(atKC_W)) move.z -= 2;
+      if (atInput::ButtonDown(atKC_S)) move.z += 2;
+      if (atInput::ButtonDown(atKC_D)) move.x += 2;
+      if (atInput::ButtonDown(atKC_A)) move.x -= 2;
+      if (atInput::ButtonDown(atKC_E)) move.y += 2;
+      if (atInput::ButtonDown(atKC_X)) move.y -= 2;
+      move = camera.Orientation().Rotate(move);
+      move *= (1 + atInput::ButtonDown(atKC_Shift));
+      if (atInput::ButtonDown(atKC_Space)) move.y += 9.8 * 2;
+
+      // Apply camera movement
+      scene.GetBody(camSphere).AddAcceleration(move);
+
+      // Update physics scene
       scene.Update();
 
-      sphere.SetCamera(camera.Translation());
-      cube.SetCamera(camera.Translation());
+      // Set camera position
+      camera.SetTranslation(scene.GetBody(camSphere).Translation());
 
+      // Update models camera position
+      sphereModel.SetCamera(camera.Translation());
+      cubeModel.SetCamera(camera.Translation());
+
+      // Draw scene
       atMat4D vp = camera.ProjectionMat() * camera.ViewMat();
-
       for (const atRigidBody &body : scene.Bodies())
       {
+        if (&body == &scene.GetBody(camSphere))
+          continue;
+
         switch (body.Type())
         {
-        case atRBT_Sphere: sphere.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScaleUniform(body.AsSphere().m_radius)); break;
-        case atRBT_Cube: cube.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScale(body.AsOBB().Dimensions())); break;
+        case atRBT_Sphere: sphereModel.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScaleUniform(body.AsSphere().m_radius * 2)); break;
+        case atRBT_Cube: cubeModel.Draw(vp, atMatrixTranslation(body.Translation()) * atMatrixYawPitchRoll(body.RotationEuler()) * atMatrixScale(body.AsOBB().Dimensions())); break;
         }
       }
 
@@ -604,6 +636,7 @@ void ExamplePhysics()
         textState.SetBlendEnabled(true);
         at2DRenderer::Draw(window);
       }
+
       window.Swap();
     }
   }

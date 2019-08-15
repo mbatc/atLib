@@ -253,6 +253,7 @@ bool atRenderableCore::Rebuild()
 
 void atRenderableCore::Clear()
 {
+  atShaderPool::ReleaseShader(m_shaderID);
   atGraphics::SafeRelease(m_pIndexBuffer);
   atGraphics::SafeRelease(m_pVertBuffer);
   m_layoutID = AT_INVALID_ID;

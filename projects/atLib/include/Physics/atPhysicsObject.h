@@ -7,6 +7,20 @@
 
 class atPhysicsObject : public atTransformable<double>
 {
+  struct AppliedForce
+  {
+    atForceD force;   // The force to be applied
+    atVec3D toCoM;    // Vector from applied position to the center of mass
+    double time;      // Time for the force to be applied
+  };
+
+  struct NormalForce
+  {
+    atVec3D toCoM;
+    atForceD force;
+    atPhysicsObject *pSrcObj;
+  };
+
 public:
   atPhysicsObject(const double &mass = 1, const double &rotationalInertia = 1, const atVec3D &pivot = 0);
 
@@ -25,6 +39,9 @@ public:
   //
   //   position  - Offset from the center of mass to apply the force
   void AddForce(const double force, const atVec3D &direction, const double &time = -1.0, const atVec3D &position = atVec3D::zero());
+  void AddNormalForce(const double &force, const atVec3D &direction, const atVec3D &position = atVec3D::zero(), atPhysicsObject *pSrcObject = nullptr);
+  void AddAcceleration(const atVec3D &acceleration, const double &time = -1.0);
+  void AddAcceleration(const double &magnitude, const atVec3D &direction, const double &time = -1.0);
 
   void Translate(const atVector3<double> &translation);
   void Rotate(const atVector3<double> &rotation);
@@ -32,21 +49,30 @@ public:
   atVec3D Momentum() const;
   atQuatD AngularMomentum() const;
 
-  atVec3D m_velocity;
-  atQuatD m_angularVelocity;
+  atVec3D velocity;
+  atQuatD angularVelocity;
 
-  double m_rotationalInertia; // Rotational equivalent of mass
-  double m_mass;              // Mass of the object
+  double elasticity;        // Amount of force that is not absorbed during a collision
+  double frictionalCoeff;   // Coefficient of friction. How much colliding objects resist motion.
+  double rotationalInertia; // Rotational equivalent of mass
+  double mass;              // Mass of the object
 
 protected:
-  struct AppliedForce
-  {
-    atForceD force;   // The force to be applied
-    atVec3D toCoM;    // Vector from applied position to the center of mass
-    double time;      // Time for the force to be applied
-  };
-  
-  atVector<AppliedForce> m_forces;
+  // Try find a force that can resist this force
+  void AddResistiveForce(const AppliedForce &force);
+  void AddCollisionForce(const NormalForce &force, const atVec3D &velDir, const bool &isMoving);
+  void ApplyForce(AppliedForce *pForce, const double &time, const bool &tryResist);
+
+  atVec3D m_acceleration;
+  atQuatD m_angularAcceleration;
+
+  atVec3D m_prevVelocity;
+  atQuatD m_prevAngularVelocity;
+    
+  atVector<AppliedForce> m_appliedForce;
+  atVector<AppliedForce> m_resistingForce;
+
+  atVector<NormalForce> m_normalForce;
 };
 
 #endif // atPhysicsObject_h__

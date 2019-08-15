@@ -1,25 +1,32 @@
 #include "atRigidBody.h"
 
-atRigidBody::atRigidBody(const atMesh &bounds, const double &mass) { SetMesh(bounds); }
+atRigidBody::atRigidBody(const atMesh &bounds, const double &mass, const bool &isStatic)
+  : m_isStatic(isStatic)
+{
+  SetMesh(bounds);
+}
 
-atRigidBody::atRigidBody(const atVec3D &dims, const double &mass)
+atRigidBody::atRigidBody(const atVec3D &dims, const double &mass, const bool &isStatic)
   : m_size(dims)
   , m_type(atRBT_Cube)
+  , m_isStatic(isStatic)
   , atPhysicsObject(mass)
 {}
 
-atRigidBody::atRigidBody(const double &radius, const double &mass)
+atRigidBody::atRigidBody(const double &radius, const double &mass, const bool &isStatic)
   : m_radius(radius)
   , m_type(atRBT_Sphere)
+  , m_isStatic(isStatic)
   , atPhysicsObject(mass)
 {}
 
-atRigidBody::atRigidBody(const double &height, const double &radius, const bool &isCapsule, const double &mass)
-  : m_height(height)
-  , m_radius(radius)
-  , m_type(isCapsule ? atRBT_Capsule : atRBT_Cylinder)
-  , atPhysicsObject(mass)
-{}
+// atRigidBody::atRigidBody(const double &height, const double &radius, const bool &isCapsule, const double &mass, const bool &isStatic)
+//   : m_height(height)
+//   , m_radius(radius)
+//   , m_isStatic(isStatic)
+//   , m_type(isCapsule ? atRBT_Capsule : atRBT_Cylinder)
+//   , atPhysicsObject(mass)
+// {}
 
 atRigidBodyType atRigidBody::Type() const { return m_type; }
 
@@ -60,24 +67,38 @@ void atRigidBody::SetMesh(const atMesh &mesh)
   m_type = atRBT_Mesh;
 }
 
-void atRigidBody::ApplyCollision(const atRigidBody &body, const atCollisionD &colData)
+void atRigidBody::ApplyCollision(atRigidBody *pBody, const atCollisionD &colData, const atCollisionD &withData)
 {
-
+  OnStartCollision(pBody, colData);
 }
 
-bool atRigidBody::TestCollision(const atRigidBody &body, atCollisionD *pThis, atCollisionD *pWith) const
+bool atRigidBody::TestCollision(const atRigidBody &body, atCollisionD *pThis, atCollisionD *pWith)
 {
+  bool result = false;
   switch (body.m_type)
   {
-  case atRBT_Cube: return CollidePrimitive(*this, body.AsOBB(), pThis, pWith);
-  case atRBT_Sphere: return CollidePrimitive(*this, body.AsSphere(), pThis, pWith);
+  case atRBT_Cube: result = CollidePrimitive(*this, body.AsOBB(), pThis, pWith); break;
+  case atRBT_Sphere: result = CollidePrimitive(*this, body.AsSphere(), pThis, pWith); break;
   }
-  return true;
+
+  // if (!result)
+  //   OnEndCollision((atRigidBody*)&body);
+  return result;
 }
+
+bool atRigidBody::IsStatic() const { return m_isStatic; }
 
 atOBB<double> atRigidBody::AsOBB() const { return atOBB<double>(Translation() - m_size / 2, Translation() + m_size / 2, Orientation()); }
 
-atSphere<double> atRigidBody::AsSphere() const { return atSphere<double>(m_radius); }
+atSphere<double> atRigidBody::AsSphere() const { return atSphere<double>(m_radius, Translation()); }
+
+void atRigidBody::OnStartCollision(atRigidBody *pBody, const atCollisionD &data)
+{
+  AddForce(pBody->velocity.Mag(), -data.Normal());
+  AddNormalForce(1, data.Normal(), { 0, 0, 0 }, pBody->IsStatic() ? nullptr : pBody);
+}
+
+// void atRigidBody::OnEndCollision(atRigidBody *pBody) { m_colliding.Remove(pBody); }
 
 void atRigidBody::Clear()
 {

@@ -3,8 +3,8 @@ template<typename T> inline bool atRigidBody::CollidePrimitive(const atRigidBody
 {
   switch (body.m_type)
   {
-  case atRBT_Cube: return atCollision(body.AsOBB(), primitive, pWith, pThis);
-  case atRBT_Sphere: return atCollision(body.AsSphere(), primitive, pWith, pThis);
+  case atRBT_Cube: return atCollision(body.AsOBB(), primitive, pThis, pWith);
+  case atRBT_Sphere: return atCollision(body.AsSphere(), primitive, pThis, pWith);
   }
   return false;
 }
