@@ -98,7 +98,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   at2DRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
   // Set the model being loaded
-  const atString path = "assets/test/models/bumpmap.obj";
+  const atString path = "assets/test/models/cube.obj";
 
   // Set the windows clear colour
   const atVec4F clearColor = atVec4F(.3f, .3f, .3f, 1.f);
@@ -554,7 +554,7 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  // ExampleRenderMesh();
+  ExampleRenderMesh();
   // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

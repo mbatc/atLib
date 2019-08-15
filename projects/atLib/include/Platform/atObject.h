@@ -78,8 +78,8 @@ public:
   template<typename T>
   void Assign(const T &value);
 
-  // template<typename T>
-  // void Assign(T &&value);
+  template<typename T>
+  void Assign(T &&value);
 
   template<typename T>
   void SetMember(const atString &name, const T &value);
@@ -91,14 +91,25 @@ public:
   const T& GetMember(const atString &name) const;
 
 protected:
+  template<typename T> void SetType();
   std::type_index m_typeInfo;
   atVector<uint8_t> m_data;
   atHashMap<atString, atObject> m_members;
 
-  void (*m_destructFunc) (void*);
+  void Destroy();
+
+  void(*m_destructFunc) (void*);
+  void(*m_moveFunc) (atVector<uint8_t>*, void*);
+  void(*m_copyFunc) (atVector<uint8_t>*, const void*);
+  void(*m_moveConstructFunc) (atVector<uint8_t>*, void*);
+  void(*m_copyConstructFunc) (atVector<uint8_t>*, const void*);
 };
 
-template<typename T> void atObjectDestructFunc(void *pData);
+template<typename T> void __atObjectDestructFunc(void *pData);
+template<typename T> void __atObjectMoveFunc(atVector<uint8_t> *pDst, void *pSrc);
+template<typename T> void __atObjectCopyFunc(atVector<uint8_t> *pDst, const void *pSrc);
+template<typename T> void __atObjectMoveConstructFunc(atVector<uint8_t> *pDst, void *pSrc);
+template<typename T> void __atObjectCopyConstructFunc(atVector<uint8_t> *pDst, const void *pSrc);
 
 #include "atObject.inl"
 #endif // atObject_h__

@@ -1,3 +1,4 @@
+#include "atObject.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -71,13 +72,41 @@ inline atObject::atObject(const T &val)
 template<typename T>
 inline void atObject::Assign(const T &value)
 {
-  if (m_destructFunc)
-    m_destructFunc(m_data.data());
-  m_typeInfo = typeid(T);
-  m_data.resize(sizeof(T));
-  T* pMem = (T*)m_data.data();
-  new(pMem) T(value);
-  m_destructFunc = atObjectDestructFunc<T>;
+  if (m_typeInfo != value.m_typeInfo)
+  {
+    Destroy();
+    SetType<T>();
+    // Copy construct into m_data
+    m_copyConstructFunc(&m_data, &value);
+  }
+  else
+  {
+    // Copy assign into m_data
+    m_copyFunc(&m_data, &value);
+  }
+
+  // Copy members
+  m_members = value.m_members;
+}
+
+template<typename T>
+inline void atObject::Assign(T &&value)
+{
+  if (m_typeInfo != value.m_typeInfo)
+  {
+    Destroy();
+    SetType<T>();
+    // Move construct into m_data
+    m_moveConstructFunc(&m_data, &value);
+  }
+  else
+  {
+    // Move assign into m_data
+    m_moveFunc(&m_data, &value);
+  }
+
+  // Copy members
+  m_members = value.m_members;
 }
 
 template<typename T>
@@ -86,9 +115,47 @@ inline void atObject::SetMember(const atString &name, const T &value)
   SetMember(name, atObject(value));
 }
 
-template<typename T>
-inline void atObjectDestructFunc(void *pData)
+template<typename T> void atObject::SetType()
 {
-  T* pObj = (T*)pData;
-  pObj->~T();
+  m_typeInfo = typeid(T);
+  m_data.resize(sizeof(T));
+  m_moveFunc = &__atObjectMoveFunc<T>;
+  m_copyFunc = &__atObjectCopyFunc<T>;
+  m_destructFunc = &__atObjectDestructFunc<T>;
+  m_copyConstructFunc = &__atObjectCopyConstructFunc<T>;
+  m_moveConstructFunc = &__atObjectMoveConstructFunc<T>;
+}
+
+template<typename T>
+inline void __atObjectDestructFunc(void *pData)
+{
+  atDestruct((T*)pData);
+}
+
+template<typename T>
+inline void __atObjectMoveFunc(atVector<uint8_t> *pDst, void *pSrc)
+{
+  pDst->resize(sizeof(T));
+  *(T*)pDst->data() = std::move(*(T*)pSrc);
+}
+
+template<typename T>
+inline void __atObjectCopyFunc(atVector<uint8_t> *pDst, const void *pSrc)
+{
+  pDst->resize(sizeof(T));
+  *(T*)pDst->data() = *(T*)pSrc;
+}
+
+template<typename T>
+inline void __atObjectMoveConstructFunc(atVector<uint8_t> *pDst, void *pSrc)
+{
+  pDst->resize(sizeof(T));
+  atConstruct(pDst->data(), std::move(*(T*)pSrc));
+}
+
+template<typename T>
+inline void __atObjectCopyConstructFunc(atVector<uint8_t> *pDst, const void *pSrc)
+{
+  pDst->resize(sizeof(T));
+  atConstruct(pDst->data(), *(T*)pSrc);
 }

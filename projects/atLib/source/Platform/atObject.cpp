@@ -33,9 +33,7 @@ atObject::atObject()
 atObject::atObject(const atObject &copy)
   : atObject()
 {
-  m_typeInfo = copy.m_typeInfo;
-  m_members = copy.m_members;
-  m_data = copy.m_data;
+  Assign(copy);
 }
 
 atObject::atObject(atObject &&move)
@@ -44,26 +42,59 @@ atObject::atObject(atObject &&move)
   Assign(move);
 }
 
-atObject::~atObject()
-{
-  if (m_destructFunc)
-    m_destructFunc(m_data.data());
-}
+atObject::~atObject() { Destroy(); }
 
 void atObject::Assign(const atObject &value)
 {
-  m_typeInfo = value.m_typeInfo;
+  if (m_typeInfo != value.m_typeInfo)
+  {
+    Destroy();
+    m_typeInfo = value.m_typeInfo;
+
+    // Get the helper functions
+    m_destructFunc = value.m_destructFunc;
+    m_copyFunc = value.m_copyFunc;
+    m_moveFunc = value.m_moveFunc;
+    m_copyConstructFunc = value.m_copyConstructFunc;
+    m_moveConstructFunc = value.m_moveConstructFunc;
+
+    // Copy construct into m_data
+    m_copyConstructFunc(&m_data, value.m_data.data());
+  }
+  else
+  { // Copy assign into m_data
+    m_copyFunc(&m_data, value.m_data.data());
+  }
+  // Copy members
   m_members = value.m_members;
-  m_data = value.m_data;
 }
 
 void atObject::Assign(atObject &&value)
 {
-  m_typeInfo = std::move(value.m_typeInfo);
+  if (m_typeInfo != value.m_typeInfo)
+  {
+    // Destroy and get new type info
+    Destroy();
+    m_typeInfo = std::move(value.m_typeInfo);
+
+    // Get the helper functions
+    m_destructFunc = value.m_destructFunc;
+    m_copyFunc = value.m_copyFunc;
+    m_moveFunc = value.m_moveFunc;
+    m_copyConstructFunc = value.m_copyConstructFunc;
+    m_moveConstructFunc = value.m_moveConstructFunc;
+
+    // Move construct into m_data
+    m_moveConstructFunc(&m_data, value.m_data.data());
+  }
+  else
+  {
+    // Move assign into m_data
+    m_moveFunc(&m_data, value.m_data.data());
+  }
+
+  // Move members
   m_members = std::move(value.m_members);
-  m_data = std::move(value.m_data);
-  m_destructFunc = value.m_destructFunc;
-  value.m_destructFunc = nullptr;
 }
 
 void atObject::SetMember(const atString &name, const atObject &value)
@@ -115,4 +146,16 @@ atObject& atObject::operator[](const atString &name)
 const atObject& atObject::operator[](const atString &name) const
 {
   return GetMember(name);
+}
+
+void atObject::Destroy()
+{
+  if (m_destructFunc)
+    m_destructFunc(m_data.data());
+  m_data.clear();
+  m_copyFunc = 0;
+  m_moveFunc = 0;
+  m_destructFunc = 0;
+  m_moveConstructFunc = 0;
+  m_copyConstructFunc = 0;
 }
