@@ -57,7 +57,8 @@ inline atHashSet<T>::atHashSet(atHashSet<T> &&o)
 template<typename T>
 inline void atHashSet<T>::Clear()
 {
-  m_buckets.clear();
+  m_buckets.resize(1);
+  m_buckets[0].clear();
   m_size = 0;
 }
 
