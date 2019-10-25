@@ -73,22 +73,7 @@ atShader::~atShader()
   atGraphics::SafeRelease(m_pComp);
   atGraphics::SafeRelease(m_pDomain);
   atGraphics::SafeRelease(m_pGeom);
-  for (ResourceDesc &res : m_resource)
-  {
-    ID3D11SamplerState* pSampler = nullptr;
-    ID3D11ShaderResourceView *pSRV = nullptr;
-    ID3D11Buffer* pBuffer = nullptr;
-    if (res.type == atSRT_Sampler)
-      pSampler = (ID3D11SamplerState*)res.pDXResource;
-    else if (res.type == atSRT_Texture)
-      pSRV = (ID3D11ShaderResourceView*)res.pDXResource;
-    else if (res.type == atSRT_Texture)
-      pBuffer = (ID3D11Buffer*)res.pDXResource;
-
-    atGraphics::SafeRelease(pSRV);
-    atGraphics::SafeRelease(pSampler);
-    atGraphics::SafeRelease(pBuffer);
-  }
+  m_resource.clear();
 
   for (auto &kvp : m_layoutLookup)
     kvp.m_val->Release();

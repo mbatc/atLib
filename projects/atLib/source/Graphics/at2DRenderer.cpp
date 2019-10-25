@@ -142,10 +142,12 @@ void at2DRenderer::Draw(const atVec2I &dimensions)
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
   atAssert(DrawContext::col.size() == 0, "Mismatched Push/Pop Colours");
 
-  atRenderable ro;
+  static atRenderable ro;
   atRenderState rs;
+  
   for (atFont &f : DrawContext::fonts)
     f.GetTextureID();
+
   ro.SetShader("assets/shaders/text");
   ro.SetSampler("samplerType", AT_INVALID_ID);
   ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
