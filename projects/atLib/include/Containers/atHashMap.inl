@@ -1,4 +1,3 @@
-#include "atHashMap.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -194,7 +193,7 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Rehash(const int
 { 
   atHashMap newMap(bucketCount);
   for (auto &kvp : *this)
-    newMap.TryAdd(kvp);
+    newMap.TryAdd(std::move(kvp));
   *this = std::move(newMap);
   return true;
 }
