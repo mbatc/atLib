@@ -69,7 +69,7 @@ template<typename T> bool atIntersects(const atAABB<T> &boxA, const atAABB<T> &b
   return true;
 }
 
-template<typename T> inline bool atIntersects(const atSphere<T> &sphere, const atSphere<T> &sphere2, const atVector3<T> *pPoint)
+template<typename T> inline bool atIntersects(const atSphere<T> &sphere, const atSphere<T> &sphere2, atVector3<T> *pPoint)
 {
   atVector3<T> aToB = sphere2.m_position - sphere.m_position;
   T distToB = aToB.Length();

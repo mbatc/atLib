@@ -150,6 +150,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotationZ(const T rads);
 template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atVector3<T> &axis, T rads);
 template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T> &quat);
 template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const T yaw, const T pitch, const T roll);
+template<typename T> inline atMatrix4x4<T> atMatrixYawPitchRoll(const atVector3<T> &ypr);
 template<typename T> inline atMatrix4x4<T> atMatrixTranslation(const atVector3<T> &translation);
 template<typename T> inline atMatrix4x4<T> atMatrixScale(const atVector3<T> &scale);
 template<typename T> inline atMatrix4x4<T> atMatrixScale(const atVector4<T> &scale);

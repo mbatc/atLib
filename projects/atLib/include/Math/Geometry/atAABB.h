@@ -56,8 +56,12 @@ public:
   // Returns the closest point that lies on the bounds of the AABB
   Vec3 ClosestPointBounds(const Vec3 &point) const;
 
+  // Returns the normal of the closest fact
+  Vec3 GetClosestFaceNormal(const Vec3 &point) const;
+
   Vec3 Center() const;
   Vec3 Dimensions() const;
+
 
   T LongestEdgeLength() const;
 

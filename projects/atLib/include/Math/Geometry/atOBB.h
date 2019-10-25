@@ -45,6 +45,7 @@ public:
   Vec3 Dimensions() const;
   Vec3 ClosestPoint(const Vec3 &point) const;
   Vec3 ClosestPointBounds(const Vec3 &point) const;
+  Vec3 ClosestFaceNormal(const Vec3 &point) const;
   bool Contains(const Vec3 &point) const;
 
   // Rotate a point so that it is aligned with the OBB's local axis

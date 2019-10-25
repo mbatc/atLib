@@ -118,6 +118,15 @@ template<typename T> inline typename atAABB<T>::Vec3 atAABB<T>::ClosestPointBoun
   return closestPoint;
 }
 
+template<typename T> inline typename atAABB<T>::Vec3 atAABB<T>::GetClosestFaceNormal(const Vec3 &point) const
+{
+  atVector3<T> testVec = (point - Center()) / Dimensions();
+  if (abs(testVec.x) < abs(testVec.y) || abs(testVec.x) < abs(testVec.z)) testVec.x = 0;
+  if (abs(testVec.y) < abs(testVec.x) || abs(testVec.y) < abs(testVec.z)) testVec.y = 0;
+  if (abs(testVec.z) < abs(testVec.x) || abs(testVec.z) < abs(testVec.y)) testVec.z = 0;
+  return testVec.Normalize();
+}
+
 template<typename T> inline typename atAABB<T>::Vec3 atAABB<T>::ClosestPoint(const Vec3 &point) const { return point.Clamp(m_min, m_max); }
 template<typename T> inline atAABB<T> atAABB<T>::OverlappingBox(const atAABB<T> &box) const { return atAABB<T>(m_min.Max(box.m_min), m_max.Min(box.m_max)); }
 template<typename T> bool atAABB<T>::operator==(const atAABB<T> &rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }

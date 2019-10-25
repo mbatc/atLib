@@ -69,6 +69,11 @@ template<typename T> inline typename atOBB<T>::Vec3 atOBB<T>::ClosestPointBounds
   return OBBToWorld(m_aabb.ClosestPointBounds(WorldToOBB(point)));
 }
 
+template<typename T> inline typename atOBB<T>::Vec3 atOBB<T>::ClosestFaceNormal(const Vec3 &point) const
+{
+  return m_orientation.Rotate(m_aabb.GetClosestFaceNormal(WorldToOBB(point)));
+}
+
 template<typename T> inline bool atOBB<T>::Contains(const Vec3 &point) const
 {
   return m_aabb.Contains(WorldToOBB(point));
