@@ -65,8 +65,8 @@ static atMTLKeyword _ScanKeyword(char **ppSrc, int64_t srcLen, int64_t *pLen = n
 
 static atString _ReadLine(char **ppSrc, int64_t len)
 {
-  int64_t start = atString::_find_first_not(*ppSrc, len, atString::Whitespace());
-  int64_t end = atString::_find_first_of(*ppSrc, len, "\r\n", start);
+  int64_t start = atString::_find_first_not(*ppSrc, atString::Whitespace());
+  int64_t end = atString::_find_first_of(*ppSrc, "\r\n", start);
   *ppSrc += end;
   return atString(*ppSrc - end + start, *ppSrc);
 }
@@ -106,7 +106,7 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
   atMaterial *pMat = nullptr;
   while ((uint8_t*)pSrc < data.end())
   {
-    if (!pMat) pSrc += atString::_find(pSrc, data.end() - (uint8_t*)pSrc, "newmtl");
+    if (!pMat) pSrc += atString::_find(pSrc, "newmtl");
     switch (_ScanKeyword(&pSrc, data.end() - (uint8_t*)pSrc))
     {
     case atMTLNew: pMat = _GetMaterial(pMesh, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc), loadAll); break;

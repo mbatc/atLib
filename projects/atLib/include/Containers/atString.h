@@ -66,8 +66,8 @@ public:
   // explicit conversion to types that define atFromString()
   template<typename T> explicit operator T() const;
 
-  static atString _to_lower(const char *str, const int64_t len);
-  static atString _to_upper(const char *str, const int64_t len);
+  static atString _to_lower(const char *str);
+  static atString _to_upper(const char *str);
 
   atString to_lower() const;
   atString to_upper() const;
@@ -80,8 +80,8 @@ public:
   //******************
   // Replace functions
 
-  static atString _replace(const char *str, const int64_t len, const char _char, const char with, const int64_t start = 0, int64_t count = -1);
-  static atString _replace(const char *str, const int64_t len, const char* find, const char* with, const int64_t start = 0, int64_t count = -1);
+  static atString _replace(const char *str, const char _char, const char with, const int64_t start = 0, int64_t count = -1);
+  static atString _replace(const char *str, const char* find, const char* with, const int64_t start = 0, int64_t count = -1);
   atString replace(const char _char, const char with, const int64_t start = 0, int64_t count = -1) const;
   atString replace(const char* str, const char* with, const int64_t start = 0, int64_t count = -1) const;
   void append(const char* str);
@@ -94,23 +94,25 @@ public:
   // Returns the index of the char/substring
   // Returns -1 if not found 
 
-  static int64_t _find(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_end(const char *str, const int64_t len, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_reverse(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_reverse(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_not(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_not(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first_of(const char *str, const int64_t len, const char *set, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_of(const char *str, const int64_t len, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_last_of(const char *str, const int64_t len, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
-  static int64_t _find_first(const char *str, const int64_t len, const char _char);
-  static int64_t _find_first(const char *str, const int64_t len, const char* find);
-  static int64_t _find_last(const char *str, const int64_t len, const char _char);
-  static int64_t _find_last(const char *str, const int64_t len, const char* find);
+  static int64_t _find(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find(const char *str, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_end(const char *str, const char *find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_reverse(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_reverse(const char *str, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_not(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_not(const char *str, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_not(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_not(const char *str, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_of(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first_of(const char *str, const char *set, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_of(const char *str, const char _char, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_last_of(const char *str, const char* find, int64_t start = 0, int64_t end = INT64_MAX);
+  static int64_t _find_first(const char *str, const char _char);
+  static int64_t _find_first(const char *str, const char* find);
+  static int64_t _find_last(const char *str, const char _char);
+  static int64_t _find_last(const char *str, const char* find);
+  static bool _starts_with(const char *str, const char *find);
+  static bool _starts_with(const char *str, const char _char);
 
   //***************
   // Find functions
@@ -134,9 +136,10 @@ public:
   int64_t find_first(const char *str) const;
   int64_t find_last(const char _char) const;
   int64_t find_last(const char *str) const;
+  bool starts_with(const char *str) const;
 
-  static atVector<atString> _split(const char *src, const int64_t len, const char &_char, const bool dropEmpty = true);
-  static atVector<atString> _split(const char *src, const int64_t len, const char *split, const bool isSet = false, const bool dropEmpty = true);
+  static atVector<atString> _split(const char *src, const char &_char, const bool dropEmpty = true);
+  static atVector<atString> _split(const char *src, const char *split, const bool isSet = false, const bool dropEmpty = true);
   atVector<atString> split(const char &_char, const bool dropEmpty = true) const;
   atVector<atString> split(const char *split, bool isSet = false, const bool dropEmpty = true) const;
   

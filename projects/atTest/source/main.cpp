@@ -644,6 +644,8 @@ void ExamplePhysics()
 
 #include "atBVH.h"
 #include "atIntersects.h"
+#include "atHashSet.h"
+
 #include "atTest.h"
 
 int main(int argc, char **argv)
@@ -655,7 +657,7 @@ int main(int argc, char **argv)
 #endif
 
   // Uncomment Something!
-  
+
   // Functional
   
   // ExampleRenderText();

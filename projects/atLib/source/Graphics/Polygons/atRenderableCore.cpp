@@ -256,8 +256,7 @@ void atRenderableCore::Clear()
   atShaderPool::ReleaseShader(m_shaderID);
   atGraphics::SafeRelease(m_pIndexBuffer);
   atGraphics::SafeRelease(m_pVertBuffer);
-  m_layoutID = AT_INVALID_ID;
-  m_shaderID = AT_INVALID_ID;
+  SetShader("");
   m_nIndices = 0;
   m_nVerts = 0;
   m_resource.Clear();
@@ -305,15 +304,17 @@ void atRenderableCore::FreeResource(const atString &name)
 
 void atRenderableCore::SetShader(const atString &name)
 {
+  if (m_shader == name)
+    return;
   atShaderPool::ReleaseShader(m_shaderID);
-  m_shader = name; m_layoutID = -1;
+  m_shader = name;
+  m_layoutID = AT_INVALID_ID;
+  m_shaderID = AT_INVALID_ID;
 }
 
 void atRenderableCore::SetShaderFromSource(const atString &pixel, const atString &vert, const atString &geom, const atString &hull)
 {
-  atShaderPool::ReleaseShader(m_shaderID);
-  m_layoutID = -1;
-  m_shader = "";
+  SetShader("");
   m_vertSource = vert;
   m_pixelSource = pixel;
   m_geomSource = geom;

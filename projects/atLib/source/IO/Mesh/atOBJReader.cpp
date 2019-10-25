@@ -59,25 +59,25 @@ static atOBJKeyword _ScanKeyword(char **ppSrc, int64_t srcLen, int64_t *pLen = n
 
 static atString _ReadLine(char **ppSrc, int64_t len)
 {
-  int64_t start = atString::_find_first_not(*ppSrc, len, atString::Whitespace());
-  int64_t end = atString::_find_first_of(*ppSrc, len, "\r\n", start);
+  int64_t start = atString::_find_first_not(*ppSrc, atString::Whitespace());
+  int64_t end = atString::_find_first_of(*ppSrc, "\r\n", start);
   *ppSrc += end;
   return atString(*ppSrc - end + start, *ppSrc);
 }
 
 static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Triangle> *pTris, const int64_t matID)
 {
-  int64_t start = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace());
+  int64_t start = atString::_find_first_not(*ppSrc, atString::Whitespace());
   int64_t pos = start;
-  int64_t newLine = atString::_find_first_of(*ppSrc, srcLen, '\n');
+  int64_t newLine = atString::_find_first_of(*ppSrc, '\n');
   int64_t vertCount = 0;
  
   // Count Verts
   while (pos < newLine)
   {
     vertCount++;
-    pos = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos);
-    pos = atString::_find_first_of(*ppSrc, srcLen, atString::Whitespace(), pos);
+    pos = atString::_find_first_not(*ppSrc, atString::Whitespace(), pos);
+    pos = atString::_find_first_of(*ppSrc, atString::Whitespace(), pos);
     if (pos < 0)
       break;
   }
@@ -109,7 +109,7 @@ static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Tria
     {
       int64_t len = 0;
       int64_t slashIndex = 0;
-      while (atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos) == pos && slashIndex <= 2)
+      while (atString::_find_first_not(*ppSrc, atString::Whitespace(), pos) == pos && slashIndex <= 2)
       {
         len = 0;
         int64_t val = atScan::Int(*ppSrc + pos, &len, srcLen);
@@ -131,7 +131,7 @@ static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Tria
         firstVert = tri.verts[0];
 
       lastVert = tri.verts[2];
-      pos = atString::_find_first_not(*ppSrc, srcLen, atString::Whitespace(), pos);
+      pos = atString::_find_first_not(*ppSrc, atString::Whitespace(), pos);
     }
   }
 }
@@ -163,12 +163,12 @@ bool atOBJReader::Read(const atFilename &file, atMesh *pMesh)
   {
     switch (_ScanKeyword(&pSrc, data.end() - (uint8_t*)pSrc))
     {
-    case atOBJComment: pSrc += atString::_find_end(pSrc, data.end() - (uint8_t*)pSrc, "\n"); break;
+    case atOBJComment: pSrc += atString::_find_end(pSrc, "\n"); break;
     case atOBJFace: _ParseFace(&pSrc, data.end() - (uint8_t*)pSrc, &pMesh->m_triangles, matNames[curMat]); break;
     case atOBJVertex: pMesh->m_positions.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc) + atVec3D(0, 0, 0)); break;
     case atOBJNormal: pMesh->m_normals.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc)); break;
     case atOBJTexCoord: pMesh->m_texCoords.push_back(atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc).xy()); break;
-    case atOBJLine: pSrc += atString::_find_first_of(pSrc, data.end() - (uint8_t*)pSrc, "\n\r"); break;
+    case atOBJLine: pSrc += atString::_find_first_of(pSrc, "\n\r"); break;
     case atOBJMatLib: mtlFile = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc); break;
     case atOBJMatRef: 
       curMat = _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc);

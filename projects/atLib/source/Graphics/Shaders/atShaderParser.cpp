@@ -46,7 +46,7 @@ static void _AddInputStruct(atHashMap<atString, atTypeDesc> *pInputs, const atHL
 
 static int64_t _ReadVariable(atHashMap<atString, atTypeDesc> *pList, atHashMap<atString, atString> *pSem, const char *src, int64_t len)
 {
-  int64_t offset = atString::_find_first_not(src, len, atString::Whitespace());
+  int64_t offset = atString::_find_first_not(src, atString::Whitespace());
   int64_t dist = 0;
   atString token = atScan::String(src + offset, &dist);
 
@@ -61,9 +61,9 @@ static int64_t _ReadVariable(atHashMap<atString, atTypeDesc> *pList, atHashMap<a
   if (desc.type != atType_Unknown)
   {
     atString name = atScan::String(src + offset, &dist).replace(";","").replace(",","").replace(")", "");
-    int64_t colon = atString::_find(src, len, ':', offset);
-    int64_t semicolon = atString::_find(src, len, ';', offset);
-    int64_t comma = atString::_find(src, len, ',', offset);
+    int64_t colon = atString::_find(src, ':', offset);
+    int64_t semicolon = atString::_find(src, ';', offset);
+    int64_t comma = atString::_find(src, ',', offset);
     pList->Add(name, desc);
     pSem->Add(name);
 
@@ -78,8 +78,8 @@ static int64_t _ReadVariable(atHashMap<atString, atTypeDesc> *pList, atHashMap<a
 
 static int64_t _ReadStruct(const atString &typeName, atHashMap<atString, atHLSLBufferDesc> *pList, const char *src, int64_t len, atVector<atVec4I64> *pUsedRegisters)
 {
-  int64_t offset = atString::_find_first_not(src, len, atString::Whitespace());
-  atString name(src + offset, src + atString::_find_first_of(src, len, atString::Whitespace(), offset));
+  int64_t offset = atString::_find_first_not(src, atString::Whitespace());
+  atString name(src + offset, src + atString::_find_first_of(src, atString::Whitespace(), offset));
   pList->Add(name, atHLSLBufferDesc());
   atHLSLBufferDesc *pDesc = pList->TryGet(name);
 
@@ -92,8 +92,8 @@ static int64_t _ReadStruct(const atString &typeName, atHashMap<atString, atHLSLB
 
   offset += name.length();
 
-  int64_t colon = atString::_find_first_of(src, len, ':', offset);
-  offset = atString::_find_first_of(src, len, '{', offset) + 1;
+  int64_t colon = atString::_find_first_of(src, ':', offset);
+  offset = atString::_find_first_of(src, '{', offset) + 1;
 
   atVec4I64 &used = pUsedRegisters->at(pDesc->type);
   if (colon < offset && colon != AT_INVALID_INDEX)
@@ -299,11 +299,11 @@ bool atShaderParser::Parse()
 
   // Get texture locations
   int64_t location = 0;
-  while ((offset = atString::_find(m_src.c_str(), m_src.length(), "Texture2D", offset + scanLen)) != AT_INVALID_INDEX)
+  while ((offset = atString::_find(m_src.c_str(), "Texture2D", offset + scanLen)) != AT_INVALID_INDEX)
     m_textures.Add(location++, atScan::String(m_src.c_str() + (offset += 9), &scanLen).replace(";", ""));
   // Get sample locations
   location = 0;
-  while ((offset = atString::_find(m_src.c_str(), m_src.length(), "SamplerState", offset + scanLen)) != AT_INVALID_INDEX)
+  while ((offset = atString::_find(m_src.c_str(), "SamplerState", offset + scanLen)) != AT_INVALID_INDEX)
     m_samplers.Add(location++, atScan::String(m_src.c_str() + (offset += 12), &scanLen).replace(";", ""));
 
   return true;
