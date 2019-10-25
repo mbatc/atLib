@@ -64,7 +64,7 @@ psOutput main(vsOutput In) : SV_Target
   float4 tCol = float4(1, 1, 1, 1);
   float3 vNorm = In.normal;
 
-  float3 lNorm = normalize(-lightDir0);
+  float3 lNorm = normalize(lightDir0);
   float3 lDif = 1;
   float3 lSpec = 0;
   float3 lAmb = 0;
@@ -95,7 +95,7 @@ psOutput main(vsOutput In) : SV_Target
     if(lambertian > 0 && hasCamPos > 0)
     {
       float3 fragToEye = normalize(camPos - In.worldPos);
-      float3 reflected = normalize(reflect(lightDir0, vNorm));
+      float3 reflected = normalize(reflect(-lNorm, vNorm));
       sIntensity =  max(0.0, dot(fragToEye, reflected));
       sIntensity = pow(sIntensity, specularPower0);
     }
@@ -137,7 +137,5 @@ psOutput main(vsOutput In) : SV_Target
 
   psOutput Out;
   Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
-  Out.color = float4(aCol + dCol * (lambertian * lDif + lAmb) + sCol * sIntensity * lSpec, alpha);
-  // Out.color = float4(vNorm, 1);
   return Out;
 }

@@ -40,7 +40,7 @@ template<typename T> struct atBVHNode;
 
 // Geometry intersections
 template<typename T> bool atIntersects(const atAABB<T> &ray, const atAABB<T> &ray2);
-template<typename T> bool atIntersects(const atSphere<T> &ray, const atSphere<T> &ray2, const atVector3<T> *pPoint = nullptr);
+template<typename T> bool atIntersects(const atSphere<T> &ray, const atSphere<T> &ray2, atVector3<T> *pPoint = nullptr);
 template<typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangle<T> &tri2, atVector3<T> *pPoint);
 template<typename T> bool atIntersects(const atRect<T> &ray, const atRect<T> &ray2);
 template<typename T> bool atIntersects(const atAABB<T> &ray2, const atSphere<T> &ray);
