@@ -220,9 +220,9 @@ static bool _Seek(const char **pJson, int64_t *pLength, int64_t dist)
   return *pLength != 0;
 }
 
-static bool _SkipDelimiter(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_not(*pJson, *pLength, _delimterSet)); }
-static bool _SkipToDelimiter(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_of(*pJson, *pLength, _delimterSet)); }
-static bool _SkipWhitespace(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_not(*pJson, *pLength, atString::Whitespace())); }
+static bool _SkipDelimiter(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_not(*pJson, _delimterSet)); }
+static bool _SkipToDelimiter(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_of(*pJson, _delimterSet)); }
+static bool _SkipWhitespace(const char **pJson, int64_t *pLength) { return _Seek(pJson, pLength, atString::_find_first_not(*pJson, atString::Whitespace())); }
 
 static atString _ParseString(const char **pJson, int64_t *pLength)
 {
@@ -283,7 +283,7 @@ static atJSON _ParseArray(const char **pJson, int64_t *pLength)
     _SkipToDelimiter(pJson, pLength);
     if (**pJson == ']')
       break;
-    _Seek(pJson, pLength, atString::_find_first(*pJson, *pLength, ',') + 1);
+    _Seek(pJson, pLength, atString::_find_first(*pJson, ',') + 1);
   }
 
   return ret;
@@ -300,7 +300,7 @@ static atJSON _ParseValue(const char **pJson, int64_t *pLength)
   case '"': ret.SetValue(_ParseString(pJson, pLength)); break;
   default:
     const char *start = *pJson;
-    _Seek(pJson, pLength, atString::_find_first_of(*pJson, *pLength, _delimiterAndWhitespaceSet));
+    _Seek(pJson, pLength, atString::_find_first_of(*pJson, _delimiterAndWhitespaceSet));
     ret.SetValue(atString(start, *pJson), false);
   }
   return ret;

@@ -44,27 +44,24 @@ atString::atString(const char *pStart, const char *pEnd)
   validate();
 }
 
-atString atString::_to_lower(const char *str, const int64_t len)
+atString atString::_to_lower(const char *str)
 {
   atVector<char> data;
-  data.reserve(len);
-  for (const char c : atIterate(str, len))
-    data.push_back(_ToLower(c));
+  while (*str != 0)
+    data.push_back(_ToLower(*str++));
   return atString(data);
 }
 
-atString atString::_to_upper(const char *str, const int64_t len)
+atString atString::_to_upper(const char *str)
 {
   atVector<char> data;
-  data.reserve(len);
-  for (const char c : atIterate(str, len))
-    data.push_back(_ToUpper(c));
+  while (*str != 0)
+    data.push_back(_ToUpper(*str++));
   return atString(data);
 }
 
-atString atString::_replace(const char *str, const int64_t len, const char _char, const char with, const int64_t start, int64_t count)
+atString atString::_replace(const char *str, const char _char, const char with, const int64_t start, int64_t count)
 {
-  atUnused(len);
   atString ret = str;
   int64_t pos = start;
   while ((pos = ret.find(_char, pos)) >= 0 && count != 0)
@@ -75,19 +72,18 @@ atString atString::_replace(const char *str, const int64_t len, const char _char
   return ret;
 }
 
-atString atString::_replace(const char *str, const int64_t len, const char *find, const char *with, const int64_t start, int64_t count)
+atString atString::_replace(const char *str, const char *find, const char *with, const int64_t start, int64_t count)
 {
-  if (_find(str, len, find, start) < 0)
+  if (_find(str, find, start) < 0)
     return str;
 
   atString ret;
-  ret.vector().reserve(len);;
   ret.vector().insert(0, str, str + start);
 
   const int64_t matchLen = strlen(find);
   int64_t pos = start;
   int64_t found = 0;
-  while ((found = _find(str, len, find, pos)) >= 0 && count != 0)
+  while ((found = _find(str, find, pos)) >= 0 && count != 0)
   {
     ret.vector().insert(ret.vector().size() - 1, str + pos, str + found);
     ret.append(with);
@@ -113,38 +109,40 @@ atString atString::substr(const int64_t start, const int64_t end) const
   return std::move(subData);
 }
 
-int64_t atString::_find(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find(const char *str, const char _char, int64_t start, int64_t end)
 {
-  if (len == 0)
-    return -1;
-  start = atMin(len, atMax(start, 0));
-  end = atMin(end, len);
-  if (start >= end)
-    return -1;
-  int64_t found = atMax(strchr(str + start, _char) - str, -1);
-  return found > end ? -1 : found;
+  start = atMax(start, 0);
+  while (*(str + start) != 0 && start < end)
+    if (*(str + start++) == _char)
+      return start - 1;
+  return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find(const char *str, const char *find, int64_t start, int64_t end)
 {
-  if (len == 0)
-    return -1;
-  start = atMin(len, atMax(start, 0));
-  end = atMin(end, len);
-  if (start >= end)
-    return -1;
-  int64_t found = atMax(strstr(str + start, find) - str, -1);
-  return found > end ? -1 : found;
+  start = atMax(start, 0);
+  while (*(str + start) != 0 && start < end)
+  {
+    const char *s = str + start;
+    const char *f = find;
+    while (*f++ == *s++)
+      if (*f == 0)
+        return start;
+      else if (*s == 0)
+        return AT_INVALID_INDEX;
+  }
+  return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_end(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find_end(const char *str, const char *find, int64_t start, int64_t end)
 {
-  int64_t found = _find(str, len, find, start, end);
+  int64_t found = _find(str, find, start, end);
   return found >= 0 ? found + strlen(find) : found;
 }
 
-int64_t atString::_find_reverse(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find_reverse(const char *str, const char _char, int64_t start, int64_t end)
 {
+  int64_t len = strlen(str);
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len - 1);
   for (int64_t i = end; i >= start; --i)
@@ -153,12 +151,13 @@ int64_t atString::_find_reverse(const char *str, const int64_t len, const char _
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_reverse(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find_reverse(const char *str, const char *find, int64_t start, int64_t end)
 {
   int64_t ssLen = 0;
   if (!find || (ssLen = strlen(find)) == 0)
     return AT_INVALID_INDEX;
 
+  int64_t len = strlen(str);
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len);
 
@@ -175,49 +174,48 @@ int64_t atString::_find_reverse(const char *str, const int64_t len, const char *
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_first_not(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find_first_not(const char *str, const char _char, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len);
-
-  for (int64_t i = start; i < end; ++i)
-    if (str[i] != _char)
-      return i;
-  return end == len ? end : AT_INVALID_INDEX;
+  start = atMax(start, 0);
+  while (*(str + start) != 0 && start < end)
+    if (str[start++] != _char)
+      return start - 1;
+  return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_first_not(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find_first_not(const char *str, const char *find, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len);
-
+  start = atMax(start, 0);
   int64_t nChecks = strlen(find);
   bool found = false;
-  for (int64_t i = start; i < end; ++i, found = false)
+  while (str[start] != 0 && start < end)
   {
-    for (int64_t j = 0; j < nChecks && !found; ++j)
-      found |= str[i] == find[j];
+    const char *f = find;
+    bool found = false;
+    while (*f != 0 && !found)
+      found = *f++ == str[start];
     if (!found)
-      return i;
+      return start;
+    ++start;
   }
-  return end == len ? end : AT_INVALID_INDEX;
+
+  return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_last_not(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find_last_not(const char *str, const char _char, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len - 1);
-
+  start = atMax(start, 0);
+  end = atMin(end, strlen(str) - 1);
   for (int64_t i = end; i >= start; --i)
     if (str[i] != _char)
       return i;
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_last_not(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find_last_not(const char *str, const char *find, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len);
+  start = atMax(start, 0);
+  end = atMin(end, strlen(str));
 
   int64_t nChecks = strlen(find);
   bool found = false;
@@ -231,33 +229,33 @@ int64_t atString::_find_last_not(const char *str, const int64_t len, const char 
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_first_of(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find_first_of(const char *str, const char _char, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len);
-
-  for (int64_t i = start; i < end; ++i)
-    if (str[i] == _char)
-      return i;
+  start = atMax(start, 0);
+  while (str[start] != 0 && start < end)
+    if (str[start++] == _char)
+      return start - 1;
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_first_of(const char *str, const int64_t len, const char *set, int64_t start, int64_t end)
+int64_t atString::_find_first_of(const char *str, const char *set, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
-  end = atMin(end, len);
-
-  int64_t nChecks = strlen(set);
-  for (int64_t i = start; i < end; ++i)
-    for (int64_t j = 0; j < nChecks; ++j)
-      if (str[i] == set[j])
-        return i;
+  start = atMax(start, 0);
+  while (str[start] != 0 && start < end)
+  {
+    const char *s = set;
+    while (*s != 0)
+      if (str[start] == *s++)
+        return start;
+    start++;
+  }
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_last_of(const char *str, const int64_t len, const char _char, int64_t start, int64_t end)
+int64_t atString::_find_last_of(const char *str, const char _char, int64_t start, int64_t end)
 {
-  start = atMin(atMax(start, 0), len);
+  int64_t len = strlen(str);
+  start = atMax(start, 0);
   end = atMin(end, len);
 
   for (int64_t i = end - 1; i >= start; --i)
@@ -266,8 +264,9 @@ int64_t atString::_find_last_of(const char *str, const int64_t len, const char _
   return AT_INVALID_INDEX;
 }
 
-int64_t atString::_find_last_of(const char *str, const int64_t len, const char *find, int64_t start, int64_t end)
+int64_t atString::_find_last_of(const char *str, const char *find, int64_t start, int64_t end)
 {
+  int64_t len = strlen(str);
   start = atMin(atMax(start, 0), len);
   end = atMin(end, len);
 
@@ -292,47 +291,48 @@ void atString::validate()
     m_data.push_back(0); // make sure there is a null terminating character
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char &_char, const bool dropEmpty)
+atVector<atString> atString::_split(const char *src, const char &_char, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
   int64_t start = 0;
-  int64_t end = _find(src, len, _char);
-  while (end != -1)
+  int64_t end = _find(src, _char);
+  while (end != AT_INVALID_INDEX)
   {
     atStr.set_string(src + start, end - start);
     start = end + 1;
-    end = _find(src, len, _char, start);
+    end = _find(src, _char, start);
 
     if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
-  ret.emplace_back(src + start, src + len);
+  ret.emplace_back(src + start);
   return ret;
 }
 
-atVector<atString> atString::_split(const char *src, const int64_t len, const char *split, const bool isSet, const bool dropEmpty)
+atVector<atString> atString::_split(const char *src, const char *split, const bool isSet, const bool dropEmpty)
 {
   atVector<atString> ret;
   atString atStr;
   int64_t start = 0;
-  int64_t(*find_func)(const char *, const int64_t, const char*, int64_t, int64_t);
+  int64_t(*find_func)(const char *, const char*, int64_t, int64_t);
   if (isSet)
     find_func = _find_first_of;
   else
     find_func = _find;
-  int64_t end = find_func(src, len, split, 0, INT64_MAX);
+  int64_t end = find_func(src, split, 0, INT64_MAX);
   int64_t setLen = isSet ? 1 : strlen(split);
   while (end != -1)
   {
     atStr.set_string(src + start, end - start);
     start = end + setLen;
-    end = find_func(src, len, split, start, INT64_MAX);
+    end = find_func(src, split, start, INT64_MAX);
     if (!dropEmpty || atStr.length() > 0)
       ret.push_back(atStr);
   }
-  if (start < len)
-    ret.emplace_back(src + start, src + len);
+  atStr = atString(src + start);
+  if (atStr.length())
+    ret.emplace_back(atStr);
   return ret;
 }
 
@@ -391,8 +391,8 @@ atString::operator atVector<uint8_t>() const { return atVector<uint8_t>((uint8_t
 atString::atString(const atVector<uint8_t> &data) { set_string((const char*)data.data(), data.size()); }
 
 bool atString::compare(const char *str, const atStringCompareOptions options) const { return compare(c_str(), str, options); }
-atString atString::to_lower() const { return _to_lower(c_str(), length()); }
-atString atString::to_upper() const { return _to_upper(c_str(), length()); }
+atString atString::to_lower() const { return _to_lower(c_str()); }
+atString atString::to_upper() const { return _to_upper(c_str()); }
 atString::atString() { set_string("", 0); }
 atString::atString(char c) { m_data.assign(c, 1); validate(); }
 atString::atString(char *str) { set_string(str, strlen(str)); }
@@ -401,31 +401,32 @@ atString::atString(const atString &copy) { set_string(copy.m_data); }
 atString::atString(atString &&move) { m_data.swap(move.m_data); }
 atString::atString(const atVector<char> &str) { set_string(str.data(), str.size()); }
 void atString::append(const char _char) { m_data.insert(length(), &_char, &_char + 1); }
-atString atString::replace(const char _char, const char with, const int64_t start, int64_t count) const { return _replace(c_str(), length(), _char, with, start, count); }
-atString atString::replace(const char *str, const char *with, const int64_t start, int64_t count) const { return _replace(c_str(), length(), str, with, start, count); }
-int64_t atString::_find_first(const char *str, const int64_t len, const char _char) { return _find(str, len, _char, 0); }
-int64_t atString::_find_first(const char *str, const int64_t len, const char *find) { return _find(str, len, find, 0); }
-int64_t atString::_find_last(const char *str, const int64_t len, const char _char) { return _find_reverse(str, len, _char, len - 1); }
-int64_t atString::_find_last(const char *str, const int64_t len, const char *find) { return _find_reverse(str, len, find, len - 1); }
-int64_t atString::find(const char _char, int64_t start, int64_t end) const { return _find(m_data.data(), length(), _char, start, end); }
-int64_t atString::find(const char *str, int64_t start, int64_t end) const { return _find(m_data.data(), length(), str, start, end); }
-int64_t atString::find_end(const char *str, int64_t start, int64_t end) { return _find_end(m_data.data(), length(), str, start, end); }
-int64_t atString::find_reverse(const char _char, int64_t start, int64_t end) const { return _find_reverse(m_data.data(), length(), _char, start, end); }
-int64_t atString::find_reverse(const char *str, int64_t start, int64_t end) const { return _find_reverse(m_data.data(), length(), str, start, end); }
-int64_t atString::find_first_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(m_data.data(), length(), _char, start, end); }
-int64_t atString::find_first_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(m_data.data(), length(), str, start, end); }
-int64_t atString::find_last_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(m_data.data(), length(), _char, start, end); }
-int64_t atString::find_last_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(m_data.data(), length(), str, start, end); }
-int64_t atString::find_first_of(const char _char, int64_t start, int64_t end) const { return _find_first_of(m_data.data(), length(), _char, start, end); }
-int64_t atString::find_first_of(const char *set, int64_t start, int64_t end) const { return _find_first_of(m_data.data(), length(), set, start, end); }
-int64_t atString::find_last_of(const char _char, int64_t start, int64_t end) const { return _find_last_of(m_data.data(), length(), _char, start, end); }
-int64_t atString::find_last_of(const char *str, int64_t start, int64_t end) const { return _find_last_of(m_data.data(), length(), str, start, end); }
+atString atString::replace(const char _char, const char with, const int64_t start, int64_t count) const { return _replace(c_str(), _char, with, start, count); }
+atString atString::replace(const char *str, const char *with, const int64_t start, int64_t count) const { return _replace(c_str(), str, with, start, count); }
+int64_t atString::_find_first(const char *str, const char _char) { return _find(str, _char, 0); }
+int64_t atString::_find_first(const char *str, const char *find) { return _find(str, find, 0); }
+int64_t atString::_find_last(const char *str, const char _char) { return _find_reverse(str, _char); }
+int64_t atString::_find_last(const char *str, const char *find) { return _find_reverse(str, find); }
+int64_t atString::find(const char _char, int64_t start, int64_t end) const { return _find(c_str(), _char, start, end); }
+int64_t atString::find(const char *str, int64_t start, int64_t end) const { return _find(c_str(), str, start, end); }
+int64_t atString::find_end(const char *str, int64_t start, int64_t end) { return _find_end(c_str(), str, start, end); }
+int64_t atString::find_reverse(const char _char, int64_t start, int64_t end) const { return _find_reverse(c_str(), _char, start, end); }
+int64_t atString::find_reverse(const char *str, int64_t start, int64_t end) const { return _find_reverse(c_str(), str, start, end); }
+int64_t atString::find_first_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(c_str(), _char, start, end); }
+int64_t atString::find_first_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(c_str(), str, start, end); }
+int64_t atString::find_last_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(c_str(), _char, start, end); }
+int64_t atString::find_last_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(c_str(), str, start, end); }
+int64_t atString::find_first_of(const char _char, int64_t start, int64_t end) const { return _find_first_of(c_str(), _char, start, end); }
+int64_t atString::find_first_of(const char *set, int64_t start, int64_t end) const { return _find_first_of(c_str(), set, start, end); }
+int64_t atString::find_last_of(const char _char, int64_t start, int64_t end) const { return _find_last_of(c_str(), _char, start, end); }
+int64_t atString::find_last_of(const char *str, int64_t start, int64_t end) const { return _find_last_of(c_str(), str, start, end); }
 int64_t atString::find_first(const char _char) const { return find(_char, 0); }
 int64_t atString::find_first(const char *str) const { return find(str, 0); }
 int64_t atString::find_last(const char _char) const { return find_reverse(_char); }
 int64_t atString::find_last(const char *str) const { return find_reverse(str); }
-atVector<atString> atString::split(const char & _char, const bool dropEmpty) const { return _split(m_data.data(), length(), _char, dropEmpty); }
-atVector<atString> atString::split(const char * split, bool isSet, const bool dropEmpty) const { return _split(m_data.data(), length(), split, isSet, dropEmpty); }
+bool atString::starts_with(const char *str) const { return _starts_with(c_str(), str); }
+atVector<atString> atString::split(const char & _char, const bool dropEmpty) const { return _split(m_data.data(), _char, dropEmpty); }
+atVector<atString> atString::split(const char * split, bool isSet, const bool dropEmpty) const { return _split(m_data.data(), split, isSet, dropEmpty); }
 const char *atString::c_str() const { return m_data.data(); }
 int64_t atString::capacity()  const { return m_data.capacity(); }
 int64_t atString::length() const { return m_data.size() - 1; }
@@ -479,3 +480,13 @@ int64_t atStreamWrite(atWriteStream *pStream, const atString *pData, const int64
     ret += atStreamWrite(pStream, &str.vector(), 1);
   return ret;
 }
+
+bool atString::_starts_with(const char *str, const char *find)
+{
+  while (*find != 0)
+    if (*str == 0 || *str++ != *find++)
+      return false;
+  return true;
+}
+
+bool atString::_starts_with(const char *str, const char _char) { return str[0] == _char; }
