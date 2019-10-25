@@ -8,6 +8,7 @@ namespace tests
     void String();
     void Vector();
     void HashMap();
+    void HashSet();
   }
 }
 
