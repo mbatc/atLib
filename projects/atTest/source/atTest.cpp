@@ -9,7 +9,8 @@ void atTest()
   tests::math::Vector4();
   tests::math::Matrix();
 
-  tests::containers::HashMap();
   tests::containers::Vector();
   tests::containers::String();
+  tests::containers::HashSet();
+  tests::containers::HashMap();
 }
