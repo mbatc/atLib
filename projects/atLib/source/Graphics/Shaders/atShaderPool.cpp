@@ -28,7 +28,7 @@
 #include "atHashMap.h"
 #include "atFormat.h"
 
-static int64_t s_nextShaderID = 0;
+static atVector<int64_t> s_freeShaderIDs;
 static int64_t s_boundShader = AT_INVALID_ID;
 
 struct ShaderReference
@@ -44,6 +44,24 @@ struct ShaderReference
 static int64_t s_shaderRound = 0;
 static atHashMap<int64_t, ShaderReference> s_shaders;
 
+static int64_t _GetNextID()
+{
+  static int64_t s_nextShaderID = 0;
+
+  int64_t id = s_nextShaderID;
+  if (s_freeShaderIDs.size())
+  {
+    id = s_freeShaderIDs.back();
+    s_freeShaderIDs.pop_back();
+  }
+  else
+  {
+    s_nextShaderID++;
+  }
+
+  return id;
+}
+
 int64_t atShaderPool::GetShader(const atString &filename)
 {
   for (auto &ref : s_shaders)
@@ -53,16 +71,18 @@ int64_t atShaderPool::GetShader(const atString &filename)
       return ref.m_key;
     }
 
-  s_shaders.Add(s_nextShaderID, ShaderReference(atNew<atShader>(filename)));
-  s_shaders[s_nextShaderID].refCount++;
-  return s_nextShaderID++;
+  int64_t id = _GetNextID();
+  s_shaders.Add(id, ShaderReference(atNew<atShader>(filename)));
+  s_shaders[id].refCount++;
+  return id;
 }
 
 int64_t atShaderPool::GetShader(const atString &pixel, const atString &vert, const atString &geometry, const atString &hull, const atString &compute, const atString &domain)
 {
-  s_shaders.Add(s_nextShaderID, ShaderReference(atNew<atShader>(pixel, vert, geometry, hull, compute, domain)));
-  s_shaders[s_nextShaderID].refCount++;
-  return s_nextShaderID++;
+  int64_t id = _GetNextID();
+  s_shaders.Add(id, ShaderReference(atNew<atShader>(pixel, vert, geometry, hull, compute, domain)));
+  s_shaders[id].refCount++;
+  return id;
 }
 
 int64_t atShaderPool::BindShader(const int64_t id)
@@ -157,6 +177,7 @@ void atShaderPool::ReleaseShader(const int64_t id)
     return;
   atDelete(pRef->pShader);
   s_shaders.Remove(id);
+  s_freeShaderIDs.push_back(id);
   return;
 }
 
@@ -168,6 +189,7 @@ void atShaderPool::ReloadShaders()
 }
 
 bool atShaderPool::IsValid(const int64_t id) { return s_shaders.Contains(id); }
+
 int64_t atShaderPool::ShaderRound() { return s_shaderRound; }
 
 // A hacky way of releasing resources when the program ends
