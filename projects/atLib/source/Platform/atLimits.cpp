@@ -48,5 +48,8 @@ template<> uint16_t atLimitsMin<uint16_t>() { return 0; }
 template<> uint32_t atLimitsMin<uint32_t>() { return 0; }
 template<> uint64_t atLimitsMin<uint64_t>() { return 0; }
 
-template<> double atLimitsSmallest<double>() { return DBL_EPSILON; }
-template<> float atLimitsSmallest<float>() { return FLT_EPSILON; }
+template<> double atLimitsSmallest<double>() { return DBL_MIN; }
+template<> float atLimitsSmallest<float>() { return FLT_MIN; }
+
+template<> double atLimitsEpsilon<double>() { return DBL_EPSILON; }
+template<> float atLimitsEpsilon<float>() { return FLT_EPSILON; }

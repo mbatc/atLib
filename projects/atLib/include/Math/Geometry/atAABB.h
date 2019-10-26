@@ -67,8 +67,19 @@ public:
 
   template<typename Type> void GrowToContain(const Type &type);
 
-  Vec3 m_min;
-  Vec3 m_max;
+  union
+  {
+    struct
+    {
+      Vec3 m_min;
+      Vec3 m_max;
+    };
+
+    struct
+    {
+      Vec3 m_extents[2];
+    };
+  };
   
   const atAABB<T> &operator=(atAABB<T> &&rhs);
   const atAABB<T> &operator=(const atAABB<T> &rhs);

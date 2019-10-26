@@ -59,7 +59,7 @@ public:
 
   struct Triangle
   {
-    int64_t mat;
+    int64_t mat = AT_INVALID_INDEX;
     Vertex verts[3];
   };
 
@@ -72,6 +72,9 @@ public:
   atMesh();
   atMesh(const atMesh &copy);
   atMesh(atMesh &&move);
+
+  // Construct from any object that defines atToMesh()
+  template<typename T> atMesh(const T &o);
 
   // These values will be used to fill in missing data when processing the mesh
   Vertex m_default;
@@ -124,6 +127,8 @@ public:
   const atMesh& operator=(atMesh &&rhs);
 };
 
+template<typename T> atMesh atToMesh(const T &o);
+
 atTrivialStreamRead(atMesh::Triangle);
 atTrivialStreamRead(atMesh::Vertex);
 atTrivialStreamWrite(atMesh::Triangle);
@@ -133,5 +138,7 @@ int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count);
 int64_t atStreamRead(atReadStream *pStream, atMesh::Face *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atMesh::Face *pData, const int64_t count);
+
+#include "atMesh.inl"
 
 #endif

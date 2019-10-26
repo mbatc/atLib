@@ -26,20 +26,20 @@
 
 template<typename T> T atTriangle<T>::Area() const
 {
-  const atVector3<T> a = m_a - m_b;
-  const atVector3<T> b = m_a - m_c;
+  const atVector3<T> a = a - b;
+  const atVector3<T> b = a - c;
   return 0.5 * a.Cross(b).Mag();
 }
 
 template<typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
-template<typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}
-template<typename T> atVector3<T> atTriangle<T>::Center() { return (m_a + m_b + m_c) / (T)3; }
+template<typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : a(a), b(b), c(c) {}
+template<typename T> atVector3<T> atTriangle<T>::Center() { return (a + b + c) / (T)3; }
 
 template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri)
 {
   atAABB<T> ret;
-  ret.GrowToContain(tri.m_a);
-  ret.GrowToContain(tri.m_b);
-  ret.GrowToContain(tri.m_c);
+  ret.GrowToContain(tri.a);
+  ret.GrowToContain(tri.b);
+  ret.GrowToContain(tri.c);
   return ret;
 }

@@ -55,5 +55,19 @@ template<> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>() { return{ atGetType<fl
 template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>() { return{ atGetType<double>(), 4 }; }
 template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>() { return{ atGetType<float>(), 4 }; }
 
+template<typename T>
+inline atMatrix4x4<T> atMatrixRotFromDir(const atVector3<T> &dir, const atVector3<T> &from)
+{
+  atVector3<T> nDir = dir.Normalize();
+  atVector3<T> nFrom = from.Normalize();
+
+  T dirDotFrom = nDir.Dot(nFrom);
+  if (abs(dirDotFrom - 1) <= atLimitsEpsilon<T>())
+    return atMatrix4x4<T>::Identity();
+  else if (abs(dirDotFrom + 1) <= atLimitsEpsilon<T>())
+    return atMatrixRotation(nDir.Cross((atVector3<T>::one() -from).Normalize()), atPi);
+  return atMatrixRotation(nDir.Cross(nFrom), nDir.Angle(nFrom));
+}
+
 template<> inline float atMod(const float &a, const float &b) { return fmodf(a, b); }
 template<> inline double atMod(const double &a, const double &b) { return fmodl(a, b); }

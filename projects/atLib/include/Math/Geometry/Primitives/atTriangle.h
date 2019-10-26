@@ -37,10 +37,22 @@ public:
 
   atVector3<T> Center();
 
-  atVector3<T> m_a;
-  atVector3<T> m_b;
-  atVector3<T> m_c;
 
+  union
+  {
+    struct // Access as individual members
+    {
+      atVector3<T> a;
+      atVector3<T> b;
+      atVector3<T> c;
+    };
+
+    struct // Access as an array
+    {
+      atVector3<T> points[3];
+    };
+  };
+  
   T Area() const;
 };
 

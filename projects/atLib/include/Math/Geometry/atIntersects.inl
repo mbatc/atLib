@@ -166,13 +166,13 @@ template<typename T> inline bool atIntersects(const atRay<T> &ray, const atOBB<T
 template<typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T *pTime)
 {
   T time = 0;
-  if (!atIntersects(ray, atPlane<T>(tri.m_a, tri.m_b, tri.m_c), &time))
+  if (!atIntersects(ray, atPlane<T>(tri.a, tri.b, tri.c), &time))
     return false;
   atVector3<T> point = ray.At(time);
   T area = tri.Area();
-  T testArea = atTriangle<T>(point, tri.m_a, tri.m_b).Area() +
-    atTriangle<T>(point, tri.m_b, tri.m_c).Area() +
-    atTriangle<T>(point, tri.m_a, tri.m_c).Area();
+  T testArea = atTriangle<T>(point, tri.a, tri.b).Area() +
+    atTriangle<T>(point, tri.b, tri.c).Area() +
+    atTriangle<T>(point, tri.a, tri.c).Area();
   
   if (pTime)
     *pTime = time;
@@ -210,20 +210,20 @@ template<typename T> bool atIntersects(const atTriangle<T> &tri, const atTriangl
 { 
   T time = 0;
   bool result = false;
-  if (atIntersects(atRay<T>(tri.m_a, tri.m_b - tri.m_a), tri2, &time))
+  if (atIntersects(atRay<T>(tri.a, tri.b - tri.a), tri2, &time))
   {
     if (pPoint) 
-      *pPoint = atRay<T>(tri.m_a, tri.m_b - tri.m_a).At(time);
+      *pPoint = atRay<T>(tri.a, tri.b - tri.a).At(time);
   }
-  else if (atIntersects(atRay<T>(tri.m_a, tri.m_c - tri.m_a), tri2, &time))
+  else if (atIntersects(atRay<T>(tri.a, tri.c - tri.a), tri2, &time))
   {
     if (pPoint)
-      *pPoint = atRay<T>(tri.m_a, tri.m_c - tri.m_a).At(time);
+      *pPoint = atRay<T>(tri.a, tri.c - tri.a).At(time);
   }
-  else if (atIntersects(atRay<T>(tri.m_b, tri.m_c - tri.m_b), tri2, &time))
+  else if (atIntersects(atRay<T>(tri.b, tri.c - tri.b), tri2, &time))
   {
     if (pPoint)
-      *pPoint = atRay<T>(tri.m_b, tri.m_c - tri.m_b).At(time);
+      *pPoint = atRay<T>(tri.b, tri.c - tri.b).At(time);
   }
   else
     return false;

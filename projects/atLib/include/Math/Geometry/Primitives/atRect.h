@@ -18,8 +18,19 @@ public:
   void GrowToContain(const atRect &point);
   void GrowToContain(const atVector2<T> &point);
 
-  atVector2<T> m_min;
-  atVector2<T> m_max;
+  union
+  {
+    struct
+    {
+      atVector2<T> m_min;
+      atVector2<T> m_max;
+    };
+
+    struct
+    {
+      atVector2<T> m_extents[2];
+    };
+  };
 };
 
 typedef atRect<int32_t> atRectI;

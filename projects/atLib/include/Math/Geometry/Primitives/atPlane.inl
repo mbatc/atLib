@@ -1,3 +1,4 @@
+#include "atPlane.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -30,8 +31,11 @@ template<typename T> atPlane<T>::atPlane(const atVector3<T> &normal, const atVec
 template<typename T> inline atVector3<T> atPlane<T>::Project(const atVector3<T> &point)
 {
   double time = 0;
-  atRay<T> ray(point, m_coeffs.xyz());
+  atRay<T> ray(point, Normal());
   if (atIntersects(ray, *this, &time))
     return ray.At(time);
   return point;
 }
+
+template<typename T>
+inline atVector3<T> atPlane<T>::Normal() const { return m_coeffs.xyz(); }

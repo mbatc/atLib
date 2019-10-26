@@ -59,4 +59,9 @@ template<typename T> T atLimitsSmallest() { return T(0); }
 template<> double atLimitsSmallest<double>();
 template<> float atLimitsSmallest<float>();
 
+
+template<typename T> T atLimitsEpsilon() { return T(0); }
+template<> double atLimitsEpsilon<double>();
+template<> float atLimitsEpsilon<float>();
+
 #endif // atLimits_h__

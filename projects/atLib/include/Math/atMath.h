@@ -141,6 +141,8 @@ typedef atQuaternion<float> atQuatF;
 template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>();
 template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>();
 
+template<typename T> inline atMatrix4x4<T> atMatrixRotFromDir(const atVector3<T> &dir, const atVector3<T> &from = atVector3<T>::create(0, 0, 1));
+
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T zClipNear = atClipNearZ<T>(), const T zClipFar = atClipFarZ<T>());
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T width, const T height, const T nearPlane, const T farPlane);
 template<typename T> inline atMatrix4x4<T> atMatrixOrtho(const T left, const T right, const T top, const T bottom, const T nearPlane, const T farPlane);

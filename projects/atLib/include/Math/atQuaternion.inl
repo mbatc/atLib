@@ -76,7 +76,7 @@ template<typename T> inline void atQuaternion<T>::Set(const T &eulerX, const T &
 template<typename T> inline void atQuaternion<T>::Set(const atMatrix4x4<T> &rotation)
 {
   T trace = rotation[0] + rotation[5] + rotation[10];
-  if (trace > atLimitsSmallest<T>())
+  if (trace > atLimitsEpsilon<T>())
   {
     T s = T(0.5) / atSqrt(trace + T(1));
     w = T(0.25) / s;
@@ -167,7 +167,7 @@ template<typename T> inline atQuaternion<T> atQuaternion<T>::Div(const atQuatern
 template<typename T> inline T atQuaternion<T>::AngleTo(const atQuaternion<T> &from, const atQuaternion<T> &to)
 {
   T s = atSqrt(from.Length() * to.Length());
-  if (abs(s) < atLimitsSmallest<T>())
+  if (abs(s) <= atLimitsEpsilon<T>())
     return 0;
   return 2 * atACos(Dot(to) / s)
 }
@@ -206,7 +206,7 @@ template<typename T> inline atVector3<T> atQuaternion<T>::Rotate(const atQuatern
 template<typename T> inline atVector3<T> atQuaternion<T>::Axis(const atQuaternion<T> &quat)
 {
   T s_sqr = T(1) - atSquare(w);
-  if (s < atLimitsSmallest<T>())
+  if (s < atLimitsEpsilon<T>())
     return atVector3<T>(1, 0, 0);
   T s = T(1) / atSqrt(s_sqr);
   return atVector3<T>(x * s, y * s, z * s);
@@ -239,12 +239,12 @@ template<typename T> inline atQuaternion<T> atQuaternion<T>::Slerp(const atQuate
   atQuaternion<T> result = *this;
 
   T mag = atSqrt(Length() * to.Length());
-  if (mag > atLimitsSmallest<T>())
+  if (mag > atLimitsEpsilon<T>())
   {
     const T product = Dot(to) / mag;
     const T absProduct = abs(product);
 
-    if (absProduct < T(1) - atLimitsSmallest<T>())
+    if (absProduct < T(1) - atLimitsEpsilon<T>())
     {
       const T theta = atACos(absProduct);
       const T d = atSin(theta);

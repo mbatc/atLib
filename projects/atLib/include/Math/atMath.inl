@@ -180,7 +180,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixRotation(const atQuaternion<T
 {
   const atQuaternion<T> &q = quat; // for shorter notation
   const T d = q.Length();
-  if (d < atLimitsSmallest<T>())
+  if (d <= atLimitsEpsilon<T>())
     return atMatrix4x4<T>::Identity();
 
   T s = T(2) / d;

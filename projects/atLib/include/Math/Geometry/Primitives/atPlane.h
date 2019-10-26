@@ -37,6 +37,7 @@ public:
   atPlane(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
 
   atVector3<T> Project(const atVector3<T> &point);
+  atVector3<T> Normal() const;
 
   atVector4<T> m_coeffs;
   atVector4<T> m_point;
