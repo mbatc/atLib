@@ -92,7 +92,6 @@ void ExampleStrings()
 #include "at2DRenderer.h"
 #include "atGraphicsModel.h"
 #include "atRenderState.h"
-#include "atSceneCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
@@ -116,8 +115,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atSimpleCamera camera(&window, { 0, 1, 5 });
-  camera.m_moveSpeed = 1.0f;
+  // atSimpleCamera camera(&window, { 0, 1, 5 });
+  // camera.m_moveSpeed = 1.0f;
 
   // Main program loop
   atRenderState rs;
@@ -131,8 +130,8 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
       atShaderPool::ReloadShaders();
 
     // Update camera
-    camera.OnUpdate(0.016);
-    camera.SetViewport(&window);
+    // camera.OnUpdate(0.016);
+    // camera.SetViewport(&window);
 
     // Clear window
     window.Clear(clearColor);
@@ -142,11 +141,11 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // Set Lighting Data
     model.SetLighting(light);
     model.EnableLighting(useLighting);
-    model.SetCamera(camera.Translation());
+    // model.SetCamera(camera.Translation());
     useLighting = atInput::ButtonPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
-    model.Draw(camera.ProjectionMat() * camera.ViewMat());
+    // model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
     // Drawing Text - See ExampleRenderText() for more examples
     at2DRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
@@ -361,92 +360,45 @@ void ExampleRayTraceMesh()
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindow window("Window", { 800, 600 }, false);
-  atSimpleCamera cam(&window);
+  
   while (atInput::Update())
   {
     window.Clear(0xFF333333);
-    cam.OnUpdate(0.016);
+    // cam.OnUpdate(0.016);
 
-    atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
-    vp = vp.Transpose();
-    atMat4F invVP = vp.Inverse();
-
-    static int64_t res = 10;
-    res += atInput::ButtonPressed(atKC_P);
-    res -= atInput::ButtonPressed(atKC_O);
-    res = atMax(res, 1);
-
-    for (int64_t y = 0; y < window.Height(); y += res)
-      for (int64_t x = 0; x < window.Width(); x += res)
-      {
-        atVec2F ssc = { (float)x / (float)window.Width(), (float)y / (float)window.Height() };
-        ssc = ssc * 2 - 1;
-
-        atVec4F n(ssc, atClipNearZ<float>(), 1.f);
-        n = invVP * n;
-        n /= n.w;
-
-        atVec4F f(ssc, atClipFarZ<float>(), 1.f);
-        f = invVP * f;
-        f /= f.w;
-        double time = 0.0;
-        if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
-        {
-          time *= time;
-          for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
-            for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
-              window.Pixels()[x2 + y2 * window.Width()] = atColor::Pack(int(255.f - time), int(255.f - time), int(255.f - time), 255);
-        }
-      }
-
-    window.Swap();
-  }
-}
-
-#include "atScene.h"
-#include "atSceneMeshRenderable.h"
-
-void ExampleCreateScene()
-{
-  atWindow window;
-  atScene scene;
-  
-  atRenderState rs;
-  rs.SetRenderTarget(&window);
-
-  // Create camera
-  atSceneNode *pNode = scene.CreateNode("Camera 1", { 2, 1, 5 });
-  atSceneCamera *pCam1 = pNode->AddComponent<atSceneCamera>();
-  scene.AddActiveCamera(pNode);
-
-
-  // Create another camera
-  pNode = scene.CreateNode("Camera 2", {0, 1, 5});
-  atSceneCamera *pCam2 = pNode->AddComponent<atSceneCamera>();
-  scene.AddActiveCamera(pNode);
-
-
-  // Add a mesh
-  pNode = scene.CreateNode("Mesh");
-  atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
-  pMesh->SetModel("assets/test/models/level.obj");
-
-  // Add a skybox
-  // pNode = scene.CreateNode("Skybox");
-  // pNode->AddComponent<atSceneSkybox>();
-
-
-  while(atInput::Update())
-  {
-    window.Clear({ 0.3, 0.3, 0.3, 1.0 });
-
-    pCam1->SetViewport(atVec4I(0, 0, window.Width() / 2, window.Height()));
-    pCam2->SetViewport(atVec4I(window.Width() / 2, 0, window.Width() / 2, window.Height()));
-    scene.m_viewport = { 0, 0, window.Width(), window.Height() };
-    scene.Update();
-    scene.Draw();
-
-    window.Swap();
+    // atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
+    // vp = vp.Transpose();
+    // atMat4F invVP = vp.Inverse();
+    // 
+    // static int64_t res = 10;
+    // res += atInput::ButtonPressed(atKC_P);
+    // res -= atInput::ButtonPressed(atKC_O);
+    // res = atMax(res, 1);
+    // 
+    // for (int64_t y = 0; y < window.Height(); y += res)
+    //   for (int64_t x = 0; x < window.Width(); x += res)
+    //   {
+    //     atVec2F ssc = { (float)x / (float)window.Width(), (float)y / (float)window.Height() };
+    //     ssc = ssc * 2 - 1;
+    // 
+    //     atVec4F n(ssc, atClipNearZ<float>(), 1.f);
+    //     n = invVP * n;
+    //     n /= n.w;
+    // 
+    //     atVec4F f(ssc, atClipFarZ<float>(), 1.f);
+    //     f = invVP * f;
+    //     f /= f.w;
+    //     double time = 0.0;
+    //     if (bvh.RayTrace(atRay<double>(n.xyz(), (f - n).xyz().Normalize()), atMat4D::Identity(), &time))
+    //     {
+    //       time *= time;
+    //       for (int64_t y2 = y; y2 < y + res && y2 < window.Height(); ++y2)
+    //         for (int64_t x2 = x; x2 < x + res && x2 < window.Width(); ++x2)
+    //           window.Pixels()[x2 + y2 * window.Width()] = atColor::Pack(int(255.f - time), int(255.f - time), int(255.f - time), 255);
+    //     }
+    //   }
+    // 
+    // window.Swap();
   }
 }
 
@@ -546,6 +498,8 @@ void ExampeBackPropagation()
 #include "atHashSet.h"
 
 #include "atTest.h"
+
+#include "atHierarchy.h"
 
 int main(int argc, char **argv)
 {
