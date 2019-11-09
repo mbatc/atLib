@@ -28,7 +28,6 @@
 
 #include "atInput.h"
 #include "atBVH.h"
-#include <time.h>
 #include "atShaderPool.h"
 
 //---------------------------------------------------------------------------------
@@ -427,9 +426,9 @@ void ExampleCreateScene()
 
 
   // Add a mesh
-  pNode = scene.CreateNode("Mesh");
-  atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
-  pMesh->SetModel("assets/test/models/level.obj");
+  // pNode = scene.CreateNode("Mesh");
+  // atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
+  // pMesh->SetModel("assets/test/models/level.obj");
 
   // Add a skybox
   // pNode = scene.CreateNode("Skybox");
@@ -546,6 +545,11 @@ void ExampeBackPropagation()
 #include "atHashSet.h"
 
 #include "atTest.h"
+#include "atDXPrgm.h"
+#include "atDXShader.h"
+#include "atDXBuffer.h"
+#include "atDXSampler.h"
+#include "atNewRenderableCore.h"
 
 int main(int argc, char **argv)
 {
@@ -554,6 +558,68 @@ int main(int argc, char **argv)
 #ifdef RUN_ATTEST
   atTest();
 #endif
+
+  {
+    atWindow window;
+    window.Clear();
+
+    atRenderState rs;
+    
+    atDXShader vertShader(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vs"), atPS_Vertex);
+    atDXShader fragShader(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.ps"), atPS_Fragment);
+
+    atDXPrgm program;
+    program.SetStage(&vertShader);
+    program.SetStage(&fragShader);
+
+    atNewRenderableCore ro;
+    atMesh m;
+    m.Import("D:/Programming Projects/atLib/builds/bin/Assets/Test/Models/bumpMap.obj");
+    m.MakeValid();
+
+    atVector<atVec4F> color;
+    atVector<atVec3F> positions;
+    atVector<atVec3F> normals;
+    atVector<atVec2F> texCoords;
+
+    for (const atMesh::Triangle &tri : m.m_triangles)
+      for (const atMesh::Vertex &v : tri.verts)
+      {
+        color.push_back(m.m_colors[v.color]);
+        positions.push_back(m.m_positions[v.position]);
+        normals.push_back(m.m_normals[v.normal]);
+        texCoords.push_back(m.m_texCoords[v.texCoord]);
+      }
+
+    atDXBuffer colAttr(color);
+    atDXBuffer posAttr(positions);
+    atDXBuffer nrmAttr(normals);
+    atDXBuffer texAttr(texCoords);
+    atDXTexture tex(atImage("D:/Programming Projects/atLib/builds/bin/Assets/Test/Models/Textures/Brick_0.jpg"));
+
+    ro.SetAttribute("COLOR", &colAttr);
+    ro.SetAttribute("POSITION", &posAttr);
+    ro.SetAttribute("NORMAL", &nrmAttr);
+    ro.SetAttribute("TEXCOORD", &texAttr);
+    ro.SetTexture("texture0", &tex);
+
+    ro.SetProgram(&program);
+
+    atSimpleCamera cam(&window, { 0, 0, -1 });
+
+    while (atInput::Update())
+    {
+      rs.SetRenderTarget(&window);
+      rs.SetViewport(atVec4I(0, 0, window.Size()));
+      window.Clear(atVec4F(0.3));
+
+      cam.SetViewport(&window);
+      cam.OnUpdate(0.016);
+      ro.SetUniform("mvp", atMat4F(cam.ProjectionMat() * cam.ViewMat()).Transpose());
+      ro.Draw(false);
+      window.Swap();
+    }
+  }
 
   // Uncomment Something!
 

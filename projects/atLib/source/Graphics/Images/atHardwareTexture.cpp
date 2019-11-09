@@ -56,7 +56,7 @@ int64_t atHardwareTexture::CreateSampler(const int64_t filter, const atTexCoordM
     return *pID;
 
   ID3D11SamplerState *pSampler = nullptr;
-  atGraphics::GetDevice()->CreateSamplerState(&desc, &pSampler);
+  atDirectX::GetDevice()->CreateSamplerState(&desc, &pSampler);
   s_sampler_store.Add(s_samplerCounter, pSampler);
   s_samplerID.Add(desc, s_samplerCounter);
   return s_samplerCounter++;
@@ -112,7 +112,7 @@ void atHardwareTexture::DeleteTexture(const int64_t id)
   atTextureContext **pTex = s_textures.TryGet(id);
   if (!pTex)
     return;
-  atGraphics::SafeRelease(*pTex);
+  atDirectX::SafeRelease(*pTex);
   s_textures.Remove(id);
 }
 
@@ -121,7 +121,7 @@ void atHardwareTexture::DeleteSampler(const int64_t id)
   ID3D11SamplerState **ppSample = s_sampler_store.TryGet(id);
   if (!ppSample)
     return;
-  atGraphics::SafeRelease(*ppSample);
+  atDirectX::SafeRelease(*ppSample);
   s_sampler_store.Remove(id);
 }
 
@@ -136,7 +136,7 @@ struct CleanupStruct
   {
     s_textures.Clear();
     for (auto &kvp : s_sampler_store)
-      atGraphics::SafeRelease(kvp.m_val);
+      atDirectX::SafeRelease(kvp.m_val);
   }
 };
 

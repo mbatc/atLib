@@ -165,7 +165,7 @@ static int64_t _ParseDataLayout(atHLSLBufferDesc *pLayout, const char *src, int6
   {
     atTypeDesc *pType = pLayout->members.TryGet(vars);
     atHLSLBufferDesc *pStruct = pLayout->structs.TryGet(vars);
-    const int64_t varWidth = pType ? pType->size : pStruct->actualSize;
+    const int64_t varWidth = pType ? pType->size * pType->width : pStruct->actualSize;
     const int64_t packBytes = packOffset % 16;
     if (packBytes + varWidth > 16 && packBytes != 0)
       packOffset = (packOffset / 16 + 1) * 16;
@@ -277,11 +277,11 @@ bool atShaderParser::Parse()
     int64_t packOffset = 0;
     dataLayout.structs.Clear();
     dataLayout.packingOffsets.clear();
-    for (atString vars : dataLayout.packingOrder)
+    for (const atString &vars : dataLayout.packingOrder)
     {
       atTypeDesc *pType = dataLayout.members.TryGet(vars);
       atHLSLBufferDesc *pStruct = dataLayout.structs.TryGet(vars);
-      const int64_t varWidth = pType ? pType->size : pStruct->actualSize;
+      const int64_t varWidth = pType ? pType->size * pType->size : pStruct->actualSize;
       const int64_t packBytes = packOffset % 16;
       if (packBytes + varWidth > 16 && packBytes != 0)
         packOffset = (packOffset / 16 + 1) * 16;

@@ -183,8 +183,16 @@ void atMesh::GenTangents()
     {
       tri.verts[i].tangent = tri.verts[i].position;
       tri.verts[i].bitanget = tri.verts[i].position;
-      m_tangents[tri.verts[i].position] += uDir;
-      m_binormals[tri.verts[i].position] += vDir;
+      if (tAB.Mag() > atLimitsSmallest<float>() && tAC.Mag() > atLimitsSmallest<float>())
+      {
+        m_tangents[tri.verts[i].position] += uDir;
+        m_binormals[tri.verts[i].position] += vDir;
+      }
+      else
+      {
+        m_tangents[tri.verts[i].position] += 1;
+        m_binormals[tri.verts[i].position] += 1;
+      }
     }
   }
 

@@ -26,7 +26,7 @@
 #ifndef _atRenderState_h__
 #define _atRenderState_h__
 
-#include "atGraphics.h"
+
 #include "atWindow.h"
 #include "atShader.h"
 #include "atMath.h"
@@ -34,6 +34,7 @@
 class atRenderState
 {
   friend atGraphics;
+  friend atDirectX;
   atRenderState(int unused);
 public:
   struct State

@@ -70,26 +70,26 @@ void atRenderState::Bind()
 
   if (_DX11BlendDesc(m_activeState) != topBlend || !s_pBlendState)
   {
-    atGraphics::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
-    atGraphics::SafeRelease(s_pBlendState);
-    atGraphics::GetDevice()->CreateBlendState(&topBlend, &s_pBlendState);
-    atGraphics::GetContext()->OMSetBlendState(s_pBlendState, 0, 0xFFFFFF);
+    atDirectX::GetContext()->OMSetBlendState(nullptr, 0, 0x00);
+    atDirectX::SafeRelease(s_pBlendState);
+    atDirectX::GetDevice()->CreateBlendState(&topBlend, &s_pBlendState);
+    atDirectX::GetContext()->OMSetBlendState(s_pBlendState, 0, 0xFFFFFF);
   }
 
   if (_DX11DepthDesc(m_activeState) != topDepth || !s_pDepthState)
   {
-    atGraphics::GetContext()->OMSetDepthStencilState(nullptr, 0);
-    atGraphics::SafeRelease(s_pDepthState);
-    atGraphics::GetDevice()->CreateDepthStencilState(&topDepth, &s_pDepthState);
-    atGraphics::GetContext()->OMSetDepthStencilState(s_pDepthState, 0);
+    atDirectX::GetContext()->OMSetDepthStencilState(nullptr, 0);
+    atDirectX::SafeRelease(s_pDepthState);
+    atDirectX::GetDevice()->CreateDepthStencilState(&topDepth, &s_pDepthState);
+    atDirectX::GetContext()->OMSetDepthStencilState(s_pDepthState, 0);
   }
   
   if (_DX11RasterDesc(m_activeState) != topRaster || !s_pRasterState)
   {
-    atGraphics::GetContext()->RSSetState(nullptr);
-    atGraphics::SafeRelease(s_pRasterState);
-    atGraphics::GetDevice()->CreateRasterizerState(&topRaster, &s_pRasterState);
-    atGraphics::GetContext()->RSSetState(s_pRasterState);
+    atDirectX::GetContext()->RSSetState(nullptr);
+    atDirectX::SafeRelease(s_pRasterState);
+    atDirectX::GetDevice()->CreateRasterizerState(&topRaster, &s_pRasterState);
+    atDirectX::GetContext()->RSSetState(s_pRasterState);
   }
 
   if (m_activeState.viewport != top.viewport || m_activeState.depthRange != top.depthRange ||
@@ -97,13 +97,13 @@ void atRenderState::Bind()
   {
     D3D11_VIEWPORT vp = _DX11ViewportDesc(top);
     top.viewport = { vp.TopLeftX, vp.TopLeftY, vp.Width, vp.Height };
-    atGraphics::GetContext()->RSSetViewports(1, &vp);
+    atDirectX::GetContext()->RSSetViewports(1, &vp);
   }
 
   if (m_activeState.scissor != top.scissor)
   {
     D3D11_RECT sc = _DX11ScissorDesc(top);
-    atGraphics::GetContext()->RSSetScissorRects(1, &sc);
+    atDirectX::GetContext()->RSSetScissorRects(1, &sc);
   }
 
   // Bind Render Target Textures
@@ -113,11 +113,11 @@ void atRenderState::Bind()
   {
     atTextureContext *pTex = top.pColourTarget ? atHardwareTexture::GetTexture(top.pColourTarget->GetColourTexID()) : nullptr;
     atTextureContext *pDepth = top.pDepthTarget ? atHardwareTexture::GetTexture(top.pDepthTarget->GetDepthTexID()) : nullptr;
-    atGraphics::GetContext()->OMSetRenderTargets(pTex ? 1 : 0, pTex ? *pTex : nullptr, pDepth ? *pDepth : nullptr);
+    atDirectX::GetContext()->OMSetRenderTargets(pTex ? 1 : 0, pTex ? *pTex : nullptr, pDepth ? *pDepth : nullptr);
   }
 
-  atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
-  atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
+  // atAssert(atShaderPool::BindShader(top.shader) != AT_INVALID_ID, "Invalid shader ID");
+  // atAssert(atShaderPool::BindInputLayout(top.inputLayout) != AT_INVALID_ID, "Invalid shader ID");
 
   m_activeState = top;
 }
@@ -157,10 +157,10 @@ void atRenderState::Init()
     
     UINT vpCount = 0;
     D3D11_VIEWPORT vp;
-    atGraphics::GetContext()->RSGetViewports(&vpCount, nullptr);
+    atDirectX::GetContext()->RSGetViewports(&vpCount, nullptr);
     if (vpCount > 0)
     {
-      atGraphics::GetContext()->RSGetViewports(&vpCount, &vp);
+      atDirectX::GetContext()->RSGetViewports(&vpCount, &vp);
       MyState().viewport = { vp.TopLeftX, vp.TopLeftY, vp.Width, vp.Height };
     }
   }

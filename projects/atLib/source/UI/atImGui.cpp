@@ -190,9 +190,9 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
     return false;
 
   D3D11_MAPPED_SUBRESOURCE vtxResource, idxResource;
-  if (FAILED(atGraphics::GetContext()->Map(_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vtxResource)))
+  if (FAILED(atDirectX::GetContext()->Map(_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vtxResource)))
     return false;
-  if (FAILED(atGraphics::GetContext()->Map(_pIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &idxResource)))
+  if (FAILED(atDirectX::GetContext()->Map(_pIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &idxResource)))
     return false;
 
   ImDrawVert *pVtxDst = (ImDrawVert*)vtxResource.pData;
@@ -205,8 +205,8 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
     pVtxDst += pCmdList->VtxBuffer.Size;
     pIdxDst += pCmdList->IdxBuffer.Size;
   }
-  atGraphics::GetContext()->Unmap(_pVertexBuffer, 0);
-  atGraphics::GetContext()->Unmap(_pIndexBuffer, 0);
+  atDirectX::GetContext()->Unmap(_pVertexBuffer, 0);
+  atDirectX::GetContext()->Unmap(_pIndexBuffer, 0);
 
   {
     float L = pDrawData->DisplayPos.x;
@@ -255,9 +255,9 @@ bool atImGui::Render()
 
   unsigned int stride = sizeof(ImDrawVert);
   unsigned int offset = 0;
-  atGraphics::GetContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-  atGraphics::GetContext()->IASetIndexBuffer(_pIndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
-  atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  atDirectX::GetContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+  atDirectX::GetContext()->IASetIndexBuffer(_pIndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+  atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   atGraphics::BindShaderResource(atST_Pixel, atSRT_Sampler, 0, atHardwareTexture::GetSampler(_fontSamplerID));
 
   int vtxOffset = 0;
@@ -278,7 +278,7 @@ bool atImGui::Render()
 
         // Bind texture, Draw;
         atGraphics::BindShaderResource(atST_Pixel, atSRT_Texture, 0, atHardwareTexture::GetTexture((int64_t)pCmd->TextureId));
-        atGraphics::DrawIndexed(pCmd->ElemCount, idxOffset, vtxOffset);
+        atDirectX::DrawIndexed(pCmd->ElemCount, idxOffset, vtxOffset);
       }
       idxOffset += pCmd->ElemCount;
     }

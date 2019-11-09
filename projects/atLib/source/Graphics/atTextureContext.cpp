@@ -37,9 +37,9 @@ static ID3D11ShaderResourceView *_CreateSRView(ID3D11Texture2D *pTexture, const 
   desc.ViewDimension = sampleCount > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
   desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-  atGraphics::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pView);
+  atDirectX::GetDevice()->CreateShaderResourceView(pTexture, &desc, &pView);
   if(genMipmaps)
-    atGraphics::GetContext()->GenerateMips(pView);
+    atDirectX::GetContext()->GenerateMips(pView);
   return pView;
 }
 
@@ -52,31 +52,31 @@ static ID3D11DepthStencilView *_CreateDSView(ID3D11Texture2D *pTexture, const in
   desc.Texture2D.MipSlice = 0;
   desc.Flags = 0;
 
-  atGraphics::GetDevice()->CreateDepthStencilView(pTexture, &desc, &pView);
+  atDirectX::GetDevice()->CreateDepthStencilView(pTexture, &desc, &pView);
   return pView;
 }
 
 static ID3D11RenderTargetView *_CreateRTView(ID3D11Texture2D *pTexture)
 {
   ID3D11RenderTargetView *pView = nullptr;
-  atGraphics::GetDevice()->CreateRenderTargetView(pTexture, nullptr, &pView);
+  atDirectX::GetDevice()->CreateRenderTargetView(pTexture, nullptr, &pView);
   return pView;
 }
 
 static ID3D11UnorderedAccessView *_CreateUAView(ID3D11Texture2D *pTexture)
 {
   ID3D11UnorderedAccessView *pView = nullptr;
-  atGraphics::GetDevice()->CreateUnorderedAccessView(pTexture, nullptr, &pView);
+  atDirectX::GetDevice()->CreateUnorderedAccessView(pTexture, nullptr, &pView);
   return pView;
 }
 
-atTextureContext::atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps, const int64_t sampleCount) : m_pTexture(pTexture), m_genMipmaps(genMipmaps) {}
+atTextureContext::atTextureContext(ID3D11Texture2D *pTexture, const bool genMipmaps, const int64_t sampleCount) : m_pTexture(pTexture), m_genMipmaps(genMipmaps), m_sampleCount(sampleCount) {}
 
-atTextureContext::atTextureContext(const atFilename &file, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(atImage(file), genMipmaps) {}
+atTextureContext::atTextureContext(const atFilename &file, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(atImage(file), genMipmaps, sampleCount) {}
 
-atTextureContext::atTextureContext(const atImage &image, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(image.Pixels().data(), image.Size(), false, genMipmaps) {}
+atTextureContext::atTextureContext(const atImage &image, const bool genMipmaps, const int64_t sampleCount) : atTextureContext(image.Pixels().data(), image.Size(), false, genMipmaps, sampleCount) {}
 
-atTextureContext::atTextureContext(const atVector<float> &depth, const atVec2I &size, const int64_t sampleCount) : atTextureContext(depth.data(), size, true) {}
+atTextureContext::atTextureContext(const atVector<float> &depth, const atVec2I &size, const int64_t sampleCount) : atTextureContext(depth.data(), size, true, false, sampleCount) {}
 
 atTextureContext::atTextureContext(const void *pData, const atVec2I &size, const bool depthTexture, const bool genMipmaps, const int64_t sampleCount)
   : m_genMipmaps(genMipmaps && !depthTexture)
@@ -95,9 +95,9 @@ atTextureContext::atTextureContext(const void *pData, const atVec2I &size, const
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * m_genMipmaps;
 
-  atGraphics::GetDevice()->CreateTexture2D(&texDesc, nullptr, &m_pTexture);
+  atDirectX::GetDevice()->CreateTexture2D(&texDesc, nullptr, &m_pTexture);
   if (pData)
-    atGraphics::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, pData, (UINT)(size.x * (m_depthTexture ? sizeof(float) : sizeof(atCol))), 0);
+    atDirectX::GetContext()->UpdateSubresource(m_pTexture, 0, nullptr, pData, (UINT)(size.x * (m_depthTexture ? sizeof(float) : sizeof(atCol))), 0);
 }
 
 
@@ -118,7 +118,8 @@ atTextureContext::atTextureContext(const atTextureContext &copy)
   if (m_pShaderView) m_pShaderView->AddRef();
 }
 
-atTextureContext::atTextureContext(atTextureContext &&move) : m_genMipmaps(move.m_genMipmaps)
+atTextureContext::atTextureContext(atTextureContext &&move)
+  : m_genMipmaps(move.m_genMipmaps)
 {
   m_pTexture = move.m_pTexture;
   m_pUAView = move.m_pUAView;
@@ -136,7 +137,7 @@ atTextureContext::atTextureContext(atTextureContext &&move) : m_genMipmaps(move.
   move.m_pShaderView = nullptr;
 }
 
-const atTextureContext &atTextureContext::operator=(const atTextureContext &rhs)
+const atTextureContext& atTextureContext::operator=(const atTextureContext &rhs)
 {
   Release();
   m_pTexture = rhs.m_pTexture;
@@ -155,7 +156,7 @@ const atTextureContext &atTextureContext::operator=(const atTextureContext &rhs)
   return *this;
 }
 
-const atTextureContext &atTextureContext::operator=(atTextureContext &&rhs)
+const atTextureContext& atTextureContext::operator=(atTextureContext &&rhs)
 {
   Release();
   m_pTexture = rhs.m_pTexture;
@@ -178,11 +179,11 @@ const atTextureContext &atTextureContext::operator=(atTextureContext &&rhs)
 
 void atTextureContext::Release()
 {
-  atGraphics::SafeRelease(m_pTexture);
-  atGraphics::SafeRelease(m_pDepthView);
-  atGraphics::SafeRelease(m_pRenderView);
-  atGraphics::SafeRelease(m_pShaderView);
-  atGraphics::SafeRelease(m_pUAView);
+  atDirectX::SafeRelease(m_pTexture);
+  atDirectX::SafeRelease(m_pDepthView);
+  atDirectX::SafeRelease(m_pRenderView);
+  atDirectX::SafeRelease(m_pShaderView);
+  atDirectX::SafeRelease(m_pUAView);
 }
 
 atTextureContext::operator ID3D11ShaderResourceView*()

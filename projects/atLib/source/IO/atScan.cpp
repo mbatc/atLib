@@ -139,17 +139,18 @@ double atScan::Float(const char *str, int64_t *pLen, int64_t srclen)
   int64_t lastNum = atString::_find_first_not(str, "0123456789.", firstNum + isNegative);
   if (lastNum < 0)
     lastNum = len;
-  int64_t floatlen = lastNum - firstNum - isNegative;
-
-  if (pLen) *pLen = 0;
-  if (firstNum != nextChar || floatlen == 0)
-    return 0.0f;
 
   bool hasDot = dot > firstNum && dot < lastNum;
+  int64_t floatlen = lastNum - firstNum - (isNegative ? 1 : 0) - (hasDot ? 1 : 0);
+
+  if (pLen) *pLen = 0;
+  if (firstNum != nextChar || floatlen <= 0)
+    return 0.0f;
+
   int64_t exponent = 0;
-  int64_t mag = (int64_t)pow(10, floatlen - 1 - hasDot);
+  int64_t mag = (int64_t)pow(10, floatlen - 1);
   if (hasDot)
-    exponent = dot - floatlen + 1;
+    exponent = floatlen - (dot - firstNum - isNegative);
 
 
   uint64_t value = 0;
@@ -163,7 +164,7 @@ double atScan::Float(const char *str, int64_t *pLen, int64_t srclen)
   if (pLen && floatlen > 0)
     *pLen = lastNum;
 
-  return (double)value * pow(10, exponent) * (isNegative ? -1 : 1);
+  return (double)value * pow(10, -exponent) * (isNegative ? -1 : 1);
 }
 
 bool atScan::Bool(const char *str, int64_t *pLen, int64_t srclen)

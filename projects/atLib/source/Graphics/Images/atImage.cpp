@@ -106,14 +106,14 @@ atCol atImage::Sample(const atVec2F &uv, const atSampleType type) const
   return 0;
 }
 
-const atImage &atImage::operator=(const atImage &copy)
+const atImage& atImage::operator=(const atImage &copy)
 {
   m_pixels = copy.m_pixels;
   m_size = copy.m_size;
   return *this;
 }
 
-const atImage & atImage::operator=(atImage &&move)
+const atImage& atImage::operator=(atImage &&move)
 {
   m_pixels = std::move(move.m_pixels);
   m_size = move.m_size;

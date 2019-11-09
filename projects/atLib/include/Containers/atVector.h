@@ -36,6 +36,7 @@ template<typename T> class atVector
 {
   const double _grow_rate = 1.61803399; // PHI
 public:
+  typedef T ElementType;
   typedef T* vector_iterator;
   typedef const T* vector_const_iterator;
 
@@ -184,6 +185,13 @@ protected:
   int64_t m_capacity = 0;
   T *m_pData = nullptr;
 };
+
+template<typename T> atTypeDesc atGetTypeDesc(const atVector<T> &vec)
+{
+  atTypeDesc desc = atGetTypeDesc<T>();
+  desc.count *= vec.size();
+  return desc;
+}
 
 template<typename T> int64_t atStreamWrite(atWriteStream *pStream, const atVector<T> *pData, const int64_t count)
 {

@@ -32,13 +32,17 @@ buildoptions { "/bigobj" }
   includedirs { "include", "include/**" } 
 
   -- Third Party
-  includedirs { "3rdParty/**" } 
+  includedirs { "3rdParty" } 
+  includedirs { "3rdParty/stb" }
+  includedirs { "3rdParty/lua/include" }
+  includedirs { "3rdParty/glew/include" }
+  includedirs { "3rdParty/imgui" }
 
 
 -- Third Party Files
 
-  files { "3rdParty/**.cpp", "3rdParty/**.h", "3rdParty/**.inl" }
   files { "3rdParty/sol/sol.hpp" }
+  files { "3rdParty/imgui/**.cpp", "3rdParty/imgui/**.h" }
 
 -- Project Files
 

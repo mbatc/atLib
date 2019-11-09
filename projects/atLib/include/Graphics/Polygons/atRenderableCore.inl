@@ -30,7 +30,7 @@ template<typename T> void atRenderableCore::SetChannel(const atString &name, con
   res.count = 1;
   res.desc = atGetTypeDesc<T>();
   res.type = type;
-  res.data.resize(res.desc.size);
+  res.data.resize(res.desc.size * res.desc.count * res.desc.width * res.count);
   memcpy(res.data.data(), &data, (size_t)res.data.size());
 }
 
@@ -38,11 +38,11 @@ template<typename T> void atRenderableCore::SetChannel(const atString &name, con
 {
   Resource &res = GetResource(name);
   res = Resource();
-  res.desc = atGetTypeDesc<T>();
   res.count = data.size();
+  res.desc = atGetTypeDesc<T>();
   res.type = type;
-  res.data.resize(res.desc.size * res.count);
+  res.data.resize(res.desc.size * res.desc.count * res.desc.width * res.count);
   memcpy(res.data.data(), data.data(), (size_t)res.data.size());
 }
 
-template<typename T> void atRenderableCore::SetChannel(const atString & name, const std::initializer_list<T>& list, const atRenderable_ResourceType type) { SetChannel(name, atVector<T>(list), type); }
+template<typename T> void atRenderableCore::SetChannel(const atString &name, const std::initializer_list<T>& list, const atRenderable_ResourceType type) { SetChannel(name, atVector<T>(list), type); }

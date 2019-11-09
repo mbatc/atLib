@@ -24,7 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atLua.h"
-#include "sol.hpp"
+#include "sol/sol.hpp"
 #include "atImGui.h"
 #include "atInput.h"
 #include "atLuaScene.h"

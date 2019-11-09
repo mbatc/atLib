@@ -47,7 +47,7 @@ public:
   void UpdateTexture(const atImage &image, const bool genMipmaps = true, const int64_t sampleCount = 1);
 
   atVec2I Size() const;
-
+  
   operator ID3D11Texture2D *();
   operator ID3D11ShaderResourceView *();
   operator ID3D11RenderTargetView *();
@@ -59,18 +59,19 @@ public:
   operator ID3D11DepthStencilView **();
   operator ID3D11UnorderedAccessView **();
 
-  const atTextureContext &operator=(const atTextureContext &rhs);
-  const atTextureContext &operator=(atTextureContext &&rhs);
+  const atTextureContext& operator=(const atTextureContext &rhs);
+  const atTextureContext& operator=(atTextureContext &&rhs);
+
 protected:
   bool m_genMipmaps;
   bool m_depthTexture;
   int64_t m_sampleCount;
 
-  ID3D11Texture2D *m_pTexture = nullptr;
   ID3D11ShaderResourceView *m_pShaderView = nullptr;
   ID3D11RenderTargetView *m_pRenderView = nullptr;
   ID3D11DepthStencilView *m_pDepthView = nullptr;
   ID3D11UnorderedAccessView *m_pUAView = nullptr;
+  ID3D11Texture2D *m_pTexture = nullptr;
 };
 
 #endif // atTextureContext_h__

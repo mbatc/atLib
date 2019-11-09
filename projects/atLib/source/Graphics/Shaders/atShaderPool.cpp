@@ -97,13 +97,13 @@ int64_t atShaderPool::BindShader(const int64_t id)
     return id;
   }
 
-  atGraphics::GetContext()->VSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->PSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->GSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->CSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->DSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->HSSetShader(nullptr, 0, 0);
-  atGraphics::GetContext()->IASetInputLayout(nullptr);
+  atDirectX::GetContext()->VSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->PSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->GSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->CSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->DSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->HSSetShader(nullptr, 0, 0);
+  atDirectX::GetContext()->IASetInputLayout(nullptr);
   return AT_INVALID_ID;
 }
 
@@ -117,7 +117,7 @@ int64_t atShaderPool::BindInputLayout(const int64_t id)
   if (!ppLayout)
     return AT_INVALID_ID;
   
-  atGraphics::GetContext()->IASetInputLayout(*ppLayout);
+  atDirectX::GetContext()->IASetInputLayout(*ppLayout);
   return id;
 }
 
@@ -145,7 +145,7 @@ int64_t atShaderPool::GetInputLayout(const int64_t id, const atVector<VertexData
   atVector<D3D11_INPUT_ELEMENT_DESC> d3dDesc;
   d3dDesc.reserve(desc.size());
   for (const VertexData &data : desc)
-    d3dDesc.push_back({data.semantic.c_str(), 0, (DXGI_FORMAT)atFormat::DXGI(data.desc.type, data.desc.count), 0, &data == desc.begin() ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0});
+    d3dDesc.push_back({data.semantic.c_str(), 0, (DXGI_FORMAT)atFormat::DXGI(data.desc.type, data.desc.width), 0, &data == desc.begin() ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0});
   return pRef->pShader->CreateInputLayout(d3dDesc);
 }
 

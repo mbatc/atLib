@@ -52,14 +52,12 @@ atRenderTarget::atRenderTarget(atWindow *pWindow, const atVec2I &size, const boo
 
 void atRenderTarget::Clear(const atVec4F &color, const float depth)
 {
-  GetColourTexID();
-  GetDepthTexID();
-  atTextureContext *pColour = atHardwareTexture::GetTexture(m_colorTexID);
-  atTextureContext *pDepth = atHardwareTexture::GetTexture(m_depthTexID);
+  atTextureContext *pColour = atHardwareTexture::GetTexture(GetColourTexID());
+  atTextureContext *pDepth = atHardwareTexture::GetTexture(GetDepthTexID());
   if(pColour)
-    atGraphics::GetContext()->ClearRenderTargetView(*pColour, &color[0]);
+    atDirectX::GetContext()->ClearRenderTargetView(*pColour, &color[0]);
   if(pDepth)
-    atGraphics::GetContext()->ClearDepthStencilView(*pDepth, D3D11_CLEAR_DEPTH, depth, 0);
+    atDirectX::GetContext()->ClearDepthStencilView(*pDepth, D3D11_CLEAR_DEPTH, depth, 0);
 }
 
 int64_t atRenderTarget::GetDepthTexID()
@@ -106,8 +104,8 @@ void atRenderTarget::CreateSwapChain()
   DXGI_SWAP_CHAIN_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
   desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  desc.BufferDesc.RefreshRate.Numerator = (UINT)atGraphics::RefreshRateNumerator(m_vsync);
-  desc.BufferDesc.RefreshRate.Denominator = (UINT)atGraphics::RefreshRateDenominator(m_vsync);
+  desc.BufferDesc.RefreshRate.Numerator = (UINT)atDirectX::RefreshRateNumerator(m_vsync);
+  desc.BufferDesc.RefreshRate.Denominator = (UINT)atDirectX::RefreshRateDenominator(m_vsync);
   desc.BufferDesc.Width = m_size.x;
   desc.BufferDesc.Height = m_size.y;
   desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -121,13 +119,13 @@ void atRenderTarget::CreateSwapChain()
   desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
   desc.Flags = 0;
   
-  if (FAILED(atGraphics::GetFactory()->CreateSwapChain(atGraphics::GetDevice(), &desc, &m_pSwapChain)))
+  if (FAILED(atDirectX::GetFactory()->CreateSwapChain(atDirectX::GetDevice(), &desc, &m_pSwapChain)))
     m_pSwapChain = nullptr;
 }
 
 void atRenderTarget::GetWindowRenderTarget()
 {
-  if (m_colorTexID != AT_INVALID_ID || !GetSwapChain() || !atGraphics::GetDevice())
+  if (m_colorTexID != AT_INVALID_ID || !GetSwapChain() || !atDirectX::GetDevice())
     return;
 
   ID3D11Texture2D *pBackbuffer = nullptr;
@@ -138,7 +136,7 @@ void atRenderTarget::GetWindowRenderTarget()
 
 void atRenderTarget::Destroy()
 {
-  atGraphics::SafeRelease(m_pSwapChain);
+  atDirectX::SafeRelease(m_pSwapChain);
   atHardwareTexture::DeleteTexture(m_colorTexID);
   atHardwareTexture::DeleteTexture(m_depthTexID);
   m_colorTexID = AT_INVALID_ID;

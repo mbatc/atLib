@@ -65,15 +65,17 @@ template<> int64_t atSize(const atType &val);
 
 struct atTypeDesc
 {
-  atTypeDesc(const atType type = atType_Unknown, const int64_t count = 1)
+  atTypeDesc(const atType type = atType_Unknown, const int64_t width = 1, const int64_t count = 1)
     : type(type)
     , count(count)
-    , size(atSize(type) * count)
+    , width(width)
+    , size(atSize(type))
   {}
 
-  atType type;
-  int64_t count;
-  int64_t size;
+  atType type = atType_Unknown;
+  int64_t width = 1;
+  int64_t count = 1;
+  int64_t size = 1;
 
   bool operator==(const atTypeDesc &o) const;
   bool operator!=(const atTypeDesc &o) const;
@@ -98,7 +100,17 @@ template<> atType atGetType<double>();
 // Return a struct containing the atType enum and count of that type
 // Specialized Templates implemented in atMath.h for atVector2/3/4 and atMatrix
 
-template<typename T> atTypeDesc atGetTypeDesc() { return{ atGetType<T>(), 1}; }
+template<typename T> atTypeDesc atGetTypeDesc() { return atTypeDesc(atGetType<T>()); }
 template<typename T> atTypeDesc atGetTypeDesc(const T &unused) { atUnused(unused); return atGetTypeDesc<T>(); }
+
+// Type case helpers
+template<typename T1, typename T2> bool __atTypeCast(T1 *pDst, const T2 *pSrc, const int64_t &count);
+template<typename T> bool __atTypeCast(T *pDst, const T *pSrc, const int64_t &count);
+template<typename T> bool __atTypeCast(void *pDst, const T *pSrc, const atType &dstType, const int64_t &count);
+
+// Cast types that can be expressed by an atTypeDesc
+bool atTypeCast(void *pDst, const void *pSrc, const atTypeDesc &dstType, const atTypeDesc &srcType);
+
+#include "atTypes.inl"
 
 #endif

@@ -148,26 +148,26 @@ bool atRenderableCore::Draw(const atRenderable_PrimitiveType type /*= atRPT_Tria
   // Bind Vertex Buffer and Index Buffer (if not null) then Draw
   UINT offset = 0;
   UINT stride = (UINT)m_stride;
-  atGraphics::GetContext()->IASetVertexBuffers(0, 1, &m_pVertBuffer, &stride, &offset);
+  atDirectX::GetContext()->IASetVertexBuffers(0, 1, &m_pVertBuffer, &stride, &offset);
   switch (type)
   {
-  case atRPT_LineList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
-  case atRPT_PointList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-  case atRPT_LineListAdj: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
-  case atRPT_TriangleList: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-  case atRPT_TriangleStrip: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
-  case atRPT_TriangleListAdj: atGraphics::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
+  case atRPT_LineList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+  case atRPT_PointList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+  case atRPT_LineListAdj: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
+  case atRPT_TriangleList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+  case atRPT_TriangleStrip: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+  case atRPT_TriangleListAdj: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
   }
 
   bool indexed = type == atRPT_TriangleList || type == atRPT_LineList || type == atRPT_PointList;
   
   if (m_pIndexBuffer && indexed)
   {
-    atGraphics::GetContext()->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    atGraphics::DrawIndexed((UINT)m_nIndices);
+    atDirectX::GetContext()->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    atDirectX::DrawIndexed((UINT)m_nIndices);
   }
   else
-    atGraphics::Draw((UINT)m_nVerts);
+    atDirectX::Draw((UINT)m_nVerts);
   return true;
 }
 
@@ -194,7 +194,7 @@ bool atRenderableCore::Rebuild()
   bool res = true;
   if (vbInvalid || vbCount == 0)
   {
-    atGraphics::SafeRelease(m_pVertBuffer);
+    atDirectX::SafeRelease(m_pVertBuffer);
 
     m_layout.clear();
     int64_t nVerts = 0;
@@ -211,17 +211,21 @@ bool atRenderableCore::Rebuild()
 
     m_stride = 0;
     for (const VertexData &data : m_layout)
-      m_stride += data.desc.size;
+      m_stride += data.desc.size * data.desc.count * data.desc.width;
     atVector<uint8_t> rawVert(m_stride * nVerts, 0);
 
     int64_t offset = 0;
     for (int64_t i = 0; i < nVerts; ++i)
+    {
       for (const VertexData &data : m_layout)
       {
+        int64_t stride = data.desc.size * data.desc.count * data.desc.width;
         Resource &res = m_resource.Get(data.semantic);
-        memcpy(rawVert.data() + offset, res.data.data() + i * data.desc.size, (size_t)data.desc.size);
-        offset += data.desc.size;
+        memcpy(rawVert.data() + offset, res.data.data() + i * stride, (size_t)stride);
+        offset += stride;
       }
+      offset;
+    }
 
     // Create D3D11 Vertex Buffer
     res &= atGraphics::CreateBuffer(&m_pVertBuffer, rawVert.data(), rawVert.size(), D3D11_BIND_VERTEX_BUFFER);
@@ -229,7 +233,7 @@ bool atRenderableCore::Rebuild()
 
   if (ibInvalid || ibCount == 0)
   {
-    atGraphics::SafeRelease(m_pIndexBuffer);
+    atDirectX::SafeRelease(m_pIndexBuffer);
 
     Resource *pIndices = nullptr;
     for (auto &kvp : m_resource)
@@ -253,8 +257,8 @@ bool atRenderableCore::Rebuild()
 
 void atRenderableCore::Clear()
 {
-  atGraphics::SafeRelease(m_pIndexBuffer);
-  atGraphics::SafeRelease(m_pVertBuffer);
+  atDirectX::SafeRelease(m_pIndexBuffer);
+  atDirectX::SafeRelease(m_pVertBuffer);
   SetShader("");
   m_nIndices = 0;
   m_nVerts = 0;
@@ -268,7 +272,7 @@ void atRenderableCore::SetChannel(const atString &name, const atString &data, co
   res.desc = atGetTypeDesc<char>();
   res.count = data.length() + 1;
   res.type = type;
-  res.data.resize(res.count * res.desc.size);
+  res.data.resize(res.count * res.desc.size * res.desc.width);
   memcpy(res.data.data(), data.c_str(), (size_t)res.data.size());
 }
 

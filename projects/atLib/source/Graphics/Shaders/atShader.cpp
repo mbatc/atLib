@@ -46,33 +46,33 @@ static bool _CompileShader(const atString &src, const atString &shadertype, void
   }
 
   if (shadertype == VERTEX_SHADER)
-    atGraphics::GetDevice()->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)ppShader);
+    atDirectX::GetDevice()->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)ppShader);
   else if (shadertype == PIXEL_SHADER)
-    atGraphics::GetDevice()->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)ppShader);
+    atDirectX::GetDevice()->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)ppShader);
   else if (shadertype == GEOM_SHADER)
-    atGraphics::GetDevice()->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)ppShader);
+    atDirectX::GetDevice()->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)ppShader);
   else if (shadertype == HULL_SHADER)
-    atGraphics::GetDevice()->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)ppShader);
+    atDirectX::GetDevice()->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)ppShader);
   else if (shadertype == DOMAIN_SHADER)
-    atGraphics::GetDevice()->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)ppShader);
+    atDirectX::GetDevice()->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)ppShader);
   else if (shadertype == COMPUTE_SHADER)
-    atGraphics::GetDevice()->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)ppShader);
+    atDirectX::GetDevice()->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)ppShader);
 
   if (ppShaderBlob)
     *ppShaderBlob = pShaderBlob;
   else
-    atGraphics::SafeRelease(pShaderBlob);
+    atDirectX::SafeRelease(pShaderBlob);
   return *ppShader != nullptr;
 }
 
 atShader::~atShader()
 {
-  atGraphics::SafeRelease(m_pPixel);
-  atGraphics::SafeRelease(m_pVert);
-  atGraphics::SafeRelease(m_pHull);
-  atGraphics::SafeRelease(m_pComp);
-  atGraphics::SafeRelease(m_pDomain);
-  atGraphics::SafeRelease(m_pGeom);
+  atDirectX::SafeRelease(m_pPixel);
+  atDirectX::SafeRelease(m_pVert);
+  atDirectX::SafeRelease(m_pHull);
+  atDirectX::SafeRelease(m_pComp);
+  atDirectX::SafeRelease(m_pDomain);
+  atDirectX::SafeRelease(m_pGeom);
   m_resource.clear();
 
   for (auto &kvp : m_layoutLookup)
@@ -122,12 +122,12 @@ void atShader::Bind()
 {
   UpdateResources();
 
-  atGraphics::GetContext()->VSSetShader(m_pVert, 0, 0);
-  atGraphics::GetContext()->PSSetShader(m_pPixel, 0, 0);
-  atGraphics::GetContext()->GSSetShader(m_pGeom, 0, 0);
-  atGraphics::GetContext()->CSSetShader(m_pComp, 0, 0);
-  atGraphics::GetContext()->DSSetShader(m_pDomain, 0, 0);
-  atGraphics::GetContext()->HSSetShader(m_pHull, 0, 0);
+  atDirectX::GetContext()->VSSetShader(m_pVert, 0, 0);
+  atDirectX::GetContext()->PSSetShader(m_pPixel, 0, 0);
+  atDirectX::GetContext()->GSSetShader(m_pGeom, 0, 0);
+  atDirectX::GetContext()->CSSetShader(m_pComp, 0, 0);
+  atDirectX::GetContext()->DSSetShader(m_pDomain, 0, 0);
+  atDirectX::GetContext()->HSSetShader(m_pHull, 0, 0);
 
   for (ResourceDesc &desc : m_resource)
     atGraphics::BindShaderResource(desc.shader, desc.type, desc.reg, desc.pDXResource);
@@ -231,7 +231,7 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
     resource.SysMemSlicePitch = 0;
 
     ID3D11Buffer *pBuffer = nullptr;  
-    atAssert(S_OK == atGraphics::GetDevice()->CreateBuffer(&desc, &resource, &pBuffer), "Failed to crate constant buffer!");
+    atAssert(S_OK == atDirectX::GetDevice()->CreateBuffer(&desc, &resource, &pBuffer), "Failed to crate constant buffer!");
     rd.pDXResource = pBuffer;
   }
 
@@ -262,7 +262,7 @@ void atShader::AddResources(const atShaderParser &parser, const atShaderType typ
 
 void atShader::UpdateResources()
 {
-  ID3D11DeviceContext* pCtx = atGraphics::GetContext();
+  ID3D11DeviceContext* pCtx = atDirectX::GetContext();
   for (int64_t i = 0; i < m_resource.size(); ++i)
   {
     if (!m_bufDirty[i])
@@ -287,7 +287,7 @@ void atShader::UpdateResources()
 int64_t atShader::CreateInputLayout(const atVector<D3D11_INPUT_ELEMENT_DESC> &desc)
 {
   ID3D11InputLayout *pLayout = nullptr;
-  HRESULT res = atGraphics::GetDevice()->CreateInputLayout(desc.data(), (UINT)desc.size(), m_vsByteCode.data(), (size_t)m_vsByteCode.size(), &pLayout);
+  HRESULT res = atDirectX::GetDevice()->CreateInputLayout(desc.data(), (UINT)desc.size(), m_vsByteCode.data(), (size_t)m_vsByteCode.size(), &pLayout);
   if (FAILED(res))
     return -1;
   m_layoutLookup.Add(s_nextLayoutID, pLayout);
@@ -336,72 +336,72 @@ const atString& atShader::GetName() const { return m_name; }
 
 bool atShader::SetHullShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pHull);
+  atDirectX::SafeRelease(m_pHull);
   return SetShaderSource(src, &m_hsParser, &m_hsByteCode, &m_hullPath, (void**)&m_pHull, HULL_SHADER);
 }
 
 bool atShader::SetVertexShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pVert);
+  atDirectX::SafeRelease(m_pVert);
   return SetShaderSource(src, &m_vsParser, &m_vsByteCode, &m_vertPath, (void**)&m_pVert, VERTEX_SHADER);
 }
 
 bool atShader::SetPixelShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pPixel);
+  atDirectX::SafeRelease(m_pPixel);
   return SetShaderSource(src, &m_psParser, &m_psByteCode, &m_pixelPath, (void**)&m_pPixel, PIXEL_SHADER);
 }
 
 bool atShader::SetGeometryShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pGeom);
+  atDirectX::SafeRelease(m_pGeom);
   return SetShaderSource(src, &m_gsParser, &m_gsByteCode, &m_geomPath, (void**)&m_pGeom, GEOM_SHADER);
 }
 
 bool atShader::SetComputeShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pComp);
+  atDirectX::SafeRelease(m_pComp);
   return SetShaderSource(src, &m_csParser, &m_csByteCode, &m_computePath, (void**)&m_pComp, COMPUTE_SHADER);
 }
 
 bool atShader::SetDomainShaderSource(const atString &src)
 {
-  atGraphics::SafeRelease(m_pDomain);
+  atDirectX::SafeRelease(m_pDomain);
   return SetShaderSource(src, &m_dsParser, &m_dsByteCode, &m_domainPath, (void**)&m_pDomain, DOMAIN_SHADER);
 }
 
 bool atShader::SetVertexShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pVert);
+  atDirectX::SafeRelease(m_pVert);
   return SetShader(file, &m_vsParser, &m_vsByteCode, &m_vertPath, (void**)&m_pVert, VERTEX_SHADER);
 }
 
 bool atShader::SetPixelShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pPixel);
+  atDirectX::SafeRelease(m_pPixel);
   return SetShader(file, &m_psParser, &m_psByteCode, &m_pixelPath, (void**)&m_pPixel, PIXEL_SHADER);
 }
 
 bool atShader::SetHullShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pHull);
+  atDirectX::SafeRelease(m_pHull);
   return SetShader(file, &m_hsParser, &m_hsByteCode, &m_hullPath, (void**)&m_pHull, HULL_SHADER);
 }
 
 bool atShader::SetGeometryShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pGeom);
+  atDirectX::SafeRelease(m_pGeom);
   return SetShader(file, &m_gsParser, &m_gsByteCode, &m_geomPath, (void**)&m_pGeom, GEOM_SHADER);
 }
 
 bool atShader::SetComputeShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pComp);
+  atDirectX::SafeRelease(m_pComp);
   return SetShader(file, &m_csParser, &m_csByteCode, &m_computePath, (void**)&m_pComp, COMPUTE_SHADER);
 }
 
 bool atShader::SetDomainShader(const atFilename &file)
 {
-  atGraphics::SafeRelease(m_pDomain);
+  atDirectX::SafeRelease(m_pDomain);
   return SetShader(file, &m_dsParser, &m_dsByteCode, &m_domainPath, (void**)&m_pDomain, DOMAIN_SHADER);
 }

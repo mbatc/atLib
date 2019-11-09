@@ -25,35 +25,35 @@
 
 #include "atMath.h"
 
-template<> atTypeDesc atGetTypeDesc<atVector2<float>>() { return{ atGetType<float>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<float>>() { return{ atGetType<float>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<float>>() { return{ atGetType<float>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<float>>() { return atTypeDesc(atGetType<float>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<float>>() { return atTypeDesc(atGetType<float>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<float>>() { return atTypeDesc(atGetType<float>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atVector2<double>>() { return{ atGetType<double>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<double>>() { return{ atGetType<double>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<double>>() { return{ atGetType<double>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<double>>() { return atTypeDesc(atGetType<double>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<double>>() { return atTypeDesc(atGetType<double>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<double>>() { return atTypeDesc(atGetType<double>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atVector2<int32_t>>() { return{ atGetType<int32_t>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<int32_t>>() { return{ atGetType<int32_t>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<int32_t>>() { return{ atGetType<int32_t>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<int32_t>>() { return atTypeDesc(atGetType<int32_t>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<int32_t>>() { return atTypeDesc(atGetType<int32_t>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<int32_t>>() { return atTypeDesc(atGetType<int32_t>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atVector2<int64_t>>() { return{ atGetType<int64_t>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<int64_t>>() { return{ atGetType<int64_t>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<int64_t>>() { return{ atGetType<int64_t>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<int64_t>>() { return atTypeDesc(atGetType<int64_t>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<int64_t>>() { return atTypeDesc(atGetType<int64_t>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<int64_t>>() { return atTypeDesc(atGetType<int64_t>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atVector2<int8_t>>() { return{ atGetType<int8_t>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<int8_t>>() { return{ atGetType<int8_t>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<int8_t>>() { return{ atGetType<int8_t>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<int8_t>>() { return atTypeDesc(atGetType<int8_t>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<int8_t>>() { return atTypeDesc(atGetType<int8_t>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<int8_t>>() { return atTypeDesc(atGetType<int8_t>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atVector2<int16_t>>() { return{ atGetType<int16_t>(), 2 }; }
-template<> atTypeDesc atGetTypeDesc<atVector3<int16_t>>() { return{ atGetType<int16_t>(), 3 }; }
-template<> atTypeDesc atGetTypeDesc<atVector4<int16_t>>() { return{ atGetType<int16_t>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atVector2<int16_t>>() { return atTypeDesc(atGetType<int16_t>(), 2); }
+template<> atTypeDesc atGetTypeDesc<atVector3<int16_t>>() { return atTypeDesc(atGetType<int16_t>(), 3); }
+template<> atTypeDesc atGetTypeDesc<atVector4<int16_t>>() { return atTypeDesc(atGetType<int16_t>(), 4); }
 
-template<> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>() { return{ atGetType<double>(), 16 }; }
-template<> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>() { return{ atGetType<float>(), 16 }; }
+template<> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>() { return atTypeDesc(atGetType<double>(), 16); }
+template<> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>() { return atTypeDesc(atGetType<float>(), 16); }
 
-template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>() { return{ atGetType<double>(), 4 }; }
-template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>() { return{ atGetType<float>(), 4 }; }
+template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>() { return atTypeDesc(atGetType<double>(), 4); }
+template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>() { return atTypeDesc(atGetType<float>(), 4); }
 
 template<> inline float atMod(const float &a, const float &b) { return fmodf(a, b); }
 template<> inline double atMod(const double &a, const double &b) { return fmodl(a, b); }
