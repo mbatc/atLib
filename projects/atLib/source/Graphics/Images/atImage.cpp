@@ -48,7 +48,7 @@ atImage::atImage(const atCol *pPixels, const atVec2I &size)
   : m_size(size) 
 {
   m_pixels.resize(size.x * size.y);
-  memcpy(m_pixels.data(), pPixels, m_pixels.size());
+  memcpy(m_pixels.data(), pPixels, m_pixels.size() * sizeof(atCol));
 }
 
 atImage::atImage(const uint8_t *pPixels, const atVec2I &size, const int64_t nChannels) : m_size(size) { m_pixels = std::move(atImageHelper::LoadFromMemory(pPixels, size, (int)nChannels)); }

@@ -110,3 +110,4 @@ void atGFXTexInterface::Set(const atVector<atVector<float>> &images, const atVec
 }
 
 const atVec2I& atGFXTexInterface::Size() const { return m_size; }
+const atGFXTextureType& atGFXTexInterface::Type() const { return m_type; }

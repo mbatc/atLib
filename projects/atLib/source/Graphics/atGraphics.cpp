@@ -24,84 +24,135 @@
 // -----------------------------------------------------------------------------
 
 #include "atGraphics.h"
-#include "atTextureContext.h"
-#include "atRenderState.h"
-#include <stdlib.h>
+#include "atDirectX.h"
+#include "atOpenGL.h"
+#include "atWindow.h"
 
-void atGraphics::Shutdown()
+static atGraphics *_pCurrent = nullptr;
+
+class __atGfxImpl
 {
-  atDirectX::Shutdown();
+public:
+  __atGfxImpl(atWindow *pWindow, const atGraphicsAPI &api);
+  ~__atGfxImpl();
+
+  atGraphicsAPI m_api;
+
+  union
+  {
+    atOpenGL *m_pOpenGL;
+    atDirectX *m_pDirectX;
+  };
+};
+
+atGraphics::atGraphics(atWindow *pWindow, const atGraphicsAPI &api)
+  : m_pWindow(pWindow)
+  , m_api(api)
+  , m_pImpl(atNew<__atGfxImpl>(pWindow, api))
+{
+  if (!_pCurrent)
+    SetCurrent(this);
+  pWindow->SetHardwareCtx(this);
 }
 
-bool atGraphics::BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void *pResource)
+atGraphics::~atGraphics()
 {
-  if (slot < 0 || !pResource)
-    return false;
+  if (_pCurrent == this)
+    _pCurrent = nullptr;
+  m_pWindow->SetHardwareCtx(nullptr);
+}
 
-  ID3D11Buffer *pBuffer;
-  atTextureContext *pTexture;
-  ID3D11SamplerState *pSampler;
-  ID3D11DeviceContext *pContext = atDirectX::GetContext();
-  switch (resType)
+void* atGraphics::GetCtx() { return (void*)_pCurrent->m_pImpl->m_pDirectX; }
+
+void atGraphics::Resize()
+{
+  switch (m_api)
   {
-  case atSRT_Buffer:
-    pBuffer = (ID3D11Buffer*)pResource;
-    switch (shader)
-    {
-    case atST_Vertex: pContext->VSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    case atST_Pixel: pContext->PSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    case atST_Domain: pContext->DSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    case atST_Hull: pContext->HSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    case atST_Compute: pContext->CSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    case atST_Geometry: pContext->GSSetConstantBuffers((UINT)slot, 1, &pBuffer); break;
-    default: return false;
-    }
+  case atGfxApi_DirectX:
+  {
+    m_pImpl->m_pDirectX->ResizeSwapChain(m_pWindow->Size());
     break;
-  case atSRT_Sampler:
-    pSampler = (ID3D11SamplerState*)pResource;
-    switch (shader)
-    {
-    case atST_Vertex: pContext->VSSetSamplers((UINT)slot, 1, &pSampler); break;
-    case atST_Pixel: pContext->PSSetSamplers((UINT)slot, 1, &pSampler); break;
-    case atST_Domain: pContext->DSSetSamplers((UINT)slot, 1, &pSampler); break;
-    case atST_Hull: pContext->HSSetSamplers((UINT)slot, 1, &pSampler); break;
-    case atST_Compute: pContext->CSSetSamplers((UINT)slot, 1, &pSampler); break;
-    case atST_Geometry: pContext->GSSetSamplers((UINT)slot, 1, &pSampler); break;
-    default: return false;
-    }
-    break;
-  case atSRT_Texture:
-    pTexture = (atTextureContext*)pResource;
-    switch (shader)
-    {
-    case atST_Vertex: pContext->VSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    case atST_Pixel: pContext->PSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    case atST_Domain: pContext->DSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    case atST_Hull: pContext->HSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    case atST_Compute: pContext->CSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    case atST_Geometry: pContext->GSSetShaderResources((UINT)slot, 1, *pTexture); break;
-    default: return false;
-    }
-    break;
-  default: return false;
   }
+  case atGfxApi_OpenGL: // Open GL automatically resizes the swap chain
+    break;
+  }
+}
+
+bool atGraphics::Clear(const atVec4F &color, const float &depth)
+{
+  switch (m_api)
+  {
+  case atGfxApi_DirectX:
+  {
+    m_pImpl->m_pDirectX->GetContext()->ClearRenderTargetView(m_pImpl->m_pDirectX->GetBackbuffer(), &color[0]);
+    m_pImpl->m_pDirectX->GetContext()->ClearDepthStencilView(m_pImpl->m_pDirectX->GetDepthBuffer(), D3D11_CLEAR_DEPTH, depth, 0xFF);
+    break;
+  }
+  case atGfxApi_OpenGL:
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClearDepth(depth);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    break;
+  }
+
   return true;
 }
 
-bool atGraphics::CreateBuffer(ID3D11Buffer **ppBuffer, void *pData, int64_t size, int64_t binding, int64_t usage, int64_t cpuAccess)
+bool atGraphics::Swap()
 {
-  if (!ppBuffer)
-    return false;
-  atDirectX::SafeRelease(*ppBuffer);
-  D3D11_BUFFER_DESC desc = { 0 };
-  desc.Usage = (D3D11_USAGE)usage;
-  desc.BindFlags = (UINT)binding;
-  desc.ByteWidth = (UINT)size;
-  desc.CPUAccessFlags = (UINT)cpuAccess;
+  switch (m_api)
+  {
+  case atGfxApi_DirectX:
+    m_pImpl->m_pDirectX->GetSwapChain()->Present(m_pImpl->m_pDirectX->GetVsyncEnabled(), 0);
+    break;
+  case atGfxApi_OpenGL:
+    m_pImpl->m_pOpenGL->Swap();
+    break;
+  }
 
-  D3D11_SUBRESOURCE_DATA data = { 0 };
-  data.pSysMem = pData;
-  data.SysMemPitch = 0;
-  data.SysMemSlicePitch = 0;
-  return !FAILED(atDirectX::GetDevice()->CreateBuffer(&desc, pData ? &data : nullptr, ppBuffer));
+  return true;
+}
+
+bool atGraphics::SetWindowed(const bool &windowed)
+{
+  switch (m_api)
+  {
+  case atGfxApi_DirectX:
+  {
+    m_pImpl->m_pDirectX->GetSwapChain()->SetFullscreenState(!windowed, nullptr);
+    break;
+  }
+  case atGfxApi_OpenGL:
+  {
+    
+  }
+  }
+  return false;
+}
+
+void atGraphics::SetCurrent(atGraphics *pContext) { _pCurrent = pContext; }
+
+atGraphics* atGraphics::GetCurrent() { return _pCurrent; }
+
+const atGraphicsAPI& atGraphics::GetAPI() const { return m_api; }
+
+__atGfxImpl::__atGfxImpl(atWindow *pWindow, const atGraphicsAPI &api)
+  : m_api(api)
+{
+  switch (m_api)
+  {
+  case atGfxApi_DirectX: m_pDirectX = atNew<atDirectX>(pWindow, true); break;
+  case atGfxApi_OpenGL: m_pOpenGL = atNew<atOpenGL>(pWindow, true); break;
+  default: m_pOpenGL = nullptr; break;
+  }
+}
+
+__atGfxImpl::~__atGfxImpl()
+{
+  switch (m_api)
+  {
+  case atGfxApi_OpenGL: atDelete(m_pOpenGL); break;
+  case atGfxApi_DirectX: atDelete(m_pDirectX); break;
+  }
 }

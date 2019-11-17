@@ -26,6 +26,7 @@
 #ifndef atSceneCamera_h__
 #define atSceneCamera_h__
 
+#include "atMath.h"
 #include "atWindow.h"
 #include "atTransformable.h"
 #include "atSceneComponent.h"
@@ -38,7 +39,7 @@ public:
   void SetViewport(const atVec4I viewport);
   void SetViewport(const atWindow *pWindow);
   atVec4I Viewport() const;
-  atMat4D ProjectionMat() const;
+  atMat4D ProjectionMat(const double &clipNearZ = atClipNearZ<double>(), const double &clipFarNear = atClipFarZ<double>()) const;
 
   double m_fov;
   double m_aspect;
@@ -66,6 +67,9 @@ public:
 
   atQuatD m_yaw;
   atQuatD m_pitch;
+
+  atQuatD m_curRot;
+  atQuatD m_targetRot;
 };
 
 #endif // atCamera_h__

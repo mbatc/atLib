@@ -6,17 +6,29 @@
 #include "atGFXPrgmInterface.h"
 #include "atGFXTexInterface.h"
 #include "atKeyValue.h"
+#include "atPtr.h"
+#include <memory>
 
 class atNewRenderableCore
 {
 public:
+  atNewRenderableCore() = default;
+  atNewRenderableCore(atNewRenderableCore &&o);
+  atNewRenderableCore(const atNewRenderableCore &o);
+
   bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList);
   bool Upload();
 
-  void SetAttribute(const atString &name, atGFXBufferInterface *pAttribute);
-  void SetTexture(const atString &name, atGFXTexInterface *pTexture);
-  void SetSampler(const atString &name, atGFXSamplerInterface *pSampler);
-  void SetProgram(atGFXPrgmInterface *pProgram);
+  void SetProgram(const std::shared_ptr<atGFXPrgmInterface> &pProgram);
+  void SetTexture(const atString &name, const std::shared_ptr<atGFXTexInterface> &pTexture);
+  void SetSampler(const atString &name, const std::shared_ptr<atGFXSamplerInterface> &pSampler);
+  void SetAttribute(const atString &name, const std::shared_ptr<atGFXBufferInterface> &pAttribute);
+
+  bool GetUniform(const atString &name, atVector<uint8_t> *pData = nullptr, atTypeDesc *pInfo = nullptr);
+  std::shared_ptr<atGFXPrgmInterface> GetProgram();
+  std::shared_ptr<atGFXTexInterface> GetTexture(const atString &name);
+  std::shared_ptr<atGFXBufferInterface> GetAttribute(const atString &name);
+  std::shared_ptr<atGFXSamplerInterface> GetSampler(const atString &name);
 
   template<typename T> void SetUniform(const atString &name, const T &value);
   template<typename T> void SetUniform(const atString &name, const atVector<T> &value);
@@ -30,11 +42,11 @@ protected:
 
   void SetUniform(const atString &name, Uniform &&value);
 
-  atGFXPrgmInterface *m_pProgam = nullptr;
+  std::shared_ptr<atGFXPrgmInterface> m_pPrgm;
   atVector<atKeyValue<atString, Uniform>> m_uniforms;
-  atVector<atKeyValue<atString, atGFXBufferInterface*>> m_attributes;
-  atVector<atKeyValue<atString, atGFXTexInterface*>> m_textures;
-  atVector<atKeyValue<atString, atGFXSamplerInterface*>> m_samplers;
+  atVector<atKeyValue<atString, std::shared_ptr<atGFXTexInterface>>> m_textures;
+  atVector<atKeyValue<atString, std::shared_ptr<atGFXBufferInterface>>> m_attributes;
+  atVector<atKeyValue<atString, std::shared_ptr<atGFXSamplerInterface>>> m_samplers;
 };
 
 template<typename T> void atNewRenderableCore::SetUniform(const atString &name, const T &value)

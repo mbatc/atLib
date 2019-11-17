@@ -21,9 +21,9 @@ public:
   void* DepthView();
 
 protected:
-  void *m_pShaderView;
-  void *m_pRenderView;
-  void *m_pDepthView;
+  void *m_pShaderView = nullptr;
+  void *m_pRenderView = nullptr;
+  void *m_pDepthView = nullptr;
 };
 
 #endif // atDXTexture_h__

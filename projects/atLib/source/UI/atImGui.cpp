@@ -25,13 +25,12 @@
 
 #include "atRenderState.h"
 #include "atGraphics.h"
+#include "atHashMap.h"
 #include "atImGui.h"
 #include "atImage.h"
-#include "atHardwareTexture.h"
-#include "atShaderPool.h"
 #include "atInput.h"
-#include <time.h>
 #include "atScan.h"
+#include <time.h>
 
 struct VERTEX_CONSTANT_BUFFER
 {
@@ -90,9 +89,6 @@ static int64_t _ibSize = AT_INVALID_ID;
 static int64_t _lastTime = -1;
 static int64_t _ticksPerSecond = -1;
 
-static ID3D11Buffer *_pVertexBuffer = nullptr;
-static ID3D11Buffer *_pIndexBuffer = nullptr;
-
 static bool _initialised = false;
 
 static bool _UpdateMouseCursor(ImGuiMouseCursor imguiCursor)
@@ -134,7 +130,8 @@ static bool _Initialise()
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
   uint8_t *pPixels = nullptr;
-  int32_t width, height;
+  // int32_t width, height;
+  /*
   io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
   io.Fonts->TexID = (ImTextureID)atHardwareTexture::UploadTexture(atImage(pPixels, atVec2I(width, height), 4));
   atShaderPool::ReleaseShader(_shaderID);
@@ -142,6 +139,7 @@ static bool _Initialise()
   atHardwareTexture::DeleteSampler(_fontSamplerID);
   _fontSamplerID = atHardwareTexture::CreateSampler(21, atTCM_Wrap, atTCM_Wrap, atTCM_Wrap, 0, atComp_Always, { 0,0,0,0 }, 0.0, 0.0);
   _inputLayoutID = atShaderPool::GetInputLayout(_shaderID, { {"POSITION", atGetTypeDesc<atVec2F>() }, {"TEXCOORD", atGetTypeDesc<atVec2F>() }, {"COLOR", atGetTypeDesc<uint32_t>()} });
+*/
 
   if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&_ticksPerSecond))
     return false;
@@ -174,7 +172,7 @@ static bool _Initialise()
 }
 
 static bool _UpdateBuffers(ImDrawData *pDrawData)
-{
+{/*
   if ((!_pVertexBuffer || _vbSize < pDrawData->TotalVtxCount) && pDrawData->TotalVtxCount > 0)
   {
     atGraphics::CreateBuffer(&_pVertexBuffer, nullptr, pDrawData->TotalVtxCount * sizeof(ImDrawVert), D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
@@ -213,7 +211,7 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
     float T = pDrawData->DisplayPos.y;
     atMat4F ortho = atMatrixOrtho(L, L + pDrawData->DisplaySize.x, T, T + pDrawData->DisplaySize.y, -0.5f, 0.5f);
     atShaderPool::SetVariable(_shaderID, "ProjectionMatrix", &ortho.m, sizeof(ortho.m));
-  }
+  }*/
   return true;
 }
 
@@ -251,15 +249,14 @@ bool atImGui::Render()
   rs.SetScissorEnabled(true);
   rs.SetStencilEnabled(false);
   rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y));
-  rs.SetShader(_shaderID, _inputLayoutID);
 
   unsigned int stride = sizeof(ImDrawVert);
   unsigned int offset = 0;
-  atDirectX::GetContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
+ /* atDirectX::GetContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
   atDirectX::GetContext()->IASetIndexBuffer(_pIndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
   atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   atGraphics::BindShaderResource(atST_Pixel, atSRT_Sampler, 0, atHardwareTexture::GetSampler(_fontSamplerID));
-
+*/
   int vtxOffset = 0;
   int idxOffset = 0;
   ImVec2 pos = pDrawData->DisplayPos;
@@ -277,8 +274,8 @@ bool atImGui::Render()
         rs.SetScissor({ (LONG)(pCmd->ClipRect.x - pos.x), (LONG)(pCmd->ClipRect.y - pos.y), (LONG)(pCmd->ClipRect.z - pos.x), (LONG)(pCmd->ClipRect.w - pos.y) });
 
         // Bind texture, Draw;
-        atGraphics::BindShaderResource(atST_Pixel, atSRT_Texture, 0, atHardwareTexture::GetTexture((int64_t)pCmd->TextureId));
-        atDirectX::DrawIndexed(pCmd->ElemCount, idxOffset, vtxOffset);
+        /*atGraphics::BindShaderResource(atST_Pixel, atSRT_Texture, 0, atHardwareTexture::GetTexture((int64_t)pCmd->TextureId));
+        atDirectX::DrawIndexed(pCmd->ElemCount, idxOffset, vtxOffset);*/
       }
       idxOffset += pCmd->ElemCount;
     }

@@ -1,11 +1,12 @@
 #include "atDXBuffer.h"
 #include "atDirectX.h"
+#include "atGraphics.h"
 
 bool atDXBuffer::Update()
 {
   if (!GFXResource())
     return false;
-
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)GFXResource();
   D3D11_BUFFER_DESC desc;
   pBuffer->GetDesc(&desc);
@@ -13,13 +14,13 @@ bool atDXBuffer::Update()
     return Upload();
 
   D3D11_MAPPED_SUBRESOURCE resource;
-  atDirectX::GetContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+  pDX->GetContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
   if (!resource.pData)
     return false;
 
   memcpy(resource.pData, Data().data(), Size());
-  atDirectX::GetContext()->Unmap(pBuffer, 0);
+  pDX->GetContext()->Unmap(pBuffer, 0);
   return true;
 }
 
@@ -61,7 +62,7 @@ bool atDXBuffer::Upload()
   data.SysMemSlicePitch = 0;
 
   ID3D11Buffer *pBuffer = nullptr;
-  bool success = !FAILED(atDirectX::GetDevice()->CreateBuffer(&desc, size > 0 ? &data : nullptr, &pBuffer));
+  bool success = !FAILED(((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateBuffer(&desc, size > 0 ? &data : nullptr, &pBuffer));
   m_pResource = pBuffer;
   return success;
 }
@@ -74,5 +75,3 @@ bool atDXBuffer::Delete()
   atDirectX::SafeRelease(pBuffer);
   return true;
 }
-
-bool atDXBuffer::Bind() { return false; }

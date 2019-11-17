@@ -23,11 +23,11 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "at2DRenderer.h"
-#include "atFont.h"
-#include "atRenderable.h"
-#include "atInput.h"
 #include "atRenderState.h"
+#include "at2DRenderer.h"
+#include "atInput.h"
+#include "atAABB.h"
+#include "atFont.h"
 #include "atRect.h"
 
 struct DrawData
@@ -142,25 +142,27 @@ void at2DRenderer::Draw(const atVec2I &dimensions)
   atAssert(DrawContext::tex.size() == 0, "Mismatched Push/Pop Textures");
   atAssert(DrawContext::col.size() == 0, "Mismatched Push/Pop Colours");
 
-  static atRenderable ro;
-  atRenderState rs;
-  
-  for (atFont &f : DrawContext::fonts)
-    f.GetTextureID();
+  atUnused(dimensions);
 
-  ro.SetShader("assets/shaders/text");
-  ro.SetSampler("samplerType", AT_INVALID_ID);
-  ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
-  for (DrawData &dd : DrawContext::drawList)
-  {
-    rs.SetScissor(dd.clipRect);
-    ro.SetTexture("tex0", dd.texture);
-    ro.SetAttribute("COLOR", dd.color);
-    ro.SetAttribute("TEXCOORD", dd.uvs);
-    ro.SetAttribute("POSITION", dd.verts);
-    ro.SetIndices("idxBuffer", dd.indices);
-    ro.DrawTriangles();
-  }
+  // static atRenderable ro;
+  // atRenderState rs;
+  // 
+  // for (atFont &f : DrawContext::fonts)
+  //   f.GetTextureID();
+  // 
+  // ro.SetShader("assets/shaders/text");
+  // ro.SetSampler("samplerType", AT_INVALID_ID);
+  // ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
+  // for (DrawData &dd : DrawContext::drawList)
+  // {
+  //   rs.SetScissor(dd.clipRect);
+  //   ro.SetTexture("tex0", dd.texture);
+  //   ro.SetAttribute("COLOR", dd.color);
+  //   ro.SetAttribute("TEXCOORD", dd.uvs);
+  //   ro.SetAttribute("POSITION", dd.verts);
+  //   ro.SetIndices("idxBuffer", dd.indices);
+  //   ro.DrawTriangles();
+  // }
   DrawContext::drawList.clear();
 }
 

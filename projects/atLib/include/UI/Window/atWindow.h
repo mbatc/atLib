@@ -26,23 +26,26 @@
 #ifndef _atWindow_h__
 #define _atWindow_h__
 
-#include "atRenderTarget.h"
 #include "atWinAPI.h"
 #include "atMath.h"
 
+class atGraphics;
 class atRenderState;
 class atWin32Window;
+class atWinAPI;
 
 class atWindow
 {
   friend atRenderState;
   friend atWin32Window;
+  friend atGraphics;
+  friend atWinAPI;
 
 public:
-  static bool PumpMessage();
+  static bool PumpMessage(atWindow *pWindow);
   static int GetResult();
 
-  atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const bool hardware = true, const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const int64_t style = WS_OVERLAPPEDWINDOW);
+  atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const bool &visible = true, const int64_t style = WS_OVERLAPPEDWINDOW);
   ~atWindow();
 
   void Clear(const atCol color = 0x000000FF);
@@ -55,17 +58,18 @@ public:
   void SetSize(const atVec2I &size);
   void SetStyle(const int64_t style);
   void SetWindowed(const bool windowed);
+  void SetVisible(const bool &visible);
 
-  const atVec2I &Size() const;
-  int32_t Width() const;
-  int32_t Height() const;
+  const atVec2I& Size() const;
+  const int32_t& Width() const;
+  const int32_t& Height() const;
 
-  const atVec2I &Position() const;
-  int32_t GetX() const;
-  int32_t GetY() const;
+  const atVec2I& Position() const;
+  const int32_t& GetX() const;
+  const int32_t& GetY() const;
 
   bool IsWindowed() const;
-
+  bool IsVisible() const;
   void SetMenu(HMENU hMenu);
   void SetIcon(HICON hIcon);
   void SetCursor(HCURSOR hCursor);
@@ -78,15 +82,20 @@ public:
   void Destroy();
   void OnResize();
 
-  static atVec2I DisplaySize();
-
   atCol* Pixels();
 
-protected:
-  const atVector<atCol>& PixelsV();
-  bool m_hardware = true;
-  bool m_windowed = true;
+  atVector<atString> DroppedFiles();
+  
+  bool PumpMessage();
 
+protected:
+  void SetHardwareCtx(atGraphics *pGfx);
+  void AddDroppedFile(const atString &file);
+
+  const atVector<atCol>& PixelsV();
+  bool m_windowed = true;
+  bool m_visible = true;
+  
   atString m_title = "Main Window";
 
   atVec2I m_clientSize = atVec2I(800, 600);
@@ -95,12 +104,13 @@ protected:
 
   int64_t m_style = WS_OVERLAPPEDWINDOW;
 
-#if defined WIN32 || defined WIN64
+  atVector<atString> m_droppedFiles;
+
+  atGraphics *m_pGfx = nullptr;
+
+#if defined _WIN64 || defined _WIN64
   // WINAPI  
   atWin32Window m_sysWindow;
-
-  // DirectX (ideally atRenderTarget should be a high level interface that supports OpenGl as well as DirectX)
-  atRenderTarget m_dxTarget;
 #elif LINUX
   // Add linux m_sysWindow
 #endif

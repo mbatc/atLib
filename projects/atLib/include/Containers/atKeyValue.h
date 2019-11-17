@@ -41,17 +41,17 @@ public:
 
   atKeyValue(const Key &key, Val &&val)
     : m_key(key)
-    , m_val(val)
+    , m_val(std::move(val))
   {}
 
   atKeyValue(Key &&key, const Val &val)
-    : m_key(key)
+    : m_key(std::move(key))
     , m_val(val)
   {}
 
   atKeyValue(Key &&key, Val &&val)
-    : m_key(key)
-    , m_val(val)
+    : m_key(std::move(key))
+    , m_val(std::move(val))
   {}
 
   atKeyValue(const atKeyValue<Key, Val> &copy)
@@ -60,8 +60,8 @@ public:
   {}
 
   atKeyValue(atKeyValue<Key, Val> &&move)
-    : m_key(move.m_key)
-    , m_val(move.m_val)
+    : m_key(std::move(move.m_key))
+    , m_val(std::move(move.m_val))
   {}
 
   bool compare(const atKeyValue<Key, Val> &rhs) { return rhs.m_key == m_key && rhs.m_val == m_val; }

@@ -10,7 +10,6 @@ public:
 
   bool Update() override;
   bool Upload() override;
-  bool Bind() override;
   bool Delete() override;
 
   atGraphicsAPI API() override { return atGfxApi_DirectX; }

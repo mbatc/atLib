@@ -26,7 +26,7 @@
 #ifndef atGraphicsModel_h__
 #define atGraphicsModel_h__
 
-#include "atRenderable.h"
+#include "atMesh.h"
 #include "atLight.h"
 
 class atGraphicsModel
@@ -39,7 +39,6 @@ public:
   atGraphicsModel(atGraphicsModel &&move);
   ~atGraphicsModel();
 
-
   void Draw(const atMat4D &VP, const atMat4D &modelMat = atMat4D::Identity());
   void SetCamera(const atVec3F &pos);
   void SetLighting(const atLight &light);
@@ -49,7 +48,7 @@ public:
   bool Import(const atMesh &mesh);
   bool Import(const atFilename &filename);
 
-  atVector<atRenderable> m_mesh;
+  // atVector<atRenderable> m_mesh;
 };
 
 #endif // atGraphicsModel_h__

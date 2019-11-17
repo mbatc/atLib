@@ -23,24 +23,22 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atGraphics.h"
 #include "atHashMap.h"
 #include "atWindow.h"
+#include "atWinAPI.h"
 #include "atImGui.h"
 #include "atInput.h"
-#include "atWinAPI.h"
-#include <Windowsx.h>
-#include <time.h>
 
-atWindow::atWindow(const atString &title, const atVec2I &size, const bool hardware, const atVec2I &pos, const bool windowed, const int64_t style)
-  : m_dxTarget(this, size)
-  , m_hardware(hardware)
-  , m_sysWindow(this)
+atWindow::atWindow(const atString &title, const atVec2I &size, const atVec2I &pos, const bool windowed, const bool &visible, const int64_t style)
+  : m_sysWindow(this)
 {
   SetTitle(title);
   SetSize(size);
   SetPos(pos);
   SetStyle(style);
   SetWindowed(windowed);
+  SetVisible(visible);
   MakeWindow();
 }
 
@@ -50,16 +48,15 @@ void atWindow::Clear(const atVec4F &color) { Clear(atColor::Pack(color)); }
 
 void atWindow::Clear(const atCol color)
 {
-  if (m_hardware)
-    m_dxTarget.Clear(atColor::UnPack<float>(color));
-  else
-    m_sysWindow.Clear(color);
+  m_sysWindow.Clear(color);
+  if (m_pGfx)
+    m_pGfx->Clear(atColor::UnPack<float>(color), 1.0f);
 }
 
 void atWindow::Swap()
 {
-  if (m_hardware)
-    m_dxTarget.Swap();
+  if (m_pGfx)
+    m_pGfx->Swap();
   else
     m_sysWindow.Swap();
 }
@@ -85,23 +82,41 @@ void atWindow::SetSize(const atVec2I &size)
 void atWindow::OnResize()
 {
   m_sysWindow.OnResize();
-  m_dxTarget.Resize();
+  if (m_pGfx)
+    m_pGfx->Resize();
+}
+
+void atWindow::SetWindowed(const bool windowed)
+{
+  m_windowed = windowed;
+  if (m_pGfx)
+    m_pGfx->SetWindowed(windowed);
+}
+
+void atWindow::SetVisible(const bool &visible)
+{
+  m_visible = visible;
+  m_sysWindow.SetVisible();
 }
 
 bool atWindow::MakeWindow() { return m_sysWindow.Create(); }
-void atWindow::Destroy() { m_sysWindow.Destroy(); }
+void atWindow::Destroy()
+{
+  SetWindowed(false);
+  m_sysWindow.Destroy();
+}
 
 const atVec2I& atWindow::Position() const { return m_pos; }
 const atVec2I& atWindow::Size() const { return m_clientSize; }
-int32_t atWindow::GetX() const { return Position().x; }
-int32_t atWindow::GetY() const { return Position().y; }
-int32_t atWindow::Width() const { return Size().x; }
-int32_t atWindow::Height() const { return Size().y; }
+const int32_t& atWindow::GetX() const { return Position().x; }
+const int32_t& atWindow::GetY() const { return Position().y; }
+const int32_t& atWindow::Width() const { return Size().x; }
+const int32_t& atWindow::Height() const { return Size().y; }
 
 bool atWindow::IsWindowed() const { return m_windowed; }
-
+bool atWindow::IsVisible() const { return m_visible; }
 void atWindow::SetStyle(const int64_t style) { m_style = style; }
-void atWindow::SetWindowed(const bool windowed) { m_windowed = windowed; m_dxTarget.Resize(); }
+
 void atWindow::SetMenu(HMENU hMenu) { m_sysWindow.SetMenu(hMenu); }
 void atWindow::SetIcon(HICON hIcon) { m_sysWindow.SetIcon(hIcon); }
 void atWindow::SetCursor(HCURSOR hCursor) { m_sysWindow.SetCursor(hCursor); }
@@ -112,5 +127,11 @@ atCol* atWindow::Pixels() { return (atCol*)m_sysWindow.Pixels().data(); }
 const atVector<atCol>& atWindow::PixelsV() { return m_sysWindow.Pixels(); }
 HWND atWindow::Handle() const { return m_sysWindow.Handle(); }
 
-bool atWindow::PumpMessage() { return atWinAPI::PumpMessage(); }
+atVector<atString> atWindow::DroppedFiles() { return std::move(m_droppedFiles); }
+
+bool atWindow::PumpMessage() { return PumpMessage(this); }
+bool atWindow::PumpMessage(atWindow *pWindow) { return atWinAPI::PumpMessage(pWindow); }
 int atWindow::GetResult() { return atWinAPI::GetResult(); }
+
+void atWindow::SetHardwareCtx(atGraphics *pGfx) { m_pGfx = pGfx; }
+void atWindow::AddDroppedFile(const atString &file) { m_droppedFiles.push_back(file); }

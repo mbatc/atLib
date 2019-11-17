@@ -20,7 +20,12 @@ flags { "MultiProcessorCompile" }
 
 -- Build Options
 
-buildoptions { "/bigobj" }
+-- buildoptions { "/bigobj" }
+
+-- Linker options
+
+linkoptions { "/ignore:4006" }
+linkoptions { "/ignore:4221" }
 
 -- Shared Defines
 
@@ -49,6 +54,8 @@ buildoptions { "/bigobj" }
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
 
   links { "LuaLib" }
+  links { "opengl32", "glew32" }
+  libdirs { "3rdParty/glew/lib/Release/x64/" }
 
 -- Debug Configuration Settings
 

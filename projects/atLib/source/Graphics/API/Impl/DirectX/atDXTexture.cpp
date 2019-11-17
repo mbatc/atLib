@@ -1,15 +1,15 @@
 #include "atDXTexture.h"
+#include "atGraphics.h"
 #include "atDirectX.h"
 #include "atFormat.h"
 
 static void* _CreateTex1D(const atVec2I &size, const bool &isDepthTex, const bool &genMipmaps, const int64_t &sampleCount, const int64_t &arraySize);
 static void* _CreateTex2D(const atVec2I &size, const bool &isDepthTex, const bool &genMipmaps, const int64_t &sampleCount, const int64_t &arraySize);
 static void* _CreateTex3D(const atVec2I &size, const bool &isDepthTex, const bool &genMipmaps, const int64_t &sampleCount, const int64_t &arraySize);
-static void* _CreateSRView(void *pTexture, const bool genMipmaps, const int64_t sampleCount);
-static void* _CreateDSView(void *pTexture, const int64_t sampleCount);
+static void* _CreateSRView(void *pTexture, const bool &genMipmaps);
+static void* _CreateDSView(void *pTexture);
 static void* _CreateRTView(void *pTexture);
 static void* _CreateUAView(void *pTexture);
-
 
 atDXTexture::atDXTexture(const atVector<float> &image, const atVec2I &size, const atGFXTextureType &type, const int64_t &sampleCount) : atGFXTexInterface(image, size, type, sampleCount) {}
 atDXTexture::atDXTexture(const atImage &image, const atGFXTextureType &type, const bool &genMipMaps, const int64_t &sampleCount) : atGFXTexInterface(image, type, genMipMaps, sampleCount) {}
@@ -55,6 +55,9 @@ bool atDXTexture::Delete()
 
 bool atDXTexture::Upload()
 {
+  if (m_size.x == 0 || m_size.y == 0)
+    return false;
+
   if (GFXResource())
     return true;
 
@@ -68,21 +71,21 @@ bool atDXTexture::Upload()
   if (!m_pResource)
     return false;
 
-  if (m_isDepthTex)
-  {
-    m_pDepthView = _CreateDSView(m_pResource, m_sampleCount);
-  }
-  else
-  {
-    m_pShaderView = _CreateSRView(m_pResource, m_genMipmaps, m_sampleCount);
-    m_pRenderView = _CreateRTView(m_pResource);
-  }
-
   if (m_pixels.size())
   {
     int64_t bytesPerImage = m_pixels.size() / m_layerCount / m_size.y;
     for (int64_t i = 0; i < m_layerCount; ++i)
-      atDirectX::GetContext()->UpdateSubresource((ID3D11Resource*)m_pResource, (UINT)i, nullptr, m_pixels.data() + bytesPerImage * i, (UINT)bytesPerImage, 0);
+      ((atDirectX*)atGraphics::GetCtx())->GetContext()->UpdateSubresource((ID3D11Resource*)m_pResource, (UINT)i, nullptr, m_pixels.data() + bytesPerImage * i, (UINT)bytesPerImage, 0);
+  }
+
+  if (m_isDepthTex)
+  {
+    m_pDepthView = _CreateDSView(m_pResource);
+  }
+  else
+  {
+    m_pShaderView = _CreateSRView(m_pResource, m_genMipmaps);
+    m_pRenderView = _CreateRTView(m_pResource);
   }
 
   return true;
@@ -103,7 +106,7 @@ static void* _CreateTex1D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture1D *pTex = nullptr;
-  atDirectX::GetDevice()->CreateTexture1D(&texDesc, nullptr, &pTex);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture1D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
@@ -121,7 +124,7 @@ static void* _CreateTex2D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture2D *pTex = nullptr;
-  atDirectX::GetDevice()->CreateTexture2D(&texDesc, nullptr, &pTex);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture2D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
@@ -137,50 +140,37 @@ static void* _CreateTex3D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture3D *pTex = nullptr;
-  atDirectX::GetDevice()->CreateTexture3D(&texDesc, nullptr, &pTex);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture3D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
-static void *_CreateSRView(void *pTexture, const bool genMipmaps, const int64_t sampleCount)
+static void *_CreateSRView(void *pTexture, const bool &genMipmaps)
 {
   ID3D11ShaderResourceView *pView = nullptr;
-
-  D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
-  desc.Texture2D.MipLevels = genMipmaps ? -1 : 1;
-  desc.Texture2D.MostDetailedMip = 0;
-  desc.ViewDimension = sampleCount > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-  atDirectX::GetDevice()->CreateShaderResourceView((ID3D11Resource*)pTexture, &desc, &pView);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateShaderResourceView((ID3D11Resource*)pTexture, nullptr, &pView);
   if (genMipmaps)
-    atDirectX::GetContext()->GenerateMips(pView);
+    ((atDirectX*)atGraphics::GetCtx())->GetContext()->GenerateMips(pView);
   return pView;
 }
 
-static void *_CreateDSView(void *pTexture, const int64_t sampleCount)
+static void *_CreateDSView(void *pTexture)
 {
   ID3D11DepthStencilView *pView = nullptr;
-  D3D11_DEPTH_STENCIL_VIEW_DESC desc{};
-  desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-  desc.ViewDimension = sampleCount > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
-  desc.Texture2D.MipSlice = 0;
-  desc.Flags = 0;
-
-  atDirectX::GetDevice()->CreateDepthStencilView((ID3D11Resource*)pTexture, &desc, &pView);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateDepthStencilView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
 
 static void *_CreateRTView(void *pTexture)
 {
   ID3D11RenderTargetView *pView = nullptr;
-  atDirectX::GetDevice()->CreateRenderTargetView((ID3D11Resource*)pTexture, nullptr, &pView);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateRenderTargetView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
 
 static void *_CreateUAView(void *pTexture)
 {
   ID3D11UnorderedAccessView *pView = nullptr;
-  atDirectX::GetDevice()->CreateUnorderedAccessView((ID3D11Resource*)pTexture, nullptr, &pView);
+  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateUnorderedAccessView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
 

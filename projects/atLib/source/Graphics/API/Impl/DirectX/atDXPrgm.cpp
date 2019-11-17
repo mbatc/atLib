@@ -1,6 +1,7 @@
-#include "atDXPrgm.h"
-#include "atDirectX.h"
 #include "atDXShader.h"
+#include "atGraphics.h"
+#include "atDirectX.h"
+#include "atDXPrgm.h"
 #include "atFormat.h"
 
 static atDXPrgm *_pBoundProgram = nullptr;
@@ -24,15 +25,16 @@ void atDXPrgm::BindInput(const int64_t &i)
   if (!m_inputs[i])
     return;
 
-  atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex];
+  atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex].get();
   if (!pVertShader)
     return;
 
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   UINT slot = (UINT)pVertShader->AttributeSlot(i);
   UINT offset = 0;
   UINT stride = (UINT)(m_inputs[i]->Size() / m_inputs[i]->Count());
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_inputs[i]->GFXResource();
-  atDirectX::GetContext()->IASetVertexBuffers(slot, 1, &pBuffer, &stride, &offset);
+  pDX->GetContext()->IASetVertexBuffers(slot, 1, &pBuffer, &stride, &offset);
 }
 
 bool atDXPrgm::BindAttribute(const atString &name, atGFXBufferInterface *pBuffer)
@@ -40,7 +42,7 @@ bool atDXPrgm::BindAttribute(const atString &name, atGFXBufferInterface *pBuffer
   if (pBuffer->API() != API())
     return false;
 
-  atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex];
+  atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex].get();
   if (!pVertShader)
     return false;
 
@@ -61,7 +63,7 @@ bool atDXPrgm::BindIndices(atGFXBufferInterface *pBuffer)
   if (pBuffer->API() != API())
     return false;
 
-  atGFXShaderInterface *pVertShader = m_pStages[atPS_Vertex];
+  std::shared_ptr<atGFXShaderInterface> pVertShader = m_pStages[atPS_Vertex];
   if (!pVertShader)
     return false;
 
@@ -74,32 +76,32 @@ bool atDXPrgm::BindIndices(atGFXBufferInterface *pBuffer)
 
 bool atDXPrgm::BindTexture(const atString &name, atGFXTexInterface *pTexture)
 {
-  for (atGFXShaderInterface *pShader : m_pStages)
-    if (((atDXShader*)pShader)->BindTexture(name, pTexture))
+  for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
+    if (((atDXShader*)pShader.get())->BindTexture(name, pTexture))
       return true;
   return false;
 }
 
 bool atDXPrgm::BindSampler(const atString &name, atGFXSamplerInterface *pSampler)
 {
-  for (atGFXShaderInterface *pShader : m_pStages)
-    if (((atDXShader*)pShader)->BindSampler(name, pSampler))
+  for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
+    if (((atDXShader*)pShader.get())->BindSampler(name, pSampler))
       return true;
   return false;
 }
 
 bool atDXPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
 {
-  for (atGFXShaderInterface *pShader : m_pStages)
-    if (((atDXShader*)pShader)->SetUniform(name, pData, info))
+  for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
+    if (((atDXShader*)pShader.get())->SetUniform(name, pData, info))
       return true;
   return false;
 }
 
 bool atDXPrgm::HasUniform(const atString &name)
 {
-  for (atGFXShaderInterface *pShader : m_pStages)
-    if (((atDXShader*)pShader)->HasUniform(name))
+  for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
+    if (((atDXShader*)pShader.get())->HasUniform(name))
       return true;
   return false;
 }
@@ -113,10 +115,10 @@ bool atDXPrgm::Upload()
     return true;
 
   bool success = true;
-  for (atGFXShaderInterface *pStage : m_pStages)
+  for (std::shared_ptr<atGFXShaderInterface> pStage : m_pStages)
     success &= !pStage || pStage->Upload();
 
-  atDXShader *pShader = (atDXShader*)m_pStages[atPS_Vertex];
+  atDXShader *pShader = (atDXShader*)m_pStages[atPS_Vertex].get();
 
   atVector<D3D11_INPUT_ELEMENT_DESC> d3dDesc;
   for (int64_t i = 0; i < pShader->AttributeCount(); ++i)
@@ -135,8 +137,9 @@ bool atDXPrgm::Upload()
   m_inputs.clear();
   m_inputs.resize(d3dDesc.size(), 0);
 
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   ID3D11InputLayout *pLayout = nullptr;
-  if (FAILED(atDirectX::GetDevice()->CreateInputLayout(d3dDesc.data(), (UINT)d3dDesc.size(), pShader->ByteCode().data(), (size_t)pShader->ByteCode().size(), &pLayout)))
+  if (FAILED(pDX->GetDevice()->CreateInputLayout(d3dDesc.data(), (UINT)d3dDesc.size(), pShader->ByteCode().data(), (size_t)pShader->ByteCode().size(), &pLayout)))
     return false;
 
   m_pLayout = pLayout;
@@ -153,20 +156,31 @@ bool atDXPrgm::Delete()
 
 bool atDXPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset)
 {
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+
+  for (auto &pShader : m_pStages)
+  {
+    if (!pShader)
+      continue;
+
+    atDXShader *pDXShader = (atDXShader*)pShader.get();
+    pDXShader->UpdateConstantBuffers();
+  }
+
   switch (primType)
   {
-  case atGFX_PT_LineList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
-  case atGFX_PT_PointList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-  case atGFX_PT_LineListAdj: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
-  case atGFX_PT_TriangleList: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-  case atGFX_PT_TriangleStrip: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
-  case atGFX_PT_TriangleListAdj: atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
+  case atGFX_PT_LineList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+  case atGFX_PT_PointList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+  case atGFX_PT_LineListAdj: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
+  case atGFX_PT_TriangleList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+  case atGFX_PT_TriangleStrip: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+  case atGFX_PT_TriangleListAdj: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
   }
 
   if (m_pIndices && indexedMode)
-    atDirectX::DrawIndexed(elementCount < 0 ? m_pIndices->Count() : elementCount, elementOffset);
+    pDX->DrawIndexed(elementCount < 0 ? m_pIndices->Count() : elementCount, elementOffset);
   else
-    atDirectX::Draw(elementCount < 0 ? m_inputs[0]->Count() : elementCount, elementOffset);
+    pDX->Draw(elementCount < 0 ? m_inputs[0]->Count() : elementCount, elementOffset);
 
   return true;
 }
@@ -176,7 +190,7 @@ void atDXPrgm::BindLayout()
   if (!m_pLayout)
     return;
 
-  atDirectX::GetContext()->IASetInputLayout((ID3D11InputLayout*)m_pLayout);
+  ((atDirectX*)atGraphics::GetCtx())->GetContext()->IASetInputLayout((ID3D11InputLayout*)m_pLayout);
 }
 
 void atDXPrgm::BindIndices()
@@ -184,7 +198,7 @@ void atDXPrgm::BindIndices()
   if (!m_pIndices)
     return;
 
-  atDirectX::GetContext()->IASetIndexBuffer((ID3D11Buffer*)m_pIndices->GFXResource(), m_pIndices->Desc().type == atType_Uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+  ((atDirectX*)atGraphics::GetCtx())->GetContext()->IASetIndexBuffer((ID3D11Buffer*)m_pIndices->GFXResource(), m_pIndices->Desc().type == atType_Uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 }
 
 bool atDXPrgm::IsBound() { return _pBoundProgram == this; }

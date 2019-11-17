@@ -1,3 +1,4 @@
+#include "atGraphics.h"
 #include "atDXShader.h"
 #include "atDirectX.h"
 #include "atHashSet.h"
@@ -47,7 +48,7 @@ bool atDXShader::BindSampler(const atString &name, atGFXSamplerInterface *pSampl
       return true;
     }
 
-  return true;
+  return false;
 }
 
 bool atDXShader::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
@@ -105,14 +106,15 @@ bool atDXShader::Bind()
   if (!Upload())
     return false;
 
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   switch (Stage())
   {
-  case atPS_Vertex: atDirectX::GetContext()->VSSetShader((ID3D11VertexShader*)m_pResource, 0, 0); break;
-  case atPS_Fragment: atDirectX::GetContext()->PSSetShader((ID3D11PixelShader*)m_pResource, 0, 0); break;
-  case atPS_Geometry: atDirectX::GetContext()->GSSetShader((ID3D11GeometryShader*)m_pResource, 0, 0); break;
-  case atPS_Compute: atDirectX::GetContext()->CSSetShader((ID3D11ComputeShader*)m_pResource, 0, 0); break;
-  case atPS_Domain: atDirectX::GetContext()->DSSetShader((ID3D11DomainShader*)m_pResource, 0, 0); break;
-  case atPS_Hull: atDirectX::GetContext()->HSSetShader((ID3D11HullShader*)m_pResource, 0, 0); break;
+  case atPS_Vertex: pDX->GetContext()->VSSetShader((ID3D11VertexShader*)m_pResource, 0, 0); break;
+  case atPS_Fragment: pDX->GetContext()->PSSetShader((ID3D11PixelShader*)m_pResource, 0, 0); break;
+  case atPS_Geometry: pDX->GetContext()->GSSetShader((ID3D11GeometryShader*)m_pResource, 0, 0); break;
+  case atPS_Compute: pDX->GetContext()->CSSetShader((ID3D11ComputeShader*)m_pResource, 0, 0); break;
+  case atPS_Domain: pDX->GetContext()->DSSetShader((ID3D11DomainShader*)m_pResource, 0, 0); break;
+  case atPS_Hull: pDX->GetContext()->HSSetShader((ID3D11HullShader*)m_pResource, 0, 0); break;
   default: return false;
   }
 
@@ -122,7 +124,7 @@ bool atDXShader::Bind()
   return true;
 }
 
-bool atDXShader::Upload()
+void atDXShader::UpdateConstantBuffers()
 {
   if (m_pResource)
   { // Try update the constant buffers
@@ -132,10 +134,19 @@ bool atDXShader::Upload()
         cb.pBuffer->Set(cb.data);
         cb.updated = false;
       }
+  }
+}
+
+bool atDXShader::Upload()
+{
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  if (m_pResource)
+  {
+    UpdateConstantBuffers();
     return true;
   }
 
-  if (m_src.length() == 0 || !atDirectX::GetDevice())
+  if (m_src.length() == 0 || !pDX->GetDevice())
     return false;
 
   ID3D10Blob *pShaderBlob = nullptr;
@@ -148,12 +159,12 @@ bool atDXShader::Upload()
 
   switch (Stage())
   {
-  case atPS_Vertex:   atDirectX::GetDevice()->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)&m_pResource); break;
-  case atPS_Fragment: atDirectX::GetDevice()->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)&m_pResource); break;
-  case atPS_Geometry: atDirectX::GetDevice()->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)&m_pResource); break;
-  case atPS_Hull:     atDirectX::GetDevice()->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)&m_pResource); break;
-  case atPS_Domain:   atDirectX::GetDevice()->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)&m_pResource); break;
-  case atPS_Compute:  atDirectX::GetDevice()->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)&m_pResource); break;
+  case atPS_Vertex:   pDX->GetDevice()->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)&m_pResource); break;
+  case atPS_Fragment: pDX->GetDevice()->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)&m_pResource); break;
+  case atPS_Geometry: pDX->GetDevice()->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)&m_pResource); break;
+  case atPS_Hull:     pDX->GetDevice()->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)&m_pResource); break;
+  case atPS_Domain:   pDX->GetDevice()->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)&m_pResource); break;
+  case atPS_Compute:  pDX->GetDevice()->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)&m_pResource); break;
   }
 
   Reflect(pShaderBlob);
@@ -350,47 +361,50 @@ static bool _GetTypeDesc(const D3D11_SIGNATURE_PARAMETER_DESC &shderDesc, atType
 static void _BindConstantBuffer(const atPipelineStage &stage, atDXBuffer *pBuffer, int64_t slot)
 {
   bool validBuffer = pBuffer && pBuffer->Upload();
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
   ID3D11Buffer *pDxBuf = validBuffer ? (ID3D11Buffer*)pBuffer->GFXResource() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: atDirectX::GetContext()->VSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: atDirectX::GetContext()->PSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: atDirectX::GetContext()->DSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: atDirectX::GetContext()->HSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: atDirectX::GetContext()->CSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: atDirectX::GetContext()->GSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pDX->GetContext()->VSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pDX->GetContext()->PSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pDX->GetContext()->DSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pDX->GetContext()->HSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pDX->GetContext()->CSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pDX->GetContext()->GSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
   }
 }
 
 static void _BindSampler(const atPipelineStage &stage, atDXSampler *pBuffer, int64_t slot)
 {
   bool validBuffer = pBuffer && pBuffer->Upload();
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
   ID3D11SamplerState *pDxBuf = validBuffer ? (ID3D11SamplerState*)pBuffer->GFXResource() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: atDirectX::GetContext()->VSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: atDirectX::GetContext()->PSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: atDirectX::GetContext()->DSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: atDirectX::GetContext()->HSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: atDirectX::GetContext()->CSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: atDirectX::GetContext()->GSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pDX->GetContext()->VSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pDX->GetContext()->PSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pDX->GetContext()->DSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pDX->GetContext()->HSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pDX->GetContext()->CSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pDX->GetContext()->GSSetSamplers((UINT)slot, 1, &pDxBuf); break;
   }
 }
 
 static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int64_t slot)
 {
   bool validBuffer = pBuffer && pBuffer->Upload();
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
   ID3D11ShaderResourceView *pDxBuf = validBuffer ? (ID3D11ShaderResourceView*)pBuffer->ShaderView() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: atDirectX::GetContext()->VSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: atDirectX::GetContext()->PSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: atDirectX::GetContext()->DSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: atDirectX::GetContext()->HSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: atDirectX::GetContext()->CSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: atDirectX::GetContext()->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pDX->GetContext()->VSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pDX->GetContext()->PSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pDX->GetContext()->DSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pDX->GetContext()->HSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pDX->GetContext()->CSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pDX->GetContext()->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
   }
 }

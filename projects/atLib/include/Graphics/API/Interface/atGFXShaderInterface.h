@@ -21,7 +21,7 @@ enum atPipelineStage
 class atGFXShaderInterface : public atGFXResource
 {
 public:
-  atGFXShaderInterface(const atString &src, const atPipelineStage &stage) : m_src(src), m_stage(stage) {}
+  atGFXShaderInterface(const atString &src = "", const atPipelineStage &stage = atPS_None) : m_src(src), m_stage(stage) {}
   
   const atPipelineStage& Stage() { return m_stage; }
 

@@ -43,12 +43,8 @@ bool s_mouseSet = false;
 
 static void _UpdateMouse()
 {
-  if (s_mouseSet)
-    atInput::OnMouseMove(s_mousePos, s_dt);
-  if (s_mouseLocked)
-    if (GetFocus())
-      atInput::SetMousePos(s_lockPos);
-
+  s_lastMousePos = s_mousePos;
+  s_mouseVel = 0;
   s_mouseScroll = 0;
 }
 
@@ -70,17 +66,18 @@ void atInput::OnMouseMove(const atVec2I &pos, const double dt)
 {
   if (!s_mouseSet)
     s_mousePos = pos;
+
   s_lastMousePos = s_mousePos;
   s_mousePos = pos;
   s_mouseVel = atVec2F(s_mousePos - s_lastMousePos) / dt;
   s_mouseSet = true;
 }
 
-bool atInput::Update(const bool escExit) 
+bool atInput::Update(const bool escExit, atWindow *pWindow)
 {
   _UpdateMouse();
   _UpdateButtons();
-  bool res = atWindow::PumpMessage() && (!escExit || !ButtonDown(atKC_Escape));
+  bool res = atWindow::PumpMessage(pWindow) && (!escExit || !ButtonDown(atKC_Escape));
   return res;
 }
 
@@ -249,4 +246,9 @@ atString atInput::ToString(const int64_t code)
   case atKC_MB_Middle:          return "MiddleMouse";
   }
   return atString();
+}
+
+atVector<atString> atInput::DroppedFiles()
+{
+  return atVector<atString>();
 }

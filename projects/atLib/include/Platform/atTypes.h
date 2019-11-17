@@ -38,7 +38,7 @@
 void atUnused();
 template<typename T, typename... Args> void atUnused(const T &first, Args... args) { (void)first; atUnused(args...); }
 
-enum atType
+enum atType : int64_t
 {
   atType_Float16,
   atType_Float32,
@@ -55,6 +55,7 @@ enum atType
   atType_Uint64,
 
   atType_Count,
+
   atType_Unknown
 };
 
@@ -73,6 +74,7 @@ struct atTypeDesc
   {}
 
   atType type = atType_Unknown;
+
   int64_t width = 1;
   int64_t count = 1;
   int64_t size = 1;

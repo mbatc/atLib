@@ -26,25 +26,27 @@
 #ifndef _atRenderState_h__
 #define _atRenderState_h__
 
-
+#include "atGFXResource.h"
 #include "atWindow.h"
-#include "atShader.h"
 #include "atMath.h"
+
+class atDirectX;
+class atOpenGL;
 
 class atRenderState
 {
   friend atGraphics;
   friend atDirectX;
+  friend atOpenGL;
+
   atRenderState(int unused);
+
 public:
   struct State
   {
     atVec4I viewport = { -1, -1, -1, -1 };
     atVec4I scissor = { 0, 0, 0, 0 };
     atVec2F depthRange = { 0.0f, 1.0f };
-
-    int64_t shader = AT_INVALID_ID;
-    int64_t inputLayout = AT_INVALID_ID;
 
     bool depthWriteEnabled = true;
     bool depthReadEnabled = true;
@@ -54,20 +56,13 @@ public:
     bool blendEnabled = false;
     bool msaaEnabled = true;
     bool aaEnabled = true;
-    
-    atRenderTarget *pColourTarget;
-    atRenderTarget *pDepthTarget;
   };
 
-  atRenderState();
+  atRenderState(const atGraphicsAPI &api = atGfxApi_DirectX);
   ~atRenderState();
 
   void Set(const State &state);
 
-  void SetRenderTarget(atWindow *pTarget);
-  void SetRenderTarget(atRenderTarget *pTarget);
-
-  bool SetShader(const int64_t id, const int64_t inputLayoutID);
   void SetViewport(const atVec4I &vp);
   void SetScissor(const atVec4I &scissor);
   void SetDepthRange(const float min, const float max);
@@ -90,11 +85,11 @@ public:
   bool IsCullEnabled() const;
   bool IsAAEnabled() const;
 
-  const atVec4I &Viewport() const;
-  const atVec4I &Scissor() const;
-  const atVec2F &DepthRange() const;
+  const atVec4I& Viewport() const;
+  const atVec4I& Scissor() const;
+  const atVec2F& DepthRange() const;
 
-  static bool m_alwaysBind;
+  static bool m_immediate;
 
 protected:
   void Init();

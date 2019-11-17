@@ -67,45 +67,26 @@ static atString _ReadLine(char **ppSrc, int64_t len)
 
 static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Triangle> *pTris, const int64_t matID)
 {
-  int64_t start = atString::_find_first_not(*ppSrc, atString::Whitespace());
-  int64_t pos = start;
-  int64_t newLine = atString::_find_first_of(*ppSrc, '\n');
-  int64_t vertCount = 0;
- 
-  // Count Verts
-  while (pos < newLine)
-  {
-    vertCount++;
-    pos = atString::_find_first_not(*ppSrc, atString::Whitespace(), pos);
-    pos = atString::_find_first_of(*ppSrc, atString::Whitespace(), pos);
-    if (pos < 0)
-      break;
-  }
-
-  int64_t faceCount = vertCount - 2;
-  if (faceCount < 1)
-    return;
-
   // Scan face definition and triangulate
-  pos = start;
+  int64_t pos = atString::_find_first_not(*ppSrc, atString::Whitespace());
   atMesh::Vertex firstVert;
   atMesh::Vertex lastVert;
   firstVert.position = atOBJInvalidIndex;
-  
-  for (int64_t i = 0; i < faceCount; ++i)
+
+  int64_t newLine = atString::_find_first_of(*ppSrc, '\n');
+  bool isFirstTri = true;
+  while (pos < newLine && pos != AT_INVALID_INDEX)
   {
     pTris->push_back(atMesh::Triangle());
     atMesh::Triangle &tri = pTris->at(pTris->size() - 1);
     tri.mat = matID;
-
-    bool readStart = firstVert.position == atOBJInvalidIndex;
-    if (!readStart)
+    if (!isFirstTri)
     {
       tri.verts[0] = firstVert;
       tri.verts[1] = lastVert;
     }
 
-    for (int64_t v = readStart ? 0 : 2; v < 3; ++v)
+    for (int64_t v = isFirstTri ? 0 : 2; v < 3; ++v)
     {
       int64_t len = 0;
       int64_t slashIndex = 0;
@@ -126,13 +107,14 @@ static void _ParseFace(char **ppSrc, const int64_t srcLen, atVector<atMesh::Tria
         pos += (*ppSrc)[pos] == '/';
         slashIndex++;
       }
-
-      if (i == 0)
-        firstVert = tri.verts[0];
-
-      lastVert = tri.verts[2];
       pos = atString::_find_first_not(*ppSrc, atString::Whitespace(), pos);
     }
+
+    if (isFirstTri)
+      firstVert = tri.verts[0];
+    lastVert = tri.verts[2];
+
+    isFirstTri = false;
   }
 }
 

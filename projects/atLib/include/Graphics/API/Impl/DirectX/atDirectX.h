@@ -14,55 +14,76 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+class atWindow;
+class atDirectXState;
+
 class atDirectX
 {
 public:
+  atDirectX(atWindow *pWindow, const bool &vsyncEnabled = true);
+  
+  atDirectXState* GetState();
+  IDXGISwapChain* GetSwapChain();
+  ID3D11RenderTargetView* GetBackbuffer();
+  ID3D11DepthStencilView* GetDepthBuffer();
+  IDXGIOutput* GetOutputDisplay();
+  IDXGIFactory* GetFactory();
+  ID3D11Device* GetDevice();
+  IDXGIAdapter* GetDisplayAdapter();
+  ID3D11DeviceContext* GetContext();
+  atString GetAdapterDescription();
+  D3D_FEATURE_LEVEL GetFeatureLevel();
+  DWORD GetCreateFlags();
+
+  void ResizeSwapChain(const atVec2I &size);
+
+  bool GetVsyncEnabled() const;
+  int64_t RefreshRateNumerator(const bool vsync);
+  int64_t RefreshRateDenominator(const bool vsync);
+  
+  int64_t GFXMemorySize();
+
+  void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0);
+  void Draw(int64_t nVerts, int64_t startLocation = 0);
+
+  void Shutdown();
+
   template<typename T> static void SafeRelease(T *&pBuffer) { if (pBuffer) pBuffer->Release(); pBuffer = nullptr; }
 
-  static IDXGIOutput* GetOutputDisplay();
-  static IDXGIFactory* GetFactory();
-  static ID3D11Device* GetDevice();
-  static IDXGIAdapter* GetDisplayAdapter();
-  static ID3D11DeviceContext* GetContext();
-  static atString GetAdapterDescription();
-  static D3D_FEATURE_LEVEL GetFeatureLevel();
-  static DWORD GetCreateFlags();
-
-  static int64_t RefreshRateNumerator(const bool vsync);
-  static int64_t RefreshRateDenominator(const bool vsync);
-  
-  static int64_t GFXMemorySize();
-
-  static void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0);
-  static void Draw(int64_t nVerts, int64_t startLocation = 0);
-
-  static void Shutdown();
-
 protected:
-  static void CreateDeviceAndContext();
-  static void CreateOutput();
-  static void CreateAdapter();
-  static void CreateFactory();
-  
-  static ID3D11Device *m_pDevice;
-  static IDXGIAdapter *m_pAdapter;
-  static IDXGIFactory *m_pFactory;
-  static IDXGIOutput *m_pOutputDisplay;
-  static ID3D11DeviceContext *m_pContext;
-  static atVector<DXGI_MODE_DESC> m_displayModeList;
+  void CreateSwapChain(atWindow *pWindow, const bool &vsyncEnabled);
+  void CreateDeviceAndContext();
+  void CreateOutput();
+  void CreateAdapter();
+  void CreateFactory();
+  void CreateBackBufferView();
+  void CreateDepthBuffer(const atVec2I &size);
 
-  static DWORD m_flags;
-  static int64_t m_gfxMemory;
-  static D3D_FEATURE_LEVEL m_featureList[];
-  static D3D_FEATURE_LEVEL m_featureLevel;
-  static char m_adapterDesc[128];
+  atDirectXState *m_pState = nullptr;
+  ID3D11Device *m_pDevice = nullptr;
+  IDXGISwapChain *m_pSwapChain = nullptr;
+  IDXGIAdapter *m_pAdapter = nullptr;
+  IDXGIFactory *m_pFactory = nullptr;
+  IDXGIOutput *m_pOutputDisplay = nullptr;
+  ID3D11DeviceContext *m_pContext = nullptr;
+  ID3D11RenderTargetView *m_pBackBuffer = nullptr;
+  ID3D11DepthStencilView *m_pDepthBuffer = nullptr;
+
+  atVector<DXGI_MODE_DESC> m_displayModeList;
+  DWORD m_flags = 0;
+  int64_t m_gfxMemory = 0;
+  D3D_FEATURE_LEVEL m_featureList[7];
+  D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_9_1;
+  char m_adapterDesc[128];
+  
   struct RefreshRate
   {
-    static int64_t num;
-    static int64_t den;
-    static int64_t defNum;
-    static int64_t defDen;
-  };
+    int64_t num = 0;
+    int64_t den = 0;
+    int64_t defNum = 0;
+    int64_t defDen = 0;
+    bool vsync = false;
+  } m_refresh;
 };
 
 // ----------------------------------------------------------------------------------------

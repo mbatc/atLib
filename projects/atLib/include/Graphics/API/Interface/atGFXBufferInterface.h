@@ -16,8 +16,6 @@ class atGFXBufferInterface : public atGFXResource
 {
 public:
   template<typename T> atGFXBufferInterface(const T &data, const atBufferType &bufferType = atBT_VertexData);
-  ~atGFXBufferInterface() {}
-
   template<typename T> void Set(const T &data);
   template<typename T> void Set(const atVector<T> &data);
   void Set(const void *pData, const int64_t &bufLen, const atTypeDesc &desc);

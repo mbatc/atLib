@@ -26,9 +26,9 @@
 #define ATLIB_DIRECTX
 #define RUN_ATTEST
 
-#include "atInput.h"
 #include "atBVH.h"
-#include "atShaderPool.h"
+#include "atMesh.h"
+#include "atInput.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -123,11 +123,11 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // A Render target must be set before attempting to render
   // this can be an atWindow or atRenderTarget with a color/depth texture attached
-  rs.SetRenderTarget(&window);
+  // rs.SetRenderTarget(&window);
   while (atInput::Update(true)) // Process user inputs
   {
-    if (atInput::ButtonPressed(atKC_Apostraphe))
-      atShaderPool::ReloadShaders();
+    // if (atInput::ButtonPressed(atKC_Apostraphe))
+    //   atShaderPool::ReloadShaders();
 
     // Update camera
     camera.OnUpdate(0.016);
@@ -192,7 +192,7 @@ void ExampleRenderText()
 
   // A Render target must be set before attempting to render
   // this can be an atWindow or atRenderTarget with a color/depth texture attached
-  rs.SetRenderTarget(&window);
+  // rs.SetRenderTarget(&window);
 
   while (atInput::Update())
   {
@@ -411,7 +411,7 @@ void ExampleCreateScene()
   atScene scene;
   
   atRenderState rs;
-  rs.SetRenderTarget(&window);
+  // rs.SetRenderTarget(&window);
 
   // Create camera
   atSceneNode *pNode = scene.CreateNode("Camera 1", { 2, 1, 5 });
@@ -463,7 +463,7 @@ void ExampleImGui()
 {
   atWindow window;
   atRenderState rs;
-  rs.SetRenderTarget(&window);
+  // rs.SetRenderTarget(&window);
 
   while (atInput::Update())
   {
@@ -545,11 +545,127 @@ void ExampeBackPropagation()
 #include "atHashSet.h"
 
 #include "atTest.h"
+
+#include "atGraphics.h"
 #include "atDXPrgm.h"
 #include "atDXShader.h"
 #include "atDXBuffer.h"
 #include "atDXSampler.h"
+
+#include "atGLTexture.h"
+#include "atGLPrgm.h"
+#include "atGLShader.h"
+#include "atGLBuffer.h"
+
 #include "atNewRenderableCore.h"
+#include "atPtr.h"
+
+class Model
+{
+public:
+  struct SubMesh
+  {
+    atVector<atVec3F> pos;
+    atVector<atVec2F> tex;
+    atVector<atVec3F> nrm;
+    atVector<atVec4F> col;
+  };
+
+  Model(const atMesh &mesh, const atGraphicsAPI &api = atGfxApi_DirectX)
+  {
+    atVector<SubMesh> submesh;
+    submesh.resize(mesh.m_materials.size());
+
+    for (const atMesh::Triangle &tri : mesh.m_triangles)
+    {
+      int64_t matID = tri.mat;
+      SubMesh &m = submesh[matID];
+      for (const atMesh::Vertex &v : tri.verts)
+      {
+        m.col.push_back(mesh.m_colors[v.color]);
+        m.pos.push_back(mesh.m_positions[v.position]);
+        m.nrm.push_back(mesh.m_normals[v.normal]);
+        m.tex.push_back(mesh.m_texCoords[v.texCoord]);
+      }
+    }
+
+    switch (api)
+    {
+    case atGfxApi_DirectX:
+    {
+      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
+      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vs"), atPS_Vertex));
+      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.ps"), atPS_Fragment));
+      
+      for (const atMaterial &mat : mesh.m_materials)
+        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
+          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atDXTexture>(atImage(mat.m_tDiffuse[0])));
+      meshes.resize(submesh.size());
+
+      for (int64_t i = 0; i < meshes.size(); ++i)
+      {
+        atNewRenderableCore &ro = meshes[i];
+        ro.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[i].col));
+        ro.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[i].pos));
+        ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
+        ro.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[i].nrm));
+
+        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+        std::shared_ptr<atGFXTexInterface> tex;
+        if (texPath.length())
+          tex = textures[texPath];
+        else
+        {
+          atVector<atCol> colours;
+          colours.resize(100, 0xFFFFFFFF);
+          tex = std::make_shared<atDXTexture>(atImage(colours.data(), { 10, 10 }));
+        }
+
+        ro.SetTexture("texture0", tex);
+        ro.SetSampler("sampler0", std::make_shared<atDXSampler>());
+        ro.SetProgram(prgm);
+      }
+    } break;
+    case atGfxApi_OpenGL:
+    {
+      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atGLPrgm>();
+      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vert"), atPS_Vertex));
+      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.frag"), atPS_Fragment));
+
+      for (const atMaterial &mat : mesh.m_materials)
+        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
+          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atGLTexture>(atImage(mat.m_tDiffuse[0])));
+      meshes.resize(submesh.size());
+
+      for (int64_t i = 0; i < meshes.size(); ++i)
+      {
+        atNewRenderableCore &ro = meshes[i];
+        ro.SetAttribute("color0", std::make_shared<atGLBuffer>(submesh[i].col));
+        ro.SetAttribute("position0", std::make_shared<atGLBuffer>(submesh[i].pos));
+        ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
+        ro.SetAttribute("normal0", std::make_shared<atGLBuffer>(submesh[i].nrm));
+
+        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+        std::shared_ptr<atGFXTexInterface> tex;
+        if (texPath.length())
+          tex = textures[texPath];
+        else
+          tex = std::make_shared<atGLTexture>(atImage());
+
+        ro.SetTexture("texture0", tex);
+        ro.SetProgram(prgm);
+      }
+    } break;
+    }
+  }
+
+  atVector<atNewRenderableCore> meshes;
+  atHashMap<atString, std::shared_ptr<atGFXTexInterface>> textures;
+};
+
+#include <time.h>
+
+atGraphics *pGraphics = nullptr;
 
 int main(int argc, char **argv)
 {
@@ -559,66 +675,96 @@ int main(int argc, char **argv)
   atTest();
 #endif
 
+  Model *pModel = nullptr;
+  atString modelPath = "Assets/sponza/sponza.obj";
+
   {
+    atGraphicsAPI api = atGfxApi_DirectX;
+
     atWindow window;
-    window.Clear();
+    pGraphics = atNew<atGraphics>(&window, api);
+    atRenderState rs;  
 
-    atRenderState rs;
-    
-    atDXShader vertShader(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vs"), atPS_Vertex);
-    atDXShader fragShader(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.ps"), atPS_Fragment);
+    int64_t t = (int64_t)clock();
 
-    atDXPrgm program;
-    program.SetStage(&vertShader);
-    program.SetStage(&fragShader);
-
-    atNewRenderableCore ro;
-    atMesh m;
-    m.Import("D:/Programming Projects/atLib/builds/bin/Assets/Test/Models/bumpMap.obj");
-    m.MakeValid();
-
-    atVector<atVec4F> color;
-    atVector<atVec3F> positions;
-    atVector<atVec3F> normals;
-    atVector<atVec2F> texCoords;
-
-    for (const atMesh::Triangle &tri : m.m_triangles)
-      for (const atMesh::Vertex &v : tri.verts)
-      {
-        color.push_back(m.m_colors[v.color]);
-        positions.push_back(m.m_positions[v.position]);
-        normals.push_back(m.m_normals[v.normal]);
-        texCoords.push_back(m.m_texCoords[v.texCoord]);
-      }
-
-    atDXBuffer colAttr(color);
-    atDXBuffer posAttr(positions);
-    atDXBuffer nrmAttr(normals);
-    atDXBuffer texAttr(texCoords);
-    atDXTexture tex(atImage("D:/Programming Projects/atLib/builds/bin/Assets/Test/Models/Textures/Brick_0.jpg"));
-
-    ro.SetAttribute("COLOR", &colAttr);
-    ro.SetAttribute("POSITION", &posAttr);
-    ro.SetAttribute("NORMAL", &nrmAttr);
-    ro.SetAttribute("TEXCOORD", &texAttr);
-    ro.SetTexture("texture0", &tex);
-
-    ro.SetProgram(&program);
-
-    atSimpleCamera cam(&window, { 0, 0, -1 });
-
+    atSimpleCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
     while (atInput::Update())
     {
-      rs.SetRenderTarget(&window);
-      rs.SetViewport(atVec4I(0, 0, window.Size()));
-      window.Clear(atVec4F(0.3));
+      // Process dropped files
+      for (const atString &f : window.DroppedFiles())
+      {
+        modelPath = f;
+        if (pModel)
+          atDelete(pModel);
+        pModel = nullptr;
+      }
 
+      // Load model
+      if (modelPath != "" && !pModel)
+      {
+        atMesh m;
+        if (m.Import(modelPath))
+        {
+          m.MakeValid();
+          m.DiscoverTextures();
+          m.FlipTextures(false, true);
+          if (pModel)
+            atDelete(pModel);
+          pModel = atNew<Model>(m, api);
+        }
+      }
+
+      // Update camera
+      cam.OnUpdate(double(clock() - t) / CLOCKS_PER_SEC);
+      t = clock();
+
+      // Draw
+      rs.SetViewport(atVec4I(0, 0, window.Size()));
       cam.SetViewport(&window);
-      cam.OnUpdate(0.016);
-      ro.SetUniform("mvp", atMat4F(cam.ProjectionMat() * cam.ViewMat()).Transpose());
-      ro.Draw(false);
+
+      window.Clear(api == atGfxApi_DirectX ? atVec4F{0.3f, 0.3f, 1.0f, 1} : atVec4F{0.3f, 1.0f, 0.3f, 1});
+  
+      if (pModel)
+      {
+        // Get correct project matrix depending on the graphics api
+        atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
+        atMat4D view = cam.ViewMat();
+        atMat4D vp = (proj * view).Transpose();
+
+        // Set uniforms
+        for (atNewRenderableCore &ro : pModel->meshes)
+          ro.SetUniform("mvp", atMat4F(vp));
+
+        // Draw each mesh
+        for (atNewRenderableCore &ro : pModel->meshes)
+          ro.Draw(false);
+      }
+
       window.Swap();
+
+      // Switch GFX api on key press (this will cause the model to be reloaded)
+      if (atInput::ButtonPressed(atKC_P))
+      {
+        if (pModel)
+          atDelete(pModel);
+
+        if (pGraphics)
+          atDelete(pGraphics);
+
+        pModel = nullptr;
+        pGraphics = nullptr;
+
+        if (api == atGfxApi_DirectX)
+          api = atGfxApi_OpenGL;
+        else
+          api = atGfxApi_DirectX;
+
+        pGraphics = atNew<atGraphics>(&window, api);
+      }
     }
+
+    atDelete(pGraphics);
+    pGraphics = nullptr;
   }
 
   // Uncomment Something!
@@ -626,7 +772,7 @@ int main(int argc, char **argv)
   // Functional
   
   // ExampleRenderText();
-  ExampleRenderMesh();
+  // ExampleRenderMesh();
   // ExampleCreateScene();
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();

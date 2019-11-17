@@ -33,12 +33,13 @@
 // TODO: Software window WINAPI https://docs.microsoft.com/en-us/windows/desktop/api/wingdi/nf-wingdi-createdibsection
 
 class atWindow;
+class atWin32Window;
 
 class atWinAPI
 {
 public:
   static LRESULT __stdcall WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  static bool PumpMessage();
+  static bool PumpMessage(atWindow *pWindow = nullptr);
   static int GetResult();
   static void RegisterWindow(HWND hWnd, atWindow *pWindow);
   static void UnRegisterWindow(HWND hWnd);
@@ -47,6 +48,8 @@ public:
 
 class atWin32Window
 {
+  friend atWinAPI;
+
 public:
   atWin32Window(atWindow *pWindow);
   ~atWin32Window();
@@ -56,6 +59,7 @@ public:
   void SetTitle();
   void OnResize();
   void SetWindowRect();
+  void SetVisible();
 
   void SetParent(HWND hParent);
   void SetCursor(HCURSOR hParent);
@@ -68,7 +72,7 @@ public:
 
   HWND Handle() const;
   const atVector<atCol>& Pixels();
-
+  
 protected:
   bool WINRegister();
   bool WINCreate();
@@ -76,8 +80,9 @@ protected:
   void LoadDefaultResources();
 
   // Hi-level window
-  atWindow *m_pWindow;
   atVector<atCol> m_pixels;
+  atVector<atString> m_droppedFiles;
+  atWindow *m_pWindow;
 
   // WinAPI junk
   atString m_wndCls = "atDefaultWndCls";

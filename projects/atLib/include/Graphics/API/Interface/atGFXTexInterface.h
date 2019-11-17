@@ -6,6 +6,7 @@
 
 enum atGFXTextureType
 {
+  atGFX_TT_None,
   atGFX_TT_1D,
   atGFX_TT_2D,
   atGFX_TT_3D,
@@ -29,6 +30,7 @@ public:
   void Set(const atVector<atVector<float>> &images, const atVec2I &size);
 
   const atVec2I& Size() const;
+  const atGFXTextureType &Type() const;
 
 protected:
   atVec2I m_size;

@@ -25,7 +25,6 @@
 
 #include "atFont.h"
 #include "atFile.h"
-#include "atHardwareTexture.h"
 
 //---------------------
 // THIRD PARTY INCLUDES
@@ -42,13 +41,15 @@ int64_t atFont::Resolution() const { return m_resolution; }
 
 int64_t atFont::GetTextureID(const bool updateTexture)
 {
-  if (m_texID == AT_INVALID_ID)
-    m_texID = atHardwareTexture::UploadTexture(m_bitmap);
-  else if (m_stale && updateTexture)
-  {
-    atHardwareTexture::UpdateTexture(m_texID, m_bitmap);
-    m_stale = false;
-  }
+  atUnused(updateTexture);
+
+  // if (m_texID == AT_INVALID_ID)
+  //   m_texID = atHardwareTexture::UploadTexture(m_bitmap);
+  // else if (m_stale && updateTexture)
+  // {
+  //   atHardwareTexture::UpdateTexture(m_texID, m_bitmap);
+  //   m_stale = false;
+  // }
   return m_texID;
 }
 

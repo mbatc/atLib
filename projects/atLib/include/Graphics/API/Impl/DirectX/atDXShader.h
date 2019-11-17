@@ -1,6 +1,7 @@
 #ifndef atDXShader_h__
 #define atDXShader_h__
 
+#include "atPtr.h"
 #include "atHashMap.h"
 #include "atDXBuffer.h"
 #include "atDXSampler.h"
@@ -36,6 +37,8 @@ public:
 
   atGraphicsAPI API() override { return atGfxApi_DirectX; }
 
+  void UpdateConstantBuffers();
+
 protected:
   struct VarDesc
   {
@@ -52,7 +55,7 @@ protected:
 
     int64_t slot = 0;
     bool updated = false;
-    atDXBuffer *pBuffer = nullptr;
+    atDXBuffer *pBuffer;
   };
 
   struct SamplerDesc

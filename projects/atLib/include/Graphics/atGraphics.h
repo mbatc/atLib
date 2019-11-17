@@ -27,42 +27,45 @@
 #define _atGraphics_h__
 
 #include "atString.h"
-#include "atDirectX.h"
-#include "atOpenGL.h"
+#include "atGFXResource.h"
 
-enum atShaderType
-{
-  atST_Vertex,
-  atST_Pixel,
-  atST_Compute,
-  atST_Geometry,
-  atST_Domain,
-  atST_Hull
-};
+class atWindow;
 
-enum atShader_ResourceType
-{
-  atSRT_Texture,
-  atSRT_Sampler,
-  atSRT_Buffer
-};
+class __atGfxImpl;
 
 class atGraphics
 {
+  friend atWindow;
+
 public:
-  static bool BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void *pResource);
-  static bool CreateBuffer(ID3D11Buffer **ppBuffer, void *pData, int64_t size, int64_t binding, int64_t usage = D3D11_USAGE_DEFAULT, int64_t cpuAccess = 0);
+  // Create a graphics context associated with a window
+  atGraphics(atWindow *pWindow, const atGraphicsAPI &api = atGfxApi_DirectX);
+  ~atGraphics();
+  
+  static void* GetCtx();
 
-  // Should be called before exiting any application using atGraphics
-  static void Shutdown();
+  // Set the current graphics context
+  static void SetCurrent(atGraphics *pContext);
+
+  // Get the current graphics context
+  static atGraphics* GetCurrent();
+
+  const atGraphicsAPI& GetAPI() const;
+
+protected:
+  void Resize();
+
+  // Clear the window
+  bool Clear(const atVec4F &color, const float &depth = 1.0f);
+
+  // Display the window
+  bool Swap();
+
+  bool SetWindowed(const bool &windowed);
+
+  atWindow *m_pWindow = nullptr;
+  atGraphicsAPI m_api = atGfxApi_None;
+  __atGfxImpl* m_pImpl = nullptr;
 };
-
-template<typename T> inline void atGraphics::SafeRelease(T &ref)
-{
-  if (!ref)
-    return;
-  ref->Release();
-  ref = nullptr;
-}
 
 #endif // _atGraphics_h__

@@ -42,12 +42,18 @@ bool atSimpleCamera::OnUpdate(const double dt)
   atVec2D dMouse = atInput::MouseDelta();
   atVec2D rot;
   const double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
-  const double rotSpeed = 0.4 * dt;
+  const double rotSpeed = 0.5 * dt;
 
   if (!atInput::RightMouseDown())
+  {
     atInput::LockMouse(false);
+  }
   else
-    rot = { -dMouse.y * rotSpeed, -dMouse.x * rotSpeed * m_aspect };
+  {
+    rot = { -dMouse.y * rotSpeed * m_aspect, -dMouse.x * rotSpeed };
+    atInput::LockMouse(true);
+  }
+
   atVec3D move;
   if (atInput::ButtonDown(atKC_W)) move.z -= speed;
   if (atInput::ButtonDown(atKC_S)) move.z += speed;
@@ -63,7 +69,7 @@ bool atSimpleCamera::OnUpdate(const double dt)
   Translate(Orientation().Rotate(move));
   m_yaw *= atQuatD(atVec3D(0, 1, 0), rot.y);
   m_pitch *= atQuatD(atVec3D(1, 0, 0), rot.x);
-  SetRotation(m_yaw * m_pitch);
+  SetRotation(Orientation().Slerp(m_yaw * m_pitch, 0.5f));
   return true;
 }
 
@@ -87,9 +93,9 @@ atSimpleCamera::atSimpleCamera(const atWindow *pWnd, const atVec3D &pos, const a
   SetRotation(rot); 
 }
 
-atMat4D atSceneCamera::ProjectionMat() const 
+atMat4D atSceneCamera::ProjectionMat(const double &clipNearZ, const double &clipFarZ) const
 {
-  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane);
+  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane, clipNearZ, clipFarZ);
 }
 
 void atSceneCamera::SetViewport(const atWindow *pWnd)

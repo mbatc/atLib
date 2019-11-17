@@ -1,10 +1,10 @@
 #include "atGFXPrgmInterface.h"
 
-atGFXPrgmInterface::atGFXPrgmInterface() { memset(m_pStages, 0, sizeof(m_pStages)); }
+atGFXPrgmInterface::atGFXPrgmInterface() {}
 
 void atGFXPrgmInterface::Reload() { Delete(); }
 
-bool atGFXPrgmInterface::SetStage(atGFXShaderInterface *pShader)
+bool atGFXPrgmInterface::SetStage(std::shared_ptr<atGFXShaderInterface> pShader)
 {
   if (pShader->API() != API())
     return false;
