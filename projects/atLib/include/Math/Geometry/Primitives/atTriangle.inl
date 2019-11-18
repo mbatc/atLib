@@ -24,16 +24,38 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> T atTriangle<T>::Area() const
+template<typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
+template<typename T> atTriangle<T>::atTriangle(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c) : m_a(a), m_b(b), m_c(c) {}
+
+template<typename T> atVector3<T> atTriangle<T>::Normal2() const
 {
   const atVector3<T> a = m_a - m_b;
   const atVector3<T> b = m_a - m_c;
-  return 0.5 * a.Cross(b).Mag();
+  return 0.5 * a.Cross(b);
 }
 
-template<typename T> atTriangle<T>::atTriangle() : atTriangle(atVector3<T>::zero(), atVector3<T>::zero(), atVector3<T>::zero()) {}
-template<typename T> atTriangle<T>::atTriangle(const atVector3<T>& a, const atVector3<T>& b, const atVector3<T>& c) : m_a(a), m_b(b), m_c(c) {}
-template<typename T> atVector3<T> atTriangle<T>::Center() { return (m_a + m_b + m_c) / (T)3; }
+template<typename T> atVector3<T> atTriangle<T>::BarycentricCoords(const atVector3<T> &point) const
+{
+  atVector3<T> edge0 = m_b - m_a;
+  atVector3<T> edge1 = m_c - m_a;
+  atVector3<T> edge2 = point - m_a;
+
+  T d00 = atVector3<T>::Dot(edge0, edge0);
+  T d01 = atVector3<T>::Dot(edge0, edge1);
+  T d11 = atVector3<T>::Dot(edge1, edge1);
+  T d20 = atVector3<T>::Dot(edge2, edge0);
+  T d21 = atVector3<T>::Dot(edge2, edge1);
+  T denom = d00 * d11 - d01 * d01;
+
+  atVector3<T> coords;
+  coords.y = (d11 * d20 - d01 * d21) / denom;
+  coords.z = (d00 * d21 - d01 * d20) / denom;
+  coords.x = T(1) - coords.y - coords.z;
+}
+
+template<typename T> T atTriangle<T>::Area() const { return Normal2().Mag(); }
+template<typename T> atVector3<T> atTriangle<T>::Normal() const { return Normal2().Normalize(); }
+template<typename T> atVector3<T> atTriangle<T>::Center() const { return (m_a + m_b + m_c) / (T)3; }
 
 template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri)
 {

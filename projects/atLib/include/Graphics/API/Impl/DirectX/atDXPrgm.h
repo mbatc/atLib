@@ -3,7 +3,6 @@
 
 #include "atGFXPrgmInterface.h"
 #include "atDXBuffer.h"
-#include "atPtr.h"
 
 class atDXPrgm : public atGFXPrgmInterface
 {

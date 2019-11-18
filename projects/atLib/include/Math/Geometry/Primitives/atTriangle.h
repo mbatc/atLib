@@ -35,13 +35,23 @@ public:
   atTriangle();
   atTriangle(const atVector3<T> &a, const atVector3<T> &b, const atVector3<T> &c);
 
-  atVector3<T> Center();
+  // Returns the area of the triangle
+  T Area() const;
+
+  // Returns the point at the center of the triangle
+  atVector3<T> Center() const;
+
+  // Returns the normalized cross product of the edges ab and ac
+  atVector3<T> Normal() const;
+
+  // Returns the cross product of the edges ab and ac
+  atVector3<T> Normal2() const;
+  
+  atVector3<T> BarycentricCoords(const atVector3<T> &point) const;
 
   atVector3<T> m_a;
   atVector3<T> m_b;
   atVector3<T> m_c;
-
-  T Area() const;
 };
 
 template<typename T> atAABB<T> atBounds(const atTriangle<T> &tri);

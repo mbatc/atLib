@@ -166,17 +166,16 @@ template<typename T> inline bool atIntersects(const atRay<T> &ray, const atOBB<T
 template<typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> &tri, T *pTime)
 {
   T time = 0;
+  
   if (!atIntersects(ray, atPlane<T>(tri.m_a, tri.m_b, tri.m_c), &time))
     return false;
+
   atVector3<T> point = ray.At(time);
-  T area = tri.Area();
-  T testArea = atTriangle<T>(point, tri.m_a, tri.m_b).Area() +
-    atTriangle<T>(point, tri.m_b, tri.m_c).Area() +
-    atTriangle<T>(point, tri.m_a, tri.m_c).Area();
-  
+  atVector3<T> weights = tri.BarycentricCoords(point);
   if (pTime)
     *pTime = time;
-  return abs(testArea - area) < 0.000001 && time >= 0;
+
+  return weights.x + weights.y + weight.z <= 1.0 && time >= 0;
 }
 
 template<typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &plane, T *pTime) 

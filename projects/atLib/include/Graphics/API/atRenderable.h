@@ -6,7 +6,6 @@
 #include "atGFXPrgmInterface.h"
 #include "atGFXTexInterface.h"
 #include "atKeyValue.h"
-#include "atPtr.h"
 #include <memory>
 
 class atRenderable

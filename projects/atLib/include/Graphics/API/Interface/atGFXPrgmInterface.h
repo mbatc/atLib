@@ -2,7 +2,6 @@
 #define atGFXPrgmInterface_h__
 
 #include <memory>
-#include "atPtr.h"
 #include "atGFXResource.h"
 #include "atGFXShaderInterface.h"
 #include "atGFXBufferInterface.h"

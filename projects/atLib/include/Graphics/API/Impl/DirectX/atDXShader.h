@@ -1,7 +1,6 @@
 #ifndef atDXShader_h__
 #define atDXShader_h__
 
-#include "atPtr.h"
 #include "atHashMap.h"
 #include "atDXBuffer.h"
 #include "atDXSampler.h"
