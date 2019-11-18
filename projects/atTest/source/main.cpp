@@ -89,7 +89,6 @@ void ExampleStrings()
 // Right Mouse + Mouse Move - Look
 
 #include "at2DRenderer.h"
-#include "atGraphicsModel.h"
 #include "atRenderState.h"
 #include "atSceneCamera.h"
 
@@ -109,7 +108,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   light.m_specularColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
   
   // Import the model
-  atGraphicsModel model(path.c_str());
+  // atGraphicsModel model(path.c_str());
 
   // Create a window
   atWindow window("Default Window", wndSize);
@@ -139,13 +138,13 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     rs.SetScissor(atVec4I(0, 0, window.Size()));
 
     // Set Lighting Data
-    model.SetLighting(light);
-    model.EnableLighting(useLighting);
-    model.SetCamera(camera.Translation());
+    // model.SetLighting(light);
+    // model.EnableLighting(useLighting);
+    // model.SetCamera(camera.Translation());
     useLighting = atInput::ButtonPressed(atKC_L) ? !useLighting : useLighting;
 
     // Draw model
-    model.Draw(camera.ProjectionMat() * camera.ViewMat());
+    // model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
     // Drawing Text - See ExampleRenderText() for more examples
     at2DRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
