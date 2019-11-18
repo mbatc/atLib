@@ -4,7 +4,7 @@
 #include "atTypes.h"
 #include "atScene.h"
 #include "atWindow.h"
-#include "atSceneCamera.h"
+#include "atCamera.h"
 #include "atEScripting.h"
 
 class atEngine
@@ -38,7 +38,7 @@ protected:
   void Shutdown();
   int64_t Run();
 
-  atSimpleCamera *m_pCamera;
+  atFPSCamera *m_pCamera;
   atWindow *m_pWindow;
   int64_t m_result;
 

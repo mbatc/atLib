@@ -37,7 +37,7 @@
 
 static MSG s_msg;
 static int64_t s_lastClock;
-static atHashMap<int64_t, atWindow*> s_windows;
+static atHashMap<int64_t, atWindow*> _windows;
 static int64_t s_wndClsCounter = 0;
 
 // WinAPI helpers
@@ -83,14 +83,14 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
   case WM_SIZE: case WM_MOVE:
   {
-    atWindow **ppTarget = s_windows.TryGet((int64_t)hWnd);
+    atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
     if (ppTarget)
       (*ppTarget)->OnResize();
   }
   break;
   case WM_DROPFILES:
   {
-    atWindow **ppTarget = s_windows.TryGet((int64_t)hWnd);
+    atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
     HDROP hDrop = (HDROP)wParam;
     if (ppTarget)
     {
@@ -144,14 +144,14 @@ void atWinAPI::RegisterWindow(HWND hWnd, atWindow *pWindow)
 {
   UnRegisterWindow(hWnd);
   _RegisterInputDevices(hWnd);
-  s_windows.Add((int64_t)hWnd, pWindow);
+  _windows.Add((int64_t)hWnd, pWindow);
 }
 
-void atWinAPI::UnRegisterWindow(HWND hWnd) { s_windows.Remove((int64_t)hWnd); }
+void atWinAPI::UnRegisterWindow(HWND hWnd) { _windows.Remove((int64_t)hWnd); }
 
 atWindow* atWinAPI::GetWindow(HWND hWnd)
 {
-  atWindow **ppWnd = s_windows.TryGet((int64_t)hWnd);
+  atWindow **ppWnd = _windows.TryGet((int64_t)hWnd);
   return ppWnd ? *ppWnd : nullptr;
 }
 

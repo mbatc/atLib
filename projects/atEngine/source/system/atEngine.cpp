@@ -35,7 +35,7 @@ bool atEngine::Initialise(int argc, char **argv)
 {
   atUnused(argc, argv);
   m_pWindow = atNew<atWindow>("atEngine");
-  m_pCamera = atNew<atSimpleCamera>(m_pWindow);
+  m_pCamera = atNew<atFPSCamera>(m_pWindow);
   return true;
 }
 

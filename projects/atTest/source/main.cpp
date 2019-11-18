@@ -29,6 +29,7 @@
 #include "atBVH.h"
 #include "atMesh.h"
 #include "atInput.h"
+#include "atLight.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -90,7 +91,7 @@ void ExampleStrings()
 
 #include "at2DRenderer.h"
 #include "atRenderState.h"
-#include "atSceneCamera.h"
+#include "atCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
@@ -114,7 +115,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   atWindow window("Default Window", wndSize);
 
   // Create a camera
-  atSimpleCamera camera(&window, { 0, 1, 5 });
+  atFPSCamera camera(&window, { 0, 1, 5 });
   camera.m_moveSpeed = 1.0f;
 
   // Main program loop
@@ -129,7 +130,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     //   atShaderPool::ReloadShaders();
 
     // Update camera
-    camera.OnUpdate(0.016);
+    camera.Update(0.016);
     camera.SetViewport(&window);
 
     // Clear window
@@ -359,11 +360,11 @@ void ExampleRayTraceMesh()
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindow window("Window", { 800, 600 }, false);
-  atSimpleCamera cam(&window);
+  atFPSCamera cam(&window);
   while (atInput::Update())
   {
     window.Clear(0xFF333333);
-    cam.OnUpdate(0.016);
+    cam.Update(0.016);
 
     atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
     vp = vp.Transpose();
@@ -396,53 +397,6 @@ void ExampleRayTraceMesh()
               window.Pixels()[x2 + y2 * window.Width()] = atColor::Pack(int(255.f - time), int(255.f - time), int(255.f - time), 255);
         }
       }
-
-    window.Swap();
-  }
-}
-
-#include "atScene.h"
-#include "atSceneMeshRenderable.h"
-
-void ExampleCreateScene()
-{
-  atWindow window;
-  atScene scene;
-  
-  atRenderState rs;
-  // rs.SetRenderTarget(&window);
-
-  // Create camera
-  atSceneNode *pNode = scene.CreateNode("Camera 1", { 2, 1, 5 });
-  atSceneCamera *pCam1 = pNode->AddComponent<atSceneCamera>();
-  scene.AddActiveCamera(pNode);
-
-
-  // Create another camera
-  pNode = scene.CreateNode("Camera 2", {0, 1, 5});
-  atSceneCamera *pCam2 = pNode->AddComponent<atSceneCamera>();
-  scene.AddActiveCamera(pNode);
-
-
-  // Add a mesh
-  // pNode = scene.CreateNode("Mesh");
-  // atSceneMeshRenderable *pMesh = pNode->AddComponent<atSceneMeshRenderable>();
-  // pMesh->SetModel("assets/test/models/level.obj");
-
-  // Add a skybox
-  // pNode = scene.CreateNode("Skybox");
-  // pNode->AddComponent<atSceneSkybox>();
-
-
-  while(atInput::Update())
-  {
-    window.Clear({ 0.3, 0.3, 0.3, 1.0 });
-
-    pCam1->SetViewport(atVec4I(0, 0, window.Width() / 2, window.Height()));
-    pCam2->SetViewport(atVec4I(window.Width() / 2, 0, window.Width() / 2, window.Height()));
-    scene.m_viewport = { 0, 0, window.Width(), window.Height() };
-    scene.Update();
-    scene.Draw();
 
     window.Swap();
   }
@@ -687,7 +641,7 @@ int main(int argc, char **argv)
 
     int64_t t = (int64_t)clock();
 
-    atSimpleCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
+    atFPSCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
     while (atInput::Update())
     {
       if (atInput::ButtonPressed(atKC_F11))
@@ -717,7 +671,7 @@ int main(int argc, char **argv)
       }
 
       // Update camera
-      cam.OnUpdate(double(clock() - t) / CLOCKS_PER_SEC);
+      cam.Update(double(clock() - t) / CLOCKS_PER_SEC);
       t = clock();
 
       // Draw
