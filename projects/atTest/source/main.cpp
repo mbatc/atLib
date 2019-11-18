@@ -510,8 +510,7 @@ void ExampeBackPropagation()
 #include "atGLShader.h"
 #include "atGLBuffer.h"
 
-#include "atNewRenderableCore.h"
-#include "atPtr.h"
+#include "atRenderable.h"
 
 class Model
 {
@@ -557,7 +556,7 @@ public:
 
       for (int64_t i = 0; i < meshes.size(); ++i)
       {
-        atNewRenderableCore &ro = meshes[i];
+        atRenderable &ro = meshes[i];
         ro.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[i].col));
         ro.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[i].pos));
         ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
@@ -593,7 +592,7 @@ public:
 
       for (int64_t i = 0; i < meshes.size(); ++i)
       {
-        atNewRenderableCore &ro = meshes[i];
+        atRenderable &ro = meshes[i];
         ro.SetAttribute("color0", std::make_shared<atGLBuffer>(submesh[i].col));
         ro.SetAttribute("position0", std::make_shared<atGLBuffer>(submesh[i].pos));
         ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
@@ -613,7 +612,7 @@ public:
     }
   }
 
-  atVector<atNewRenderableCore> meshes;
+  atVector<atRenderable> meshes;
   atHashMap<atString, std::shared_ptr<atGFXTexInterface>> textures;
 };
 
@@ -687,8 +686,8 @@ int main(int argc, char **argv)
         atMat4D view = cam.ViewMat();
         atMat4D vp = (proj * view).Transpose();
 
-        for (atNewRenderableCore &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
-        for (atNewRenderableCore &ro : pModel->meshes) ro.Draw(false);
+        for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
+        for (atRenderable &ro : pModel->meshes) ro.Draw(false);
       }
 
       window.Swap();

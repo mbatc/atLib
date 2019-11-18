@@ -1,4 +1,4 @@
-#include "atNewRenderableCore.h"
+#include "atRenderable.h"
 
 template<typename T> void _SetNamedItem(atVector<atKeyValue<atString, T>> *pVec, const atString &name, const T &value)
 {
@@ -12,7 +12,7 @@ template<typename T> void _SetNamedItem(atVector<atKeyValue<atString, T>> *pVec,
   pVec->push_back({ name, value });
 }
 
-atNewRenderableCore::atNewRenderableCore(atNewRenderableCore &&o)
+atRenderable::atRenderable(atRenderable &&o)
   : m_pPrgm(std::move(o.m_pPrgm))
   , m_samplers(std::move(o.m_samplers))
   , m_attributes(std::move(o.m_attributes))
@@ -20,7 +20,7 @@ atNewRenderableCore::atNewRenderableCore(atNewRenderableCore &&o)
   , m_uniforms(std::move(o.m_uniforms))
 {}
 
-atNewRenderableCore::atNewRenderableCore(const atNewRenderableCore &o)
+atRenderable::atRenderable(const atRenderable &o)
   : m_pPrgm(o.m_pPrgm)
   , m_samplers(o.m_samplers)
   , m_attributes(o.m_attributes)
@@ -28,7 +28,7 @@ atNewRenderableCore::atNewRenderableCore(const atNewRenderableCore &o)
   , m_uniforms(o.m_uniforms)
 {}
 
-bool atNewRenderableCore::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType)
+bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType)
 {
   if (!Upload())
     return false;
@@ -48,7 +48,7 @@ bool atNewRenderableCore::Draw(const bool &drawIndexed, const atGFX_PrimitiveTyp
   return m_pPrgm->Draw(drawIndexed, primType);
 }
 
-bool atNewRenderableCore::Upload()
+bool atRenderable::Upload()
 {
   for (auto &attribute : m_attributes)
     attribute.m_val->Upload();
@@ -61,7 +61,7 @@ bool atNewRenderableCore::Upload()
   return true;
 }
 
-void atNewRenderableCore::SetUniform(const atString &name, Uniform &&value)
+void atRenderable::SetUniform(const atString &name, Uniform &&value)
 {
   for (auto &kvp : m_uniforms)
     if (kvp.m_key == name)
@@ -73,7 +73,7 @@ void atNewRenderableCore::SetUniform(const atString &name, Uniform &&value)
   m_uniforms.push_back({ name, std::move(value) });
 }
 
-bool atNewRenderableCore::GetUniform(const atString &name, atVector<uint8_t> *pData, atTypeDesc *pInfo)
+bool atRenderable::GetUniform(const atString &name, atVector<uint8_t> *pData, atTypeDesc *pInfo)
 {
   for (const atKeyValue<atString, Uniform> &kvp : m_uniforms)
     if (kvp.m_key == name)
@@ -86,9 +86,7 @@ bool atNewRenderableCore::GetUniform(const atString &name, atVector<uint8_t> *pD
   return false;
 }
 
-std::shared_ptr<atGFXPrgmInterface> atNewRenderableCore::GetProgram() { return m_pPrgm; }
-
-std::shared_ptr<atGFXTexInterface> atNewRenderableCore::GetTexture(const atString &name)
+std::shared_ptr<atGFXTexInterface> atRenderable::GetTexture(const atString &name)
 {
   for (const atKeyValue<atString, std::shared_ptr<atGFXTexInterface>> &kvp : m_textures)
     if (kvp.m_key == name)
@@ -96,7 +94,7 @@ std::shared_ptr<atGFXTexInterface> atNewRenderableCore::GetTexture(const atStrin
   return nullptr;
 }
 
-std::shared_ptr<atGFXSamplerInterface> atNewRenderableCore::GetSampler(const atString &name)
+std::shared_ptr<atGFXSamplerInterface> atRenderable::GetSampler(const atString &name)
 {
   for (const atKeyValue<atString, std::shared_ptr<atGFXSamplerInterface>> &kvp : m_samplers)
     if (kvp.m_key == name)
@@ -104,7 +102,7 @@ std::shared_ptr<atGFXSamplerInterface> atNewRenderableCore::GetSampler(const atS
   return nullptr;
 }
 
-std::shared_ptr<atGFXBufferInterface> atNewRenderableCore::GetAttribute(const atString &name)
+std::shared_ptr<atGFXBufferInterface> atRenderable::GetAttribute(const atString &name)
 {
   for (const atKeyValue<atString, std::shared_ptr<atGFXBufferInterface>> &kvp : m_attributes)
     if (kvp.m_key == name)
@@ -112,7 +110,8 @@ std::shared_ptr<atGFXBufferInterface> atNewRenderableCore::GetAttribute(const at
   return nullptr;
 }
 
-void atNewRenderableCore::SetProgram(const std::shared_ptr<atGFXPrgmInterface> &pProgram) { m_pPrgm = pProgram; }
-void atNewRenderableCore::SetTexture(const atString &name, const std::shared_ptr<atGFXTexInterface> &pTexture) { _SetNamedItem(&m_textures, name, pTexture); }
-void atNewRenderableCore::SetSampler(const atString &name, const std::shared_ptr<atGFXSamplerInterface> &pSampler) { _SetNamedItem(&m_samplers, name, pSampler); }
-void atNewRenderableCore::SetAttribute(const atString &name, const std::shared_ptr<atGFXBufferInterface> &pAttribute) { _SetNamedItem(&m_attributes, name, pAttribute); }
+std::shared_ptr<atGFXPrgmInterface> atRenderable::GetProgram() { return m_pPrgm; }
+void atRenderable::SetProgram(const std::shared_ptr<atGFXPrgmInterface> &pProgram) { m_pPrgm = pProgram; }
+void atRenderable::SetTexture(const atString &name, const std::shared_ptr<atGFXTexInterface> &pTexture) { _SetNamedItem(&m_textures, name, pTexture); }
+void atRenderable::SetSampler(const atString &name, const std::shared_ptr<atGFXSamplerInterface> &pSampler) { _SetNamedItem(&m_samplers, name, pSampler); }
+void atRenderable::SetAttribute(const atString &name, const std::shared_ptr<atGFXBufferInterface> &pAttribute) { _SetNamedItem(&m_attributes, name, pAttribute); }

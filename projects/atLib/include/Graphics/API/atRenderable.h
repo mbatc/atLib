@@ -1,5 +1,5 @@
-#ifndef atNewRenderableCore_h__
-#define atNewRenderableCore_h__
+#ifndef atRenderable_h__
+#define atRenderable_h__
 
 #include "atGFXShaderInterface.h"
 #include "atGFXBufferInterface.h"
@@ -9,12 +9,12 @@
 #include "atPtr.h"
 #include <memory>
 
-class atNewRenderableCore
+class atRenderable
 {
 public:
-  atNewRenderableCore() = default;
-  atNewRenderableCore(atNewRenderableCore &&o);
-  atNewRenderableCore(const atNewRenderableCore &o);
+  atRenderable() = default;
+  atRenderable(atRenderable &&o);
+  atRenderable(const atRenderable &o);
 
   bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList);
   bool Upload();
@@ -25,6 +25,7 @@ public:
   void SetAttribute(const atString &name, const std::shared_ptr<atGFXBufferInterface> &pAttribute);
 
   bool GetUniform(const atString &name, atVector<uint8_t> *pData = nullptr, atTypeDesc *pInfo = nullptr);
+
   std::shared_ptr<atGFXPrgmInterface> GetProgram();
   std::shared_ptr<atGFXTexInterface> GetTexture(const atString &name);
   std::shared_ptr<atGFXBufferInterface> GetAttribute(const atString &name);
@@ -49,18 +50,18 @@ protected:
   atVector<atKeyValue<atString, std::shared_ptr<atGFXSamplerInterface>>> m_samplers;
 };
 
-template<typename T> void atNewRenderableCore::SetUniform(const atString &name, const T &value)
+template<typename T> void atRenderable::SetUniform(const atString &name, const T &value)
 {
   atMemoryWriter writer;
   writer.Write(value);
   SetUniform(name, { writer.m_data, atGetTypeDesc(value) });
 }
 
-template<typename T> void atNewRenderableCore::SetUniform(const atString &name, const atVector<T> &value)
+template<typename T> void atRenderable::SetUniform(const atString &name, const atVector<T> &value)
 {
   atMemoryWriter writer;
   writer.Write(value.data(), value.size());
   SetUniform(name, { writer.m_data, atGetTypeDesc(value) });
 }
 
-#endif // atNewRenderableCore_h__
+#endif // atRenderable_h__
