@@ -229,6 +229,52 @@ void atWin32Window::SetWindowRect()
   UpdatePixels();
 }
 
+void atWin32Window::SetWindowed()
+{
+  bool fullscreen = !m_pWindow->IsWindowed();
+  
+  if (!m_windowedState.wasFullscreen)
+  {
+    m_windowedState.maximized = IsZoomed(m_hWnd) == TRUE;
+
+    if (m_windowedState.maximized)
+      SendMessage(m_hWnd, WM_SYSCOMMAND, SC_RESTORE, 0);
+    m_windowedState.style = GetWindowLong(m_hWnd, GWL_STYLE);
+    m_windowedState.exStyle = GetWindowLong(m_hWnd, GWL_EXSTYLE);
+    GetWindowRect(m_hWnd, &m_windowedState.rect);
+  }
+
+  m_windowedState.wasFullscreen = fullscreen;
+
+  if (fullscreen)
+  {
+    // Set new window style and size.
+    SetWindowLong(m_hWnd, GWL_STYLE, (LONG)m_windowedState.style & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(m_hWnd, GWL_EXSTYLE, (LONG)m_windowedState.exStyle & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+
+    // On expand, if we're given a window_rect, grow to it, otherwise do not resize.
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST), &monitor_info);
+    RECT windowRect(monitor_info.rcMonitor);
+    SetWindowPos(m_hWnd, NULL, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  }
+  else
+  {
+    // Restore window sizes
+    SetWindowLong(m_hWnd, GWL_STYLE, (LONG)m_windowedState.style);
+    SetWindowLong(m_hWnd, GWL_EXSTYLE, (LONG)m_windowedState.exStyle);
+
+    // Restore window rect
+    RECT windowRect(m_windowedState.rect);
+    SetWindowPos(m_hWnd, NULL, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+    // Restore maximized state
+    if (m_windowedState.maximized)
+      SendMessage(m_hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+  }
+}
+
 void atWin32Window::SetVisible() { ShowWindow(m_hWnd, m_pWindow->IsVisible() ? SW_SHOW : SW_HIDE); }
 
 bool atWin32Window::WINRegister()

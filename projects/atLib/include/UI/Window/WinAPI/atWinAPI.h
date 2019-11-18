@@ -59,6 +59,7 @@ public:
   void SetTitle();
   void OnResize();
   void SetWindowRect();
+  void SetWindowed();
   void SetVisible();
 
   void SetParent(HWND hParent);
@@ -92,6 +93,16 @@ protected:
   HICON m_hIcon = NULL;
   HCURSOR m_hCursor = NULL;
   LRESULT(__stdcall *m_wndProc)(HWND, UINT, WPARAM, LPARAM) = atWinAPI::WindowProc;
+
+  // windowed state
+  struct
+  {
+    bool wasFullscreen = false;
+    bool maximized = false;
+    int64_t style = 0;
+    int64_t exStyle = 0;
+    RECT rect;
+  } m_windowedState;
 };
 
 #endif // atWinAPI_h__

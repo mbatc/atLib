@@ -89,8 +89,9 @@ void atWindow::OnResize()
 void atWindow::SetWindowed(const bool windowed)
 {
   m_windowed = windowed;
-  if (m_pGfx)
-    m_pGfx->SetWindowed(windowed);
+  m_sysWindow.SetWindowed();
+  // if (m_pGfx)
+  //   m_pGfx->SetWindowed(windowed);
 }
 
 void atWindow::SetVisible(const bool &visible)
@@ -99,12 +100,13 @@ void atWindow::SetVisible(const bool &visible)
   m_sysWindow.SetVisible();
 }
 
-bool atWindow::MakeWindow() { return m_sysWindow.Create(); }
 void atWindow::Destroy()
 {
-  SetWindowed(false);
+  SetWindowed(true);
   m_sysWindow.Destroy();
 }
+
+bool atWindow::MakeWindow() { return m_sysWindow.Create(); }
 
 const atVec2I& atWindow::Position() const { return m_pos; }
 const atVec2I& atWindow::Size() const { return m_clientSize; }

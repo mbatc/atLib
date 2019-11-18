@@ -41,8 +41,9 @@ bool atSimpleCamera::OnUpdate(const double dt)
 {
   atVec2D dMouse = atInput::MouseDelta();
   atVec2D rot;
-  const double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
-  const double rotSpeed = 0.5 * dt;
+
+  double speed = m_moveSpeed * dt * (atInput::ButtonDown(atKC_Shift) ? 2 : 1) * (atInput::ButtonDown(atKC_Control) ? 0.5 : 1);
+  double rotSpeed = 0.01;
 
   if (!atInput::RightMouseDown())
   {
@@ -53,7 +54,7 @@ bool atSimpleCamera::OnUpdate(const double dt)
     rot = { -dMouse.y * rotSpeed * m_aspect, -dMouse.x * rotSpeed };
     atInput::LockMouse(true);
   }
-
+  
   atVec3D move;
   if (atInput::ButtonDown(atKC_W)) move.z -= speed;
   if (atInput::ButtonDown(atKC_S)) move.z += speed;
@@ -61,15 +62,16 @@ bool atSimpleCamera::OnUpdate(const double dt)
   if (atInput::ButtonDown(atKC_A)) move.x -= speed;
   if (atInput::ButtonDown(atKC_E)) move.y += speed;
   if (atInput::ButtonDown(atKC_X)) move.y -= speed;
-  if (atInput::ButtonDown(atKC_Left)) rot.y += speed;
-  if (atInput::ButtonDown(atKC_Right)) rot.y -= speed;
-  if (atInput::ButtonDown(atKC_Up)) rot.x += speed;
-  if (atInput::ButtonDown(atKC_Down)) rot.x -= speed;
+
+  if (atInput::ButtonDown(atKC_Left)) rot.y += speed * 2;
+  if (atInput::ButtonDown(atKC_Right)) rot.y -= speed * 2;
+  if (atInput::ButtonDown(atKC_Up)) rot.x += speed * 2;
+  if (atInput::ButtonDown(atKC_Down)) rot.x -= speed * 2;
 
   Translate(Orientation().Rotate(move));
   m_yaw *= atQuatD(atVec3D(0, 1, 0), rot.y);
   m_pitch *= atQuatD(atVec3D(1, 0, 0), rot.x);
-  SetRotation(Orientation().Slerp(m_yaw * m_pitch, 0.5f));
+  SetRotation(Orientation().Slerp(m_yaw * m_pitch, 0.3));
   return true;
 }
 

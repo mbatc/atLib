@@ -594,8 +594,8 @@ public:
     case atGfxApi_DirectX:
     {
       std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vs"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.ps"), atPS_Fragment));
+      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.vs"), atPS_Vertex));
+      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.ps"), atPS_Fragment));
       
       for (const atMaterial &mat : mesh.m_materials)
         if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
@@ -626,11 +626,12 @@ public:
         ro.SetProgram(prgm);
       }
     } break;
+
     case atGfxApi_OpenGL:
     {
       std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atGLPrgm>();
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.vert"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("D:/Programming Projects/atLib/builds/bin/Assets/Shaders/color.frag"), atPS_Fragment));
+      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.vert"), atPS_Vertex));
+      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.frag"), atPS_Fragment));
 
       for (const atMaterial &mat : mesh.m_materials)
         if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
@@ -676,7 +677,7 @@ int main(int argc, char **argv)
 #endif
 
   Model *pModel = nullptr;
-  atString modelPath = "Assets/sponza/sponza.obj";
+  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
 
   {
     atGraphicsAPI api = atGfxApi_DirectX;
@@ -690,13 +691,16 @@ int main(int argc, char **argv)
     atSimpleCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
     while (atInput::Update())
     {
+      if (atInput::ButtonPressed(atKC_F11))
+        window.SetWindowed(!window.IsWindowed());
+
       // Process dropped files
       for (const atString &f : window.DroppedFiles())
       {
-        modelPath = f;
-        if (pModel)
-          atDelete(pModel);
+        if (pModel) atDelete(pModel);
         pModel = nullptr;
+
+        modelPath = f;
       }
 
       // Load model
@@ -708,8 +712,7 @@ int main(int argc, char **argv)
           m.MakeValid();
           m.DiscoverTextures();
           m.FlipTextures(false, true);
-          if (pModel)
-            atDelete(pModel);
+          if (pModel) atDelete(pModel);
           pModel = atNew<Model>(m, api);
         }
       }
@@ -731,13 +734,8 @@ int main(int argc, char **argv)
         atMat4D view = cam.ViewMat();
         atMat4D vp = (proj * view).Transpose();
 
-        // Set uniforms
-        for (atNewRenderableCore &ro : pModel->meshes)
-          ro.SetUniform("mvp", atMat4F(vp));
-
-        // Draw each mesh
-        for (atNewRenderableCore &ro : pModel->meshes)
-          ro.Draw(false);
+        for (atNewRenderableCore &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
+        for (atNewRenderableCore &ro : pModel->meshes) ro.Draw(false);
       }
 
       window.Swap();
@@ -745,20 +743,11 @@ int main(int argc, char **argv)
       // Switch GFX api on key press (this will cause the model to be reloaded)
       if (atInput::ButtonPressed(atKC_P))
       {
-        if (pModel)
-          atDelete(pModel);
-
-        if (pGraphics)
-          atDelete(pGraphics);
-
+        if (pModel)    atDelete(pModel);
+        if (pGraphics) atDelete(pGraphics);
         pModel = nullptr;
         pGraphics = nullptr;
-
-        if (api == atGfxApi_DirectX)
-          api = atGfxApi_OpenGL;
-        else
-          api = atGfxApi_DirectX;
-
+        api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
         pGraphics = atNew<atGraphics>(&window, api);
       }
     }
