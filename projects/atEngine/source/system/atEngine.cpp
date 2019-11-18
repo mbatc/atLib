@@ -35,7 +35,7 @@ bool atEngine::Initialise(int argc, char **argv)
 {
   atUnused(argc, argv);
   m_pWindow = atNew<atWindow>("atEngine");
-  m_pCamera = atNew<atSimpleCamera>(m_pWindow);
+  m_pCamera = atNew<atFPSCamera>(m_pWindow);
   return true;
 }
 
@@ -51,7 +51,7 @@ int64_t atEngine::Run()
 {
   int64_t res = 0;
   atRenderState rs;
-  rs.SetRenderTarget(m_pWindow);
+  // rs.SetRenderTarget(m_pWindow);
   while (atInput::Update() && res == 0)
   {
     m_pWindow->Clear(0xFF333333);

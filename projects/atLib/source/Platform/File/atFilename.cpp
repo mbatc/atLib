@@ -59,6 +59,13 @@ atFilename atFilename::ResolveRelativePath(const atFilename &to, const atFilenam
   return atFilename();
 }
 
+template<> atFilename atFromString<atFilename>(const atString &str)
+{
+  atFilename file;
+  file.assign(str);
+  return file;
+}
+
 atFilename atFilename::operator=(const atFilename &fn) { assign(fn.m_fullpath);  return *this; }
 atFilename atFilename::operator=(const atString &fn) { assign(fn); return *this; }
 atFilename atFilename::operator=(const char *fn) { assign(fn);  return *this; }

@@ -27,119 +27,45 @@
 #define _atGraphics_h__
 
 #include "atString.h"
+#include "atGFXResource.h"
 
-#include <d3d.h>
-#include <dxgi.h>
-#include <d3d11.h>
-#include <directxmath.h>
-#include <d3dcompiler.h>
+class atWindow;
 
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-
-enum atShaderType
-{
-  atST_Vertex,
-  atST_Pixel,
-  atST_Compute,
-  atST_Geometry,
-  atST_Domain,
-  atST_Hull
-};
-
-enum atShader_ResourceType
-{
-  atSRT_Texture,
-  atSRT_Sampler,
-  atSRT_Buffer
-};
+class __atGfxImpl;
 
 class atGraphics
 {
+  friend atWindow;
+
 public:
-  static IDXGIOutput* GetOutputDisplay();
-  static IDXGIFactory* GetFactory();
-  static ID3D11Device* GetDevice();
-  static IDXGIAdapter* GetDisplayAdapter();
-  static ID3D11DeviceContext* GetContext();
-  static atString GetAdapterDescription();
-  static D3D_FEATURE_LEVEL GetFeatureLevel();
-  static DWORD GetCreateFlags();
-
-  template<typename T> static void SafeRelease(T &ref);
-  static int64_t GFXMemorySize();
-
-  static int64_t RefreshRateNumerator(const bool vsync = false);
-  static int64_t RefreshRateDenominator(const bool vsync = false);
-
-  static bool BindShaderResource(const atShaderType shader, const atShader_ResourceType resType, const int64_t slot, void *pResource);
-
-  static void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0);
-  static void Draw(int64_t nVerts, int64_t startLocation = 0);
-
-  static bool CreateBuffer(ID3D11Buffer **ppBuffer, void *pData, int64_t size, int64_t binding, int64_t usage = D3D11_USAGE_DEFAULT, int64_t cpuAccess = 0);
+  // Create a graphics context associated with a window
+  atGraphics(atWindow *pWindow, const atGraphicsAPI &api = atGfxApi_DirectX);
+  ~atGraphics();
   
-  // Should be called before exiting any application using atGraphics
-  static void Shutdown();
+  static void* GetCtx();
+
+  // Set the current graphics context
+  static void SetCurrent(atGraphics *pContext);
+
+  // Get the current graphics context
+  static atGraphics* GetCurrent();
+
+  const atGraphicsAPI& GetAPI() const;
 
 protected:
-  static void CreateDeviceAndContext();
-  static void CreateOutput();
-  static void CreateAdapter();
-  static void CreateFactory();
+  void Resize();
 
-  static ID3D11Device *m_pDevice;
-  static IDXGIAdapter *m_pAdapter;
-  static IDXGIFactory *m_pFactory;
-  static IDXGIOutput *m_pOutputDisplay;
-  static ID3D11DeviceContext *m_pContext;
-  static atVector<DXGI_MODE_DESC> m_displayModeList;
+  // Clear the window
+  bool Clear(const atVec4F &color, const float &depth = 1.0f);
 
-  static DWORD m_flags;
-  static int64_t m_gfxMemory;
-  static D3D_FEATURE_LEVEL m_featureList[];
-  static D3D_FEATURE_LEVEL m_featureLevel;
-  static char m_adapterDesc[128];
-  struct RefreshRate
-  {
-    static int64_t num;
-    static int64_t den;
-    static int64_t defNum;
-    static int64_t defDen;
-  };
+  // Display the window
+  bool Swap();
+
+  bool SetWindowed(const bool &windowed);
+
+  atWindow *m_pWindow = nullptr;
+  atGraphicsAPI m_api = atGfxApi_None;
+  __atGfxImpl* m_pImpl = nullptr;
 };
 
-template<typename T> inline void atGraphics::SafeRelease(T &ref)
-{
-  if (!ref)
-    return;
-  ref->Release();
-  ref = nullptr;
-}
-
-// ----------------------------------------------------------------------------------------
-// DirectX Type Description Comparison Functions
-
-bool operator==(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs);
-bool operator==(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs);
-bool operator==(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs);
-bool operator==(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs);
-
-bool operator!=(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs);
-bool operator!=(const D3D11_BLEND_DESC & lhs, const D3D11_BLEND_DESC & rhs);
-bool operator!=(const D3D11_RASTERIZER_DESC & lhs, const D3D11_RASTERIZER_DESC & rhs);
-bool operator!=(const D3D11_DEPTH_STENCIL_DESC & lhs, const D3D11_DEPTH_STENCIL_DESC & rhs);
-
-atTrivialStreamRead(D3D11_BLEND_DESC);
-atTrivialStreamRead(D3D11_SAMPLER_DESC);
-atTrivialStreamRead(D3D11_RASTERIZER_DESC);
-atTrivialStreamRead(D3D11_DEPTH_STENCIL_DESC);
-
-atTrivialStreamWrite(D3D11_BLEND_DESC);
-atTrivialStreamWrite(D3D11_SAMPLER_DESC);
-atTrivialStreamWrite(D3D11_RASTERIZER_DESC);
-atTrivialStreamWrite(D3D11_DEPTH_STENCIL_DESC);
-
-// ----------------------------------------------------------------------------------------
 #endif // _atGraphics_h__

@@ -20,7 +20,12 @@ flags { "MultiProcessorCompile" }
 
 -- Build Options
 
-buildoptions { "/bigobj" }
+-- buildoptions { "/bigobj" }
+
+-- Linker options
+
+linkoptions { "/ignore:4006" }
+linkoptions { "/ignore:4221" }
 
 -- Shared Defines
 
@@ -32,19 +37,25 @@ buildoptions { "/bigobj" }
   includedirs { "include", "include/**" } 
 
   -- Third Party
-  includedirs { "3rdParty/**" } 
+  includedirs { "3rdParty" } 
+  includedirs { "3rdParty/stb" }
+  includedirs { "3rdParty/lua/include" }
+  includedirs { "3rdParty/glew/include" }
+  includedirs { "3rdParty/imgui" }
 
 
 -- Third Party Files
 
-  files { "3rdParty/**.cpp", "3rdParty/**.h", "3rdParty/**.inl" }
   files { "3rdParty/sol/sol.hpp" }
+  files { "3rdParty/imgui/**.cpp", "3rdParty/imgui/**.h" }
 
 -- Project Files
 
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
 
   links { "LuaLib" }
+  links { "opengl32", "glew32" }
+  libdirs { "3rdParty/glew/lib/Release/x64/" }
 
 -- Debug Configuration Settings
 

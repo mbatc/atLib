@@ -29,6 +29,7 @@
 #include "atHashMap.h"
 
 #include <windowsx.h>
+#include <hidusage.h>
 #include <gdiplus.h>
 #include <time.h>
 
@@ -36,7 +37,8 @@
 
 static MSG s_msg;
 static int64_t s_lastClock;
-static atHashMap<int64_t, atWindow*> s_windows;
+static atHashMap<int64_t, atWindow*> _windows;
+static int64_t s_wndClsCounter = 0;
 
 // WinAPI helpers
 
@@ -66,11 +68,45 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
   case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
   case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
+  case WM_INPUT:
+  {
+    // UINT size;
+    // RAWINPUT inputData;
+    // GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &inputData, &size, sizeof(RAWINPUTHEADER));
+    // if (inputData.header.dwType == RIM_TYPEMOUSE)
+    // {
+    //   int xPosRelative = inputData.data.mouse.lLastX; // Could be 1, or could be more than 1
+    //   int yPosRelative = inputData.data.mouse.lLastY; // Could be 1, or could be more than 1!
+    //   printf("%d, %d\n", xPosRelative, yPosRelative);
+    // }
+    break;
+  }
   case WM_SIZE: case WM_MOVE:
   {
-    atWindow **ppTarget = s_windows.TryGet((int64_t)hWnd);
+    atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
     if (ppTarget)
       (*ppTarget)->OnResize();
+  }
+  break;
+  case WM_DROPFILES:
+  {
+    atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
+    HDROP hDrop = (HDROP)wParam;
+    if (ppTarget)
+    {
+      int64_t fileCount = (int64_t)DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
+      atVector<char> fn;
+      for (int64_t i = 0; i < fileCount; ++i)
+      {
+        int64_t bufSize = DragQueryFile(hDrop, (UINT)i, nullptr, 0);
+        fn.resize(bufSize + 1, 0);
+        memset(fn.data(), 0, fn.size());
+
+        DragQueryFile(hDrop, (UINT)i, fn.data(), (UINT)fn.size());
+        (*ppTarget)->AddDroppedFile(fn.data());
+      }
+    }
+    DragFinish(hDrop);
   }
   break;
   default: return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -79,9 +115,19 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   return 0;
 }
 
-bool atWinAPI::PumpMessage()
+static void _RegisterInputDevices(HWND hWnd)
 {
-  while (PeekMessage(&s_msg, NULL, 0, 0, PM_REMOVE))
+  RAWINPUTDEVICE Rid;
+  Rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+  Rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+  Rid.dwFlags = RIDEV_INPUTSINK;
+  Rid.hwndTarget = hWnd;
+  atAssert(!!RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE)), "Failed to register input device.");
+}
+
+bool atWinAPI::PumpMessage(atWindow *pWindow)
+{
+  while (PeekMessage(&s_msg, pWindow ? pWindow->Handle() : 0, 0, 0, PM_REMOVE))
   {
     TranslateMessage(&s_msg);
     DispatchMessage(&s_msg);
@@ -97,14 +143,15 @@ int atWinAPI::GetResult() { return (int)s_msg.wParam; }
 void atWinAPI::RegisterWindow(HWND hWnd, atWindow *pWindow)
 {
   UnRegisterWindow(hWnd);
-  s_windows.Add((int64_t)hWnd, pWindow);
+  _RegisterInputDevices(hWnd);
+  _windows.Add((int64_t)hWnd, pWindow);
 }
 
-void atWinAPI::UnRegisterWindow(HWND hWnd) { s_windows.Remove((int64_t)hWnd); }
+void atWinAPI::UnRegisterWindow(HWND hWnd) { _windows.Remove((int64_t)hWnd); }
 
 atWindow* atWinAPI::GetWindow(HWND hWnd)
 {
-  atWindow **ppWnd = s_windows.TryGet((int64_t)hWnd);
+  atWindow **ppWnd = _windows.TryGet((int64_t)hWnd);
   return ppWnd ? *ppWnd : nullptr;
 }
 
@@ -120,12 +167,18 @@ atWin32Window::atWin32Window(atWindow *pWindow)
   if (++s_nWindows != 1)
     return;
 
+  m_wndCls += s_wndClsCounter;
+
   // Initialise Gdiplus on first windows creation
   Gdiplus::GdiplusStartupInput _tmp;
   Gdiplus::GdiplusStartup(&s_gdiToken, &_tmp, NULL);
 }
 
-atWin32Window::~atWin32Window() { if (--s_nWindows == 0) Gdiplus::GdiplusShutdown(s_gdiToken); }
+atWin32Window::~atWin32Window()
+{
+  if (--s_nWindows == 0)
+    Gdiplus::GdiplusShutdown(s_gdiToken);
+}
 
 bool atWin32Window::Create()
 {
@@ -134,7 +187,7 @@ bool atWin32Window::Create()
   if (!WINCreate())
     return false;
   UpdateWindow(m_hWnd);
-  ShowWindow(m_hWnd, SW_SHOWDEFAULT);
+  SetVisible();
   atWinAPI::RegisterWindow(m_hWnd, m_pWindow);
   return true;
 }
@@ -146,7 +199,9 @@ void atWin32Window::Destroy()
     atWinAPI::UnRegisterWindow(m_hWnd);
     DestroyWindow(m_hWnd);
     m_hWnd = NULL;
+    UnregisterClass(m_wndCls.c_str(), GetModuleHandle(NULL));
   }
+
   if(m_hIcon) DestroyIcon(m_hIcon);
   if(m_hCursor) DestroyCursor(m_hCursor);
 }
@@ -173,6 +228,54 @@ void atWin32Window::SetWindowRect()
     m_pWindow->m_size.y, 0);
   UpdatePixels();
 }
+
+void atWin32Window::SetWindowed()
+{
+  bool fullscreen = !m_pWindow->IsWindowed();
+  
+  if (!m_windowedState.wasFullscreen)
+  {
+    m_windowedState.maximized = IsZoomed(m_hWnd) == TRUE;
+
+    if (m_windowedState.maximized)
+      SendMessage(m_hWnd, WM_SYSCOMMAND, SC_RESTORE, 0);
+    m_windowedState.style = GetWindowLong(m_hWnd, GWL_STYLE);
+    m_windowedState.exStyle = GetWindowLong(m_hWnd, GWL_EXSTYLE);
+    GetWindowRect(m_hWnd, &m_windowedState.rect);
+  }
+
+  m_windowedState.wasFullscreen = fullscreen;
+
+  if (fullscreen)
+  {
+    // Set new window style and size.
+    SetWindowLong(m_hWnd, GWL_STYLE, (LONG)m_windowedState.style & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(m_hWnd, GWL_EXSTYLE, (LONG)m_windowedState.exStyle & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+
+    // On expand, if we're given a window_rect, grow to it, otherwise do not resize.
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST), &monitor_info);
+    RECT windowRect(monitor_info.rcMonitor);
+    SetWindowPos(m_hWnd, NULL, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  }
+  else
+  {
+    // Restore window sizes
+    SetWindowLong(m_hWnd, GWL_STYLE, (LONG)m_windowedState.style);
+    SetWindowLong(m_hWnd, GWL_EXSTYLE, (LONG)m_windowedState.exStyle);
+
+    // Restore window rect
+    RECT windowRect(m_windowedState.rect);
+    SetWindowPos(m_hWnd, NULL, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+    // Restore maximized state
+    if (m_windowedState.maximized)
+      SendMessage(m_hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+  }
+}
+
+void atWin32Window::SetVisible() { ShowWindow(m_hWnd, m_pWindow->IsVisible() ? SW_SHOW : SW_HIDE); }
 
 bool atWin32Window::WINRegister()
 {
@@ -208,6 +311,9 @@ bool atWin32Window::WINCreate()
   m_hWnd = CreateWindow(m_wndCls.c_str(), m_pWindow->m_title.c_str(), (DWORD)style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
   if (!m_hWnd)
     return false;
+
+  // Enabled drag and drop
+  DragAcceptFiles(m_hWnd, TRUE);
   
   return UpdatePixels();
 }

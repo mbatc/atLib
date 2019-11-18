@@ -30,32 +30,29 @@
 
 static atButtonState s_buttonState[atKC_Count + atKC_MB_Count];
 
-static atVec2F s_mousePos;
-static atVec2I s_lastMousePos;
-static atVec2F s_mouseVel;
-static atVec2I s_lockPos = { 0,0 };
-static double s_dt = 0.0;
-static bool s_mouseLocked = false;
-static atHashMap<int64_t, bool> s_windows;
-static atVec2F s_mouseScroll;
+static atVec2F _mousePos;
+static atVec2I _lastMousePos;
+static atVec2F _mouseVel;
+static atVec2I _lockPos = { 0,0 };
+static double _dt = 0.0;
+static bool _mouseLocked = false;
+static atHashMap<int64_t, bool> _windows;
+static atVec2F _mouseScroll;
+static HCURSOR _hLastCursor = NULL;
 
-bool s_mouseSet = false;
+bool _mouseSet = false;
 
 static void _UpdateMouse()
 {
-  if (s_mouseSet)
-    atInput::OnMouseMove(s_mousePos, s_dt);
-  if (s_mouseLocked)
-    if (GetFocus())
-      atInput::SetMousePos(s_lockPos);
-
-  s_mouseScroll = 0;
+  _lastMousePos = _mousePos;
+  _mouseVel = 0;
+  _mouseScroll = 0;
 }
 
 static void _UpdateButtons()
 {
   for (atButtonState &bt : atIterate(s_buttonState, atKC_Count + atKC_MB_Count))
-    bt.Update(s_dt);
+    bt.Update(_dt);
 }
 
 static HWND _GetFocus()
@@ -68,33 +65,44 @@ static HWND _GetFocus()
 
 void atInput::OnMouseMove(const atVec2I &pos, const double dt)
 {
-  if (!s_mouseSet)
-    s_mousePos = pos;
-  s_lastMousePos = s_mousePos;
-  s_mousePos = pos;
-  s_mouseVel = atVec2F(s_mousePos - s_lastMousePos) / dt;
-  s_mouseSet = true;
+  if (!_mouseSet)
+    _mousePos = pos;
+
+  _lastMousePos = _mousePos;
+  _mousePos = pos;
+  _mouseVel = atVec2F(_mousePos - _lastMousePos) / dt;
+  _mouseSet = true;
 }
 
-bool atInput::Update(const bool escExit) 
+bool atInput::Update(const bool escExit, atWindow *pWindow)
 {
   _UpdateMouse();
   _UpdateButtons();
-  bool res = atWindow::PumpMessage() && (!escExit || !ButtonDown(atKC_Escape));
+  bool res = atWindow::PumpMessage(pWindow) && (!escExit || !ButtonDown(atKC_Escape));
   return res;
 }
 
 void atInput::LockMouse(const bool lock, const atVec2I &pos)
 {
-  s_mouseLocked = lock;
-  s_lockPos = pos;
+  _mouseLocked = lock;
+  _lockPos = pos;
+
+  // if (lock && GetCursor())
+  // {
+  //   _hLastCursor = GetCursor();
+  //   SetCursor(NULL);
+  // }
+  // else if (!GetCursor())
+  // {
+  //   SetCursor(_hLastCursor);
+  // }
 }
 
 void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*/)
 {
   atUnused(pos, updateLastPos);
-  s_lastMousePos = pos;
-  s_mousePos = pos; 
+  _lastMousePos = pos;
+  _mousePos = pos; 
   POINT sc = { pos.x, pos.y };
   HWND focused = _GetFocus();
   if (focused)
@@ -104,13 +112,13 @@ void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*
 
 void atInput::RegisterWindow(HWND hWnd)
 {
-  s_windows.TryAdd((int64_t)hWnd);
+  _windows.TryAdd((int64_t)hWnd);
 }
 
 void atInput::UnRegisterWindow(HWND hWnd)
 {
-  if (s_windows.Contains((int64_t)hWnd))
-    s_windows.Remove((int64_t)hWnd);
+  if (_windows.Contains((int64_t)hWnd))
+    _windows.Remove((int64_t)hWnd);
 }
 
 const atButtonState &atInput::GetButton(int64_t keyCode) { return s_buttonState[keyCode]; }
@@ -140,18 +148,18 @@ bool atInput::MiddleMouseDown() { return ButtonDown(atKC_MB_Middle); }
 bool atInput::MiddleMouseUp() { return ButtonUp(atKC_MB_Middle); }
 bool atInput::MiddleMousePressed() { return ButtonPressed(atKC_MB_Middle); }
 bool atInput::MiddleMouseReleased() { return ButtonReleased(atKC_MB_Middle); }
-bool atInput::IsMouseLocked() { return s_mouseLocked; }
-atVec2I atInput::MouseDelta() { return s_mousePos - s_lastMousePos; }
-void atInput::OnMouseWheelH(const float scroll) { s_mousePos.x += scroll; }
+bool atInput::IsMouseLocked() { return _mouseLocked; }
+atVec2I atInput::MouseDelta() { return _mousePos - _lastMousePos; }
+void atInput::OnMouseWheelH(const float scroll) { _mousePos.x += scroll; }
 const float atInput::MouseScrollX() { return MouseScroll().x; }
 const float atInput::MouseScrollY() { return MouseScroll().y; }
-const atVec2F& atInput::MouseScroll() { return s_mouseScroll; }
-const atVec2F& atInput::MousePos() { return s_mousePos; }
-const atVec2F& atInput::MouseVelocity() { return s_mouseVel; }
-atVec2F atInput::MouseDirection() { return s_mouseVel.Normalize(); }
-void atInput::OnMouseWheel(const float scroll) { s_mouseScroll.y += scroll; }
-bool atInput::MouseMoved() { return s_mousePos != s_lastMousePos; }
-void atInput::SetDT(const double dt) { s_dt = dt; }
+const atVec2F& atInput::MouseScroll() { return _mouseScroll; }
+const atVec2F& atInput::MousePos() { return _mousePos; }
+const atVec2F& atInput::MouseVelocity() { return _mouseVel; }
+atVec2F atInput::MouseDirection() { return _mouseVel.Normalize(); }
+void atInput::OnMouseWheel(const float scroll) { _mouseScroll.y += scroll; }
+bool atInput::MouseMoved() { return _mousePos != _lastMousePos; }
+void atInput::SetDT(const double dt) { _dt = dt; }
 
 // Giant switch statement coming up
 
@@ -249,4 +257,9 @@ atString atInput::ToString(const int64_t code)
   case atKC_MB_Middle:          return "MiddleMouse";
   }
   return atString();
+}
+
+atVector<atString> atInput::DroppedFiles()
+{
+  return atVector<atString>();
 }

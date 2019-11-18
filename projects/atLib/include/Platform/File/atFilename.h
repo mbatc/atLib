@@ -71,6 +71,8 @@ protected:
   atString m_directory;
 };
 
+template<> atFilename atFromString<atFilename>(const atString &str);
+
 int64_t atStreamRead(atReadStream *pStream, atFilename *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int64_t count);
 

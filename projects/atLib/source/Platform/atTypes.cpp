@@ -63,3 +63,32 @@ void atUnused() {}
 
 bool atTypeDesc::operator==(const atTypeDesc &o) const { return type == o.type && size == o.size && count == o.count; }
 bool atTypeDesc::operator!=(const atTypeDesc &o) const { return !(o == *this); }
+
+bool atTypeCast(void *pDst, const void *pSrc, const atTypeDesc &dstType, const atTypeDesc &srcType)
+{
+  int64_t dstCount = dstType.width * dstType.count;
+  int64_t srcCount = srcType.width * srcType.count;
+  int64_t count = dstCount < srcCount ? dstCount : srcCount;
+
+  if (dstType.type == srcType.type)
+  {
+    memcpy(pDst, pSrc, count * srcType.size);
+    return true;
+  }
+
+  switch (srcType.type)
+  {
+  case atType_Float16: return false;
+  case atType_Float32: return __atTypeCast(pDst, (float*)pSrc, dstType.type, count);
+  case atType_Float64: return __atTypeCast(pDst, (double*)pSrc, dstType.type, count);
+  case atType_Int8: return __atTypeCast(pDst, (int8_t*)pSrc, dstType.type, count);
+  case atType_Int16: return __atTypeCast(pDst, (int16_t*)pSrc, dstType.type, count);
+  case atType_Int32: return __atTypeCast(pDst, (int32_t*)pSrc, dstType.type, count);
+  case atType_Int64: return __atTypeCast(pDst, (int64_t*)pSrc, dstType.type, count);
+  case atType_Uint8: return __atTypeCast(pDst, (uint8_t*)pSrc, dstType.type, count);
+  case atType_Uint16: return __atTypeCast(pDst, (uint16_t*)pSrc, dstType.type, count);
+  case atType_Uint32: return __atTypeCast(pDst, (uint32_t*)pSrc, dstType.type, count);
+  case atType_Uint64: return __atTypeCast(pDst, (uint64_t*)pSrc, dstType.type, count);
+  }
+  return false;
+}

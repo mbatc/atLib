@@ -38,14 +38,7 @@ public:
 
   bool RunText(const atString &command);
   bool RunFile(const atString &filename);
-
-  void ExposeImGui();
-  void ExposeScene();
-  void ExposeMathTypes();
-  void ExposeContainers();
-  void ExposeMathFunctions();
-  void ExposeInput();
-
+  
   sol::state* GetLua();
 protected:
   sol::state *m_pLua;

@@ -1,3 +1,4 @@
+#include "atMath.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -266,6 +267,15 @@ template<typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix4x4<
     atVector3<T>(mat[0], mat[4], mat[12]).Mag(), 
     atVector3<T>(mat[1], mat[5], mat[13]).Mag(), 
     atVector3<T>(mat[2], mat[6], mat[14]).Mag());
+}
+
+template<typename T> inline T atNumBitsOn(const T &val)
+{
+  static uint8_t lookup[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+  if (val == 0)
+    return 0;
+  uint8_t addr = uint8_t(val & 0x0F);
+  return lookup[addr] + atNumBitsOn(val >> 4);
 }
 
 template<typename T> inline atVector4<T> operator*(const T &lhs, const atVector4<T>& rhs) { return rhs * lhs; }

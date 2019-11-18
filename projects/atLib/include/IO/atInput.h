@@ -141,7 +141,7 @@ class atInput
 {
   friend atWindow;
 public:
-  static bool Update(const bool escExit = true);
+  static bool Update(const bool escExit = true, atWindow *pWindow = nullptr);
   
   // Update button inputs
   static void OnButtonDown(const int64_t keyCode, const double dt);
@@ -198,6 +198,9 @@ public:
   static void SetDT(const double dt);
 
   static atString ToString(const int64_t code);
+
+  static atVector<atString> DroppedFiles();
+
 protected:
   static void RegisterWindow(HWND hWnd);
   static void UnRegisterWindow(HWND hWnd);

@@ -201,7 +201,7 @@ atString operator+(char _char, const atString &rhs);
 atString operator+(char *lhs, const atString &rhs);
 
 template<> inline atTypeDesc atGetTypeDesc(const atString &str);
-template<typename T> inline T atFromString(const atString &str) { static_assert(false, "atFromString is not defined for this type."); }
+template<typename T> inline T atFromString(const atString &str) { return static_assert(false, "atFromString is not defined for this type."); }
 
 template<typename T> atString atToString(const T &o) { static_assert(false, "atToString is not defined for type T"); }
 

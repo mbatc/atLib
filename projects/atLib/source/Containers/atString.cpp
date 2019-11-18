@@ -130,6 +130,7 @@ int64_t atString::_find(const char *str, const char *find, int64_t start, int64_
         return start;
       else if (*s == 0)
         return AT_INVALID_INDEX;
+    ++start;
   }
   return AT_INVALID_INDEX;
 }

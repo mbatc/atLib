@@ -43,8 +43,8 @@ template<typename T, typename... Args> T* atNewArray(const int64_t size);
 template<typename T, typename... Args> T* atNewArray(const int64_t size, const T &copy);
 
 // Will Construct/Destruct object of they are non primitive types
-template<typename T, typename... Args> void atConstruct(T *pVal, Args... args);
-template<typename T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args... args);
+template<typename T, typename... Args> void atConstruct(T *pVal, Args&&... args);
+template<typename T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args&&... args);
 template<typename T> void atConstructArray(T *pVal, const int64_t count);
 
 template<typename T> typename std::enable_if<std::is_destructible<T>::value>::type atDestruct(T *pVal);
@@ -90,7 +90,7 @@ template<typename T> typename std::enable_if<std::is_destructible<T>::value>::ty
     atDestruct(&pVal[i]);
 }
 
-template<typename T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args... args)
+template<typename T, typename... Args> void atConstructArray(T *pVal, const int64_t count, Args&&... args)
 {
   for (int64_t i = 0; i < count; ++i)
     atConstruct<T, Args...>(pVal + i, std::forward<Args>(args)...);
@@ -114,7 +114,7 @@ template<typename T> inline typename std::enable_if<std::is_destructible<T>::val
 template<typename T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
 template<typename T> inline T* atNewArray(const int64_t size) { return atInternal_New(size); }
 template<typename T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New(size, copy); }
-template<typename T, typename... Args> inline void atConstruct(T *pVal, Args... args) { new(pVal) T(std::forward<Args>(args)...); }
+template<typename T, typename... Args> inline void atConstruct(T *pVal, Args&&... args) { new(pVal) T(std::forward<Args>(args)...); }
 
 #endif
 

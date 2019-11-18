@@ -96,16 +96,21 @@ bool atMesh::MakeValid()
       if (tri.verts[v].normal == AT_INVALID_INDEX)
       {
         tri.verts[v].normal = m_normals.size();
-        m_normals.push_back(atVec3D::Cross(m_positions[tri.verts[v].position] - m_positions[tri.verts[(v - 1) % 3].position],
-          m_positions[tri.verts[v].position] - m_positions[tri.verts[(v + 1) % 3].position]));
+        m_normals.push_back(atVec3D::Cross(
+          m_positions[tri.verts[(v + 1) % 3].position] - m_positions[tri.verts[v].position],
+          m_positions[tri.verts[(v + 1) % 3].position] - m_positions[tri.verts[(v + 2) % 3].position]));
       }
 
     if (tri.mat == AT_INVALID_INDEX)
+    {
       if (m_defaultMat == AT_INVALID_INDEX)
       {
         m_defaultMat = m_materials.size();
         m_materials.push_back(atMaterial());
       }
+
+      tri.mat = m_defaultMat;
+    }
   }
 
   GenTangents();
@@ -183,8 +188,16 @@ void atMesh::GenTangents()
     {
       tri.verts[i].tangent = tri.verts[i].position;
       tri.verts[i].bitanget = tri.verts[i].position;
-      m_tangents[tri.verts[i].position] += uDir;
-      m_binormals[tri.verts[i].position] += vDir;
+      if (tAB.Mag() > atLimitsSmallest<float>() && tAC.Mag() > atLimitsSmallest<float>())
+      {
+        m_tangents[tri.verts[i].position] += uDir;
+        m_binormals[tri.verts[i].position] += vDir;
+      }
+      else
+      {
+        m_tangents[tri.verts[i].position] += 1;
+        m_binormals[tri.verts[i].position] += 1;
+      }
     }
   }
 
@@ -422,5 +435,16 @@ int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t
   return size;
 }
 
+void atMesh::FlipTextures(const bool u, const bool v)
+{
+  if (!(u || v))
+    return;
+
+  for (atVec2D &texCoord : m_texCoords)
+  {
+    texCoord.x = u ? 1.0 - texCoord.x : texCoord.x;
+    texCoord.y = v ? 1.0 - texCoord.y : texCoord.y;
+  }
+}
+
 void atMesh::FlipNormals() { for (atVec3D &norm : m_normals) norm = -norm; }
-void atMesh::FlipTextures(const bool u, const bool v) { if (!(u || v)) return; for (atVec2D &texCoord : m_texCoords) texCoord = { u ? 1.0 - texCoord.x : texCoord.x, v ? 1.0 - texCoord.y : texCoord.y }; }

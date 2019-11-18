@@ -49,6 +49,8 @@
 #define atDegs2Radsf(x) ((float)x * 0.017453292519943295769f)
 #define atRads2Degsf(x) ((float)x * 57.29577951308232087679f)
 
+#define atArraySize(val) (sizeof(val) / sizeof(decltype(val)))
+
 typedef atVector2<int32_t> atVec2I;
 typedef atVector3<int32_t> atVec3I;
 typedef atVector4<int32_t> atVec4I;
@@ -125,6 +127,8 @@ template<> inline float atMod(const float &a, const float &b);
 template<> inline double atMod(const double &a, const double &b);
 
 template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time);
+
+template<typename T> inline T atNumBitsOn(const T &val);
 
 inline float atSqrt(const float &val);
 inline double atSqrt(const double &val);
