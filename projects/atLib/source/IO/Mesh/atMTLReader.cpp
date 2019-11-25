@@ -74,12 +74,12 @@ static atString _ReadLine(char **ppSrc, int64_t len)
 static atMaterial* _GetMaterial(atMesh *pMesh, const atString &name, bool addMat)
 {
   for (atMaterial &mat : pMesh->m_materials)
-    if (mat.m_name == name)
+    if (mat.GetName() == name)
       return &mat;
   if (addMat)
   {
     pMesh->m_materials.push_back(atMaterial());
-    (pMesh->m_materials.end() - 1)->m_name = name;
+    (pMesh->m_materials.end() - 1)->SetName(name);
     return pMesh->m_materials.end() - 1;
   }
   return nullptr;
@@ -101,7 +101,7 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
 
   pMesh->m_materials.resize(materials.Size());
   for (auto &kvp : materials)
-    pMesh->m_materials[kvp.m_val].m_name = kvp.m_key;
+    pMesh->m_materials[kvp.m_val].SetName(kvp.m_key);
 
   atMaterial *pMat = nullptr;
   while ((uint8_t*)pSrc < data.end())
@@ -110,19 +110,19 @@ bool atMTLReader::Read(const atFilename &file, atMesh *pMesh, const atHashMap<at
     switch (_ScanKeyword(&pSrc, data.end() - (uint8_t*)pSrc))
     {
     case atMTLNew: pMat = _GetMaterial(pMesh, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc), loadAll); break;
-    case atMTLAmbientColour: pMat->m_cAmbient = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLDiffuseColour: pMat->m_cDiffuse = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLSpecularColour: pMat->m_cSpecular = { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }; break;
-    case atMTLSpecularPower: pMat->m_specularPower = atScan::Float((const char**)&pSrc); break;
-    case atMTLAlpha: pMat->m_alpha = atScan::Float((const char**)&pSrc); break;
-    case atMTLAlphaInv: pMat->m_alpha = 1.0 - atScan::Float((const char**)&pSrc); break;
-    case atMTLAmbientMap: pMat->m_tAmbient.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLDiffuseMap: pMat->m_tDiffuse.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLSpecularColourMap: pMat->m_tSpecular.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLSpecularHighlightMap: pMat->m_tSpecularHigh.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLAlphaMap: pMat->m_tAlpha.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLBumpMap: pMat->m_tBump.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
-    case atMTLDisplacementMap: pMat->m_tDisplacement.push_back(_ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLAmbientColour: pMat->SetColour(atMP_Ambient, { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }); break;
+    case atMTLDiffuseColour: pMat->SetColour(atMP_Diffuse, { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }); break;
+    case atMTLSpecularColour: pMat->SetColour(atMP_Specular, { atOBJReader::ParseVector<atVec3D>(&pSrc, data.end() - (uint8_t*)pSrc), 1.0 }); break;
+    case atMTLSpecularPower: pMat->SetValue(atMP_SpecularPower, atScan::Float((const char**)&pSrc)); break;
+    case atMTLAlpha: pMat->SetValue(atMP_Alpha, atScan::Float((const char**)&pSrc)); break;
+    case atMTLAlphaInv: pMat->SetValue(atMP_Alpha, 1.0 - atScan::Float((const char**)&pSrc)); break;
+    case atMTLAmbientMap: pMat->SetTexture(atMP_Ambient, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLDiffuseMap: pMat->SetTexture(atMP_Diffuse, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLSpecularColourMap: pMat->SetTexture(atMP_Specular, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLSpecularHighlightMap:pMat->SetTexture(atMP_SpecularHighlight, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLAlphaMap: pMat->SetTexture(atMP_Alpha, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLBumpMap: pMat->SetTexture(atMP_Bump, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
+    case atMTLDisplacementMap: pMat->SetTexture(atMP_Displacement, _ReadLine(&pSrc, data.end() - (uint8_t*)pSrc)); break;
     case atMTLIllumModel: break;
     case atMTLNone: ++pSrc; break;
     }

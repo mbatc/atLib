@@ -5,6 +5,7 @@
 #include "atGFXBufferInterface.h"
 #include "atGFXPrgmInterface.h"
 #include "atGFXTexInterface.h"
+#include "atMaterial.h"
 #include "atKeyValue.h"
 #include <memory>
 
@@ -12,11 +13,17 @@ class atRenderable
 {
 public:
   atRenderable() = default;
+  
   atRenderable(atRenderable &&o);
   atRenderable(const atRenderable &o);
 
+  atRenderable& operator=(atRenderable &&o);
+  atRenderable& operator=(const atRenderable &o);
+
   bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList);
   bool Upload();
+
+  void SetMaterial(const atMaterial &material);
 
   void SetProgram(const std::shared_ptr<atGFXPrgmInterface> &pProgram);
   void SetTexture(const atString &name, const std::shared_ptr<atGFXTexInterface> &pTexture);

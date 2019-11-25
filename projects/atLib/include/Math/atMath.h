@@ -31,19 +31,20 @@
 #include "atWriteStream.h"
 #include <math.h>
 
-#define atE 2.71828182845904523536   // e
-#define atLog2e 1.44269504088896340736   // log2(e)
+#define atE 2.71828182845904523536        // e
+#define atLog2e 1.44269504088896340736    // log2(e)
 #define atLog10e 0.434294481903251827651  // log10(e)
-#define atLn2 0.693147180559945309417  // ln(2)
-#define atLn10  2.30258509299404568402   // ln(10)
-#define atPi 3.14159265358979323846   // pi
-#define atPi_2 1.57079632679489661923   // pi/2
-#define atPi_4 0.785398163397448309616  // pi/4
-#define at1_PI 0.318309886183790671538  // 1/pi
-#define at2_PI 0.636619772367581343076  // 2/pi
+#define atLn2 0.693147180559945309417     // ln(2)
+#define atLn10  2.30258509299404568402    // ln(10)
+#define at2Pi 6.283185307179586232        // 2 pi
+#define atPi 3.14159265358979323846       // pi
+#define atPi_2 1.57079632679489661923     // pi/2
+#define atPi_4 0.785398163397448309616    // pi/4
+#define at1_PI 0.318309886183790671538    // 1/pi
+#define at2_PI 0.636619772367581343076    // 2/pi
 #define atSqrtPi 1.12837916709551257390   // 2/sqrt(pi)
-#define atSqrt2 1.41421356237309504880   // sqrt(2)
-#define atSqrt1_2 0.707106781186547524401  // 1/sqrt(2)
+#define atSqrt2 1.41421356237309504880    // sqrt(2)
+#define atSqrt1_2 0.707106781186547524401 // 1/sqrt(2)
 #define atDegs2Rads(x) ((double)x * 0.017453292519943295769)
 #define atRads2Degs(x) ((double)x * 57.29577951308232087679)
 #define atDegs2Radsf(x) ((float)x * 0.017453292519943295769f)

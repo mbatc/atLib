@@ -31,10 +31,10 @@ atVec3D atLight::CalcLighting(const atVec3D &normal, const atVec3D &fragPos, con
   double sIntensity = 0.0;
   if(m_type != atLT_Directional) lambertian *= CalcAttenuation((m_position - fragPos).Mag());
   if(m_type == atLT_Spot && m_direction.Angle(fragPos - m_position) * 2 > m_coneAngle) lambertian = 0;
-  if(lambertian > 0) sIntensity = pow(CalcSpecular(normal, fragPos, camPos), material.m_specularPower * m_specularPower);
-  const atVec3D &dCol = material.m_cDiffuse.xyz() * material.m_cDiffuse.w;
-  const atVec3D &sCol = material.m_cSpecular.xyz() * material.m_cSpecular.w;
-  const atVec3D &aCol = material.m_cAmbient.xyz() * material.m_cAmbient.w;
+  if(lambertian > 0) sIntensity = pow(CalcSpecular(normal, fragPos, camPos), material.GetValue(atMP_SpecularPower) * m_specularPower);
+  const atVec3D &dCol = material.GetColour(atMP_Diffuse).xyz() * material.GetColour(atMP_Diffuse).w;
+  const atVec3D &sCol = material.GetColour(atMP_Specular).xyz() * material.GetColour(atMP_Specular).w;
+  const atVec3D &aCol = material.GetColour(atMP_Ambient).xyz() * material.GetColour(atMP_Ambient).w;
   const atVec4D &difLight = (m_ambientColor + m_diffuseColor * lambertian);
   return aCol + difLight.xyz() * difLight.w * dCol + sCol * (m_specularColor.xyz() * m_specularColor.w) * sIntensity;
 }

@@ -30,6 +30,7 @@
 #include "atMesh.h"
 #include "atInput.h"
 #include "atLight.h"
+#include "atMeshComponent.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -548,10 +549,10 @@ public:
       std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
       prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.vs"), atPS_Vertex));
       prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.ps"), atPS_Fragment));
-      
+
       for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atDXTexture>(atImage(mat.m_tDiffuse[0])));
+        if (mat.HasTexture(atMP_Diffuse) && !textures.Contains(mat.GetTexture(atMP_Diffuse).to_lower()))
+          textures.Add(mat.GetTexture(atMP_Diffuse).to_lower(), std::make_shared<atDXTexture>(atImage(atFilename(mat.GetTexture(atMP_Diffuse)))));
       meshes.resize(submesh.size());
 
       for (int64_t i = 0; i < meshes.size(); ++i)
@@ -562,7 +563,7 @@ public:
         ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
         ro.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[i].nrm));
 
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+        atString texPath = mesh.m_materials[i].GetTexture(atMP_Diffuse).to_lower();
         std::shared_ptr<atGFXTexInterface> tex;
         if (texPath.length())
           tex = textures[texPath];
@@ -586,8 +587,8 @@ public:
       prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.frag"), atPS_Fragment));
 
       for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atGLTexture>(atImage(mat.m_tDiffuse[0])));
+        if (mat.HasTexture(atMP_Diffuse) && !textures.Contains(mat.GetTexture(atMP_Diffuse).to_lower()))
+          textures.Add(mat.GetTexture(atMP_Diffuse).to_lower(), std::make_shared<atGLTexture>(atImage(atFilename(mat.GetTexture(atMP_Diffuse)))));
       meshes.resize(submesh.size());
 
       for (int64_t i = 0; i < meshes.size(); ++i)
@@ -598,7 +599,7 @@ public:
         ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
         ro.SetAttribute("normal0", std::make_shared<atGLBuffer>(submesh[i].nrm));
 
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+        atString texPath = mesh.m_materials[i].GetTexture(atMP_Diffuse).to_lower();
         std::shared_ptr<atGFXTexInterface> tex;
         if (texPath.length())
           tex = textures[texPath];
@@ -617,8 +618,63 @@ public:
 };
 
 #include <time.h>
+#include "atScene.h"
 
 atGraphics *pGraphics = nullptr;
+
+atScene _LoadMesh(const atString &path)
+{
+  atMesh mesh;
+  if (!mesh.Import(path))
+    return atScene();
+
+  mesh.MakeValid();
+  mesh.DiscoverTextures();
+  mesh.FlipTextures(false, true);
+
+  struct SubMesh
+  {
+    atVector<atVec3F> pos;
+    atVector<atVec2F> tex;
+    atVector<atVec3F> nrm;
+    atVector<atVec4F> col;
+  };
+
+  atScene scene;
+
+  atVector<SubMesh> submesh;
+  submesh.resize(mesh.m_materials.size());
+
+  for (const atMesh::Triangle &tri : mesh.m_triangles)
+  {
+    int64_t matID = tri.mat;
+    SubMesh &m = submesh[matID];
+    for (const atMesh::Vertex &v : tri.verts)
+    {
+      m.col.push_back(mesh.m_colors[v.color]);
+      m.pos.push_back(mesh.m_positions[v.position]);
+      m.nrm.push_back(mesh.m_normals[v.normal]);
+      m.tex.push_back(mesh.m_texCoords[v.texCoord]);
+    }
+  }
+
+  for (int64_t mat = 0; mat < mesh.m_materials.size(); ++mat)
+  {
+    atMeshComponent meshComp;
+    meshComp.m_renderable.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[mat].col));
+    meshComp.m_renderable.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[mat].pos));
+    meshComp.m_renderable.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[mat].tex));
+    meshComp.m_renderable.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[mat].nrm));
+    meshComp.m_material = mesh.m_materials[mat];
+    meshComp.m_renderable.SetMaterial(meshComp.m_material);
+
+    int64_t nodeID = scene.Add(atSceneNode());
+
+    scene.Get(nodeID)->AddComponent<atMeshComponent>(std::move(meshComp));
+  }
+
+  return scene;
+}
 
 int main(int argc, char **argv)
 {
@@ -627,20 +683,25 @@ int main(int argc, char **argv)
 #ifdef RUN_ATTEST
   atTest();
 #endif
-
-  Model *pModel = nullptr;
-  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
-
+  
+  atWindow window;
   {
-    atGraphicsAPI api = atGfxApi_DirectX;
+    atGraphics graphics(&window);
+    atScene scene;
+    int64_t meshID;
+    {
+      atScene mesh = _LoadMesh("Assets/Test/models/sponza/sponza.obj");
+      meshID = scene.Insert(&mesh, atHierarchy_atRootNodeID, true);
+    }
 
-    atWindow window;
-    pGraphics = atNew<atGraphics>(&window, api);
     atRenderState rs;  
-
     int64_t t = (int64_t)clock();
+    int64_t camID = scene.Add(atSceneNode());
+    scene.Get(camID)->AddComponent<atCameraComponent>();
+    scene.Get(camID)->AddComponent<atControlComponent>();
+    scene.Get(camID)->GetTransform()->SetTranslation(atVec3D{ 0, 0, -1 });
+    scene.Get(camID)->GetTransform()->SetRotation(atVec3D{ 0, 0, 0 });
 
-    atFPSCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
     while (atInput::Update())
     {
       if (atInput::ButtonPressed(atKC_F11))
@@ -649,63 +710,24 @@ int main(int argc, char **argv)
       // Process dropped files
       for (const atString &f : window.DroppedFiles())
       {
-        if (pModel) atDelete(pModel);
-        pModel = nullptr;
-
-        modelPath = f;
+        scene.Remove(meshID);
+        atScene mesh = _LoadMesh(f);
+        meshID = scene.Insert(&mesh, atHierarchy_atRootNodeID, true);
       }
-
-      // Load model
-      if (modelPath != "" && !pModel)
-      {
-        atMesh m;
-        if (m.Import(modelPath))
-        {
-          m.MakeValid();
-          m.DiscoverTextures();
-          m.FlipTextures(false, true);
-          if (pModel) atDelete(pModel);
-          pModel = atNew<Model>(m, api);
-        }
-      }
-
-      // Update camera
-      cam.Update(double(clock() - t) / CLOCKS_PER_SEC);
-      t = clock();
-
+      
       // Draw
       rs.SetViewport(atVec4I(0, 0, window.Size()));
-      cam.SetViewport(&window);
+      scene.Get(camID)->GetComponent<atCameraComponent>()->SetAspect(window.Size());
 
-      window.Clear(api == atGfxApi_DirectX ? atVec4F{0.3f, 0.3f, 1.0f, 1} : atVec4F{0.3f, 1.0f, 0.3f, 1});
-  
-      if (pModel)
-      {
-        // Get correct project matrix depending on the graphics api
-        atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
-        atMat4D view = cam.ViewMat();
-        atMat4D vp = (proj * view).Transpose();
+      window.Clear(atVec4F{0.3f, 0.3f, 1.0f, 1});
 
-        for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
-        for (atRenderable &ro : pModel->meshes) ro.Draw(false);
-      }
+      scene.Update();
+      scene.Render(scene.Get(camID)->GetComponent<atCameraComponent>()->ViewProjMat());
 
       window.Swap();
-
-      // Switch GFX api on key press (this will cause the model to be reloaded)
-      if (atInput::ButtonPressed(atKC_P))
-      {
-        if (pModel)    atDelete(pModel);
-        if (pGraphics) atDelete(pGraphics);
-        pModel = nullptr;
-        pGraphics = nullptr;
-        api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
-        pGraphics = atNew<atGraphics>(&window, api);
-      }
     }
 
-    atDelete(pGraphics);
-    pGraphics = nullptr;
+    scene.Destroy();
   }
 
   // Uncomment Something!

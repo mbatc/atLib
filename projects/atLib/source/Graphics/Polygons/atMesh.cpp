@@ -141,22 +141,12 @@ void atMesh::NormalTransform(const atMat4D &transform)
 void atMesh::DiscoverTextures(const atString &initialPath)
 {
   for (atMaterial &mat : m_materials)
-  {
-    for (atFilename &path : mat.m_tDiffuse)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tAmbient)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tSpecular)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tAlpha)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tDisplacement)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tSpecularHigh)
-      path = TryDiscoverFile(path.Path(), initialPath);
-    for (atFilename &path : mat.m_tBump)
-      path = TryDiscoverFile(path.Path(), initialPath);
-  }
+    for (int64_t i = 0; i < mat.LayerCount(); ++i)
+      for (const atString &name : mat.Textures())
+      {
+        atString texPath = mat.GetTexture(name, i);
+        mat.SetTexture(name, TryDiscoverFile(texPath, initialPath), i);
+      }
 }
 
 void atMesh::GenTangents()

@@ -26,48 +26,137 @@
 #ifndef _atMaterial_h__
 #define _atMaterial_h__
 
-#include "atFilename.h"
 #include "atMath.h"
+#include "atHashMap.h"
+#include "atFilename.h"
+#include "atGFXPrgmInterface.h"
 
-enum atMaterialIlluminationFlags
+enum atMaterialProperty
 {
-  atMIM_Colour = 1,
-  atMIM_Ambient = 1 << 2,
-  atMIM_Highlights = 1 << 3,
-  atMIM_Reflections = 1 << 4,
-  atMIM_RayTrace = 1 << 5,
-  atMIM_Transparency = 1 << 6,
-  atMIM_ReflectionFresnel = 1 << 7,
-  atMIM_ReflectionRayTrace = 1 << 8,
-  atMIM_Refraction = 1 << 9
+  atMP_Alpha,
+  atMP_Diffuse,
+  atMP_Ambient,
+  atMP_Specular,
+  atMP_SpecularPower,
+  atMP_SpecularHighlight,
+  atMP_Bump,
+  atMP_Normal,
+  atMP_Displacement,
+  atMP_Albedo,
+  atMP_Metalness,
+  atMP_Roughness,
+  atMP_Occlusion,
+  atMP_Count,
+  atMP_Unknown,
+};
+
+enum atMaterialShader
+{
+  atMS_Coloured,
+  atMS_Textured,
+  atMS_Lambert,
+  atMS_PBR,
+  atMS_Count,
+  atMS_Custom,
 };
 
 class atMaterial
 {
+protected:
+  struct Layer
+  {
+    atHashMap<atString, double> m_values;
+    atHashMap<atString, atVec4D> m_colours;
+    atHashMap<atString, atString> m_textures;
+  };
+
 public:
   atMaterial();
+  atMaterial(atMaterial &&o);
+  atMaterial(const atMaterial &o);
+
+  const atString& GetName() const;
+  void SetName(const atString &name);
+
+  bool HasValue(const atString &name, const int64_t &layer = 0) const;
+  bool HasValue(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  bool HasColour(const atString &name, const int64_t &layer = 0) const;
+  bool HasColour(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  bool HasTexture(const atString &name, const int64_t &layer = 0) const;
+  bool HasTexture(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  bool HasShader(const atPipelineStage &stage) const;
+  bool HasLayer(const int64_t &layer) const;
   
+  void SetValue(const atString &name, const double &val, const int64_t &layer = 0);
+  void SetValue(const atMaterialProperty &name, const double &val, const int64_t &layer = 0);
+
+  void SetColour(const atString &name, const atVec4D &colour, const int64_t &layer = 0);
+  void SetColour(const atMaterialProperty &name, const atVec4D &colour, const int64_t &layer = 0);
+  
+  void SetTexture(const atString &name, const atString &path, const int64_t &layer = 0);
+  void SetTexture(const atMaterialProperty &name, const atString &path, const int64_t &layer = 0);
+  
+  void SetShader(const atMaterialShader &coreShader);
+  void SetShader(const atPipelineStage &state, const atString &path);
+  
+  double GetValue(const atString &name, const int64_t &layer = 0) const;
+  double GetValue(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  atVec4D GetColour(const atString &name, const int64_t &layer = 0) const;
+  atVec4D GetColour(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  atString GetTexture(const atString &name, const int64_t &layer = 0) const;
+  atString GetTexture(const atMaterialProperty &name, const int64_t &layer = 0) const;
+
+  const atString& GetShader(const atPipelineStage &stage) const;
+  
+  void ClearValue(const atString &name, const int64_t &layer = 0);
+  void ClearColour(const atString &name, const int64_t &layer = 0);
+  void ClearTexture(const atString &name, const int64_t &layer = 0);
+  void ClearShader(const atPipelineStage &state);
+
+  int64_t LayerCount() const;
+
+  atVector<atString> Values(const int64_t &layer = 0) const;
+  atVector<atString> Colours(const int64_t &layer = 0) const;
+  atVector<atString> Textures(const int64_t &layer = 0) const;
+
+  // Property names
+  static atString propertyName[atMP_Count];
+
+  // Shader paths
+  static atString shaderName[atMS_Count];
+  
+  static atMaterialProperty GetProperty(const atString &name);
+
+  // Shader variable names
+  static atString textureMapping[atMP_Count];
+  static atString colourMapping[atMP_Count];
+  static atString valueMapping[atMP_Count];
+
+  friend int64_t atStreamRead(atReadStream *pStream, atMaterial *pData, const int64_t count);
+  friend int64_t atStreamWrite(atWriteStream *pStream, const atMaterial *pData, const int64_t count);
+
+  friend int64_t atStreamRead(atReadStream *pStream, Layer *pData, const int64_t count);
+  friend int64_t atStreamWrite(atWriteStream *pStream, const Layer *pData, const int64_t count);
+
+  atMaterial& operator=(atMaterial &&o);
+  atMaterial& operator=(const atMaterial &o);
+
+protected:
+  Layer* GetOrAddLayer(const int64_t &index);
+  Layer* GetLayer(const int64_t &index);
+  const Layer* GetLayer(const int64_t &index) const;
+
   atString m_name;
-
-  atVec4D m_cDiffuse = atVec4D::one();
-  atVec4D m_cSpecular = atVec4D::one();
-  atVec4D m_cAmbient = atVec4D::zero();
-
-  double m_alpha = 1.0;
-  double m_specularPower = 32.0;
-
-  atVector<atFilename> m_tAmbient;
-  atVector<atFilename> m_tDiffuse;
-  atVector<atFilename> m_tAlpha;
-  atVector<atFilename> m_tSpecular;
-  atVector<atFilename> m_tSpecularHigh;
-  atVector<atFilename> m_tBump;
-  atVector<atFilename> m_tDisplacement;
-
-  int64_t m_illumFlags;
+  atMaterialShader m_shaderID = atMS_Coloured;
+  
+  atString m_shaders[atPS_Count];
+  atVector<Layer> m_layer;
 };
 
-int64_t atStreamRead(atReadStream *pStream, atMaterial *pData, const int64_t count);
-int64_t atStreamWrite(atWriteStream *pStream, const atMaterial *pData, const int64_t count);
 
 #endif

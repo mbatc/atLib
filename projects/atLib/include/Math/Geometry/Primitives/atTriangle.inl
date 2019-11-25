@@ -51,6 +51,7 @@ template<typename T> atVector3<T> atTriangle<T>::BarycentricCoords(const atVecto
   coords.y = (d11 * d20 - d01 * d21) / denom;
   coords.z = (d00 * d21 - d01 * d20) / denom;
   coords.x = T(1) - coords.y - coords.z;
+  return coords;
 }
 
 template<typename T> T atTriangle<T>::Area() const { return Normal2().Mag(); }

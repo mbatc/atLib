@@ -77,7 +77,7 @@ bool atDXPrgm::BindIndices(atGFXBufferInterface *pBuffer)
 bool atDXPrgm::BindTexture(const atString &name, atGFXTexInterface *pTexture)
 {
   for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
-    if (((atDXShader*)pShader.get())->BindTexture(name, pTexture))
+    if (pShader && ((atDXShader*)pShader.get())->BindTexture(name, pTexture))
       return true;
   return false;
 }
@@ -85,7 +85,7 @@ bool atDXPrgm::BindTexture(const atString &name, atGFXTexInterface *pTexture)
 bool atDXPrgm::BindSampler(const atString &name, atGFXSamplerInterface *pSampler)
 {
   for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
-    if (((atDXShader*)pShader.get())->BindSampler(name, pSampler))
+    if (pShader && ((atDXShader*)pShader.get())->BindSampler(name, pSampler))
       return true;
   return false;
 }
@@ -93,7 +93,7 @@ bool atDXPrgm::BindSampler(const atString &name, atGFXSamplerInterface *pSampler
 bool atDXPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
 {
   for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
-    if (((atDXShader*)pShader.get())->SetUniform(name, pData, info))
+    if (pShader && ((atDXShader*)pShader.get())->SetUniform(name, pData, info))
       return true;
   return false;
 }
@@ -101,7 +101,7 @@ bool atDXPrgm::SetUniform(const atString &name, const void *pData, const atTypeD
 bool atDXPrgm::HasUniform(const atString &name)
 {
   for (std::shared_ptr<atGFXShaderInterface> pShader : m_pStages)
-    if (((atDXShader*)pShader.get())->HasUniform(name))
+    if (pShader && ((atDXShader*)pShader.get())->HasUniform(name))
       return true;
   return false;
 }

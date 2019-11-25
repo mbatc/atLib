@@ -26,13 +26,61 @@
 #include "atCamera.h"
 #include "atInput.h"
 
+atProjection::atProjection(const double &aspect, const double &fov, const double &nearPlane, const double &farPlane)
+{
+  SetProjection(aspect, fov, nearPlane, farPlane);
+}
+
+atProjection::atProjection(const atVec2F &dims, const double &fov, const double &nearPlane, const double &farPlane)
+{
+  SetProjection(dims, fov, nearPlane, farPlane);
+}
+
+atMat4D atProjection::ProjectionMat(const double &clipNearZ, const double &clipFarZ) const
+{
+  atUnused(clipNearZ, clipFarZ);
+  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane);
+}
+
+void atProjection::SetProjection(const double &aspect, const double &fov, const double &nearPlane, const double &farPlane)
+{
+  SetAspect(aspect);
+  SetFOV(fov);
+  SetNearPlane(nearPlane);
+  SetFarPlane(farPlane);
+}
+
+void atProjection::SetProjection(const atVec2F &dims, const double &fov, const double &nearPlane, const double &farPlane)
+{
+  SetProjection(1, fov, nearPlane, farPlane);
+  SetAspect(dims);
+}
+
+void atProjection::SetViewport(const atVec4I &viewport)
+{
+  m_viewport = viewport;
+  SetAspect(atVec2F(m_viewport.z - m_viewport.x, m_viewport.w - m_viewport.y));
+}
+
+void atProjection::SetViewport(const atWindow *pWindow) { SetViewport(atVec4I(0, 0, pWindow->Size())); }
+void atProjection::SetFOV(const double &fov) { m_fov = fov; }
+void atProjection::SetAspect(const double &aspect) { m_aspect = aspect; }
+void atProjection::SetAspect(const atVec2F &dims) { SetAspect(dims.x / dims.y); }
+void atProjection::SetNearPlane(const double &nearPlane) { m_nearPlane = nearPlane; }
+void atProjection::SetFarPlane(const double &farPlane) { m_farPlane = farPlane; }
+
+const double& atProjection::Aspect() const { return m_aspect; }
+const double& atProjection::FOV() const { return m_fov; }
+const double& atProjection::NearPlane() const { return m_nearPlane; }
+const double& atProjection::FarPlane() const { return m_farPlane; }
+const atVec4I& atProjection::Viewport() const { return m_viewport; }
+
 // Base camera - only provides a projection matrix - static camera
-atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
-  : m_fov(FOV)
-  , m_nearPlane(nearPlane)
-  , m_farPlane(farPlane)
-  , m_aspect(aspect)
-{}
+
+atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane) : atProjection(aspect, FOV, nearPlane, farPlane) {}
+atMat4D atCamera::ViewMat() const { return TransformMat().Inverse(); }
+
+// Simple dynamic camera providing first person style controls
 
 bool atFPSCamera::Update(const double dt)
 {
@@ -65,17 +113,15 @@ bool atFPSCamera::Update(const double dt)
   if (atInput::ButtonDown(atKC_Up)) rot.x += speed * 2;
   if (atInput::ButtonDown(atKC_Down)) rot.x -= speed * 2;
 
+  double curPitch = m_pitch.Angle();
+  if (curPitch > atPi_2 && curPitch < (at2Pi - atPi_2))
+    rot.y = -rot.y;
+
   Translate(Orientation().Rotate(move));
   m_yaw *= atQuatD(atVec3D(0, 1, 0), rot.y);
   m_pitch *= atQuatD(atVec3D(1, 0, 0), rot.x);
   SetRotation(Orientation().Slerp(m_yaw * m_pitch, 0.3));
   return true;
-}
-
-void atCamera::SetViewport(const atVec4I viewport)
-{
-  m_viewport = viewport;
-  m_aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
 atFPSCamera::atFPSCamera(double aspect, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane)
@@ -86,28 +132,9 @@ atFPSCamera::atFPSCamera(double aspect, const atVec3D &pos, const atVec3D &rot, 
 }
 
 atFPSCamera::atFPSCamera(const atWindow *pWnd, const atVec3D &pos, const atVec3D &rot, const double FOV, const double nearPlane, const double farPlane)
-  : atCamera((double)pWnd->Size().x / (double)pWnd->Size().y, FOV, nearPlane, farPlane)
+  : atCamera(1, FOV, nearPlane, farPlane)
 {
   m_translation = pos;
   SetRotation(rot); 
-}
-
-atMat4D atCamera::ProjectionMat(const double &clipNearZ, const double &clipFarZ) const
-{
-  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane, clipNearZ, clipFarZ);
-}
-
-void atCamera::SetViewport(const atWindow *pWnd)
-{
-  SetViewport(atVec4I(0, 0, pWnd->Width(), pWnd->Height()));
-}
-
-atMat4D atCamera::ViewMat() const
-{ 
-  return TransformMat().Inverse();
-}
-
-atVec4I atCamera::Viewport() const 
-{
-  return m_viewport;
+  SetAspect(pWnd->Size());
 }

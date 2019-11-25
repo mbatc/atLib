@@ -39,26 +39,24 @@ bool atMTLWriter::Write(const atFilename &file, const atVector<atMaterial> &mate
   for (const atMaterial &mat : materials)
   {
     mtlDef = "";
-    mtlDef += "\nnewmtl " + mat.m_name + "\n";
-    mtlDef += "Kd " + atPrint::Vector(mat.m_cDiffuse.xyz() * mat.m_cDiffuse.w) + "\n";
-    mtlDef += "Ks " + atPrint::Vector(mat.m_cSpecular.xyz() * mat.m_cSpecular.w) + "\n";
-    mtlDef += "Ka " + atPrint::Vector(mat.m_cAmbient.xyz() * mat.m_cAmbient.w) + "\n";
-    mtlDef += "d " + atPrint::Float(mat.m_alpha) + "\n";
-    mtlDef += "Ns " + atPrint::Float(mat.m_specularPower) + "\n";
-    for (const atFilename &map : mat.m_tDiffuse)
-      mtlDef += "map_Ks " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tAmbient)
-      mtlDef += "map_Ka " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tSpecular)
-      mtlDef += "map_Ks " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tSpecularHigh)
-      mtlDef += "map_Ns " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tBump)
-      mtlDef += "map_Bump " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tDisplacement)
-      mtlDef += "disp " + map.Path() + "\n";
-    for (const atFilename &map : mat.m_tAlpha)
-      mtlDef += "map_d " + map.Path() + "\n";
+    mtlDef += "\nnewmtl " + mat.GetName() + "\n";
+    mtlDef += "Kd " + atPrint::Vector(mat.GetColour(atMP_Diffuse).xyz() * mat.GetColour(atMP_Diffuse).w) + "\n";
+    mtlDef += "Ks " + atPrint::Vector(mat.GetColour(atMP_Specular).xyz() * mat.GetColour(atMP_Specular).w) + "\n";
+    mtlDef += "Ka " + atPrint::Vector(mat.GetColour(atMP_Ambient).xyz() * mat.GetColour(atMP_Ambient).w) + "\n";
+    mtlDef += "d " + atPrint::Float(mat.GetValue(atMP_Alpha)) + "\n";
+    mtlDef += "Ns " + atPrint::Float(mat.GetValue(atMP_SpecularPower)) + "\n";
+
+    for (int64_t i = 0; i < mat.LayerCount(); ++i)
+    {
+      if (mat.HasTexture(atMP_Diffuse, i))           mtlDef += "map_Kd " + mat.GetTexture(atMP_Diffuse, i) + "\n";
+      if (mat.HasTexture(atMP_Ambient, i))           mtlDef += "map_Ka " + mat.GetTexture(atMP_Ambient, i) + "\n";
+      if (mat.HasTexture(atMP_Specular, i))          mtlDef += "map_Ks " + mat.GetTexture(atMP_Specular, i) + "\n";
+      if (mat.HasTexture(atMP_SpecularHighlight, i)) mtlDef += "map_Ns " + mat.GetTexture(atMP_SpecularHighlight, i) + "\n";
+      if (mat.HasTexture(atMP_Bump, i))              mtlDef += "map_Bump " + mat.GetTexture(atMP_Bump, i) + "\n";
+      if (mat.HasTexture(atMP_Displacement, i))      mtlDef += "disp " + mat.GetTexture(atMP_Displacement, i) + "\n";
+      if (mat.HasTexture(atMP_Alpha, i))             mtlDef += "map_d " + mat.GetTexture(atMP_Alpha, i) + "\n";
+    }
+
     mtlFile.WriteText(mtlDef);
   }
   return true;

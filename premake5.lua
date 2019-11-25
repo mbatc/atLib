@@ -8,5 +8,5 @@ dofile "projects/atLib/project.lua"
 dofile "projects/atTest/project.lua"
   location "projects/atTest/"
 
-dofile "projects/atEngine/project.lua"
-  location "projects/atEngine/"
+-- dofile "projects/atEngine/project.lua"
+--   location "projects/atEngine/"

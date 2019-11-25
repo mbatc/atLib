@@ -174,7 +174,7 @@ template<typename T> inline T atQuaternion<T>::AngleTo(const atQuaternion<T> &fr
 
 template<typename T> inline T atQuaternion<T>::Angle(const atQuaternion<T> &quat)
 {
-  return T(2) * atACos(w);
+  return T(2) * atACos(quat.w);
 }
 
 template<typename T> inline T atQuaternion<T>::Length(const atQuaternion<T> &quat)

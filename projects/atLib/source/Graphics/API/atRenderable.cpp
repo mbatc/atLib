@@ -1,4 +1,9 @@
 #include "atRenderable.h"
+#include "atDXTexture.h"
+#include "atDXPrgm.h"
+#include "atDXShader.h"
+#include "atFile.h"
+#include "atAssetDirs.h"
 
 template<typename T> void _SetNamedItem(atVector<atKeyValue<atString, T>> *pVec, const atString &name, const T &value)
 {
@@ -12,21 +17,29 @@ template<typename T> void _SetNamedItem(atVector<atKeyValue<atString, T>> *pVec,
   pVec->push_back({ name, value });
 }
 
-atRenderable::atRenderable(atRenderable &&o)
-  : m_pPrgm(std::move(o.m_pPrgm))
-  , m_samplers(std::move(o.m_samplers))
-  , m_attributes(std::move(o.m_attributes))
-  , m_textures(std::move(o.m_textures))
-  , m_uniforms(std::move(o.m_uniforms))
-{}
+atRenderable::atRenderable(atRenderable &&o) { *this = std::move(o); }
 
-atRenderable::atRenderable(const atRenderable &o)
-  : m_pPrgm(o.m_pPrgm)
-  , m_samplers(o.m_samplers)
-  , m_attributes(o.m_attributes)
-  , m_textures(o.m_textures)
-  , m_uniforms(o.m_uniforms)
-{}
+atRenderable::atRenderable(const atRenderable &o) { *this = o; }
+
+atRenderable& atRenderable::operator=(atRenderable &&o)
+{
+  m_pPrgm = std::move(o.m_pPrgm);
+  m_samplers = std::move(o.m_samplers);
+  m_attributes = std::move(o.m_attributes);
+  m_textures = std::move(o.m_textures);
+  m_uniforms = std::move(o.m_uniforms);
+  return *this;
+}
+
+atRenderable& atRenderable::operator=(const atRenderable &o)
+{
+  m_pPrgm = o.m_pPrgm;
+  m_samplers = o.m_samplers;
+  m_attributes = o.m_attributes;
+  m_textures = o.m_textures;
+  m_uniforms = o.m_uniforms;
+  return *this;
+}
 
 bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType)
 {
@@ -59,6 +72,49 @@ bool atRenderable::Upload()
   
   m_pPrgm->Upload();
   return true;
+}
+
+void atRenderable::SetMaterial(const atMaterial &material)
+{
+  for (int64_t i = 0; i < material.LayerCount(); ++i)
+  {
+    for (const atString &name : material.Textures())
+    {
+      atMaterialProperty prop = atMaterial::GetProperty(name);
+      if (!material.HasTexture(prop, i) || prop == atMP_Unknown)
+        continue;
+
+      std::shared_ptr<atDXTexture> tex = std::make_shared<atDXTexture>(atImage(atFilename(material.GetTexture(prop, i))));
+
+      if (atMaterial::textureMapping[prop].length() > 0)
+        SetTexture(atMaterial::textureMapping[prop] + atString(i), tex);
+    }
+
+    for (const atString &name : material.Colours())
+    {
+      atMaterialProperty prop = atMaterial::GetProperty(name);
+      if (!material.HasColour(name, i) || prop == atMP_Unknown)
+        continue;
+
+      if (atMaterial::colourMapping[prop].length() > 0)
+        SetUniform(atMaterial::colourMapping[prop] + atString(i), atVec4F(material.GetColour(prop, i)));
+    }
+
+    for (const atString &name : material.Values())
+    {
+      atMaterialProperty prop = atMaterial::GetProperty(name);
+      if (!material.HasValue(name, i) || prop == atMP_Unknown)
+        continue;
+
+      if (atMaterial::valueMapping[prop].length() > 0)
+        SetUniform(atMaterial::valueMapping[prop] + atString(i), float(material.GetValue(prop, i)));
+    }
+
+    std::shared_ptr<atDXPrgm> prgm = std::make_shared<atDXPrgm>();
+    prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText(atAssetDirs::Shaders() + "/" + material.GetShader(atPS_Vertex)), atPS_Vertex));
+    prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText(atAssetDirs::Shaders() + "/" + material.GetShader(atPS_Fragment)), atPS_Fragment));
+    SetProgram(prgm);
+  }
 }
 
 void atRenderable::SetUniform(const atString &name, Uniform &&value)

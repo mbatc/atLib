@@ -67,7 +67,7 @@ bool atOBJWriter::Write(const atFilename &file, const atMesh &mesh)
   const int64_t vFlags = (mesh.m_positions.size() > 0 * atVE_Position) | (mesh.m_texCoords.size() > 0 * atVE_TexCoord) | (mesh.m_normals.size() > 0 * atVE_Normal);
   for (int64_t m = 0; m < mesh.m_materials.size(); ++m)
   {
-    objFile.WriteText("\nusemtl " + mesh.m_materials[m].m_name);
+    objFile.WriteText("\nusemtl " + mesh.m_materials[m].GetName());
     objFile.WriteText("\ns off\n");
     for (const atMesh::Triangle &tri : mesh.m_triangles)
       if (tri.mat != m)

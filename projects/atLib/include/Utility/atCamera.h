@@ -30,27 +30,54 @@
 #include "atWindow.h"
 #include "atTransformable.h"
 
-class atCamera : public atTransformable<double>
+// Simple view projection
+
+class atProjection
 {
 public:
-  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atProjection(const double &aspect = 1.0, const double &fov = atDegs2Rads(60), const double &nearPlane = 0.1, const double &farPlane = 1000);
+  atProjection(const atVec2F &dims, const double &fov = atDegs2Rads(60), const double &nearPlane = 0.1, const double &farPlane = 1000);
 
-  void SetViewport(const atVec4I viewport);
+  atMat4D ProjectionMat(const double &clipNearZ = atClipNearZ<double>(), const double &clipFarZ = atClipFarZ<double>()) const;
+
+  void SetProjection(const double &aspect, const double &fov, const double &nearPlane, const double &farPlane);
+  void SetProjection(const atVec2F &dims, const double &fov, const double &nearPlane, const double &farPlane);
+
   void SetViewport(const atWindow *pWindow);
-  atVec4I Viewport() const;
+  void SetViewport(const atVec4I &viewport);
   
-  atMat4D ProjectionMat(const double &clipNearZ = atClipNearZ<double>(), const double &clipFarNear = atClipFarZ<double>()) const;
-  atMat4D ViewMat() const;
+  void SetFOV(const double &fov);
+  void SetAspect(const double &aspect);
+  void SetAspect(const atVec2F &dims);
+  void SetNearPlane(const double &nearPlane);
+  void SetFarPlane(const double &farPlane);
 
+  const double& Aspect() const;
+  const double& FOV() const;
+  const double& NearPlane() const;
+  const double& FarPlane() const;
+
+  const atVec4I& Viewport() const;
+
+protected:
   double m_fov;
   double m_aspect;
   double m_farPlane;
   double m_nearPlane;
   atVec2F m_depthRange = atVec2I(0, 1);
- 
-protected:
   atVec4I m_viewport = -1;
 };
+
+// Static camera (Projection with a transform)
+
+class atCamera : public atTransformable<double>, public atProjection
+{
+public:
+  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atMat4D ViewMat() const;
+};
+
+// Camera with simple FPS controls
 
 class atFPSCamera : public atCamera
 {

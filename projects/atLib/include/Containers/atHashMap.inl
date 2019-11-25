@@ -155,7 +155,7 @@ template<typename Key, class Value> atVector<Value> atHashMap<Key, Value>::GetVa
 {
   atVector<Value> ret;
   for (const Bucket &bucket : m_buckets)
-    for (KVP &kvp : bucket)
+    for (const KVP &kvp : bucket)
       ret.push_back(kvp.m_val);
   return ret;
 }
