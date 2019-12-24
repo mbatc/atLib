@@ -152,7 +152,7 @@ protected:
   const Layer* GetLayer(const int64_t &index) const;
 
   atString m_name;
-  atMaterialShader m_shaderID = atMS_Coloured;
+  atMaterialShader m_shaderID = atMS_Lambert;
   
   atString m_shaders[atPS_Count];
   atVector<Layer> m_layer;

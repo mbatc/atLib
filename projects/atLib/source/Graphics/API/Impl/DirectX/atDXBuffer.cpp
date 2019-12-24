@@ -2,6 +2,8 @@
 #include "atDirectX.h"
 #include "atGraphics.h"
 
+atDXBuffer::atDXBuffer(const atBufferType &type) : atGFXBufferInterface(type) {}
+
 bool atDXBuffer::Update()
 {
   if (!GFXResource())

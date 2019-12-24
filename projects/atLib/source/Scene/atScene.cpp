@@ -45,6 +45,27 @@ protected:
   atScene *m_pScene = nullptr;
 };
 
+class atSceneFinder
+{
+public:
+  void Leave(const int64_t &nodeID, atHierarchy<atSceneNode> *pHierarchy) {}
+  bool Visit(const int64_t &nodeID, atHierarchy<atSceneNode> *pHierarchy)
+  {
+    atSceneNode *pNode = pHierarchy->Get(nodeID);
+    if (m_targetName == pNode->GetName())
+    {
+      m_foundNodes.push_back(pNode);
+      return m_findAll;
+    }
+    return true;
+  }
+
+  atVector<atSceneNode*> m_foundNodes;
+
+  atString m_targetName = "";
+  bool m_findAll = false;
+};
+
 atScene::atScene(atScene &&o) { *this = std::move(o); }
 atScene::atScene(const atScene &o) { *this = o; }
 
@@ -151,3 +172,21 @@ const atSceneNode* atScene::GetChild(const int64_t &nodeID, const int64_t &index
 
 int64_t atScene::ChildCount(const int64_t &nodeID) const { return m_hierarchy.ChildCount(nodeID); }
 atVector<int64_t> atScene::Children(const int64_t &nodeID) const { return m_hierarchy.Children(nodeID); }
+
+atSceneNode* atScene::GetNode(const atString &name)
+{
+  atSceneFinder finder;
+  finder.m_targetName = name;
+  finder.m_findAll = false;
+  m_hierarchy.Visit(&finder);
+  return finder.m_foundNodes.size() > 0 ? finder.m_foundNodes[0] : nullptr;
+}
+
+atVector<atSceneNode*> atScene::GetNodes(const atString &name)
+{
+  atSceneFinder finder;
+  finder.m_targetName = name;
+  finder.m_findAll = true;
+  m_hierarchy.Visit(&finder);
+  return finder.m_foundNodes;
+}

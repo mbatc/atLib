@@ -99,7 +99,7 @@ int64_t atFormat::DXGI(const atType &type, const int64_t &width)
     DXGI_FORMAT_UNKNOWN                     , // 3 x 16-bit unsigned int
     DXGI_FORMAT_R16G16B16A16_UINT           , // 4 x 16-bit unsigned int
 
-    DXGI_FORMAT_R8G8B8A8_UNORM                    , // 1 x 32-bit unsigned int
+    DXGI_FORMAT_R8G8B8A8_UNORM              , // 1 x 32-bit unsigned int
     DXGI_FORMAT_R32G32_UINT                 , // 2 x 32-bit unsigned int
     DXGI_FORMAT_R32G32B32_UINT              , // 3 x 32-bit unsigned int
     DXGI_FORMAT_R32G32B32A32_UINT           , // 4 x 32-bit unsigned int

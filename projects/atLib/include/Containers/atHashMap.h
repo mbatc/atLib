@@ -118,7 +118,8 @@ public:
   ConstIterator begin() const;
   ConstIterator end() const;
 
-  const atHashMap<Key, Value>& operator=(const atHashMap<Key, Value> &rhs);
+  atHashMap<Key, Value>& operator=(const atHashMap<Key, Value> &rhs);
+  atHashMap<Key, Value>& operator=(atHashMap<Key, Value> &&rhs);
 
   static int64_t StreamWrite(atWriteStream *pStream, const atHashMap<Key, Value> *pData, const int64_t count);
   static int64_t StreamRead(atReadStream *pStream, atHashMap<Key, Value> *pData, const int64_t count);

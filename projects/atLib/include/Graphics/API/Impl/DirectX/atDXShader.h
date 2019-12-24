@@ -6,11 +6,13 @@
 #include "atDXSampler.h"
 #include "atDXTexture.h"
 #include "atGFXShaderInterface.h"
+#include <memory>
 
 class atDXShader : public atGFXShaderInterface
 {
 public:
-  atDXShader(const atString &src, const atPipelineStage &stage) : atGFXShaderInterface(src, stage) {}
+  atDXShader(const atString &src, const atPipelineStage &stage);
+  ~atDXShader();
 
   bool BindTexture(const atString &name, atGFXTexInterface *pTexture);
   bool BindSampler(const atString &name, atGFXSamplerInterface *pSampler);

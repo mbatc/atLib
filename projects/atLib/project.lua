@@ -11,7 +11,7 @@ characterset ("MBCS")
 symbolspath '$(OutDir)$(TargetName).pdb'
 targetdir "../../builds/bin/"
 debugdir "../../builds/bin/"
-objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
+objdir "../../builds/output/atLib/%{cfg.platform}_%{cfg.buildcfg}"
 
 -- Project Flags
 
@@ -42,6 +42,7 @@ linkoptions { "/ignore:4221" }
   includedirs { "3rdParty/lua/include" }
   includedirs { "3rdParty/glew/include" }
   includedirs { "3rdParty/imgui" }
+  includedirs { "3rdParty/python/include" }
 
 
 -- Third Party Files
@@ -51,7 +52,10 @@ linkoptions { "/ignore:4221" }
 
 -- Project Files
 
+  files { "project.lua" } -- include project file so it can be edited in IDE
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
+
+  files { "source/**.py" } -- scene scripting interface source files
 
   links { "LuaLib" }
   links { "opengl32", "glew32" }
@@ -63,6 +67,7 @@ linkoptions { "/ignore:4221" }
     defines { "DEBUG"}
     symbols "On"
     libdirs {"3rdParty/lua/Debug/"}
+    libdirs {"3rdParty/python/libs/Debug/"}
 
 -- Release Configuration Settings
 
@@ -71,3 +76,4 @@ linkoptions { "/ignore:4221" }
     defines { "NDEBUG" }
     optimize "On"
     libdirs {"3rdParty/lua/Release/"}
+    libdirs {"3rdParty/python/libs/Release/"}

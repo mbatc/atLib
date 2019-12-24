@@ -20,7 +20,7 @@ public:
   atRenderable& operator=(atRenderable &&o);
   atRenderable& operator=(const atRenderable &o);
 
-  bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList);
+  bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0, const int64_t &baseVertIdx = 0);
   bool Upload();
 
   void SetMaterial(const atMaterial &material);

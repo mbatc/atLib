@@ -152,9 +152,9 @@ void atMesh::DiscoverTextures(const atString &initialPath)
 void atMesh::GenTangents()
 {
   m_tangents.resize(m_positions.size());
-  m_binormals.resize(m_positions.size());
+  m_bitangent.resize(m_positions.size());
   memset(m_tangents.data(), 0, (size_t)m_tangents.size() * sizeof(atVec3D));
-  memset(m_binormals.data(), 0, (size_t)m_binormals.size() * sizeof(atVec3D));
+  memset(m_bitangent.data(), 0, (size_t)m_bitangent.size() * sizeof(atVec3D));
 
   for (Triangle &tri : m_triangles)
   {
@@ -181,12 +181,12 @@ void atMesh::GenTangents()
       if (tAB.Mag() > atLimitsSmallest<float>() && tAC.Mag() > atLimitsSmallest<float>())
       {
         m_tangents[tri.verts[i].position] += uDir;
-        m_binormals[tri.verts[i].position] += vDir;
+        m_bitangent[tri.verts[i].position] += vDir;
       }
       else
       {
         m_tangents[tri.verts[i].position] += 1;
-        m_binormals[tri.verts[i].position] += 1;
+        m_bitangent[tri.verts[i].position] += 1;
       }
     }
   }
@@ -194,7 +194,7 @@ void atMesh::GenTangents()
   for (int64_t i = 0; i < m_positions.size(); ++i)
   {
     m_tangents[i] = m_tangents[i].Normalize();
-    m_binormals[i] = m_binormals[i].Normalize();
+    m_bitangent[i] = m_bitangent[i].Normalize();
   }
 }
 
@@ -336,7 +336,7 @@ const atMesh& atMesh::operator=(const atMesh &rhs)
   m_colors = rhs.m_colors;
   m_texCoords = rhs.m_texCoords;
   m_tangents = rhs.m_tangents;
-  m_binormals = rhs.m_binormals;
+  m_bitangent = rhs.m_bitangent;
   m_materials = rhs.m_materials;
   m_default = rhs.m_default;
   m_defaultMat = rhs.m_defaultMat;
@@ -353,7 +353,7 @@ const atMesh& atMesh::operator=(atMesh && rhs)
   m_colors = std::move(rhs.m_colors);
   m_texCoords = std::move(rhs.m_texCoords);
   m_tangents = std::move(rhs.m_tangents);
-  m_binormals = std::move(rhs.m_binormals);
+  m_bitangent = std::move(rhs.m_bitangent);
   m_materials = std::move(rhs.m_materials);
   m_default = std::move(rhs.m_default);
   m_defaultMat = std::move(rhs.m_defaultMat);
@@ -398,7 +398,7 @@ int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count)
     size += atStreamRead(pStream, &mesh.m_normals, 1);
     size += atStreamRead(pStream, &mesh.m_colors, 1);
     size += atStreamRead(pStream, &mesh.m_tangents, 1);
-    size += atStreamRead(pStream, &mesh.m_binormals, 1);
+    size += atStreamRead(pStream, &mesh.m_bitangent, 1);
     size += atStreamRead(pStream, &mesh.m_texCoords, 1);
     size += atStreamRead(pStream, &mesh.m_materials, 1);
   }
@@ -418,7 +418,7 @@ int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t
     size += atStreamWrite(pStream, &mesh.m_normals, 1);
     size += atStreamWrite(pStream, &mesh.m_colors, 1);
     size += atStreamWrite(pStream, &mesh.m_tangents, 1);
-    size += atStreamWrite(pStream, &mesh.m_binormals, 1);
+    size += atStreamWrite(pStream, &mesh.m_bitangent, 1);
     size += atStreamWrite(pStream, &mesh.m_texCoords, 1);
     size += atStreamWrite(pStream, &mesh.m_materials, 1);
   }

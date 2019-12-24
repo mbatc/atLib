@@ -4,7 +4,7 @@
 #include "atTransformable.h"
 #include "atSceneComponent.h"
 
-class atTransformComponent : public atTransformable<double>, atSceneComponent
+class atTransformComponent : public atSceneComponent, public atTransformable<double>
 {
 public:
   atTransformComponent(const atString &name = "");

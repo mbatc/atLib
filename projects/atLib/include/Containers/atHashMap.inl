@@ -1,3 +1,4 @@
+#include "atHashMap.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -160,10 +161,20 @@ template<typename Key, class Value> atVector<Value> atHashMap<Key, Value>::GetVa
   return ret;
 }
 
-template<typename Key, class Value> const atHashMap<Key, Value>& atHashMap<Key, Value>::operator=(const atHashMap<Key, Value>& rhs)
+template<typename Key, class Value> atHashMap<Key, Value>& atHashMap<Key, Value>::operator=(const atHashMap<Key, Value>& rhs)
 {
   m_buckets = rhs.m_buckets;
   m_size = rhs.m_size;
+  return *this;
+}
+
+template<typename Key, class Value> atHashMap<Key, Value>& atHashMap<Key, Value>::operator=(atHashMap<Key, Value> &&rhs)
+{
+  m_buckets = std::move(rhs.m_buckets);
+  m_size = rhs.m_size;
+
+  rhs.m_buckets.resize(1);
+  rhs.m_size = 0;
   return *this;
 }
 

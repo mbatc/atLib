@@ -41,7 +41,7 @@ atRenderable& atRenderable::operator=(const atRenderable &o)
   return *this;
 }
 
-bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType)
+bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset, const int64_t &baseVertIdx)
 {
   if (!Upload())
     return false;
@@ -58,7 +58,7 @@ bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &prim
   for (auto &sampler : m_samplers)
     m_pPrgm->BindSampler(sampler.m_key, sampler.m_val.get());
 
-  return m_pPrgm->Draw(drawIndexed, primType);
+  return m_pPrgm->Draw(drawIndexed, primType, elementCount, elementOffset, baseVertIdx);
 }
 
 bool atRenderable::Upload()

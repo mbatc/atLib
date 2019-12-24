@@ -52,6 +52,10 @@ public:
   int64_t ChildCount(const int64_t &nodeID) const;
   atVector<int64_t> Children(const int64_t &nodeID) const;
 
+  // Retrieve some nodes by name
+  atSceneNode* GetNode(const atString &name);
+  atVector<atSceneNode*> GetNodes(const atString &name);
+  
 protected:
   int64_t m_lastClock = 0;
   atHierarchy<atSceneNode> m_hierarchy;

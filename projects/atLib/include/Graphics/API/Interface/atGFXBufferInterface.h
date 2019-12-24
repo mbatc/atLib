@@ -15,6 +15,8 @@ enum atBufferType
 class atGFXBufferInterface : public atGFXResource
 {
 public:
+  atGFXBufferInterface(const atBufferType &bufferType);
+
   template<typename T> atGFXBufferInterface(const T &data, const atBufferType &bufferType = atBT_VertexData);
   template<typename T> void Set(const T &data);
   template<typename T> void Set(const atVector<T> &data);

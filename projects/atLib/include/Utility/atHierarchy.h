@@ -4,7 +4,7 @@
 #include "atTypes.h"
 #include "atHashMap.h"
 
-static const int64_t atHierarchy_atRootNodeID = -1;
+static const int64_t atHierarchy_atRootNodeID = -2;
 
 // ----------------------------------------------------------------------- //
 // Example Visitor - Prints nodes in a atHierarchy<atString>               //
@@ -47,6 +47,7 @@ public:
   atHierarchy();
   atHierarchy(atHierarchy<T> &&o);
   atHierarchy(const atHierarchy<T> &o);
+  ~atHierarchy();
 
   atHierarchy<T>& operator=(atHierarchy<T> &&o);
   atHierarchy<T>& operator=(const atHierarchy<T> &o);

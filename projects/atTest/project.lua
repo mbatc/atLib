@@ -12,7 +12,7 @@ characterset ("MBCS")
 symbolspath '$(OutDir)$(TargetName).pdb'
 targetdir "../../builds/bin/"
 debugdir "../../builds/bin/"
-objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
+objdir "../../builds/output/atTest/%{cfg.platform}_%{cfg.buildcfg}"
 
 -- Project Flags
 
@@ -39,6 +39,7 @@ flags { "MultiProcessorCompile" }
 
 -- Project Files
 
+  files { "project.lua" } -- include project file so it can be edited in IDE
   files { "source/**.cpp", "source/**.h", "source/**.inl" , "**.natvis" }
 
   links { "atLib" }
@@ -48,6 +49,7 @@ flags { "MultiProcessorCompile" }
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
+    libdirs {"../atLib/3rdParty/python/libs/Debug/"}
 
 -- Release Configuration Settings
 
@@ -55,3 +57,4 @@ flags { "MultiProcessorCompile" }
     flags { "LinkTimeOptimization" }
     defines { "NDEBUG" }
     optimize "On"
+    libdirs {"../3rdParty/python/libs/Release/"}

@@ -15,6 +15,7 @@ class atSceneComponent
 public:
   atSceneComponent(const atString &typeName, const atString &name = "");
   atSceneComponent(const atCoreComponentType &type, const atString &name = "");
+  virtual ~atSceneComponent();
 
   virtual bool Init();
   virtual bool Update(const double &deltaTime);

@@ -272,7 +272,7 @@ inline void atVector<T>::move_to_index(const int64_t index, const int64_t to, co
 template<typename T>
 inline bool atVector<T>::shrink_by(const int64_t count)
 {
-  if (count > m_size || count < 0)
+  if (count > m_size || count <= 0)
     return false;
   atDestructArray<T>(m_pData + m_size - count, count);
   m_size -= count;

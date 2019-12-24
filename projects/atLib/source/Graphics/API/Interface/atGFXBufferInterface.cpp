@@ -1,5 +1,7 @@
 #include "atGFXBufferInterface.h"
 
+atGFXBufferInterface::atGFXBufferInterface(const atBufferType &bufferType) : m_mapping(bufferType) {}
+
 void atGFXBufferInterface::Set(const void *pData, const int64_t &bufLen, const atTypeDesc &desc)
 {
   m_data.resize(bufLen);

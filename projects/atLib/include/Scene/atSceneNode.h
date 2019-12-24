@@ -13,10 +13,13 @@ class atSceneNode
   friend atScene;
 
 public:
-  atSceneNode();
+  atSceneNode(const atString &name = "");
   atSceneNode(atSceneNode &&o);
   atSceneNode(const atSceneNode &o);
   ~atSceneNode();
+
+  const atString& GetName() const;
+  void SetName(const atString &name);
 
   atScene* GetScene() const;
   atSceneNode* GetParent() const;
@@ -32,9 +35,10 @@ public:
  
   int64_t GetID() const;
   int64_t ComponentCount() const;
+  int64_t ComponentCount(const atCoreComponentType &type) const;
 
   atSceneComponent* GetComponent(const int64_t &index) const;
-  atSceneComponent* GetComponent(const atCoreComponentType &type) const;
+  atSceneComponent* GetComponent(const atCoreComponentType &type, const int64_t &index = 0) const;
   atVector<atSceneComponent*> GetComponents(const atCoreComponentType &type) const;
 
   template<typename T> T* GetComponent() const;
@@ -47,15 +51,15 @@ public:
   void SetScene(atScene *pScene);
 
 protected:
-  void AddComponent(atSceneComponent *pComponent);
+  void AddComponent_Internal(atSceneComponent *pComponent);
   
   atVector<atSceneComponent*> m_components;
-
   atScene *m_pScene = nullptr;
+  atString m_name;
 };
 
 template<typename T>
-inline void atSceneNode::AddComponent(const T &component) { AddComponent((atSceneComponent*)atNew<T>(std::forward<T>(component))); }
+inline void atSceneNode::AddComponent(const T &component) { AddComponent_Internal(atNew<T>(std::forward<T>(component))); }
 
 template<typename T>
 inline T* atSceneNode::GetComponent() const { return (T*)GetComponent(T::TypeID()); }
@@ -71,9 +75,9 @@ inline atVector<T*> atSceneNode::GetComponents() const
 }
 
 template<typename T>
-inline void atSceneNode::AddComponent(T &&component) { AddComponent((atSceneComponent*)atNew<T>(std::forward<T>(component))); }
+inline void atSceneNode::AddComponent(T &&component) { AddComponent_Internal(atNew<T>(std::forward<T>(component))); }
 
 template<typename T, typename ...Args>
-inline void atSceneNode::AddComponent(Args&& ...component) { AddComponent((atSceneComponent*)atNew<T>(std::forward<Args>(component)...)); }
+inline void atSceneNode::AddComponent(Args&& ...component) { AddComponent_Internal(atNew<T>(std::forward<Args>(component)...)); }
 
 #endif // atSceneNode_h__

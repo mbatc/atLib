@@ -18,7 +18,7 @@ public:
   bool SetUniform(const atString &name, const void *pData, const atTypeDesc &info) override;
   bool HasUniform(const atString &name) override;
 
-  bool Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0) override;
+  bool Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0, const int64_t &baseVtxOffset = 0) override;
 
   bool Delete() override;
   bool Upload() override;

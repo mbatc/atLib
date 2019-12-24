@@ -1,3 +1,4 @@
+#include "atHierarchy.h"
 
 template <typename T> class atHierarchyExtractor
 {
@@ -45,13 +46,23 @@ protected:
 };
 
 template<typename T>
-inline atHierarchy<T>::atHierarchy() { Clear(); }
+inline atHierarchy<T>::atHierarchy()
+{
+  Clear();
+  Node root;
+  root.pNode = atNew<T>();
+  m_nodes.Add(atHierarchy_atRootNodeID, std::move(root));
+  m_idLookup.Add((void*)root.pNode, atHierarchy_atRootNodeID);
+}
 
 template<typename T>
 inline atHierarchy<T>::atHierarchy(atHierarchy<T> &&o) { *this = std::move(o); }
 
 template<typename T>
 inline atHierarchy<T>::atHierarchy(const atHierarchy<T> &o) { *this = o; }
+
+template<typename T>
+inline atHierarchy<T>::~atHierarchy() { Clear(); }
 
 template<typename T>
 inline atHierarchy<T>& atHierarchy<T>::operator=(atHierarchy<T> &&o)
@@ -77,15 +88,13 @@ inline atHierarchy<T>& atHierarchy<T>::operator=(const atHierarchy<T> &o)
 template<typename T>
 inline void atHierarchy<T>::Clear()
 {
+  for (atKeyValue<int64_t, Node> &kvp : m_nodes)
+    atDelete(kvp.m_val.pNode);
+
   m_nodes.Clear();
   m_parents.Clear();
   m_idLookup.Clear();
   m_nextID = 0;
-
-  Node root;
-  root.pNode = atNew<T>();
-  m_nodes.Add(atHierarchy_atRootNodeID, std::move(root));
-  m_idLookup.Add((void*)root.pNode, atHierarchy_atRootNodeID);
 }
 
 template <typename T>

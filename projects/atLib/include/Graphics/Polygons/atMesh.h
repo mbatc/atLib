@@ -116,7 +116,7 @@ public:
   atVector<atVec4D> m_colors;
   atVector<atVec2D> m_texCoords;
   atVector<atVec3D> m_tangents;
-  atVector<atVec3D> m_binormals;
+  atVector<atVec3D> m_bitangent;
 
   atVector<atMaterial> m_materials;
 

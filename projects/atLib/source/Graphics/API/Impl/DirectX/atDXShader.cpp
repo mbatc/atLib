@@ -2,6 +2,7 @@
 #include "atDXShader.h"
 #include "atDirectX.h"
 #include "atHashSet.h"
+#include <memory>
 
 static const char *_shaderStrID[atPS_Count] =
 {
@@ -18,6 +19,9 @@ static bool _GetTypeDesc(const D3D11_SHADER_TYPE_DESC &shderDesc, atTypeDesc *pD
 static void _BindConstantBuffer(const atPipelineStage &stage, atDXBuffer *pBuffer, int64_t slot);
 static void _BindSampler(const atPipelineStage &stage, atDXSampler *pBuffer, int64_t slot);
 static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int64_t slot);
+
+static atDXSampler *_pDefaultSampler = nullptr;
+static int64_t _initCount = 0;
 
 bool atDXShader::BindTexture(const atString &name, atGFXTexInterface *pTexture)
 {
@@ -300,7 +304,7 @@ void atDXShader::SetSamplerSlot(const atString &name, const int64_t &slot)
   SamplerDesc newSampler;
   newSampler.name = name;
   newSampler.slot = slot;
-  newSampler.pSampler = nullptr;
+  newSampler.pSampler = _pDefaultSampler;
   m_samplers.push_back(newSampler);
 }
 
@@ -407,4 +411,17 @@ static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int
   case atPS_Compute: pDX->GetContext()->CSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
   case atPS_Geometry: pDX->GetContext()->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
   }
+}
+
+atDXShader::atDXShader(const atString &src, const atPipelineStage &stage)
+  : atGFXShaderInterface(src, stage)
+{
+  if (!_pDefaultSampler && _initCount++ == 0)
+    _pDefaultSampler = atNew<atDXSampler>();
+}
+
+atDXShader::~atDXShader()
+{
+  if (--_initCount == 0)
+    atDelete(_pDefaultSampler);
 }

@@ -60,11 +60,11 @@ template<typename T, typename... Args> T* atInternal_New(const int64_t count, Ar
   const int64_t size = count * sizeof(T);
   void *pBlock = atAlloc(size + sizeof(int64_t));
   memcpy(pBlock, &count, sizeof(int64_t));
-  T* pPos = (T*)((int64_t)pBlock + sizeof(int64_t));
+  T* pPos = (T*)(((int64_t*)pBlock) + 1);
   T* pStart = pPos;
 
   // construct new objects
-  while(pPos - pStart != count)
+  while(pPos - pStart < count)
     atConstruct(pPos++, std::forward<Args>(args)...);
 
   return pStart;
@@ -77,7 +77,7 @@ template<typename T> void atDelete(T* pBlock)
   const T* pStart = pBlock;
 
   // destruct objects
-  while (pBlock - pStart != count)
+  while (pBlock - pStart < count)
     atDestruct(pBlock++);
   atFree(pActualAlloc);
 }

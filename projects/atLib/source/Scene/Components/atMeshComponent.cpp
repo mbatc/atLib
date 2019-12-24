@@ -17,10 +17,10 @@ bool atMeshComponent::Render(const atMat4D &vp)
 {
   atTransformComponent *pTransform = GetNode()->GetTransform();
   atMat4F modelMat = pTransform->GlobalTransformMat();
-  atMat4F mvp = atMat4F(vp * modelMat);
+  atMat4F mvp = atMat4F(vp) * modelMat;
   atMat4F normMat = modelMat.Inverse();
   m_renderable.SetUniform("modelMat", modelMat.Transpose());
-  m_renderable.SetUniform("normalMat", normMat.Transpose());
+  m_renderable.SetUniform("modelMatInvTrans", normMat.Transpose());
   m_renderable.SetUniform("mvp", mvp.Transpose());
   return m_renderable.Draw(false);
 }

@@ -10,6 +10,7 @@ void atSceneComponent::SetNode(atScene *pScene, atSceneNode *pNode)
 
 atSceneComponent::atSceneComponent(const atCoreComponentType &type, const atString &name) : m_name(name), typeID(type) {}
 atSceneComponent::atSceneComponent(const atString &typeName, const atString &name) : atSceneComponent(atCoreComponentType_FromString(typeName), name) {}
+atSceneComponent::~atSceneComponent() {}
 
 bool atSceneComponent::Init() { return true; }
 bool atSceneComponent::Update(const double &deltaTime) { return true; }

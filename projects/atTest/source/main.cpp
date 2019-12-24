@@ -343,15 +343,15 @@ void ExampleImportExportMesh()
   // Import OBJ file
   mesh.Import(path);
 
-  // OBJ Writing isn't supported yet but will be shortly
-  // mesh.Export(outPath1);
+  // Write the mesh to an OBJ file
+  mesh.Export(outPath1);
 
   // Write to a AT's binary mesh format
   mesh.Export(outPath2);
 
   // Import AT's binary mesh format and export to .obj
   mesh.Import(outPath2);
-  // mesh.Export(outPath3);
+  mesh.Export(outPath3);
 }
 
 void ExampleRayTraceMesh()
@@ -444,7 +444,7 @@ void ExampleImGui()
 #include "atBPGNetwork.h"
 #include "atFile.h"
 
-void ExampeBackPropagation()
+void ExampleBackPropagation()
 {
   atBPGNetwork network(4, 4, 2, 16);
   
@@ -492,6 +492,50 @@ void ExampeBackPropagation()
 
   printf("\n");
   getchar();
+}
+
+
+#include "atPython.h"
+
+// A simple example of creating a python and making it available to the Python interpreter
+
+namespace atPythonExample
+{
+  PyObject* atPythonHelloWorld(PyObject* pCaller, PyObject *pArgs)
+  {
+    printf("Hello From Python\n");
+    Py_IncRef(Py_None);
+    Py_RETURN_NONE;
+  }
+
+  static PyMethodDef methods[] =
+  {
+    { "HelloWorld",  atPythonHelloWorld, METH_VARARGS, "Execute a shell command." },
+    { NULL, NULL, 0, NULL }
+  };
+
+  static PyModuleDef modDef =
+  {
+    PyModuleDef_HEAD_INIT,
+    "atLibTest",   /* name of module */
+    "atLib test module", /* module documentation, may be NULL */
+    -1,       /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+    methods
+  };
+
+  PyMODINIT_FUNC PyInit_atLib()
+  {
+    return PyModule_Create(&modDef);
+  }
+}
+
+void ExampleEmbeddedPython()
+{
+  atPython::AddModule("atLib", atPythonExample::PyInit_atLib);
+  atPython::Init();
+  atPython::Run("import atLib");
+  atPython::Run("atLib.HelloWorld()");
+  atPython::Shutdown();
 }
 
 #include "atBVH.h"
@@ -622,7 +666,7 @@ public:
 
 atGraphics *pGraphics = nullptr;
 
-atScene _LoadMesh(const atString &path)
+atScene _SceneExampleLoadMesh(const atString &path)
 {
   atMesh mesh;
   if (!mesh.Import(path))
@@ -637,6 +681,8 @@ atScene _LoadMesh(const atString &path)
     atVector<atVec3F> pos;
     atVector<atVec2F> tex;
     atVector<atVec3F> nrm;
+    atVector<atVec3F> tngt;
+    atVector<atVec3F> btngt;
     atVector<atVec4F> col;
   };
 
@@ -655,6 +701,8 @@ atScene _LoadMesh(const atString &path)
       m.pos.push_back(mesh.m_positions[v.position]);
       m.nrm.push_back(mesh.m_normals[v.normal]);
       m.tex.push_back(mesh.m_texCoords[v.texCoord]);
+      m.nrm.push_back(mesh.m_tangents[v.tangent]);
+      m.btngt.push_back(mesh.m_bitangent[v.bitanget]);
     }
   }
 
@@ -676,25 +724,20 @@ atScene _LoadMesh(const atString &path)
   return scene;
 }
 
-int main(int argc, char **argv)
+void ExampleSimpleScene()
 {
-  atUnused(argc, argv);
-
-#ifdef RUN_ATTEST
-  atTest();
-#endif
-  
   atWindow window;
+ 
   {
     atGraphics graphics(&window);
     atScene scene;
     int64_t meshID;
     {
-      atScene mesh = _LoadMesh("Assets/Test/models/sponza/sponza.obj");
+      atScene mesh = _SceneExampleLoadMesh("Assets/Test/models/sponza/sponza.obj");
       meshID = scene.Insert(&mesh, atHierarchy_atRootNodeID, true);
     }
 
-    atRenderState rs;  
+    atRenderState rs;
     int64_t t = (int64_t)clock();
     int64_t camID = scene.Add(atSceneNode());
     scene.Get(camID)->AddComponent<atCameraComponent>();
@@ -711,15 +754,15 @@ int main(int argc, char **argv)
       for (const atString &f : window.DroppedFiles())
       {
         scene.Remove(meshID);
-        atScene mesh = _LoadMesh(f);
+        atScene mesh = _SceneExampleLoadMesh(f);
         meshID = scene.Insert(&mesh, atHierarchy_atRootNodeID, true);
       }
-      
+
       // Draw
       rs.SetViewport(atVec4I(0, 0, window.Size()));
       scene.Get(camID)->GetComponent<atCameraComponent>()->SetAspect(window.Size());
 
-      window.Clear(atVec4F{0.3f, 0.3f, 1.0f, 1});
+      window.Clear(atVec4F{ 0.3f, 0.3f, 1.0f, 1 });
 
       scene.Update();
       scene.Render(scene.Get(camID)->GetComponent<atCameraComponent>()->ViewProjMat());
@@ -729,7 +772,16 @@ int main(int argc, char **argv)
 
     scene.Destroy();
   }
+}
 
+int main(int argc, char **argv)
+{
+  atUnused(argc, argv);
+
+#ifdef RUN_ATTEST
+  atTest();
+#endif
+  
   // Uncomment Something!
 
   // Functional
@@ -740,12 +792,14 @@ int main(int argc, char **argv)
   // ExampleSocketUsage();
   // ExampleNetworkStreaming();
   // ExampleImGui();
+  // ExampleEmbeddedPython();
+  // ExampleSimpleScene();
 
   // Not Quite Functional
   
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
-  // ExampeBackPropagation();
+  // ExampleBackPropagation();
   // ExampleRunLua();
   
   system("pause");

@@ -221,7 +221,7 @@ bool atGLPrgm::SetUniform(const atString &name, const void *pData, const atTypeD
   return true;
 }
 
-bool atGLPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset)
+bool atGLPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset, const int64_t &baseVtxOffset)
 {
   atOpenGL *pGL = (atOpenGL*)atGraphics::GetCtx();
   if (!pGL)

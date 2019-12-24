@@ -6,6 +6,8 @@
 class atDXBuffer : public atGFXBufferInterface
 {
 public:
+  atDXBuffer(const atBufferType &type);
+
   template<typename T> atDXBuffer(const T &data, const atBufferType &type = atBT_VertexData);
 
   bool Update() override;

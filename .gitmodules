@@ -1,0 +1,3 @@
+[submodule "projects/atEngine/3rdParty/CTML"]
+	path = projects/atEngine/3rdParty/CTML
+	url = https://github.com/mbatc/CTML.git
