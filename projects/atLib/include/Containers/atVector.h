@@ -71,6 +71,7 @@ public:
 
   void push_back(const atVector<T> &item);
   void push_back(const T &item);
+  void push_back(T &&item);
   void pop_back();
   void pop_front();
   void swap_pop_back(const int64_t index);

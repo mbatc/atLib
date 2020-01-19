@@ -8,7 +8,7 @@ static atDXPrgm *_pBoundProgram = nullptr;
 
 bool atDXPrgm::Bind()
 {
-  if (!Upload() || !BindStages() || (m_pIndices && m_pIndices->Desc().type != atType_Uint16 && m_pIndices->Desc().type != atType_Float32))
+  if (!Upload() || !BindStages() || (m_pIndices && m_pIndices->Desc().type != atType_Uint16 && m_pIndices->Desc().type != atType_Uint32))
     return false;
 
   BindLayout();
@@ -154,7 +154,7 @@ bool atDXPrgm::Delete()
   return true;
 }
 
-bool atDXPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset)
+bool atDXPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset, const int64_t &baseVtxIdx)
 {
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
@@ -178,7 +178,7 @@ bool atDXPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType
   }
 
   if (m_pIndices && indexedMode)
-    pDX->DrawIndexed(elementCount < 0 ? m_pIndices->Count() : elementCount, elementOffset);
+    pDX->DrawIndexed(elementCount < 0 ? m_pIndices->Count() : elementCount, elementOffset, baseVtxIdx);
   else
     pDX->Draw(elementCount < 0 ? m_inputs[0]->Count() : elementCount, elementOffset);
 

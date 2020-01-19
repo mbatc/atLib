@@ -103,8 +103,11 @@ void atString::append(const char *str)
 
 atString atString::substr(const int64_t start, const int64_t end) const
 {
+  if (end >= 0 && end <= start)
+    return "";
+
   atVector<char> subData;
-  subData.assign(m_data.begin() + atMax(0, atMin(start, length())), end < 0 ? m_data.end() : (m_data.begin() + end));
+  subData.assign(m_data.begin() + atMax(0, atMin(start, length())), atClamp(end < 0 ? m_data.end() : (m_data.begin() + end), m_data.begin(), m_data.end()));
   subData.push_back(0);
   return std::move(subData);
 }
@@ -439,9 +442,10 @@ const char& atString::operator[](int64_t index) const { return m_data.at(index);
 atString::operator const char* () const { return c_str(); }
 bool atString::operator==(const char *rhs) const { return compare(rhs); }
 bool atString::operator!=(const char *rhs) const { return !compare(rhs); }
-atString atString::operator=(const atString &str) { return *this = str.c_str(); }
-atString atString::operator=(const char *rhs) { set_string(rhs, strlen(rhs)); return *this; }
-atString atString::operator=(const char rhs) { set_string({ rhs, '\0' }); return *this; }
+const atString& atString::operator=(const atString &str) { return *this = str.c_str(); }
+const atString& atString::operator=(atString &&str) { m_data.swap(str.m_data); return *this; }
+const atString& atString::operator=(const char *rhs) { set_string(rhs, strlen(rhs)); return *this; }
+const atString& atString::operator=(const char rhs) { set_string({ rhs, '\0' }); return *this; }
 atString atString::operator+=(const atString &rhs) { append(rhs);  return *this; }
 atString atString::operator+=(const char *rhs) { append(rhs); return *this; }
 atString atString::operator+=(const char rhs) { append(rhs); return *this; }

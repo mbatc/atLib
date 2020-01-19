@@ -56,7 +56,39 @@ atFilename atFilename::ResolveFullPath(const atFilename &path)
 
 atFilename atFilename::ResolveRelativePath(const atFilename &to, const atFilename &from)
 {
-  return atFilename();
+  int64_t toDriveLoc = AT_INVALID_INDEX;
+  int64_t fromDriveLoc = AT_INVALID_INDEX;
+
+  toDriveLoc = to.Path().find(':');
+  fromDriveLoc = to.Path().find(':');
+
+  if (toDriveLoc != fromDriveLoc)
+    return to;
+
+  // If drives are not the same return 'to' as there is no relative path between them
+  if (to.Path().substr(0, toDriveLoc).compare(from.Path().substr(0, fromDriveLoc), atSCO_None))
+    return to;
+
+  // Get a list of all directories
+  atVector<atString> toDirs = to.Path().split('/');
+  atVector<atString> fromDirs = from.Path().split('/');
+
+  // Remove all matching directories from the start of the path
+  while (toDirs.front().compare(fromDirs.front(), atSCO_None))
+  {
+    toDirs.pop_front();
+    fromDirs.pop_front();
+  }
+
+  // For all remaining directories in 'fromDirs' add a step up. (size() - 1 as the last string will be the filename)
+  atString finalPath;
+  for (int64_t i = 0; i < fromDirs.size() - 1; ++i)
+    finalPath += "../";
+
+  // Add the remaining directories in toDirs to the final path
+  finalPath += atString::join(toDirs, '/');
+
+  return finalPath;
 }
 
 template<> atFilename atFromString<atFilename>(const atString &str)

@@ -15,7 +15,7 @@ public:
   atRenderable(atRenderable &&o);
   atRenderable(const atRenderable &o);
 
-  bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList);
+  bool Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, int64_t count = -1, int64_t offset = 0, int64_t baseVertIdx = 0);
   bool Upload();
 
   void SetProgram(const std::shared_ptr<atGFXPrgmInterface> &pProgram);

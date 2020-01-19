@@ -1,5 +1,10 @@
+dofile "projects/atLib/3rdParty/sqlite3/project.lua"
+  location "3rdParty/sqlite3/"
+
 project "atLib"
 configurations { "Debug", "Release" }
+
+dependson { "sqlite3" }
 
 kind "StaticLib"
 architecture "x64"
@@ -54,6 +59,7 @@ linkoptions { "/ignore:4221" }
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
 
   links { "LuaLib" }
+  links { "sqlite3" }
   links { "opengl32", "glew32" }
   libdirs { "3rdParty/glew/lib/Release/x64/" }
 

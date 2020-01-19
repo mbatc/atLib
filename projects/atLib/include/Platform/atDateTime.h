@@ -46,7 +46,7 @@ public:
   int64_t m_min;
   int64_t m_second;
 
-  int64_t m_time;
+  int64_t to_time_t() const;
 
 protected:
   void Set(const int64_t time);

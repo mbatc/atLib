@@ -87,11 +87,10 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Contains(const K
 template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key &key)
 {
   Bucket &bucket = GetBucket(key);
-  for (KVP &kvp : bucket)
-    if (kvp.m_key == key)
+  for (int64_t i = 0; i < bucket.size(); ++i)
+    if (bucket[i].m_key == key)
     {
-      std::swap(kvp, *(bucket.end() - 1));
-      bucket.pop_back();
+      bucket.swap_pop_back(i);
       --m_size;
       return;
     }

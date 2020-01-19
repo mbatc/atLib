@@ -158,9 +158,9 @@ static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state)
 static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state)
 {
   D3D11_RECT desc;
-  desc.left = 0;
-  desc.top = 0;
-  desc.right = 800;
-  desc.bottom = 600;
+  desc.left = state.scissor.x;
+  desc.top = state.scissor.y;
+  desc.right = state.scissor.x + state.scissor.z;
+  desc.bottom = state.scissor.y + state.scissor.w;
   return desc;
 }

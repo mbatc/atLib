@@ -6,12 +6,16 @@ bool atDXBuffer::Update()
 {
   if (!GFXResource())
     return false;
+
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)GFXResource();
   D3D11_BUFFER_DESC desc;
   pBuffer->GetDesc(&desc);
   if (desc.ByteWidth != Size())
+  {
+    Delete();
     return Upload();
+  }
 
   D3D11_MAPPED_SUBRESOURCE resource;
   pDX->GetContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
@@ -37,14 +41,19 @@ bool atDXBuffer::Upload()
   {
   case atBT_VertexData:
     desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    cpuAccess = D3D11_CPU_ACCESS_WRITE;
+
     break;
   
   case atBT_IndexData:
     desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    cpuAccess = D3D11_CPU_ACCESS_WRITE;
     break;
   
   case atBT_ShaderData:
-    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; 
+    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     desc.Usage = D3D11_USAGE_DYNAMIC;
     cpuAccess = D3D11_CPU_ACCESS_WRITE;
     break;
@@ -73,5 +82,6 @@ bool atDXBuffer::Delete()
     return false;
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_pResource;
   atDirectX::SafeRelease(pBuffer);
+  m_pResource = nullptr;
   return true;
 }

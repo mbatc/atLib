@@ -161,9 +161,10 @@ public:
   bool operator==(const char *rhs) const;
   bool operator!=(const char *rhs) const;
 
-  atString operator=(const atString &str);
-  atString operator=(const char *rhs);
-  atString operator=(const char rhs);
+  const atString& operator=(const atString &str);
+  const atString& operator=(atString &&str);
+  const atString& operator=(const char *rhs);
+  const atString& operator=(const char rhs);
   atString operator+=(const atString &rhs);
   atString operator+=(const char *rhs);
   atString operator+=(const char rhs);
