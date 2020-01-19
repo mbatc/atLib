@@ -30,19 +30,31 @@ atDateTime::atDateTime() { Set(time(nullptr)); }
 atDateTime::atDateTime(const int64_t time) { Set(time); }
 atDateTime::atDateTime(tm *pData) { Set(mktime(pData)); }
 
+int64_t atDateTime::to_time_t() const
+{
+  time_t rawtime;
+  time(&rawtime);
+  tm *pTimeinfo = localtime(&rawtime);
+  pTimeinfo->tm_hour = (int)m_hour;
+  pTimeinfo->tm_min = (int)m_min;
+  pTimeinfo->tm_sec = (int)m_second;
+  pTimeinfo->tm_mday = (int)m_day;
+  pTimeinfo->tm_mon = (int)m_month - 1;
+  pTimeinfo->tm_year = (int)m_year - 1900;
+  return (int64_t)mktime(pTimeinfo);
+}
+
 void atDateTime::Set(const int64_t time)
 {
   time_t myTime = time;
-  tm *pData  = nullptr;
-  localtime_s(pData, &myTime);
-  
-  m_time = time;
-  
-  m_day = pData->tm_mday;
-  m_year = pData->tm_year;
-  m_month = pData->tm_mon;
+  tm data;
+  localtime_s(&data, &myTime);
 
-  m_min = pData->tm_min;
-  m_hour = pData->tm_hour;
-  m_second = pData->tm_sec;
+  m_day = data.tm_mday;
+  m_year = data.tm_year + 1900;
+  m_month = data.tm_mon + 1;
+
+  m_min = data.tm_min;
+  m_hour = data.tm_hour;
+  m_second = data.tm_sec;
 }

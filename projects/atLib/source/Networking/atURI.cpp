@@ -31,13 +31,17 @@ atURI::atURI(const atString &uri)
 
   // Find Fragment
   int64_t fragStart = uri.find_first_of('#', authEnd);
-  if (fragStart < 0) fragStart = uri.length();
-  SetFragment(uri.substr(fragStart + 1, uri.length()));
+  if (fragStart < 0)
+    fragStart = uri.length();
+  else
+    SetFragment(uri.substr(fragStart + 1, uri.length()));
   
   // Find Query
   int64_t queryStart = uri.find_first_of('?', authEnd);
-  if (queryStart < 0) queryStart = uri.length();
-  SetQuery(uri.substr(queryStart + 1, fragStart - 1));
+  if (queryStart < 0)
+    queryStart = uri.length();
+  else
+    SetQuery(uri.substr(queryStart + 1, fragStart - 1));
 
   // Find Path
   SetPath(uri.substr(authEnd, atMin(fragStart, queryStart)));

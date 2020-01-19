@@ -30,60 +30,82 @@
 #include "atImage.h"
 #include "atInput.h"
 #include "atScan.h"
+
+#include "atRenderable.h"
+#include "atDXTexture.h"
+#include "atDXShader.h"
+#include "atDXPrgm.h"
+
+#include <memory>
 #include <time.h>
 
-struct VERTEX_CONSTANT_BUFFER
+static const char* _vertShaderSrc =
+R"(
+
+cbuffer vertexBuffer : register(b0)
 {
-  float   mvp[4][4];
+  float4x4 ProjectionMatrix;
 };
 
-static const char* _vertexShader =
-"cbuffer vertexBuffer : register(b0) \
-            {\
-            float4x4 ProjectionMatrix; \
-            };\
-            struct VS_INPUT\
-            {\
-            float2 pos : POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
-            };\
-            \
-            struct PS_INPUT\
-            {\
-            float4 pos : SV_POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
-            };\
-            \
-            PS_INPUT main(VS_INPUT input)\
-            {\
-            PS_INPUT output;\
-            output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));\
-            output.col = input.col;\
-            output.uv  = input.uv;\
-            return output;\
-            }";
+struct VS_INPUT
+{
+  float2 pos : POSITION;
+  float4 col : COLOR0;
+  float2 uv  : TEXCOORD0;
+};
 
-static const char* _pixelShader =
-"struct PS_INPUT\
-            {\
-            float4 pos : SV_POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
-            };\
-            sampler sampler0;\
-            Texture2D texture0;\
-            \
-            float4 main(PS_INPUT input) : SV_Target\
-            {\
-            float4 out_col = input.col * texture0.Sample(sampler0, input.uv); \
-            return out_col; \
-            }";
+struct PS_INPUT
+{
+  float4 pos : SV_POSITION;
+  float4 col : COLOR0;
+  float2 uv  : TEXCOORD0;
+};
 
-static int64_t _shaderID = AT_INVALID_ID;
-static int64_t _inputLayoutID = AT_INVALID_ID;
-static int64_t _fontSamplerID = AT_INVALID_ID;
+PS_INPUT main(VS_INPUT input)
+{
+  PS_INPUT output;
+  output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));
+  output.col = input.col;
+  output.uv  = input.uv;
+  return output;
+}
+
+)";
+
+static const char* _fragShaderSrc =
+R"(
+
+struct PS_INPUT
+{
+  float4 pos : SV_POSITION;
+  float4 col : COLOR0;
+  float2 uv  : TEXCOORD0;
+};
+
+sampler sampler0;
+Texture2D texture0;
+
+float4 main(PS_INPUT input) : SV_Target
+{
+  float4 out_col = input.col * texture0.Sample(sampler0, input.uv);
+  return out_col;
+}
+
+)";
+
+static std::shared_ptr<atDXPrgm> _prgm;
+static std::shared_ptr<atDXShader> _vertShader;
+static std::shared_ptr<atDXShader> _fragShader;
+
+static std::shared_ptr<atDXSampler> _sampler;
+
+static std::shared_ptr<atDXBuffer> _positions;
+static std::shared_ptr<atDXBuffer> _texCoords;
+static std::shared_ptr<atDXBuffer> _colours;
+static std::shared_ptr<atDXBuffer> _indices;
+
+static atRenderable _ro;
+
 static int64_t _vbSize = AT_INVALID_ID;
 static int64_t _ibSize = AT_INVALID_ID;
 static int64_t _lastTime = -1;
@@ -93,6 +115,12 @@ static bool _initialised = false;
 
 static bool _UpdateMouseCursor(ImGuiMouseCursor imguiCursor)
 {
+  static ImGuiMouseCursor lastCursor = ImGuiMouseCursor_None;
+  if (imguiCursor == lastCursor)
+    return false;
+  lastCursor = imguiCursor;
+
+  printf("cursor: %lld\n", int64_t(imguiCursor));
   ImGuiIO& io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
     return false;
@@ -129,17 +157,23 @@ static bool _Initialise()
 
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
+
   uint8_t *pPixels = nullptr;
-  // int32_t width, height;
-  /*
+  int32_t width, height;
   io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
-  io.Fonts->TexID = (ImTextureID)atHardwareTexture::UploadTexture(atImage(pPixels, atVec2I(width, height), 4));
-  atShaderPool::ReleaseShader(_shaderID);
-  _shaderID = atShaderPool::GetShader(_pixelShader, _vertexShader);
-  atHardwareTexture::DeleteSampler(_fontSamplerID);
-  _fontSamplerID = atHardwareTexture::CreateSampler(21, atTCM_Wrap, atTCM_Wrap, atTCM_Wrap, 0, atComp_Always, { 0,0,0,0 }, 0.0, 0.0);
-  _inputLayoutID = atShaderPool::GetInputLayout(_shaderID, { {"POSITION", atGetTypeDesc<atVec2F>() }, {"TEXCOORD", atGetTypeDesc<atVec2F>() }, {"COLOR", atGetTypeDesc<uint32_t>()} });
-*/
+
+  std::shared_ptr<atDXTexture> *pTex = atNew<std::shared_ptr<atDXTexture>>(std::make_shared<atDXTexture>(atImage((uint8_t*)pPixels, {width, height}, 4)));
+  io.Fonts->TexID = (ImTextureID)pTex;
+
+  _prgm = std::make_shared<atDXPrgm>();
+  _vertShader = std::make_shared<atDXShader>(_vertShaderSrc, atPS_Vertex);
+  _fragShader = std::make_shared<atDXShader>(_fragShaderSrc, atPS_Fragment);
+  _sampler = std::make_shared<atDXSampler>();
+
+  _prgm->SetStage(_vertShader);
+  _prgm->SetStage(_fragShader);
+  _ro.SetProgram(_prgm);
+  _ro.SetSampler("sampler0", _sampler);
 
   if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&_ticksPerSecond))
     return false;
@@ -172,46 +206,55 @@ static bool _Initialise()
 }
 
 static bool _UpdateBuffers(ImDrawData *pDrawData)
-{/*
-  if ((!_pVertexBuffer || _vbSize < pDrawData->TotalVtxCount) && pDrawData->TotalVtxCount > 0)
-  {
-    atGraphics::CreateBuffer(&_pVertexBuffer, nullptr, pDrawData->TotalVtxCount * sizeof(ImDrawVert), D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
-    _vbSize = pDrawData->TotalVtxCount;
-  }
-  if ((!_pVertexBuffer || _vbSize < pDrawData->TotalIdxCount) && pDrawData->TotalIdxCount > 0)
-  {
-    atGraphics::CreateBuffer(&_pIndexBuffer, nullptr, pDrawData->TotalIdxCount * sizeof(ImDrawIdx), D3D11_BIND_INDEX_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
-    _ibSize = pDrawData->TotalIdxCount;
-  }
+{
+  static atVector<atVec4F> colours;
+  static atVector<atVec2F> positions;
+  static atVector<atVec2F> texcoords;
+  static atVector<uint32_t> indices;
 
-  if (!_pVertexBuffer || !_pIndexBuffer)
-    return false;
+  indices.clear(); indices.resize(pDrawData->TotalIdxCount);
+  colours.clear(); colours.resize(pDrawData->TotalVtxCount);
+  positions.clear(); positions.resize(pDrawData->TotalVtxCount);
+  texcoords.clear(); texcoords.resize(pDrawData->TotalVtxCount);
 
-  D3D11_MAPPED_SUBRESOURCE vtxResource, idxResource;
-  if (FAILED(atDirectX::GetContext()->Map(_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vtxResource)))
-    return false;
-  if (FAILED(atDirectX::GetContext()->Map(_pIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &idxResource)))
-    return false;
+  int64_t idxOffset = 0;
+  int64_t vtxOffset = 0;
 
-  ImDrawVert *pVtxDst = (ImDrawVert*)vtxResource.pData;
-  ImDrawIdx *pIdxDst = (ImDrawIdx*)idxResource.pData;
   for (int64_t i = 0; i < pDrawData->CmdListsCount; ++i)
   {
     const ImDrawList* pCmdList = pDrawData->CmdLists[i];
-    memcpy(pVtxDst, pCmdList->VtxBuffer.Data, pCmdList->VtxBuffer.Size * sizeof(ImDrawVert));
-    memcpy(pIdxDst, pCmdList->IdxBuffer.Data, pCmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
-    pVtxDst += pCmdList->VtxBuffer.Size;
-    pIdxDst += pCmdList->IdxBuffer.Size;
+
+    for (int64_t v = 0; v < pCmdList->VtxBuffer.Size; ++v)
+    {
+      memcpy(positions.data() + vtxOffset + v, (uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->pos, sizeof(ImDrawVert::pos));
+      memcpy(texcoords.data() + vtxOffset + v, (uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->uv, sizeof(ImDrawVert::uv));
+      colours.data()[vtxOffset + v] = atColor::UnPack<float>(*(uint32_t*)((uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->col));
+    }
+
+    memcpy(indices.data() + idxOffset, pCmdList->IdxBuffer.Data, pCmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+    idxOffset += pCmdList->IdxBuffer.Size;
+    vtxOffset += pCmdList->VtxBuffer.Size;
   }
-  atDirectX::GetContext()->Unmap(_pVertexBuffer, 0);
-  atDirectX::GetContext()->Unmap(_pIndexBuffer, 0);
 
   {
     float L = pDrawData->DisplayPos.x;
     float T = pDrawData->DisplayPos.y;
     atMat4F ortho = atMatrixOrtho(L, L + pDrawData->DisplaySize.x, T, T + pDrawData->DisplaySize.y, -0.5f, 0.5f);
-    atShaderPool::SetVariable(_shaderID, "ProjectionMatrix", &ortho.m, sizeof(ortho.m));
-  }*/
+    _ro.SetUniform("ProjectionMatrix", ortho);
+  }
+
+  if (!_positions) _positions = std::make_shared<atDXBuffer>(positions, atBT_VertexData);
+  else             _positions->Set(positions);
+
+  if (!_texCoords) _texCoords = std::make_shared<atDXBuffer>(texcoords, atBT_VertexData);
+  else             _texCoords->Set(texcoords);
+
+  if (!_colours) _colours = std::make_shared<atDXBuffer>(colours, atBT_VertexData);
+  else           _colours->Set(colours);
+
+  if (!_indices) _indices = std::make_shared<atDXBuffer>(indices, atBT_IndexData);
+  else           _indices->Set(indices);
+
   return true;
 }
 
@@ -220,7 +263,9 @@ bool atImGui::BeginFrame(atWindow *pWnd)
   _Initialise();
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize = pWnd->Size();
+
   io.MousePos = atInput::MousePos();
+  ImGui::GetPlatformIO().MainViewport->Size = io.DisplaySize;
 
   int64_t curTime;
   QueryPerformanceCounter((LARGE_INTEGER*)&curTime);
@@ -250,13 +295,14 @@ bool atImGui::Render()
   rs.SetStencilEnabled(false);
   rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y));
 
+  _ro.SetAttribute("POSITION", _positions);
+  _ro.SetAttribute("TEXCOORD", _texCoords);
+  _ro.SetAttribute("COLOR", _colours);
+  _ro.SetAttribute("indices", _indices);
+
   unsigned int stride = sizeof(ImDrawVert);
   unsigned int offset = 0;
- /* atDirectX::GetContext()->IASetVertexBuffers(0, 1, &_pVertexBuffer, &stride, &offset);
-  atDirectX::GetContext()->IASetIndexBuffer(_pIndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
-  atDirectX::GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  atGraphics::BindShaderResource(atST_Pixel, atSRT_Sampler, 0, atHardwareTexture::GetSampler(_fontSamplerID));
-*/
+
   int vtxOffset = 0;
   int idxOffset = 0;
   ImVec2 pos = pDrawData->DisplayPos;
@@ -267,16 +313,20 @@ bool atImGui::Render()
     {
       const ImDrawCmd* pCmd = &pCmdList->CmdBuffer[(int)cmdIndex];
       if (pCmd->UserCallback)
+      {
         pCmd->UserCallback(pCmdList, pCmd);
+      }
       else
       {
         // Apply scissor/clipping rectangle
-        rs.SetScissor({ (LONG)(pCmd->ClipRect.x - pos.x), (LONG)(pCmd->ClipRect.y - pos.y), (LONG)(pCmd->ClipRect.z - pos.x), (LONG)(pCmd->ClipRect.w - pos.y) });
+        rs.SetScissor(atVec4I{ (LONG)(pCmd->ClipRect.x - pos.x), (LONG)(pCmd->ClipRect.y - pos.y), (LONG)(pCmd->ClipRect.z - pCmd->ClipRect.x), (LONG)(pCmd->ClipRect.w - pCmd->ClipRect.y) });
 
-        // Bind texture, Draw;
-        /*atGraphics::BindShaderResource(atST_Pixel, atSRT_Texture, 0, atHardwareTexture::GetTexture((int64_t)pCmd->TextureId));
-        atDirectX::DrawIndexed(pCmd->ElemCount, idxOffset, vtxOffset);*/
+        // Bind texture, Draw
+        _ro.SetTexture("texture0", *(std::shared_ptr<atDXTexture>*)pCmd->TextureId);
+
+        _ro.Draw(true, atGFX_PT_TriangleList, pCmd->ElemCount, idxOffset, vtxOffset);
       }
+
       idxOffset += pCmd->ElemCount;
     }
     vtxOffset += pCmdList->VtxBuffer.Size;
@@ -290,6 +340,7 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return false;
 
   ImGuiIO &io = ImGui::GetIO();
+
   switch (msg)
   {
   case WM_SYSKEYDOWN: case WM_KEYDOWN: io.KeysDown[wParam] = true; break;
@@ -308,10 +359,12 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     break;
   default: return false;
   }
+
   io.KeyAlt = io.KeysDown[atKC_LAlt] | io.KeysDown[atKC_RAlt];
   io.KeyCtrl = io.KeysDown[atKC_LControl] | io.KeysDown[atKC_RControl];
   io.KeyShift = io.KeysDown[atKC_LShift] | io.KeysDown[atKC_RShift];
   io.KeySuper = false;
+
   return io.WantCaptureKeyboard || io.WantCaptureMouse;
 }
 
@@ -328,7 +381,6 @@ bool atImGui::Begin(const char *name, const atVec2D &size, const atVec2D &pos)
   ImGui::SetNextWindowPos(pos);
   return Begin(name, size);
 }
-
 
 bool atImGui::Button(const char *label, const atVec2D &size, const atVec2D &pos)
 {

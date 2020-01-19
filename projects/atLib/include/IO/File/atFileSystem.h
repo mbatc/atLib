@@ -32,8 +32,21 @@ class atFileSystem
 {
 public:
   atFileSystem();
-  
+
   static bool CreateFolders(const atString &path);
+
+  static atFilename GetDirectory_AppData();
+  static atFilename GetDirectory_AppData_Local();
+  static atFilename GetDirectory_Windows();
+  static atFilename GetDirectory_Desktop();
+  static atFilename GetDirectory_Documents();
+  static atFilename GetDirectory_Fonts();
+  static atFilename GetDirectory_History();
+  static atFilename GetDirectory_Recents();
+  static atFilename GetDirectory_StartMenu();
+  static atFilename GetDirectory_ProgramFiles();
+  static atFilename GetDirectory_ProgramFiles86();
+
 };
 
 #endif // atFileSystem_h__

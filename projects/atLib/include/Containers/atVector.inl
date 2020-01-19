@@ -73,9 +73,20 @@ inline void atVector<T>::insert(const int64_t index, vector_const_iterator start
     return;
 
   int64_t startIndex = m_size;
-  grow_reserve(m_size + (end - start));
-  for (int64_t i = 0; start + i < end; i++)
-    emplace_back(*(start + i));
+  int64_t count = end - start;
+  grow_reserve(m_size + count);
+
+  if (std::is_integral<T>::value)
+  {
+    memcpy(m_pData + m_size, start, sizeof(T) * count);
+    m_size += count;
+  }
+  else
+  {
+    for (int64_t i = 0; start + i < end; i++)
+      emplace_back(*(start + i));
+  }
+
   move_to_index(startIndex, index, end - start);
 }
 
@@ -101,7 +112,7 @@ template<typename T>
 template<typename... Args>
 inline void atVector<T>::emplace(const int64_t index, Args... args)
 {
-  emplace_back(index, std::forward<Args>(args)...);
+  emplace_back(std::forward<Args>(args)...);
   move_item(size() - 1, index);
 }
 
@@ -363,6 +374,7 @@ template<typename T> T& atVector<T>::back() { return at(m_size - 1); }
 template<typename T> T& atVector<T>::front() { return at(0); }
 template<typename T> void atVector<T>::push_back(const atVector<T> &item) { for (const T &i : item) push_back(i); }
 template<typename T> void atVector<T>::push_back(const T &item) { emplace_back(item); }
+template<typename T> void atVector<T>::push_back(T &&item) { emplace_back(std::move(item)); }
 template<typename T> void atVector<T>::pop_back() { shrink_by(1); }
 template<typename T> void atVector<T>::pop_front() { erase(0); }
 template<typename T> void atVector<T>::swap_pop_back(const int64_t index) { std::swap(at(index), back()); pop_back(); }

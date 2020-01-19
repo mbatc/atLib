@@ -25,6 +25,7 @@
 
 #include "atFileSystem.h"
 #include <direct.h>
+#include <shlobj.h>
 
 static bool _CreateFoldersRecursive(const atString &done, const atString &remaining)
 {
@@ -38,5 +39,24 @@ static bool _CreateFoldersRecursive(const atString &done, const atString &remain
   return nextSlash != -1 ? _CreateFoldersRecursive(done + nextFolder + "/", remaining.substr(nextSlash + 1, -1)) : true;
 }
 
+static atFilename _GetSystemPath(const int &folderID)
+{
+  char buffer[MAX_PATH] = { 0 };
+  SHGetSpecialFolderPathA(0, buffer, folderID, false);
+  return buffer;
+}
+
 atFileSystem::atFileSystem() {}
 bool atFileSystem::CreateFolders(const atString &path) { return _CreateFoldersRecursive("", atFilename(path).Path()); }
+
+atFilename atFileSystem::GetDirectory_AppData() { return _GetSystemPath(CSIDL_APPDATA); }
+atFilename atFileSystem::GetDirectory_AppData_Local() { return _GetSystemPath(CSIDL_LOCAL_APPDATA); }
+atFilename atFileSystem::GetDirectory_Windows() { return _GetSystemPath(CSIDL_WINDOWS); }
+atFilename atFileSystem::GetDirectory_Desktop() { return _GetSystemPath(CSIDL_DESKTOP); }
+atFilename atFileSystem::GetDirectory_Documents() { return _GetSystemPath(CSIDL_MYDOCUMENTS); }
+atFilename atFileSystem::GetDirectory_Fonts() { return _GetSystemPath(CSIDL_FONTS); }
+atFilename atFileSystem::GetDirectory_History() { return _GetSystemPath(CSIDL_HISTORY); }
+atFilename atFileSystem::GetDirectory_Recents() { return _GetSystemPath(CSIDL_RECENT); }
+atFilename atFileSystem::GetDirectory_StartMenu() { return _GetSystemPath(CSIDL_STARTMENU); }
+atFilename atFileSystem::GetDirectory_ProgramFiles() { return _GetSystemPath(CSIDL_PROGRAM_FILES); }
+atFilename atFileSystem::GetDirectory_ProgramFiles86() { return _GetSystemPath(CSIDL_PROGRAM_FILESX86); }

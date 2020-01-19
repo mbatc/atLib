@@ -28,7 +28,7 @@ atRenderable::atRenderable(const atRenderable &o)
   , m_uniforms(o.m_uniforms)
 {}
 
-bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType)
+bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &primType, int64_t count, int64_t offset, int64_t baseVertIdx)
 {
   if (!Upload())
     return false;
@@ -38,14 +38,19 @@ bool atRenderable::Draw(const bool &drawIndexed, const atGFX_PrimitiveType &prim
 
   for (auto &uniform : m_uniforms)
     m_pPrgm->SetUniform(uniform.m_key, uniform.m_val.data.data(), uniform.m_val.desc);
+
   for (auto &attribute : m_attributes)
-    m_pPrgm->BindAttribute(attribute.m_key, attribute.m_val.get());
+    if (attribute.m_val.get()->Type() == atBT_VertexData)
+      m_pPrgm->BindAttribute(attribute.m_key, attribute.m_val.get());
+    else
+      m_pPrgm->BindIndices(attribute.m_val.get());
+
   for (auto &texture : m_textures)
     m_pPrgm->BindTexture(texture.m_key, texture.m_val.get());
   for (auto &sampler : m_samplers)
     m_pPrgm->BindSampler(sampler.m_key, sampler.m_val.get());
 
-  return m_pPrgm->Draw(drawIndexed, primType);
+  return m_pPrgm->Draw(drawIndexed, primType, count, offset, baseVertIdx);
 }
 
 bool atRenderable::Upload()

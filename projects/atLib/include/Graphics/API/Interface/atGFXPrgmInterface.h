@@ -33,7 +33,7 @@ public:
   virtual bool SetUniform(const atString &name, const void *pData, const atTypeDesc &info) { return false; }
   virtual bool HasUniform(const atString &name) { return false; }
 
-  virtual bool Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0) { return false; }
+  virtual bool Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0, const int64_t &baseVtxIdx = 0) { return false; }
 
   template<typename T> bool SetUniform(const atString &name, const T &value);
   template<typename T> bool SetUniform(const atString &name, const atVector<T> &value);
