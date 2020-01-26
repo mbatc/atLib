@@ -106,12 +106,12 @@ public:
 private:
   void* m_pUserData;
   
-  int64_t m_nextSleepTime;
-  bool m_shouldPause;
-  bool m_shouldStop;
-  bool m_isPaused;
-  bool m_isRunning;
-  bool m_isSleeping;
+  volatile int64_t m_nextSleepTime;
+  volatile bool m_shouldPause;
+  volatile bool m_shouldStop;
+  volatile bool m_isPaused;
+  volatile bool m_isRunning;
+  volatile bool m_isSleeping;
 
   int64_t m_threadID;
 

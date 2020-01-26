@@ -31,11 +31,13 @@ static bool _CreateFoldersRecursive(const atString &done, const atString &remain
 {
   if (remaining.length() == 0)
     return true;
-  int64_t nextSlash = remaining.find_first_of('/');
+
+  int64_t nextSlash = atMax(remaining.find_first_of('/'));
   atString nextFolder = remaining.substr(0, nextSlash);
   int64_t res = _mkdir(done + nextFolder);
-  if (res < 0 && errno != EEXIST) 
+  if (res < 0 && errno != EEXIST && *(nextFolder.end() - 1) != ':')
     return false;
+
   return nextSlash != -1 ? _CreateFoldersRecursive(done + nextFolder + "/", remaining.substr(nextSlash + 1, -1)) : true;
 }
 

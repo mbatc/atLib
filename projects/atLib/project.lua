@@ -31,6 +31,7 @@ flags { "MultiProcessorCompile" }
 
 linkoptions { "/ignore:4006" }
 linkoptions { "/ignore:4221" }
+linkoptions { "/ignore:4075" }
 
 -- Shared Defines
 
@@ -68,6 +69,7 @@ linkoptions { "/ignore:4221" }
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
+	editandcontinue "On"
     libdirs {"3rdParty/lua/Debug/"}
 
 -- Release Configuration Settings
@@ -76,4 +78,5 @@ linkoptions { "/ignore:4221" }
     flags { "LinkTimeOptimization" }
     defines { "NDEBUG" }
     optimize "On"
+	editandcontinue "Off"
     libdirs {"3rdParty/lua/Release/"}

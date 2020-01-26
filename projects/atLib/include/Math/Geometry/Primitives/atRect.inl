@@ -19,7 +19,7 @@ template<typename T> inline atVector2<T> atRect<T>::Dimensions() const { return 
 
 template<typename T> inline bool atRect<T>::Contains(const atRect &rect) { return Contains(rect.m_min) && Contains(rect.m_max); }
 
-template<typename T> inline bool atRect<T>::Contains(const atVector2<T> &point) { return rect.Clamp(m_min, m_max) != rect; }
+template<typename T> inline bool atRect<T>::Contains(const atVector2<T> &point) { return point.Clamp(m_min, m_max) == point; }
 
 template<typename T> inline void atRect<T>::GrowToContain(const atRect<T> &point)
 {

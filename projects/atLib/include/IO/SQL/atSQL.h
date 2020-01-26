@@ -13,6 +13,10 @@ class atSQLResult
   atSQLResult(const atVector<atString> &columns);
 
 public:
+  atSQLResult(const atSQLResult &copy);
+  atSQLResult(atSQLResult &&move);
+  ~atSQLResult();
+
   int64_t AsInt(const int64_t &row, const int64_t &col);
   double AsFloat(const int64_t &row, const int64_t &col);
   atString AsString(const int64_t &row, const int64_t &col);
@@ -41,10 +45,7 @@ public:
   atSQL(const atFilename &file);
   ~atSQL();
 
-  atVector<atKeyValue<atString, atType>> GetTableDescription(const atString &name);
-
-  bool HasTable(const atString &name);
-  void AddTable(const atString &name, const atVector<atKeyValue<atString, atType>> &tableDesc);
+  static bool IsThreadSafe();
 
   atSQLResult Execute(const atString &query);
 

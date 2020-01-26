@@ -288,6 +288,9 @@ bool atScan::Bool(const char *str, int64_t *pLen, int64_t srclen)
   case 't': case 'T':
     res = atString::compare(str, "true", atSCO_None, nextChar - end) && atString::_find_first_of(str + end, atString::Whitespace(), 0, 1) == 0;
     break;
+  case 'f': case 'F':
+    res = false;
+    break;
   default:
     if (atString::_find_first_of(str + nextChar, atString::Numerals(), 0, 1) == 0)
       res = atScan::Int(str + nextChar, pLen, len - nextChar) > 0;
