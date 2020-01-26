@@ -27,6 +27,7 @@
 #define atImGui_h__
 
 #include "../../3rdParty/imgui/imgui.h"
+#include "../../3rdParty/imgui/imgui_internal.h"
 #include "atWindow.h"
 
 // Consider moving towards an object based system for safer functions

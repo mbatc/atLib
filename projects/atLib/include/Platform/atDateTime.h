@@ -26,7 +26,34 @@
 #ifndef atDateTime_h__
 #define atDateTime_h__
 
-#include "atTypes.h"
+#include "atString.h"
+
+enum atDateTimeComponent
+{
+  atDTC_Day,
+  atDTC_Month,
+  atDTC_Year,
+  atDTC_Hour,
+  atDTC_Minute,
+  atDTC_Second,
+  atDTC_Count,
+};
+
+struct atDateTimeFmt
+{
+  atDateTimeFmt()
+  {
+    for (int64_t i = 0; i < atDTC_Count; ++i)
+      compIdx[i] = i % 3;
+  }
+
+  int64_t compIdx[atDTC_Count];
+  bool dateFirst = true;
+  bool base24Time = false;
+  char timeSep = ':';
+  char dateSep = '/';
+  char dateTimeSep = ' ';
+};
 
 class atDateTime
 {
@@ -34,9 +61,19 @@ public:
   // Create a Data Time object with the current time
   atDateTime();
 
+  // Construct a datetime from a string.
+  // Use the 'fmt' parameter to specify the order of date/time components
+  // Note: the only thing used from the 'fmt' struct on read is 'compIdx' and 'dateFirst' for the ordering of each component
+  atDateTime(const atString &datetime, const atDateTimeFmt &fmt = atDateTimeFmt());
+
+  // Construct from individual components
+  atDateTime(const int64_t &day, const int64_t &month, const int64_t &year, const int64_t &hour, const int64_t &min, const int64_t &sec);
+
   // Create a Data Time object representing [time]
   atDateTime(const int64_t time);
   atDateTime(tm *pData);
+
+  bool Parse(const atString &datetime, const atDateTimeFmt &fmt = atDateTimeFmt());
 
   int64_t m_year;
   int64_t m_month;
@@ -47,6 +84,17 @@ public:
   int64_t m_second;
 
   int64_t to_time_t() const;
+
+  atDateTimeFmt m_fmt; // Used when converting to a string
+
+  friend atString atToString(const atDateTime &date);
+
+  bool operator>(const atDateTime &rhs) const;
+  bool operator<(const atDateTime &rhs) const;
+  bool operator>=(const atDateTime &rhs) const;
+  bool operator<=(const atDateTime &rhs) const;
+  bool operator==(const atDateTime &rhs) const;
+  bool operator!=(const atDateTime &rhs) const;
 
 protected:
   void Set(const int64_t time);

@@ -48,7 +48,7 @@ public:
   atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const bool &visible = true, const int64_t style = WS_OVERLAPPEDWINDOW);
   ~atWindow();
 
-  void Clear(const atCol color = 0x000000FF);
+  void Clear(const atCol color = 0xFF000000);
   void Clear(const atVec4F &color);
 
   void Swap();

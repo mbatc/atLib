@@ -135,12 +135,12 @@ template<typename T> inline atVector2<T> atVector2<T>::Reflect(const atVector2<T
 
 template<typename T> inline atVector2<T> atVector2<T>::Max(const atVector2<T> &a, const atVector2<T> &b)
 {
-  return atVector3<T>(atMax(a.x, b.x), atMax(a.y, b.y), atMax(a.z, b.z));
+  return atVector2<T>(atMax(a.x, b.x), atMax(a.y, b.y));
 }
 
 template<typename T> inline atVector2<T> atVector2<T>::Min(const atVector2<T> &a, const atVector2<T> &b)
 {
-  return atVector3<T>(atMin(a.x, b.x), atMin(a.y, b.y), atMin(a.z, b.z));
+  return atVector2<T>(atMin(a.x, b.x), atMin(a.y, b.y));
 }
 
 template<typename T> inline atVector2<T> atVector2<T>::Clamp(const atVector2<T> &vec, const atVector2<T> &min, const atVector2<T> &max)

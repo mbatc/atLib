@@ -120,7 +120,6 @@ static bool _UpdateMouseCursor(ImGuiMouseCursor imguiCursor)
     return false;
   lastCursor = imguiCursor;
 
-  printf("cursor: %lld\n", int64_t(imguiCursor));
   ImGuiIO& io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
     return false;

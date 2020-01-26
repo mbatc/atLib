@@ -59,7 +59,8 @@ atThreadedObject::atThreadedObject(void *pUserData)
 atThreadedObject::~atThreadedObject()
 {
   Stop();
-  while (IsRunning());
+  while (IsRunning())
+    atSleep(1);
   m_thread.join();
 }
 

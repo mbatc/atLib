@@ -1,8 +1,11 @@
 #include "atSQL.h"
+#include "atFileSystem.h"
+  
 #include "../../../3rdParty/sqlite3/include/sqlite3.h"
 
 atSQL::atSQL(const atFilename &file)
 {
+  atFileSystem::CreateFolders(file.Directory());
   atRelAssert(sqlite3_open(file.c_str(), (sqlite3**)&m_pHandle) == SQLITE_OK, ("Failed to open SQL Database " + file.Path()).c_str());
 }
 
@@ -11,6 +14,8 @@ atSQL::~atSQL()
   if (m_pHandle)
     sqlite3_close((sqlite3*)m_pHandle);
 }
+
+bool atSQL::IsThreadSafe() { return sqlite3_threadsafe() != 0; }
 
 atSQLResult atSQL::Execute(const atString &query)
 {
@@ -87,6 +92,31 @@ atSQLResult::atSQLResult(const atVector<atString> &columns)
   : m_nRows(0)
 {
   m_columns = columns;
+}
+
+atSQLResult::atSQLResult(const atSQLResult &copy)
+{
+  m_columns = copy.m_columns;
+  m_nRows = copy.m_nRows;
+  m_values.reserve(copy.m_values.size());
+  for (void *pValue : copy.m_values)
+    m_values.push_back(sqlite3_value_dup((sqlite3_value*)pValue));
+}
+
+atSQLResult::atSQLResult(atSQLResult &&move)
+{
+  m_columns = std::move(move.m_columns);
+  m_values = std::move(move.m_values);
+  m_nRows = move.m_nRows;
+  move.m_values.clear();
+  move.m_columns.clear();
+  move.m_nRows = 0;
+}
+
+atSQLResult::~atSQLResult()
+{
+  for (void *pValue : m_values)
+    sqlite3_value_free((sqlite3_value*)pValue);
 }
 
 int64_t atSQLResult::AsInt(const int64_t &row, const int64_t &col) { return IsValid(row, col) ? sqlite3_value_int64((sqlite3_value*)GetValue(row, col)) : 0; }
