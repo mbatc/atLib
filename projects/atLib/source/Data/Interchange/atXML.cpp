@@ -56,7 +56,7 @@ bool atXML::Parse(const atString &xml)
     }
 
     if (addEnd)
-      strippedXml += seeker.GetString();
+      strippedXml += lastPos;
   }
 
   if (strippedXml.length() == 0)
@@ -67,7 +67,7 @@ bool atXML::Parse(const atString &xml)
     atXML child;
     atString endTag;
     atVector<atString> tags;
-    while (BuildElement(&seeker, &child, &tags, &endTag))
+    while (BuildElement(&seeker, &child, &tags, &endTag) != 0)
       m_children.push_back(std::move(child));
   }
 
@@ -134,7 +134,7 @@ static atString _FormatContent(const atString &text)
   return formatted;
 }
 
-bool atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atString> *pTagStack, atString *pEndTag)
+int64_t atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atString> *pTagStack, atString *pEndTag)
 {
   *pElem = atXML();
 
@@ -144,12 +144,25 @@ bool atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atStrin
     if (pEndTag->length() == 0)
     {
       const char *start = pSeeker->Text();
-      pSeeker->SeekTo('>');
+      if (!pSeeker->SeekTo('>'))
+        return 0;
+
       *pEndTag = atString(start + 2, pSeeker->Text());
       pSeeker->Seek(start - pSeeker->begin(), atSO_Start);
+
+      if (pEndTag->length() > 0)
+      { // Check for an invalid end tag
+        for (int64_t tagIdx = pTagStack->size() - 1; tagIdx >= 0; --tagIdx)
+          if (pTagStack->at(tagIdx) == *pEndTag)
+            return 0;
+
+        *pEndTag = "";
+        pSeeker->SeekTo('>', true); // Seek past this end tag
+        return -1;
+      }
     }
 
-    return false;
+    return 0;
   }
 
   // Find opening tag
@@ -162,11 +175,11 @@ bool atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atStrin
   pSeeker->Seek(1);
   int64_t tagEnd = atString::_find_first_of(pSeeker->Text(), XML_SEPERATOR);
   if (tagEnd > closePos || tagEnd <= 0)
-    return false;
+    return 0;
   pElem->m_tag = atString(pSeeker->Text(), pSeeker->Text() + tagEnd).to_lower();
 
   if (!hasBody)
-    return true;
+    return 1;
 
   // Find attributes
   atVector<atString> attributes;
@@ -207,14 +220,30 @@ bool atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atStrin
   pElem->m_value = _FormatContent(pSeeker->GetString(nextTagPos));
   pSeeker->Seek(nextTagPos);
 
+  if (pElem->m_tag == "br")
+    return 1;
+
   pTagStack->push_back(pElem->m_tag);
 
   int64_t tagID = pTagStack->size();
 
   atXML child;
-  while (BuildElement(pSeeker, &child, pTagStack, pEndTag))
+  while (true)
   {
+    int64_t result = BuildElement(pSeeker, &child, pTagStack, pEndTag);
+    if (result == 0) // Finished parsing this element
+      break;
+
+    if (result == -1) // Error parsing this element
+      continue;
+
     pElem->m_children.push_back(std::move(child));
+
+    if (result == 2) // child did not have an end tag so move children
+    {
+      atVector<atXML> temp = std::move(pElem->m_children.back().m_children);
+      pElem->m_children.push_back(std::move(temp));
+    }
 
     // Find any content after this child
     int64_t nextTagPos = atString::_find_first_of(pSeeker->Text(), '<');
@@ -226,65 +255,17 @@ bool atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atStrin
     pSeeker->Seek(nextTagPos);
   }
 
-  pTagStack->pop_back();
+  bool hasEndTag = false;
   if (pEndTag->length() && pElem->m_tag.compare(*pEndTag, atSCO_None))
   {
     *pEndTag = "";
     pSeeker->SeekTo('>', true);
+    hasEndTag = true;
   }
 
-  return true;
-  // *pElem = atXML();
-  // 
-  // atVector<atString> attributes;
-  // atVector<atString> attrValues;
-  // atString body;
-  // 
-  // pElem->m_tag = _ParseTag(pSeeker, &attributes, &attrValues, &body);
-  // if (pElem->m_tag.length() == 0)
-  //   return false;
-  // 
-  // for (int64_t attrIdx = 0; attrIdx < (int64_t)attributes.size(); ++attrIdx)
-  //   pElem->SetAttributeValue(attributes[attrIdx], attrValues[attrIdx]);
-  // 
-  // if (pElem->GetAttributeValue("id") == "logo")
-  //   int i = 0;
-  // 
-  // atStringSeeker bodySeeker(body);
-  // 
-  // // Get Content before nested tag or before the end of tag
-  // int64_t nextTag = atString::_find(bodySeeker.Text(), '<');
-  // 
-  // if (nextTag < 0)
-  //   nextTag = body.length();
-  // 
-  // if (nextTag > 0)
-  // {
-  //   pElem->m_value = _FormatContent(bodySeeker.GetString(nextTag));
-  //   bodySeeker.Seek(nextTag);
-  // }
-  // 
-  // atXML child;
-  // while (BuildElement(&bodySeeker, &child))
-  // {
-  //   pElem->m_children.push_back(std::move(child));
-  //   nextTag = atString::_find(bodySeeker.Text(), '<');
-  // 
-  //   // Get content after nested tag
-  //   if (nextTag < 0)
-  //     nextTag = bodySeeker.Length();
-  // 
-  //   if (nextTag > 0)
-  //   {
-  //     atString newValue = _FormatContent(bodySeeker.GetString(nextTag));
-  //     bodySeeker.Seek(nextTag);
-  //     if (pElem->m_value.length() && *pElem->m_value.end() != '\n')
-  //       pElem->m_value += "\n";
-  //     pElem->m_value += newValue;
-  //   }
-  // }
-  // 
-  // return true;
+  pTagStack->pop_back();
+
+  return hasEndTag ? 1 : 2;
 }
 
 atString atToString(const atXML &xml)

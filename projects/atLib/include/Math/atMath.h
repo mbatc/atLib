@@ -49,7 +49,7 @@
 #define atDegs2Radsf(x) ((float)x * 0.017453292519943295769f)
 #define atRads2Degsf(x) ((float)x * 57.29577951308232087679f)
 
-#define atArraySize(val) (sizeof(val) / sizeof(decltype(val)))
+#define atArraySize(val) (sizeof(val) / sizeof(decltype(*val)))
 
 typedef atVector2<int32_t> atVec2I;
 typedef atVector3<int32_t> atVec3I;

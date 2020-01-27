@@ -45,7 +45,7 @@ public:
   friend atString atToString(const atXML &xml);
 
 protected:
-  static bool BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atString> *pTagStack, atString *pEndTag);
+  static int64_t BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atString> *pTagStack, atString *pEndTag);
 
   atString m_tag;
   atString m_value;

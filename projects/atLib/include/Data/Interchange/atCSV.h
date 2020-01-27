@@ -28,7 +28,7 @@ public:
   void SetValue(const atString &value, const int64_t &row, const int64_t &col);
 
   // Template version of SetValue() for convenience. An atToString() must exist for type 'T'
-  template<typename T> bool SetValue(const T &val, const int64_t &row, const int64_t &col);
+  template<typename T> void SetValue(const T &val, const int64_t &row, const int64_t &col);
 
   // Add value will fail if the cell already exists
   bool AddValue(const atString &value, const int64_t &row, const int64_t &col);
@@ -48,7 +48,7 @@ protected:
   atVector<atVector<atString>> m_cells;
 };
 
-template<typename T> bool atCSV::SetValue(const T &val, const int64_t &row, const int64_t &col) { return SetValue(atToString(val), row, col); }
+template<typename T> void atCSV::SetValue(const T &val, const int64_t &row, const int64_t &col) { SetValue(atToString(val), row, col); }
 template<typename T> bool atCSV::AddValue(const T &val, const int64_t &row, const int64_t &col) { return AddValue(atToString(val), row, col); }
 
 #endif // atCSV_h__
