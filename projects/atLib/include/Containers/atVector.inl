@@ -373,6 +373,7 @@ template<typename T> T* atVector<T>::data() { return m_pData; }
 template<typename T> T& atVector<T>::back() { return at(m_size - 1); }
 template<typename T> T& atVector<T>::front() { return at(0); }
 template<typename T> void atVector<T>::push_back(const atVector<T> &item) { for (const T &i : item) push_back(i); }
+template<typename T> void atVector<T>::push_back(atVector<T> &&item) { for (T &i : item) push_back(std::move(i)); }
 template<typename T> void atVector<T>::push_back(const T &item) { emplace_back(item); }
 template<typename T> void atVector<T>::push_back(T &&item) { emplace_back(std::move(item)); }
 template<typename T> void atVector<T>::pop_back() { shrink_by(1); }

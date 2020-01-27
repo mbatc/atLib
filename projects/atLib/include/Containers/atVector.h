@@ -70,6 +70,7 @@ public:
   T* take_data();
 
   void push_back(const atVector<T> &item);
+  void push_back(atVector<T> &&item);
   void push_back(const T &item);
   void push_back(T &&item);
   void pop_back();
