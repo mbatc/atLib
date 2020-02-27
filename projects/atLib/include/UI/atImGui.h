@@ -43,6 +43,8 @@ public:
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+  static void ApplyDefaultStyle();
+
   static bool WantMouseInput();
   static bool WantKeyboardInput();
 

@@ -97,8 +97,8 @@ protected:
   atFileInfo m_info;
 };
 
-template<typename T> int64_t atFile::Read(T *pData, const int64_t count) { return atStreamRead(this, pData, count); }
-template<typename T> int64_t atFile::Write(const T *pData, const int64_t count) { return atStreamWrite(this, pData, count); }
+template<typename T> int64_t atFile::Read(T *pData, const int64_t count) { return atStreamRead(this, (T*)pData, count); }
+template<typename T> int64_t atFile::Write(const T *pData, const int64_t count) { return atStreamWrite(this, (const T *)pData, count); }
 template<typename T> int64_t atFile::Write(const T &data) { return Write(&data, 1); }
 
 #endif

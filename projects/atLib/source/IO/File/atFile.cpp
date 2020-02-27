@@ -95,9 +95,9 @@ int64_t atFile::Write(const void *pData, const int64_t len)
 {
   if (!IsOpen())
     return 0;
-  int64_t bytesWritten = fwrite(pData, len, 1, m_pFile);
+  int64_t bytesWritten = fwrite(pData, (size_t)len, (size_t)1, m_pFile);
   m_pos += bytesWritten;
-  return bytesWritten;
+  return bytesWritten * len;
 }
 
 atString atFile::ReadText()

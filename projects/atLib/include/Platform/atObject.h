@@ -90,6 +90,8 @@ public:
   template<typename T>
   const T& GetMember(const atString &name) const;
 
+  atVector<atString> GetMemberNames() const;
+
 protected:
   std::type_index m_typeInfo;
   atVector<uint8_t> m_data;

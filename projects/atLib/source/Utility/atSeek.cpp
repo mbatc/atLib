@@ -15,6 +15,19 @@ static inline bool _Seek(const char **ppText, const int64_t &dist)
 bool atSeek::SeekTo(const char **ppText, const char target, const bool &positionAtEnd) { return _Seek(ppText, atString::_find(*ppText, target, 0) + (positionAtEnd ? 1 : 0)); }
 bool atSeek::SeekTo(const char **ppText, const char *target, const bool &positionAtEnd) { return _Seek(ppText, atString::_find(*ppText, target, 0) + (positionAtEnd ? strlen(target) : 0)); }
 bool atSeek::SeekToSet(const char **ppText, const char *charList) { return _Seek(ppText, atString::_find_first_of(*ppText, charList)); }
+
+bool atSeek::SeekToRange(const char **ppText, const char low, const char high)
+{
+  while ((**ppText < low || **ppText > high) && **ppText != 0) ++(*ppText);
+  return **ppText != 0;
+}
+
+bool atSeek::SkipRange(const char **ppText, const char low, const char high)
+{
+  while ((**ppText >= low && **ppText <= high) && **ppText != 0) ++(*ppText);
+  return **ppText != 0;
+}
+
 bool atSeek::Skip(const char **ppText, const char c) { return _Seek(ppText, atString::_find_first_not(*ppText, c)); }
 bool atSeek::Skip(const char **ppText, const char *charList) { return _Seek(ppText, atString::_find_first_not(*ppText, charList)); }
 bool atSeek::SkipWhitespace(const char **ppText) { return _Seek(ppText, atString::_find_first_not(*ppText, atString::Whitespace())); }
@@ -23,11 +36,13 @@ bool atSeek::SeekToWhitespace(const char **ppText) { return _Seek(ppText, atStri
 atStringSeeker::atStringSeeker(const atString &text)
 {
   m_text = text;
-  m_pText = m_text.c_str();
+  m_pText = m_pLast = m_pLastLast = m_text.c_str();
 }
 
 bool atStringSeeker::Seek(int64_t pos, const atSeekOrigin &origin)
 {
+  m_pLastLast = m_pText;
+
   switch (origin)
   {
   case atSO_Current:
@@ -45,11 +60,13 @@ bool atStringSeeker::Seek(int64_t pos, const atSeekOrigin &origin)
 
   bool result = m_pText < m_text.begin() || m_pText > m_text.end();
   m_pText = atClamp(m_pText, m_text.begin(), m_text.end());
+  m_pLast = m_pText;
   return result;
 }
 
 int64_t atStringSeeker::Length() const { return m_text.length(); }
 const char* atStringSeeker::Text() const { return m_pText; }
+const char* atStringSeeker::LastText() const { return m_pLastLast; }
 const char* atStringSeeker::begin() const { return m_text.begin(); }
 const char* atStringSeeker::end() const { return m_text.end(); }
 
@@ -65,6 +82,8 @@ char atStringSeeker::Char() const { return *Text(); }
 bool atStringSeeker::SeekTo(const char target, const bool &positionAtEnd) { return DoSeek(atSeek::SeekTo(&m_pText, target, positionAtEnd)); }
 bool atStringSeeker::SeekTo(const char *target, const bool &positionAtEnd) { return DoSeek(atSeek::SeekTo(&m_pText, target, positionAtEnd)); }
 bool atStringSeeker::SeekToSet(const char *charList) { return DoSeek(atSeek::SeekToSet(&m_pText, charList)); }
+bool atStringSeeker::SeekToRange(const char low, const char high) { return DoSeek(atSeek::SeekToRange(&m_pText, low, high)); }
+bool atStringSeeker::SkipRange(const char low, const char high) { return DoSeek(atSeek::SkipRange(&m_pText, low, high)); }
 bool atStringSeeker::Skip(const char c) { return DoSeek(atSeek::Skip(&m_pText, c)); }
 
 bool atStringSeeker::Skip(const char *charList) { return DoSeek(atSeek::Skip(&m_pText, charList)); }
@@ -73,6 +92,8 @@ bool atStringSeeker::SeekToWhitespace() { return DoSeek(atSeek::SeekToWhitespace
 
 bool atStringSeeker::DoSeek(const bool &success)
 {
+  m_pLastLast = m_pLast;
+  m_pLast = m_pText;
   if (success)
     return true;
 
