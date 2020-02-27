@@ -116,3 +116,5 @@ const atObject& atObject::operator[](const atString &name) const
 {
   return GetMember(name);
 }
+
+atVector<atString> atObject::GetMemberNames() const { return m_members.GetKeys(); }

@@ -17,6 +17,12 @@ public:
   // Seek to the next character that is contained in 'charList'  
   static bool SeekToSet(const char **ppText, const char *charList);
 
+  // Seek to the next character that has a value between 'low' and 'high' inclusively
+  static bool SeekToRange(const char **ppText, const char low, const char high);
+
+  // Seek to the next character that does not have a value between 'low' and 'high' inclusively
+  static bool SkipRange(const char **ppText, const char low, const char high);
+
   // Seek to the next character that does not equal 'c'
   static bool Skip(const char **ppText, const char c);
 
@@ -47,6 +53,7 @@ public:
 
   // Get the current text pointed to
   const char* Text() const;
+  const char* LastText() const;
   const char* begin() const;
   const char* end() const;
 
@@ -61,6 +68,12 @@ public:
 
   // Seek to the next character that is contained in 'charList'  
   bool SeekToSet(const char *charList);
+
+  // Seek to the next character that has a value between 'low' and 'high' inclusively
+  bool SeekToRange(const char low, const char high);
+
+  // Seek to the next character that does not have a value between 'low' and 'high' inclusively
+  bool SkipRange(const char low, const char high);
 
   // Seek to the next character that does not equal 'c'
   bool Skip(const char c);
@@ -78,6 +91,8 @@ protected:
   bool DoSeek(const bool &success);
   atString m_text;
   const char *m_pText;
+  const char *m_pLast;
+  const char *m_pLastLast;
 };
 
 #endif // atSeek_h__
