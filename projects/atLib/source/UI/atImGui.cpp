@@ -179,11 +179,11 @@ static bool _Initialise()
   if (!::QueryPerformanceCounter((LARGE_INTEGER *)&_lastTime))
     return false;
 
-  // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   // io.ConfigViewportsNoAutoMerge = true;
   // io.ConfigViewportsNoTaskBarIcon = false;
-  // io.ConfigDockingTabBarOnSingleWindows = true;
-  // io.ConfigDockingTransparentPayload = true;
+  io.ConfigDockingTabBarOnSingleWindows = true;
+  io.ConfigDockingTransparentPayload = true;
 
   io.KeyMap[ImGuiKey_Tab] = atKC_Tab;
   io.KeyMap[ImGuiKey_LeftArrow] = atKC_Left;

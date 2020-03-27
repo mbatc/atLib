@@ -44,9 +44,15 @@ bool _mouseSet = false;
 
 static void _UpdateMouse()
 {
-  _lastMousePos = _mousePos;
-  _mouseVel = 0;
-  _mouseScroll = 0;
+  POINT p;
+  GetCursorPos(&p);
+  HWND hWnd = GetFocus();
+  if (atWinAPI::GetWindow(hWnd))
+  {
+    RECT rect;
+    GetWindowRect(hWnd, &rect);
+    atInput::OnMouseMove({ p.x - rect.left, p.y - rect.top }, _dt);
+  }
 }
 
 static void _UpdateButtons()

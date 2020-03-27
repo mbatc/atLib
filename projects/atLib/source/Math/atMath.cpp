@@ -57,3 +57,5 @@ template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>() { return atTypeDesc(a
 
 template<> inline float atMod(const float &a, const float &b) { return fmodf(a, b); }
 template<> inline double atMod(const double &a, const double &b) { return fmodl(a, b); }
+
+int64_t atFactorial(const int64_t &n) { return n <= 1 ? 1 : n * atFactorial(n - 1); }

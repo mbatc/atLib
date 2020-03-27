@@ -29,6 +29,26 @@
 #include "atWinAPI.h"
 #include "atMath.h"
 
+// enum atWindowStyle
+// {
+//   atWS_Popup,
+//   atWS_Overlapped,
+//   atWS_Caption,
+//   atWS_Minimize,
+//   atWS_Maximize,
+//   atWS_Visible,
+//   atWS_Child,
+//   atWS_ClipChildren,
+//   atWS_ClipSiblings,
+//   atWS_Disabled,
+//   atWS_DialogFrame,
+//   atWS_Group,
+//   atWS_Scroll,
+//   atWS_Iconic,
+//   atWS_MaximizeBox,
+//   atWS_MinimizeBox,
+// };
+
 class atGraphics;
 class atRenderState;
 class atWin32Window;
@@ -59,6 +79,9 @@ public:
   void SetStyle(const int64_t style);
   void SetWindowed(const bool windowed);
   void SetVisible(const bool &visible);
+  void Maximize();
+  void Minimize();
+  void Restore();
 
   const atVec2I& Size() const;
   const int32_t& Width() const;
@@ -68,6 +91,9 @@ public:
   const int32_t& GetX() const;
   const int32_t& GetY() const;
 
+  bool IsMaximized() const;
+  bool IsMinimized() const;
+  bool IsRestored() const;
   bool IsWindowed() const;
   bool IsVisible() const;
   void SetMenu(HMENU hMenu);
@@ -95,6 +121,8 @@ protected:
   const atVector<atCol>& PixelsV();
   bool m_windowed = true;
   bool m_visible = true;
+  bool m_maximized = false;
+  bool m_minimized = false;
   
   atString m_title = "Main Window";
 
