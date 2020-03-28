@@ -101,7 +101,7 @@ public:
   // Overload this function to specify the time for the thread to sleep
   // when OC_Sleep is returned from Process()
   // Default is 0 (resulting in a Yield)
-  virtual int64_t SleepTime() { return 0; }
+  virtual int64_t SleepTime() { return 1; }
 
 private:
   void* m_pUserData;
