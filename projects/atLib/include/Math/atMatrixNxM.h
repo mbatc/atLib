@@ -26,7 +26,7 @@
 #ifndef atMatrixNxM_h__
 #define atMatrixNxM_h__
 
-#include <minmax.h>
+#include "atMinMax.h"
 #include "atTypes.h"
 #include "atVector.h"
 
@@ -39,7 +39,7 @@ public:
   atMatrixNxM(atMatrixNxM<T> &&move);
   template <typename T2> atMatrixNxM(const atMatrixNxM<T2> &copy);
 
-  static atMatrixNxM<T> Identity();
+  static atMatrixNxM<T> Identity(const int64_t &cols, const int64_t &rows);
   atMatrixNxM<T> Transpose() const;
   atMatrixNxM<T> Cofactors() const;
   atMatrixNxM<T> Inverse() const;

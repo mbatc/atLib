@@ -50,3 +50,6 @@
 *.vcxproj
 *.filters
 *.user
+
+# Makefiles
+**/Makefile

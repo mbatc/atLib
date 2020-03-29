@@ -92,16 +92,6 @@ void atInput::LockMouse(const bool lock, const atVec2I &pos)
 {
   _mouseLocked = lock;
   _lockPos = pos;
-
-  // if (lock && GetCursor())
-  // {
-  //   _hLastCursor = GetCursor();
-  //   SetCursor(NULL);
-  // }
-  // else if (!GetCursor())
-  // {
-  //   SetCursor(_hLastCursor);
-  // }
 }
 
 void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*/)

@@ -112,8 +112,8 @@ template<typename T> inline typename std::enable_if<std::is_destructible<T>::val
 }
 
 template<typename T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
-template<typename T> inline T* atNewArray(const int64_t size) { return atInternal_New(size); }
-template<typename T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New(size, copy); }
+template<typename T> inline T* atNewArray(const int64_t size) { return atInternal_New<T>(size); }
+template<typename T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New<T>(size, copy); }
 template<typename T, typename... Args> inline void atConstruct(T *pVal, Args&&... args) { new(pVal) T(std::forward<Args>(args)...); }
 
 #endif
