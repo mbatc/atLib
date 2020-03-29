@@ -202,9 +202,17 @@ atString operator+(char _char, const atString &rhs);
 atString operator+(char *lhs, const atString &rhs);
 
 template<> inline atTypeDesc atGetTypeDesc(const atString &str);
-template<typename T> inline T atFromString(const atString &str) { return static_assert(false, "atFromString is not defined for this type."); }
+template<typename T> inline T atFromString(const atString &str)
+{
+  static_assert(!std::is_same<T, T>::value, "atFromString is not defined for this type.");
+  return T();
+}
 
-template<typename T> atString atToString(const T &o) { static_assert(false, "atToString is not defined for type T"); }
+template<typename T> atString atToString(const T &o)
+{
+  static_assert(!std::is_same<T, T>::value, "atToString is not defined for type T");
+  return atString();
+}
 
 #include "atFromString.h"
 #include "atToString.h"

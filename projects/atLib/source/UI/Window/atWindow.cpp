@@ -61,23 +61,9 @@ void atWindow::Swap()
     m_sysWindow.Swap();
 }
 
-void atWindow::SetTitle(const atString &title)
-{
-  m_title = title;
-  m_sysWindow.SetTitle();
-}
-
-void atWindow::SetPos(const atVec2I &pos)
-{
-  m_pos = pos;
-  m_sysWindow.SetWindowRect();
-}
-
-void atWindow::SetSize(const atVec2I &size)
-{
-  m_size = size;
-  m_sysWindow.SetWindowRect();
-}
+void atWindow::SetTitle(const atString &title) { m_sysWindow.SetTitle(title); }
+void atWindow::SetPos(const atVec2I &pos) { m_sysWindow.SetWindowRect(atVec4I(pos, Size())); }
+void atWindow::SetSize(const atVec2I &size) { m_sysWindow.SetWindowRect(atVec4I(Position(), size)); }
 
 void atWindow::OnResize()
 {
@@ -86,38 +72,11 @@ void atWindow::OnResize()
     m_pGfx->Resize();
 }
 
-void atWindow::SetWindowed(const bool windowed)
-{
-  m_windowed = windowed;
-  m_sysWindow.SetWindowed();
-}
-
-void atWindow::SetVisible(const bool &visible)
-{
-  m_visible = visible;
-  m_sysWindow.SetVisible();
-}
-
-void atWindow::Maximize()
-{
-  m_maximized = true;
-  m_minimized = false;
-  m_sysWindow.Maximize();
-}
-
-void atWindow::Minimize()
-{
-  m_maximized = false;
-  m_minimized = true;
-  m_sysWindow.Minimize();
-}
-
-void atWindow::Restore()
-{
-  m_maximized = false;
-  m_minimized = false;
-  m_sysWindow.Restore();
-}
+void atWindow::SetWindowed(const bool &windowed) { m_sysWindow.SetWindowed(windowed); }
+void atWindow::SetVisible(const bool &visible) { m_sysWindow.SetVisible(visible); }
+void atWindow::Maximize() { m_sysWindow.Maximize(); }
+void atWindow::Minimize() { m_sysWindow.Minimize(); }
+void atWindow::Restore() { m_sysWindow.Restore(); }
 
 void atWindow::Destroy()
 {
@@ -127,12 +86,12 @@ void atWindow::Destroy()
 
 bool atWindow::MakeWindow() { return m_sysWindow.Create(); }
 
-const atVec2I& atWindow::Position() const { return m_pos; }
-const atVec2I& atWindow::Size() const { return m_clientSize; }
+const atVec2I& atWindow::Position() const { return m_sysWindow.GetPos(); }
+const atVec2I& atWindow::Size() const { return m_sysWindow.GetSize(); }
 const int32_t& atWindow::GetX() const { return Position().x; }
 const int32_t& atWindow::GetY() const { return Position().y; }
-bool atWindow::IsMaximized() const { return m_maximized; }
-bool atWindow::IsMinimized() const { return m_minimized; }
+bool atWindow::IsMaximized() const { return m_sysWindow.IsMaximized(); }
+bool atWindow::IsMinimized() const { return m_sysWindow.IsMinimized(); }
 bool atWindow::IsRestored() const { return !(IsMinimized() || IsMaximized()); }
 
 const int32_t& atWindow::Width() const { return Size().x; }
@@ -142,11 +101,11 @@ bool atWindow::IsWindowed() const { return m_windowed; }
 bool atWindow::IsVisible() const { return m_visible; }
 void atWindow::SetStyle(const int64_t style) { m_style = style; }
 
-void atWindow::SetMenu(HMENU hMenu) { m_sysWindow.SetMenu(hMenu); }
-void atWindow::SetIcon(HICON hIcon) { m_sysWindow.SetIcon(hIcon); }
-void atWindow::SetCursor(HCURSOR hCursor) { m_sysWindow.SetCursor(hCursor); }
+void atWindow::SetMenu(atSysMenuHandle hMenu) { m_sysWindow.SetMenu(hMenu); }
+void atWindow::SetIcon(atSysIconHandle hIcon) { m_sysWindow.SetIcon(hIcon); }
+void atWindow::SetCursor(atSysCursorHandle hCursor) { m_sysWindow.SetCursor(hCursor); }
 void atWindow::SetParent(const atWindow &window) { m_sysWindow.SetParent(window.Handle()); }
-void atWindow::SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_sysWindow.SetCallback(wndProc); }
+void atWindow::SetWndProc(atSysWndCallback callback) { m_sysWindow.SetCallback(callback); }
 
 atCol* atWindow::Pixels() { return (atCol*)m_sysWindow.Pixels().data(); }
 const atVector<atCol>& atWindow::PixelsV() { return m_sysWindow.Pixels(); }

@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#ifdef atPLATFORM_WIN32
+
 #include "atWinAPI.h"
 #include "atInput.h"
 #include "atImGui.h"
@@ -39,6 +41,8 @@ static MSG s_msg;
 static int64_t s_lastClock;
 static atHashMap<int64_t, atWindow*> _windows;
 static int64_t s_wndClsCounter = 0;
+
+atWindowStyle _MakeStyle(int64_t wndStyle);
 
 // WinAPI helpers
 
@@ -68,19 +72,6 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
   case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
   case WM_MOUSEMOVE: break;
-  case WM_INPUT:
-  {
-    // UINT size;
-    // RAWINPUT inputData;
-    // GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &inputData, &size, sizeof(RAWINPUTHEADER));
-    // if (inputData.header.dwType == RIM_TYPEMOUSE)
-    // {
-    //   int xPosRelative = inputData.data.mouse.lLastX; // Could be 1, or could be more than 1
-    //   int yPosRelative = inputData.data.mouse.lLastY; // Could be 1, or could be more than 1!
-    //   printf("%d, %d\n", xPosRelative, yPosRelative);
-    // }
-    break;
-  }
   case WM_SIZE: case WM_MOVE:
   {
     atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
@@ -217,21 +208,21 @@ void atWin32Window::OnResize()
   UpdatePixels();
 }
 
-void atWin32Window::SetWindowRect()
+void atWin32Window::SetWindowRect(const atVec4I &rect)
 {
   if (!m_hWnd)
     return;
   SetWindowPos(m_hWnd, NULL,
-    m_pWindow->m_pos.x,
-    m_pWindow->m_pos.y,
-    m_pWindow->m_size.x,
-    m_pWindow->m_size.y, 0);
+    rect.x,
+    rect.y,
+    rect.z,
+    rect.w, 0);
   UpdatePixels();
 }
 
-void atWin32Window::SetWindowed()
+void atWin32Window::SetWindowed(const bool &windowed)
 {
-  bool fullscreen = !m_pWindow->IsWindowed();
+  bool fullscreen = !windowed;
   
   if (!m_windowedState.wasFullscreen)
   {
@@ -275,7 +266,7 @@ void atWin32Window::SetWindowed()
   }
 }
 
-void atWin32Window::SetVisible() { ShowWindow(m_hWnd, m_pWindow->IsVisible() ? SW_SHOW : SW_HIDE); }
+void atWin32Window::SetVisible(const bool &visible) { ShowWindow(m_hWnd, visible ? SW_SHOW : SW_HIDE); }
 void atWin32Window::Maximize() { ShowWindow(m_hWnd, SW_MAXIMIZE); }
 void atWin32Window::Minimize() { ShowWindow(m_hWnd, SW_MINIMIZE); }
 void atWin32Window::Restore() { ShowWindow(m_hWnd, SW_RESTORE); }
@@ -364,7 +355,7 @@ void atWin32Window::Swap()
   ReleaseDC(m_hWnd, hDC);
 }
 
-void atWin32Window::Clear(atCol color) { for (atCol &c : m_pixels) memcpy(&c, &color, sizeof(atCol)); }
+void atWin32Window::Clear(const atCol &color) { for (atCol &c : m_pixels) memcpy(&c, &color, sizeof(atCol)); }
 void atWin32Window::SetCallback(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
 void atWin32Window::SetTitle() { SetWindowText(m_hWnd, m_pWindow->m_title.c_str()); }
 void atWin32Window::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
@@ -373,3 +364,39 @@ const atVector<atCol>& atWin32Window::Pixels() { return m_pixels; }
 void atWin32Window::SetIcon(HICON hIcon) { m_hIcon = hIcon; }
 void atWin32Window::SetMenu(HMENU hMenu) { hMenu = hMenu; }
 HWND atWin32Window::Handle() const { return m_hWnd; }
+
+atWindowStyle atWin32Window::GetStyle() const { return _MakeStyle(GetWindowLong(m_hWnd, GWL_STYLE)); }
+
+atString atWin32Window::GetTitle() const
+{
+  int64_t titleLen = GetWindowTextLength(m_hWnd) + 1;
+  atVector<char> titleBuffer;
+  titleBuffer.resize(titleLen, 0);
+  GetWindowText(m_hWnd, titleBuffer.data(), titleLen);
+}
+
+atVec2I atWin32Window::GetSize() const
+{
+  RECT r;
+  GetWindowRect(&r);
+  return atVec2I(r.right - r.left, r.bottom - r.top);
+}
+
+atVec2I atWin32Window::GetPos() const
+{
+  RECT r;
+  GetWindowRect(&r);
+  return atVec2I(r.left, r.top);
+}
+
+bool atWin32Window::IsMaximized() const { return IsZoomed(m_hWnd); }
+bool atWin32Window::IsMinimized() const { return IsIconic(m_hWnd) }
+bool atWin32Window::IsWindowed() const { return !m_windowedState.wasFullscreen; }
+bool atWin32Window::IsVisible() const { return IsWindowVisible(m_hWnd); }
+
+atWindowStyle _MakeStyle(int64_t wndStyle)
+{
+  return atWindowStyle(0);
+}
+
+#endif

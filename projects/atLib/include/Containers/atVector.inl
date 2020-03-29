@@ -272,7 +272,7 @@ inline void atVector<T>::move_item(const int64_t from, const int64_t to)
 }
 
 template<typename T>
-inline void atVector<T>::move_to_index(const int64_t index, const int64_t to, const int64_t count = 1) 
+inline void atVector<T>::move_to_index(const int64_t index, const int64_t to, const int64_t count) 
 {
   if (index == to)
     return;
@@ -356,8 +356,8 @@ template<typename T> atVector<T>::atVector(const int64_t size, const T &initial)
 template<typename T> atVector<T>::atVector(const atVector<T> &copy) { assign(copy); }
 template<typename T> atVector<T>::atVector(const std::vector<T> &copy) { assign(copy); }
 
-template<typename T> void atVector<T>::move_to_back(const int64_t index, const int64_t count = 1) { move_to_index(index, m_size - count, count); }
-template<typename T> void atVector<T>::move_to_front(const int64_t index, const int64_t count = 1) { move_to_index(index, 0, count); }
+template<typename T> void atVector<T>::move_to_back(const int64_t index, const int64_t count) { move_to_index(index, m_size - count, count); }
+template<typename T> void atVector<T>::move_to_front(const int64_t index, const int64_t count) { move_to_index(index, 0, count); }
 template<typename T> typename atVector<T>::vector_iterator atVector<T>::begin() { return m_pData; }
 template<typename T> typename atVector<T>::vector_iterator atVector<T>::end() { return m_pData + m_size; }
 template<typename T> typename atVector<T>::vector_const_iterator atVector<T>::begin() const { return m_pData; }
@@ -399,4 +399,4 @@ template<typename T> const int64_t& atVector<T>::capacity() const { return m_cap
 template<typename T> const T& atVector<T>::back() const { return at(m_size - 1); }
 template<typename T> void atVector<T>::assign(const atVector<T> &copy) { assign(copy.begin(), copy.end()); }
 template<typename T> void atVector<T>::assign(const std::vector<T> &copy) { assign(copy.begin(), copy.end()); }
-template<typename T> void atVector<T>::assign(std::initializer_list<T> list) { assign(list.begin(), list.end()) }
+template<typename T> void atVector<T>::assign(const std::initializer_list<T> &list) { assign(list.begin(), list.end()); }

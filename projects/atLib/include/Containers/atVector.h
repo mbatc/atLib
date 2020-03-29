@@ -29,7 +29,6 @@
 #include "atMemory.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
-#include "atIterator.h"
 #include <vector>
 
 template<typename T> class atVector
@@ -106,7 +105,7 @@ public:
 
   void assign(const std::vector<T> &copy);
   void assign(const atVector<T> &copy);
-  void assign(std::initializer_list<T> list);
+  void assign(const std::initializer_list<T> &list);
 
   // Access the element at [index]
   // Debug assert on invalid index

@@ -52,3 +52,6 @@
 *.user
 /builds/output/_Debug/Debug/atLib/*.cache
 /builds/output/_Release/Release/atLib/*.cache
+
+# Makefiles
+**/Makefile

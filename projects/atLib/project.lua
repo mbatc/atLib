@@ -4,6 +4,26 @@ dofile "projects/atLib/3rdParty/sqlite3/project.lua"
 project "atLib"
 configurations { "Debug", "Release" }
 
+win32Build = os.target() == "windows"
+linuxBuild = os.target() == "linux"
+
+if (not win32Build and not linuxBuild) then
+  print("This pperating system is not supported")
+  exit()
+end
+
+-- Setup WIN32 Project
+if (wind32Build) then
+  defines { "atPLATFORM_WIN32" }
+end
+
+-- Setup Linux Project
+if (linuxBuild) then
+  defines { "atPLATFORM_LINUX" }
+  includedirs { "/usr/include" }
+  libdirs {"/usr/lib"}
+end
+
 dependson { "sqlite3" }
 
 kind "StaticLib"

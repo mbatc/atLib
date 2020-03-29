@@ -26,11 +26,10 @@
 #ifndef atWinAPI_h__
 #define atWinAPI_h__
 
-#include <windows.h>
+#include "atPlatform.h"
+#include "atWindowDefinitions.h"
 #include "atColor.h"
 #include "atString.h"
-
-// TODO: Software window WINAPI https://docs.microsoft.com/en-us/windows/desktop/api/wingdi/nf-wingdi-createdibsection
 
 class atWindow;
 class atWin32Window;
@@ -54,28 +53,41 @@ public:
   atWin32Window(atWindow *pWindow);
   ~atWin32Window();
 
+  void Clear(const atCol &color);
+  void Swap();
+
   bool Create();
   void Destroy();
-  void SetTitle();
+  void SetTitle(const atString &title);
   void OnResize();
-  void SetWindowRect();
-  void SetWindowed();
-  void SetVisible();
+  
+  void SetWindowRect(const atVec4I &rect);
+  void SetWindowed(const bool &windowed);
+  void SetVisible(const bool &visible);
 
   void Maximize();
   void Minimize();
   void Restore();
 
-  void SetParent(HWND hParent);
-  void SetCursor(HCURSOR hParent);
-  void SetMenu(HMENU hParent);
-  void SetIcon(HICON hParent);
-  void SetCallback(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM));
+  void SetParent(atSysWndHandle hParent);
+  void SetCursor(atSysCursorHandle hParent);
+  void SetMenu(atSysMenuHandle hParent);
+  void SetIcon(atSysIconHandle hParent);
+  void SetCallback(atSysWndCallback callback);
 
-  void Clear(atCol color);
-  void Swap();
+  atWindowStyle GetStyle() const;
 
-  HWND Handle() const;
+  atString GetTitle() const;
+
+  atVec2I GetSize() const;
+  atVec2I GetPos() const;
+
+  bool IsMaximized() const;
+  bool IsMinimized() const;
+  bool IsWindowed() const;
+  bool IsVisible() const;
+
+  atSysWndHandle Handle() const;
   const atVector<atCol>& Pixels();
   
 protected:
@@ -91,11 +103,12 @@ protected:
 
   // WinAPI junk
   atString m_wndCls = "atDefaultWndCls";
-  HWND m_hWnd = NULL;
-  HWND m_hParent = NULL;
-  HMENU m_hMenu = NULL;
-  HICON m_hIcon = NULL;
-  HCURSOR m_hCursor = NULL;
+  atSysWndHandle m_hWnd = NULL;
+  atSysWndHandle m_hParent = NULL;
+  atSysMenuHandle m_hMenu = NULL;
+  atSysIconHandle m_hIcon = NULL;
+  atSysCursorHandle m_hCursor = NULL;
+
   LRESULT(__stdcall *m_wndProc)(HWND, UINT, WPARAM, LPARAM) = atWinAPI::WindowProc;
 
   // windowed state

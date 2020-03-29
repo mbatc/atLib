@@ -26,18 +26,25 @@
 #ifndef _atWindow_h__
 #define _atWindow_h__
 
+#ifdef atPLATFORM_WIN32
 #include "atWinAPI.h"
+#elif atPLATFORM_LINUX
+#include "atXLib.h"
+#endif
+
 #include "atMath.h"
 
 class atGraphics;
 class atRenderState;
 class atWin32Window;
+class atXLibWindow;
 class atWinAPI;
 
 class atWindow
 {
   friend atRenderState;
   friend atWin32Window;
+  friend atXLibWindow;
   friend atGraphics;
   friend atWinAPI;
 
@@ -45,44 +52,49 @@ public:
   static bool PumpMessage(atWindow *pWindow);
   static int GetResult();
 
-  atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const bool &visible = true, const int64_t style = WS_OVERLAPPEDWINDOW);
+  atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const bool &visible = true, const atWindowStyle style = atWS_Overlapped);
   ~atWindow();
 
   void Clear(const atCol color = 0xFF000000);
   void Clear(const atVec4F &color);
-
   void Swap();
 
   void SetTitle(const atString &title);
   void SetPos(const atVec2I &pos);
   void SetSize(const atVec2I &size);
-  void SetStyle(const int64_t style);
-  void SetWindowed(const bool windowed);
+  void SetStyle(const atWindowStyle style);
+  void SetWindowed(const bool &windowed);
   void SetVisible(const bool &visible);
+  
   void Maximize();
   void Minimize();
   void Restore();
 
-  const atVec2I& Size() const;
-  const int32_t& Width() const;
-  const int32_t& Height() const;
+  atWindowStyle GetStyle() const;
 
-  const atVec2I& Position() const;
-  const int32_t& GetX() const;
-  const int32_t& GetY() const;
+  atString GetTitle() const;
+
+  atVec2I Size() const;
+  int32_t Width() const;
+  int32_t Height() const;
+
+  atVec2I Position() const;
+  int32_t GetX() const;
+  int32_t GetY() const;
 
   bool IsMaximized() const;
   bool IsMinimized() const;
   bool IsRestored() const;
   bool IsWindowed() const;
   bool IsVisible() const;
-  void SetMenu(HMENU hMenu);
-  void SetIcon(HICON hIcon);
-  void SetCursor(HCURSOR hCursor);
-  void SetParent(const atWindow &window);
-  void SetWndProc(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM));
 
-  HWND Handle() const;
+  void SetMenu(atSysMenuHandle hMenu);
+  void SetIcon(atSysIconHandle hIcon);
+  void SetCursor(atSysCursorHandle hCursor);
+  void SetParent(const atWindow &window);
+  void SetWndProc(atSysWndCallback callback);
+
+  atSysWndHandle Handle() const;
 
   bool MakeWindow();
   void Destroy();
@@ -99,28 +111,14 @@ protected:
   void AddDroppedFile(const atString &file);
 
   const atVector<atCol>& PixelsV();
-  bool m_windowed = true;
-  bool m_visible = true;
-  bool m_maximized = false;
-  bool m_minimized = false;
-  
-  atString m_title = "Main Window";
-
-  atVec2I m_clientSize = atVec2I(800, 600);
-  atVec2I m_size = atVec2I(800, 600);
-  atVec2I m_pos = atVec2I(0, 0);
-
-  int64_t m_style = WS_OVERLAPPEDWINDOW;
-
   atVector<atString> m_droppedFiles;
-
   atGraphics *m_pGfx = nullptr;
 
-#if defined _WIN64 || defined _WIN64
+#if atPLATFORM_WIN32
   // WINAPI  
   atWin32Window m_sysWindow;
-#elif LINUX
-  // Add linux m_sysWindow
+#elif atPLATFORM_LINUX
+  atXLibWindow m_sysWindow;
 #endif
 };
 
