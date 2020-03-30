@@ -29,6 +29,7 @@
 #include "../../3rdParty/imgui/imgui.h"
 #include "../../3rdParty/imgui/imgui_internal.h"
 #include "atWindow.h"
+#include "atFilename.h"
 
 // Consider moving towards an object based system for safer functions
 // e.g. to create a window instantion an atImGui::Window() which will call Begin() on construction
@@ -38,6 +39,7 @@
 class atImGui
 {
 public:
+  static void AddFontFile(const atFilename &file);
   static bool BeginFrame(atWindow *pWnd);
   static bool EndFrame();
   static bool Render();
@@ -45,11 +47,7 @@ public:
 
   static void ApplyDefaultStyle();
 
-  static bool WantMouseInput();
-  static bool WantKeyboardInput();
-
   // Lua friendly wrappers for ImGui functions
-
   static atVec2D GetWindowSize();
   static int64_t GetWindowWidth();
   static int64_t GetWindowHeight();

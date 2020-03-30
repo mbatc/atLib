@@ -67,7 +67,7 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   case WM_LBUTTONUP: atInput::OnButtonUp(atKC_MB_Left, dt); break;
   case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
   case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
-  case WM_MOUSEMOVE: atInput::OnMouseMove({ (GET_X_LPARAM(lParam)), (GET_Y_LPARAM(lParam)) }, dt); break;
+  case WM_MOUSEMOVE: break;
   case WM_INPUT:
   {
     // UINT size;
@@ -276,6 +276,9 @@ void atWin32Window::SetWindowed()
 }
 
 void atWin32Window::SetVisible() { ShowWindow(m_hWnd, m_pWindow->IsVisible() ? SW_SHOW : SW_HIDE); }
+void atWin32Window::Maximize() { ShowWindow(m_hWnd, SW_MAXIMIZE); }
+void atWin32Window::Minimize() { ShowWindow(m_hWnd, SW_MINIMIZE); }
+void atWin32Window::Restore() { ShowWindow(m_hWnd, SW_RESTORE); }
 
 bool atWin32Window::WINRegister()
 {
@@ -357,6 +360,7 @@ void atWin32Window::Swap()
     // Draw Bitmap
     StretchDIBits(hDC, 0, 0, size.x, size.y, 0, 0, size.x, size.y, pixelsBGRA.data(), &info, DIB_RGB_COLORS, SRCCOPY);
   }
+
   ReleaseDC(m_hWnd, hDC);
 }
 

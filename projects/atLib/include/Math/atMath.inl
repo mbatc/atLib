@@ -37,13 +37,13 @@ template<typename T> inline T atMax(const T &a) { return a; }
 
 template<typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args)
 {
-  T argMin = (T)atMin(second, Args...);
+  T argMin = (T)atMin(second, std::forward<Args>(args)...);
   return (argMin < first) ? argMin : first;
 }
 
 template<typename T, typename T2, typename... Args> inline T atMax(const T &first, const T2 &second, Args ...args)
 {
-  T argMin = (T)atMax(second, Args...);
+  T argMin = (T)atMax(second, std::forward<Args>(args)...);
   return (argMin > first) ? argMin : first;
 }
 
@@ -83,9 +83,34 @@ template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b
   return atVector2<T>((-b - val) / ac_2, (-b + val) / ac_2);
 }
 
-template<typename T> inline T atDerivative(const T &val, T(*func)(const T &), const double step)
+template<typename InT, typename OutT> inline OutT atDerivative(const InT &val, const std::function<OutT(InT)> &func, const InT step)
 {
-  return (func(val + step) - func(val - step)) / (step * 2);
+  return OutT(func(val + step) - func(val - step)) / (step * 2);
+}
+
+template<typename InT, typename OutT> inline OutT atNthDerivative(const InT &val, const std::function<OutT(InT)> &func, const int64_t &n, const InT step)
+{
+  if (n <= 0)
+    return atDerivative(val, func, step);
+  OutT rhs = atNthDerivative(val + step, func, n - 1, step);
+  OutT lhs = atNthDerivative(val - step, func, n - 1, step);
+  return OutT(rhs - lhs) / (step * 2);
+}
+
+template<typename T> inline T atCatmullRomSpline(const T &p1, const T &p2, const T &p3, const T &p4, const T &t, const T &s)
+{
+  atMatrixNxM<T> cubics(4, 1, { t * t * t, t * t, t, 1 });
+  atMatrixNxM<T> coeffs(4, 4,
+  {
+    -s, 2 - s, s - 2, s,
+    2 * s, s - 3, 3 - 2 * s, -s,
+    -s, 0, s, 0,
+    0, 1, 0, 0
+  });
+
+  atMatrixNxM<T> points(1, 4, { p1, p2, p3, p4 });
+
+  return (cubics * coeffs * points)[0];
 }
 
 template<typename T> inline T atSigmoid(const T &val) { return 1 / (1 + exp(-val)); }

@@ -90,14 +90,33 @@ void atWindow::SetWindowed(const bool windowed)
 {
   m_windowed = windowed;
   m_sysWindow.SetWindowed();
-  // if (m_pGfx)
-  //   m_pGfx->SetWindowed(windowed);
 }
 
 void atWindow::SetVisible(const bool &visible)
 {
   m_visible = visible;
   m_sysWindow.SetVisible();
+}
+
+void atWindow::Maximize()
+{
+  m_maximized = true;
+  m_minimized = false;
+  m_sysWindow.Maximize();
+}
+
+void atWindow::Minimize()
+{
+  m_maximized = false;
+  m_minimized = true;
+  m_sysWindow.Minimize();
+}
+
+void atWindow::Restore()
+{
+  m_maximized = false;
+  m_minimized = false;
+  m_sysWindow.Restore();
 }
 
 void atWindow::Destroy()
@@ -112,6 +131,10 @@ const atVec2I& atWindow::Position() const { return m_pos; }
 const atVec2I& atWindow::Size() const { return m_clientSize; }
 const int32_t& atWindow::GetX() const { return Position().x; }
 const int32_t& atWindow::GetY() const { return Position().y; }
+bool atWindow::IsMaximized() const { return m_maximized; }
+bool atWindow::IsMinimized() const { return m_minimized; }
+bool atWindow::IsRestored() const { return !(IsMinimized() || IsMaximized()); }
+
 const int32_t& atWindow::Width() const { return Size().x; }
 const int32_t& atWindow::Height() const { return Size().y; }
 

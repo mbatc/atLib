@@ -28,8 +28,25 @@
 #include "atScan.h"
 
 atDateTime::atDateTime() { Set(time(nullptr)); }
+atDateTime::atDateTime(const atDateTime &o) { *this = o; }
+atDateTime::atDateTime(atDateTime &&o) { *this = std::move(o); }
+atDateTime& atDateTime::operator=(atDateTime &&o) { return *this = o;}
+atDateTime& atDateTime::operator=(const atDateTime &o)
+{
+  m_year = o.m_year;
+  m_month = o.m_month;
+  m_day = o.m_day;
+  m_hour = o.m_hour;
+  m_min = o.m_min;
+  m_second = o.m_second;
+  m_fmt = o.m_fmt;
+  *m_pFullTime = *o.m_pFullTime;
+  return *this;
+}
+
 atDateTime::atDateTime(const int64_t time) { Set(time); }
 atDateTime::atDateTime(tm *pData) { Set(mktime(pData)); }
+atDateTime::~atDateTime() { atDelete(m_pFullTime); }
 
 bool atDateTime::Parse(const atString &datetime, const atDateTimeFmt &fmt)
 {
@@ -45,39 +62,88 @@ bool atDateTime::Parse(const atString &datetime, const atDateTimeFmt &fmt)
     lastPos = datetime.find_first_not("- :/\\", nextPos);
   }
 
-  m_day = datetimeVals[fmt.compIdx[atDTC_Day] + (fmt.dateFirst ? 0 : 3)];
-  m_month = datetimeVals[fmt.compIdx[atDTC_Month] + (fmt.dateFirst ? 0 : 3)];
-  m_year = datetimeVals[fmt.compIdx[atDTC_Year] + (fmt.dateFirst ? 0 : 3)];
-  m_hour = datetimeVals[fmt.compIdx[atDTC_Hour] + (fmt.dateFirst ? 3 : 0)];
-  m_second = datetimeVals[fmt.compIdx[atDTC_Second] + (fmt.dateFirst ? 3 : 0)];
-  m_min = datetimeVals[fmt.compIdx[atDTC_Minute] + (fmt.dateFirst ? 3 : 0)];
+  SetDay(datetimeVals[fmt.compIdx[atDTC_Day] + (fmt.dateFirst ? 0 : 3)]);
+  SetMonth(datetimeVals[fmt.compIdx[atDTC_Month] + (fmt.dateFirst ? 0 : 3)]);
+  SetYear(datetimeVals[fmt.compIdx[atDTC_Year] + (fmt.dateFirst ? 0 : 3)]);
+  SetHour(datetimeVals[fmt.compIdx[atDTC_Hour] + (fmt.dateFirst ? 3 : 0)]);
+  SetSecond(datetimeVals[fmt.compIdx[atDTC_Second] + (fmt.dateFirst ? 3 : 0)]);
+  SetMin(datetimeVals[fmt.compIdx[atDTC_Minute] + (fmt.dateFirst ? 3 : 0)]);
   return true;
+}
+
+void atDateTime::SetYear(int64_t year)
+{
+  m_pFullTime->dirty |= m_year != year;
+  m_year = year;
 }
 
 atDateTime::atDateTime(const atString &datetime, const atDateTimeFmt &fmt) { Parse(datetime, fmt); }
 
 atDateTime::atDateTime(const int64_t &day, const int64_t &month, const int64_t &year, const int64_t &hour, const int64_t &min, const int64_t &sec)
 {
+  SetDay(day);
+  SetMonth(month);
+  SetYear(year);
+  SetHour(hour);
+  SetSecond(min);
+  SetMin(sec);
+}
+
+void atDateTime::SetMonth(int64_t mon)
+{
+  m_pFullTime->dirty |= m_month != mon;
+  m_month = mon;
+}
+
+void atDateTime::SetDay(int64_t day)
+{
+  m_pFullTime->dirty |= m_day != day;
   m_day = day;
-  m_month = month;
-  m_year = year;
-  m_hour = hour;
+}
+
+void atDateTime::SetHour(int64_t hr)
+{
+  m_pFullTime->dirty |= m_hour != hr;
+  m_hour = hr;
+}
+
+void atDateTime::SetMin(int64_t min)
+{
+  m_pFullTime->dirty |= m_min != min;
   m_min = min;
+}
+
+void atDateTime::SetSecond(int64_t sec)
+{
+  m_pFullTime->dirty |= m_second != sec;
   m_second = sec;
 }
 
-int64_t atDateTime::to_time_t() const
+const int64_t& atDateTime::GetYear() const { return m_year; }
+const int64_t& atDateTime::GetMonth() const { return m_month; }
+const int64_t& atDateTime::GetDay() const { return m_day; }
+const int64_t& atDateTime::GetHour() const { return m_hour; }
+const int64_t& atDateTime::GetMin() const { return m_min; }
+const int64_t& atDateTime::GetSecond() const { return m_second; }
+
+const int64_t& atDateTime::to_time_t() const
 {
-  time_t rawtime;
-  time(&rawtime);
-  tm *pTimeinfo = localtime(&rawtime);
-  pTimeinfo->tm_hour = (int)m_hour;
-  pTimeinfo->tm_min = (int)m_min;
-  pTimeinfo->tm_sec = (int)m_second;
-  pTimeinfo->tm_mday = (int)m_day;
-  pTimeinfo->tm_mon = (int)m_month - 1;
-  pTimeinfo->tm_year = (int)m_year - 1900;
-  return (int64_t)mktime(pTimeinfo);
+  if (m_pFullTime->dirty)
+  {
+    time_t rawtime;
+    time(&rawtime);
+    tm *pTimeinfo = localtime(&rawtime);
+    pTimeinfo->tm_hour = (int)GetHour();
+    pTimeinfo->tm_min = (int)GetMin();
+    pTimeinfo->tm_sec = (int)GetSecond();
+    pTimeinfo->tm_mday = (int)GetDay();
+    pTimeinfo->tm_mon = (int)GetMonth() - 1;
+    pTimeinfo->tm_year = (int)GetYear() - 1900;
+    m_pFullTime->val = (int64_t)mktime(pTimeinfo);
+    m_pFullTime->dirty = false;
+  }
+
+  return m_pFullTime->val;
 }
 
 bool atDateTime::operator>(const atDateTime &rhs) const { return to_time_t() > rhs.to_time_t(); }
@@ -93,13 +159,13 @@ void atDateTime::Set(const int64_t time)
   tm data;
   localtime_s(&data, &myTime);
 
-  m_day = data.tm_mday;
-  m_year = data.tm_year + 1900;
-  m_month = data.tm_mon + 1;
+  SetDay(data.tm_mday);
+  SetYear(data.tm_year + 1900);
+  SetMonth(data.tm_mon + 1);
 
-  m_min = data.tm_min;
-  m_hour = data.tm_hour;
-  m_second = data.tm_sec;
+  SetMin(data.tm_min);
+  SetHour(data.tm_hour);
+  SetSecond(data.tm_sec);
 }
 
 atString atToString(const atDateTime &date)
@@ -130,12 +196,12 @@ atString atToString(const atDateTime &date)
 
     switch (nextComp)
     {
-    case atDTC_Day: dateTime += date.m_day; break;
-    case atDTC_Month: dateTime += date.m_month; break;
-    case atDTC_Year: dateTime += date.m_year; break;
-    case atDTC_Hour: dateTime += date.m_hour % (fmt.base24Time ? 24 : 12); break;
-    case atDTC_Minute: dateTime += date.m_min; break;
-    case atDTC_Second: dateTime += date.m_second; break;
+    case atDTC_Day: dateTime += date.GetDay(); break;
+    case atDTC_Month: dateTime += date.GetMonth(); break;
+    case atDTC_Year: dateTime += date.GetYear(); break;
+    case atDTC_Hour: dateTime += date.GetHour() % (fmt.base24Time ? 24 : 12); break;
+    case atDTC_Minute: dateTime += date.GetMin(); break;
+    case atDTC_Second: dateTime += date.GetSecond(); break;
     }
 
     ++componentsUsed;
@@ -147,7 +213,7 @@ atString atToString(const atDateTime &date)
     else
     {
       if (!fmt.base24Time && !isDate)
-        dateTime += date.m_hour >= 12 ? " PM": " AM";
+        dateTime += date.GetHour() >= 12 ? " PM": " AM";
 
       dateTime += fmt.dateTimeSep;
       isDate = !isDate;

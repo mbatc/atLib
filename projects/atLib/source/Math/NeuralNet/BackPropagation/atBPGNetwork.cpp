@@ -63,7 +63,7 @@ void atBPGNetwork::CalculateWeights(int64_t layer, const atVector<atMatrixNxM<do
   int64_t prevLayer = layer - 1;
   for (int64_t j = 0; j < m_layers[layer].nNodes; ++j)
   {
-    double dSig = atDerivative(z[layer][j], atSigmoid);
+    double dSig = atDerivative<double, double>(z[layer][j], atSigmoid<double>);
     double prevA = 0;
     for (int64_t k = 0; k < m_layers[prevLayer].nNodes; ++k)
     {
@@ -117,7 +117,7 @@ bool atBPGNetwork::TrainBatch(const atVector<atVector<double>> &inputs, const at
 
         double err = act[j] - output[j];
         avgCost += 0.5 * atSquare(err);
-        dW[k + j * dW.m_columns] = atDerivative(activationRaw[activations.size() - 1][j], atSigmoid) *
+        dW[k + j * dW.m_columns] = atDerivative<double, double>(activationRaw[activations.size() - 1][j], atSigmoid<double>) *
           activations[activations.size() - 2][k] * err;
 
         CalculateWeights(activations.size() - 2, activations, activationRaw, &adjWeight, err);

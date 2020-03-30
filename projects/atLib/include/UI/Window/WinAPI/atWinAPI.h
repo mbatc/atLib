@@ -62,6 +62,10 @@ public:
   void SetWindowed();
   void SetVisible();
 
+  void Maximize();
+  void Minimize();
+  void Restore();
+
   void SetParent(HWND hParent);
   void SetCursor(HCURSOR hParent);
   void SetMenu(HMENU hParent);

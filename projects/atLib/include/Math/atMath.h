@@ -29,7 +29,9 @@
 #include "atMatrix.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
+#include "atMatrixNxM.h"
 #include <math.h>
+#include <functional>
 
 #define atE 2.71828182845904523536   // e
 #define atLog2e 1.44269504088896340736   // log2(e)
@@ -120,7 +122,11 @@ template<typename T, typename T2, typename T3> inline T atClamp(const T &val, co
 
 template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c);
 template<typename T> inline T atSigmoid(const T &val);
-template<typename T> inline T atDerivative(const T &val, T (*func)(const T&), const double step = 0.000001);
+template<typename InT, typename OutT> inline OutT atDerivative(const InT &val, const std::function<OutT(InT)> &func, const InT step = InT(0.001));
+template<typename InT, typename OutT> inline OutT atNthDerivative(const InT &val, const std::function<OutT(InT)> &func, const int64_t &n, const InT step = InT(0.001));
+template<typename T> inline T atCatmullRomSpline(const T &p1, const T &p2, const T &p3, const T &p4, const T &t, const T &s = T(0.5));
+
+int64_t atFactorial(const int64_t &n);
 
 template<typename T> inline T atMod(const T &a, const T &b);
 template<> inline float atMod(const float &a, const float &b);

@@ -104,6 +104,8 @@ static std::shared_ptr<atDXBuffer> _texCoords;
 static std::shared_ptr<atDXBuffer> _colours;
 static std::shared_ptr<atDXBuffer> _indices;
 
+static atVector<atFilename> _fontFiles;
+
 static atRenderable _ro;
 
 static int64_t _vbSize = AT_INVALID_ID;
@@ -157,6 +159,12 @@ static bool _Initialise()
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
 
+  ImFontConfig config;
+  config.OversampleH = config.OversampleV = 1;
+  config.PixelSnapH = true;
+  for (const atFilename &file : _fontFiles)
+    io.Fonts->AddFontFromFileTTF(file.c_str(), 13.0f, &config);
+
   uint8_t *pPixels = nullptr;
   int32_t width, height;
   io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
@@ -179,11 +187,11 @@ static bool _Initialise()
   if (!::QueryPerformanceCounter((LARGE_INTEGER *)&_lastTime))
     return false;
 
-  // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   // io.ConfigViewportsNoAutoMerge = true;
   // io.ConfigViewportsNoTaskBarIcon = false;
-  // io.ConfigDockingTabBarOnSingleWindows = true;
-  // io.ConfigDockingTransparentPayload = true;
+  io.ConfigDockingTabBarOnSingleWindows = true;
+  io.ConfigDockingTransparentPayload = true;
 
   io.KeyMap[ImGuiKey_Tab] = atKC_Tab;
   io.KeyMap[ImGuiKey_LeftArrow] = atKC_Left;
@@ -257,6 +265,8 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
 
   return true;
 }
+
+void atImGui::AddFontFile(const atFilename &file) { _fontFiles.push_back(file); }
 
 bool atImGui::BeginFrame(atWindow *pWnd)
 {

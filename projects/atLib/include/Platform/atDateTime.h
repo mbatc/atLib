@@ -60,6 +60,10 @@ class atDateTime
 public:
   // Create a Data Time object with the current time
   atDateTime();
+  atDateTime(const atDateTime &o);
+  atDateTime(atDateTime &&o);
+  atDateTime& operator=(const atDateTime &o);
+  atDateTime& operator=(atDateTime &&o);
 
   // Construct a datetime from a string.
   // Use the 'fmt' parameter to specify the order of date/time components
@@ -72,18 +76,25 @@ public:
   // Create a Data Time object representing [time]
   atDateTime(const int64_t time);
   atDateTime(tm *pData);
+  ~atDateTime();
 
   bool Parse(const atString &datetime, const atDateTimeFmt &fmt = atDateTimeFmt());
+  
+  void SetYear(int64_t year);
+  void SetMonth(int64_t mon);
+  void SetDay(int64_t day);
+  void SetHour(int64_t hr);
+  void SetMin(int64_t min);
+  void SetSecond(int64_t sec);
 
-  int64_t m_year;
-  int64_t m_month;
-  int64_t m_day;
+  const int64_t& GetYear() const;
+  const int64_t& GetMonth() const;
+  const int64_t& GetDay() const;
+  const int64_t& GetHour() const;
+  const int64_t& GetMin() const;
+  const int64_t& GetSecond() const;
 
-  int64_t m_hour;
-  int64_t m_min;
-  int64_t m_second;
-
-  int64_t to_time_t() const;
+  const int64_t& to_time_t() const;
 
   atDateTimeFmt m_fmt; // Used when converting to a string
 
@@ -97,6 +108,20 @@ public:
   bool operator!=(const atDateTime &rhs) const;
 
 protected:
+  int64_t m_year;
+  int64_t m_month;
+  int64_t m_day;
+
+  int64_t m_hour;
+  int64_t m_min;
+  int64_t m_second;
+
+  struct FullTime
+  {
+    bool dirty = false;
+    int64_t val = 0;
+  } *m_pFullTime = atNew<FullTime>();
+
   void Set(const int64_t time);
 };
 

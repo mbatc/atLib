@@ -199,8 +199,6 @@ public:
 
   static atString ToString(const int64_t code);
 
-  static atVector<atString> DroppedFiles();
-
 protected:
   static void RegisterWindow(HWND hWnd);
   static void UnRegisterWindow(HWND hWnd);
