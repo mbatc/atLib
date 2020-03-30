@@ -29,26 +29,6 @@
 #include "atWinAPI.h"
 #include "atMath.h"
 
-// enum atWindowStyle
-// {
-//   atWS_Popup,
-//   atWS_Overlapped,
-//   atWS_Caption,
-//   atWS_Minimize,
-//   atWS_Maximize,
-//   atWS_Visible,
-//   atWS_Child,
-//   atWS_ClipChildren,
-//   atWS_ClipSiblings,
-//   atWS_Disabled,
-//   atWS_DialogFrame,
-//   atWS_Group,
-//   atWS_Scroll,
-//   atWS_Iconic,
-//   atWS_MaximizeBox,
-//   atWS_MinimizeBox,
-// };
-
 class atGraphics;
 class atRenderState;
 class atWin32Window;

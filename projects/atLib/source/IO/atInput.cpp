@@ -49,9 +49,9 @@ static void _UpdateMouse()
   HWND hWnd = GetFocus();
   if (atWinAPI::GetWindow(hWnd))
   {
-    RECT rect;
-    GetWindowRect(hWnd, &rect);
-    atInput::OnMouseMove({ p.x - rect.left, p.y - rect.top }, _dt);
+    POINT tl = { 0, 0 };
+    ClientToScreen(hWnd, &tl);
+    atInput::OnMouseMove({ p.x - tl.x, p.y - tl.y }, _dt);
   }
 }
 
@@ -92,16 +92,6 @@ void atInput::LockMouse(const bool lock, const atVec2I &pos)
 {
   _mouseLocked = lock;
   _lockPos = pos;
-
-  // if (lock && GetCursor())
-  // {
-  //   _hLastCursor = GetCursor();
-  //   SetCursor(NULL);
-  // }
-  // else if (!GetCursor())
-  // {
-  //   SetCursor(_hLastCursor);
-  // }
 }
 
 void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*/)
@@ -263,9 +253,4 @@ atString atInput::ToString(const int64_t code)
   case atKC_MB_Middle:          return "MiddleMouse";
   }
   return atString();
-}
-
-atVector<atString> atInput::DroppedFiles()
-{
-  return atVector<atString>();
 }
