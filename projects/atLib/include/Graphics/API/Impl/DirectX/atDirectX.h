@@ -1,6 +1,8 @@
 #ifndef atDirectX_h__
 #define atDirectX_h__
 
+#ifdef atPLATFORM_WINDOWS
+
 #include "atString.h"
 
 #include <d3d.h>
@@ -110,5 +112,7 @@ atTrivialStreamWrite(D3D11_RASTERIZER_DESC);
 atTrivialStreamWrite(D3D11_DEPTH_STENCIL_DESC);
 
 // ----------------------------------------------------------------------------------------
+
+#endif
 
 #endif // atDirectX_h__

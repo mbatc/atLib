@@ -84,6 +84,7 @@ bool atInput::Update(const bool escExit, atWindow *pWindow)
 {
   _UpdateMouse();
   _UpdateButtons();
+  
   bool res = atWindow::PumpMessage(pWindow) && (!escExit || !ButtonDown(atKC_Escape));
   return res;
 }
@@ -106,12 +107,12 @@ void atInput::SetMousePos(const atVec2I &pos, const bool updateLastPos /*= true*
   SetCursorPos(sc.x, sc.y);
 }
 
-void atInput::RegisterWindow(HWND hWnd)
+void atInput::RegisterWindow(atSysWndHandle hWnd)
 {
   _windows.TryAdd((int64_t)hWnd);
 }
 
-void atInput::UnRegisterWindow(HWND hWnd)
+void atInput::UnRegisterWindow(atSysWndHandle hWnd)
 {
   if (_windows.Contains((int64_t)hWnd))
     _windows.Remove((int64_t)hWnd);
@@ -253,9 +254,4 @@ atString atInput::ToString(const int64_t code)
   case atKC_MB_Middle:          return "MiddleMouse";
   }
   return atString();
-}
-
-atVector<atString> atInput::DroppedFiles()
-{
-  return atVector<atString>();
 }

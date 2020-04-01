@@ -175,7 +175,7 @@ template<typename T> bool atIntersects(const atRay<T> &ray, const atTriangle<T> 
   if (pTime)
     *pTime = time;
 
-  return weights.x + weights.y + weight.z <= 1.0 && time >= 0;
+  return weights.x + weights.y + weights.z <= 1.0 && time >= 0;
 }
 
 template<typename T> bool atIntersects(const atRay<T> &ray, const atPlane<T> &plane, T *pTime) 

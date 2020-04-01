@@ -1,5 +1,5 @@
 dofile "projects/atLib/3rdParty/sqlite3/project.lua"
-  location "3rdParty/sqlite3/"
+  location "../3rdParty/sqlite3/"
 
 project "atLib"
 configurations { "Debug", "Release" }
