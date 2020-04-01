@@ -52,7 +52,7 @@ public:
   static bool PumpMessage(atWindow *pWindow);
   static int GetResult();
 
-  atWindow(const atString &title = "Default Window", const atVec2I &size = atVec2I(800, 600), const atVec2I &pos = atVec2I(0, 0), const bool windowed = true, const bool &visible = true, const atWindowStyle style = atWS_Overlapped);
+  atWindow(const atWindowCreateInfo &info);
   ~atWindow();
 
   void Clear(const atCol color = 0xFF000000);
@@ -62,7 +62,7 @@ public:
   void SetTitle(const atString &title);
   void SetPos(const atVec2I &pos);
   void SetSize(const atVec2I &size);
-  void SetStyle(const atWindowStyle style);
+  void SetStyle(const atWindowStyle &style);
   void SetWindowed(const bool &windowed);
   void SetVisible(const bool &visible);
   
@@ -75,6 +75,7 @@ public:
   atString GetTitle() const;
 
   atVec2I Size() const;
+  atVec2I FullSize() const;
   int32_t Width() const;
   int32_t Height() const;
 
@@ -96,7 +97,7 @@ public:
 
   atSysWndHandle Handle() const;
 
-  bool MakeWindow();
+  bool MakeWindow(const atWindowCreateInfo &info);
   void Destroy();
   void OnResize();
 
@@ -113,6 +114,8 @@ protected:
   const atVector<atCol>& PixelsV();
   atVector<atString> m_droppedFiles;
   atGraphics *m_pGfx = nullptr;
+
+  atWindowCreateInfo m_createInfo;
 
 #if atPLATFORM_WIN32
   // WINAPI  

@@ -30,7 +30,12 @@
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
+
+#ifdef atPLATFORM_WIN32
+#define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
+#define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
+#elif atPLATFORM_LINUX
 #define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __PRETTY_FUNCTION__)
 #define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __PRETTY_FUNCTION__)
-
+#endif
 #endif

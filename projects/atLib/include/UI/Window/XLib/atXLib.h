@@ -17,7 +17,7 @@ public:
   void Clear(const atCol &color);
   void Swap();
 
-  bool Create();
+  bool Create(const atWindowCreateInfo &info);
   void Destroy();
   void SetTitle(const atString &title);
   void OnResize();
@@ -25,16 +25,17 @@ public:
   void SetWindowRect(const atVec4I &rect);
   void SetWindowed(const bool &windowed);
   void SetVisible(const bool &visible);
+  void SetStyle(const atWindowStyle &style);
 
   void Maximize();
   void Minimize();
   void Restore();
 
-  void SetParent(atSysWndHandle hParent);
-  void SetCursor(atSysCursorHandle hParent);
-  void SetMenu(atSysMenuHandle hParent);
-  void SetIcon(atSysIconHandle hParent);
-  void SetCallback(atSysWndCallback callback);
+  void SetParent(const atSysWndHandle &hParent);
+  void SetCursor(const atSysCursorHandle &hParent);
+  void SetMenu(const atSysMenuHandle &hParent);
+  void SetIcon(const atSysIconHandle &hParent);
+  void SetCallback(const atSysWndCallback &callback);
 
   atWindowStyle GetStyle() const;
 

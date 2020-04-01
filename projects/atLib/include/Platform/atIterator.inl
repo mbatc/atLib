@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atMinMax.h"
+
 template<typename T> atIterator<T>::atIterator(T *pStart, const int64_t len)
   : m_pBegin(pStart)
 {

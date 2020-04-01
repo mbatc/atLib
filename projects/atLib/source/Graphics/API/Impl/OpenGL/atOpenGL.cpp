@@ -10,7 +10,13 @@ static HGLRC _CreateContext(HWND hWnd, HDC *pDC)
   HGLRC glCtx = 0;
   {
     HGLRC tempGLCtx;
-    atWindow tempWnd("FakeWnd", { 800, 600 }, { 0 }, true, false);
+    atWindowCreateInfo info;
+    info.title = "FakeWnd";
+    info.size = { 800, 600 };
+    info.pos = { 0 };
+    info.flags = atWF_None;
+    atWindow tempWnd(info);
+
     HDC hTempDC = GetDC(tempWnd.Handle());
 
     PIXELFORMATDESCRIPTOR pfd;

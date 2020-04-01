@@ -1,7 +1,6 @@
 #include "atPlatform.h"
 
-
-atPlatform_OS atPlatform::GetOS()
+constexpr atPlatform_OS atPlatform::GetOS()
 {
 #ifdef atPLATFORM_WIN32
   return atPlatform_OS_Win32;

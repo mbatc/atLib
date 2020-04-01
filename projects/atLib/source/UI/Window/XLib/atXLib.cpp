@@ -3,12 +3,12 @@
 #ifdef atPLATFORM_LINUX
 
 atXLibWindow::atXLibWindow(atWindow *pWindow) : m_pWindow(pWindow) {}
-~atXLibWindow::atXLibWindow() {}
+atXLibWindow::~atXLibWindow() {}
 
 void atXLibWindow::Clear(const atCol &) {}
 void atXLibWindow::Swap() {}
 
-bool atXLibWindow::Create() { return false; }
+bool atXLibWindow::Create(const atWindowCreateInfo &info) { return false; }
 void atXLibWindow::Destroy() {}
 void atXLibWindow::SetTitle(const atString &) {}
 void atXLibWindow::OnResize() {}
@@ -16,16 +16,17 @@ void atXLibWindow::OnResize() {}
 void atXLibWindow::SetWindowRect(const atVec4I &) {}
 void atXLibWindow::SetWindowed(const bool &) {}
 void atXLibWindow::SetVisible(const bool &) {}
+void atXLibWindow::SetStyle(const atWindowStyle &) {}
 
 void atXLibWindow::Maximize() {}
 void atXLibWindow::Minimize() {}
 void atXLibWindow::Restore() {}
 
-void atXLibWindow::SetParent(atSysWndHandle hParent) {}
-void atXLibWindow::SetCursor(atSysCursorHandle hParent) {}
-void atXLibWindow::SetMenu(atSysMenuHandle hParent) {}
-void atXLibWindow::SetIcon(atSysIconHandle hParent) {}
-void atXLibWindow::SetCallback(atSysWndCallback callback) {}
+void atXLibWindow::SetParent(const atSysWndHandle &hParent) {}
+void atXLibWindow::SetCursor(const atSysCursorHandle &hParent) {}
+void atXLibWindow::SetMenu(const atSysMenuHandle &hParent) {}
+void atXLibWindow::SetIcon(const atSysIconHandle &hParent) {}
+void atXLibWindow::SetCallback(const atSysWndCallback &callback) {}
 
 atWindowStyle atXLibWindow::GetStyle() const { return atWindowStyle(0); }
 
