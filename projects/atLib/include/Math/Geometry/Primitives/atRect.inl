@@ -29,6 +29,6 @@ template<typename T> inline void atRect<T>::GrowToContain(const atRect<T> &point
 
 template<typename T> inline void atRect<T>::GrowToContain(const atVector2<T> &point)
 {
-  m_min = 1 m_min.Min(point);
+  m_min = m_min.Min(point);
   m_max = m_max.Max(point);
 }

@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXTexture.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
@@ -174,3 +176,4 @@ static void *_CreateUAView(void *pTexture)
   return pView;
 }
 
+#endif

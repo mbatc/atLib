@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXShader.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
@@ -202,3 +204,5 @@ void atDXPrgm::BindIndices()
 }
 
 bool atDXPrgm::IsBound() { return _pBoundProgram == this; }
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXBuffer.h"
 #include "atDirectX.h"
 #include "atGraphics.h"
@@ -85,3 +87,5 @@ bool atDXBuffer::Delete()
   m_pResource = nullptr;
   return true;
 }
+
+#endif

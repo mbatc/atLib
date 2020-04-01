@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include <string.h>
+
 template<typename T>
 inline T atMatrixDet2x2(T a, T b, T c, T d)
 {

@@ -27,7 +27,6 @@
 #define atIterator_h__
 
 #include "atTypes.h"
-#include "atMath.h"
 
 template<typename T> class atIterator
 {

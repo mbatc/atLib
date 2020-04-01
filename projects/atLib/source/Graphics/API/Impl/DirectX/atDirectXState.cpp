@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDirectXState.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
@@ -164,3 +166,5 @@ static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state)
   desc.bottom = state.scissor.y + state.scissor.w;
   return desc;
 }
+
+#endif

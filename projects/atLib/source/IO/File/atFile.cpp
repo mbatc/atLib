@@ -24,7 +24,37 @@
 // -----------------------------------------------------------------------------
 
 #include "atFile.h"
-#include <Windows.h>
+#include "atPlatform.h"
+
+static void _OpenFile(FILE **ppFile, const char *pFilename, const atFileMode &fm)
+{
+#ifdef atPLATFORM_WIN32
+  fopen_s(ppFile, pFilename, atFileCommon::FileMode(fm));
+#else
+  *ppFile = fopen(pFilename, atFileCommon::FileMode(fm));
+#endif
+}
+
+static void _CloseFile(FILE **ppFile)
+{
+  if (*ppFile)
+    fclose(*ppFile);
+  *ppFile = 0;
+}
+
+static int64_t _WriteFile(const void *pData, size_t len, FILE *pFile)
+{
+  return fwrite(pData, len, 1, pFile);
+}
+
+static int64_t _ReadFile(void *pBuffer, size_t len, FILE *pFile)
+{
+#ifdef atPLATFORM_WIN32
+  return fread_s(pBuffer, (size_t)size, (size_t)size, 1, m_pFile);
+#else
+  return fread(pBuffer, (size_t)len, 1, pFile);
+#endif
+}
 
 atFile::atFile() : m_pFile(nullptr) { Close(); }
 atFile::atFile(const atFilename &file, const atFileMode mode) : m_pFile(nullptr), m_mode(atFM_None) { Open(file, mode); }
@@ -46,7 +76,7 @@ bool atFile::Open(const atFilename &file, const int64_t mode)
   if (file == m_fn)
     return file != "";
   Close();
-  fopen_s(&m_pFile, file.c_str(), atFileCommon::FileMode(mode));
+  _OpenFile(&m_pFile, file.c_str(), atFileCommon::FileMode(mode));
   if (m_pFile)
   {
     m_mode = mode;
@@ -95,7 +125,7 @@ int64_t atFile::Write(const void *pData, const int64_t len)
 {
   if (!IsOpen())
     return 0;
-  int64_t bytesWritten = fwrite(pData, (size_t)len, (size_t)1, m_pFile);
+  int64_t bytesWritten = _WriteFile(pData, (size_t)len, m_pFile);
   m_pos += bytesWritten;
   return bytesWritten * len;
 }
@@ -140,7 +170,7 @@ int64_t atFile::Read(void *pBuffer, const int64_t size)
 {
   if (!IsOpen())
     return 0;
-  if (fread_s(pBuffer, (size_t)size, (size_t)size, 1, m_pFile) != 1)
+  if (_ReadFile(pBuffer, (size_t)size, m_pFile) != 1)
     if (!feof(m_pFile))
       atAssert(false, "Read failed with error: " + atString(ferror(m_pFile)));
   m_pos += size;
@@ -148,13 +178,17 @@ int64_t atFile::Read(void *pBuffer, const int64_t size)
 }
 
 bool atFile::Exists(const atFilename &fn)
-{ 
+{
+#ifdef atPLATFORM_WIN32
   bool invalid = GetFileAttributesA(fn.c_str()) == INVALID_FILE_ATTRIBUTES;
   DWORD errorCode = GetLastError();
   return  !(invalid && (errorCode == ERROR_FILE_NOT_FOUND || errorCode == ERROR_PATH_NOT_FOUND || 
       errorCode == ERROR_INVALID_NAME || errorCode == ERROR_INVALID_DRIVE || 
       errorCode == ERROR_NOT_READY || errorCode == ERROR_INVALID_PARAMETER || 
       errorCode == ERROR_BAD_PATHNAME || errorCode == ERROR_BAD_NETPATH));
+#else
+
+#endif
 }
 
 int64_t atFile::WriteText(const atString &text) { return Write(text.c_str(), text.length()); }

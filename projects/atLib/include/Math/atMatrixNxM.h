@@ -84,4 +84,5 @@ template <typename T> int64_t atStreamRead(atReadStream *pStream, atMatrixNxM<T>
 template <typename T> int64_t atStreamWrite(atWriteStream *pStream, const atMatrixNxM<T> *pData, const int64_t count);
 
 #include "atMatrixNxM.inl"
+
 #endif // atMatrixNxM_h__

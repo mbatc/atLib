@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atGraphics.h"
 #include "atDXShader.h"
 #include "atDirectX.h"
@@ -408,3 +410,5 @@ static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int
   case atPS_Geometry: pDX->GetContext()->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
   }
 }
+
+#endif
