@@ -49,9 +49,11 @@ static void _UpdateMouse()
   HWND hWnd = GetFocus();
   if (atWinAPI::GetWindow(hWnd))
   {
-    RECT rect;
-    GetWindowRect(hWnd, &rect);
-    atInput::OnMouseMove({ p.x - rect.left, p.y - rect.top }, _dt);
+    POINT tl = { 0, 0 };
+    ClientToScreen(hWnd, &tl);
+    atVec2I ps = { p.x - tl.x, p.y - tl.y };
+    printf("%d, %d\n", ps.x, ps.y);
+    atInput::OnMouseMove({ p.x - tl.x, p.y - tl.y }, _dt);
   }
 }
 

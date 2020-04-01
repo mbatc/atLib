@@ -33,7 +33,17 @@ class atFileSystem
 public:
   atFileSystem();
 
-  static bool CreateFolders(const atString &path);
+  struct FileInfo
+  {
+    bool isFolder;
+    int64_t size;
+    atFilename path;
+  };
+
+  static bool CreateFolders(const atFilename &path);
+  static atVector<FileInfo> EnumerateFiles(const atFilename &path);
+  static atVector<FileInfo> EnumerateFolders(const atFilename &path);
+  static atVector<FileInfo> Enumerate(const atFilename &path);
 
   static atFilename GetDirectory_AppData();
   static atFilename GetDirectory_AppData_Local();

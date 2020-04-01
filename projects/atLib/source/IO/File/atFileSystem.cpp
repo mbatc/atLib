@@ -49,7 +49,47 @@ static atFilename _GetSystemPath(const int &folderID)
 }
 
 atFileSystem::atFileSystem() {}
-bool atFileSystem::CreateFolders(const atString &path) { return _CreateFoldersRecursive("", atFilename(path).Path()); }
+bool atFileSystem::CreateFolders(const atFilename &path) { return _CreateFoldersRecursive("", path.Path()); }
+
+static atVector<atFileSystem::FileInfo> _EnumerateFolder(const atFilename &path, const bool &findFiles, const bool &findFolders)
+{
+  atVector<atFileSystem::FileInfo> fileInfo;
+
+  // Find the first file in the directory.
+  WIN32_FIND_DATA ffd;
+  LARGE_INTEGER filesize;
+  HANDLE hFind = FindFirstFile(path.Path().replace("/", "\\") + "\\*", &ffd);
+
+  if (INVALID_HANDLE_VALUE == hFind)
+    return{};
+
+  // List all the files in the directory with some info about them.
+
+  do
+  {
+    atFileSystem::FileInfo newInfo;
+    newInfo.isFolder = (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0;
+    if ((newInfo.isFolder && findFolders) || (!newInfo.isFolder && findFiles))
+    {
+      if (!newInfo.isFolder)
+      {
+        filesize.LowPart = ffd.nFileSizeLow;
+        filesize.HighPart = ffd.nFileSizeHigh;
+        newInfo.size = filesize.QuadPart;
+      }
+
+      newInfo.path = path.Path() + "/" + ffd.cFileName;
+      fileInfo.push_back(newInfo);
+    }
+  } while (FindNextFile(hFind, &ffd) != 0);
+
+  FindClose(hFind);
+  return fileInfo;
+}
+
+atVector<atFileSystem::FileInfo> atFileSystem::EnumerateFiles(const atFilename &path) { return _EnumerateFolder(path, true, false); }
+atVector<atFileSystem::FileInfo> atFileSystem::EnumerateFolders(const atFilename &path) { return _EnumerateFolder(path, false, true); }
+atVector<atFileSystem::FileInfo> atFileSystem::Enumerate(const atFilename &path) { return _EnumerateFolder(path, true, true); }
 
 atFilename atFileSystem::GetDirectory_AppData() { return _GetSystemPath(CSIDL_APPDATA); }
 atFilename atFileSystem::GetDirectory_AppData_Local() { return _GetSystemPath(CSIDL_LOCAL_APPDATA); }

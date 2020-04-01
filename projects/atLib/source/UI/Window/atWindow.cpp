@@ -30,16 +30,11 @@
 #include "atImGui.h"
 #include "atInput.h"
 
-atWindow::atWindow(const atString &title, const atVec2I &size, const atVec2I &pos, const bool windowed, const bool &visible, const int64_t style)
+atWindow::atWindow(const atWindowCreateInfo &info)
   : m_sysWindow(this)
+  , m_createInfo(info)
 {
-  SetTitle(title);
-  SetSize(size);
-  SetPos(pos);
-  SetStyle(style);
-  SetWindowed(windowed);
-  SetVisible(visible);
-  MakeWindow();
+  MakeWindow(m_createInfo);
 }
 
 atWindow::~atWindow() { Destroy(); }
@@ -78,28 +73,32 @@ void atWindow::Maximize() { m_sysWindow.Maximize(); }
 void atWindow::Minimize() { m_sysWindow.Minimize(); }
 void atWindow::Restore() { m_sysWindow.Restore(); }
 
+atWindowStyle atWindow::GetStyle() const { return m_sysWindow.GetStyle(); }
+atString atWindow::GetTitle() const { return m_sysWindow.GetTitle(); }
+
 void atWindow::Destroy()
 {
   SetWindowed(true);
   m_sysWindow.Destroy();
 }
 
-bool atWindow::MakeWindow() { return m_sysWindow.Create(); }
+bool atWindow::MakeWindow(const atWindowCreateInfo &info) { return m_sysWindow.Create(info); }
 
-const atVec2I& atWindow::Position() const { return m_sysWindow.GetPos(); }
-const atVec2I& atWindow::Size() const { return m_sysWindow.GetSize(); }
-const int32_t& atWindow::GetX() const { return Position().x; }
-const int32_t& atWindow::GetY() const { return Position().y; }
+atVec2I atWindow::Position() const { return m_sysWindow.GetPos(); }
+atVec2I atWindow::Size() const { return m_sysWindow.GetClientSize(); }
+atVec2I atWindow::FullSize() const { return m_sysWindow.GetSize(); }
+int32_t atWindow::GetX() const { return Position().x; }
+int32_t atWindow::GetY() const { return Position().y; }
 bool atWindow::IsMaximized() const { return m_sysWindow.IsMaximized(); }
 bool atWindow::IsMinimized() const { return m_sysWindow.IsMinimized(); }
 bool atWindow::IsRestored() const { return !(IsMinimized() || IsMaximized()); }
 
-const int32_t& atWindow::Width() const { return Size().x; }
-const int32_t& atWindow::Height() const { return Size().y; }
+int32_t atWindow::Width() const { return Size().x; }
+int32_t atWindow::Height() const { return Size().y; }
 
-bool atWindow::IsWindowed() const { return m_windowed; }
-bool atWindow::IsVisible() const { return m_visible; }
-void atWindow::SetStyle(const int64_t style) { m_style = style; }
+bool atWindow::IsWindowed() const { return m_sysWindow.IsWindowed(); }
+bool atWindow::IsVisible() const { return m_sysWindow.IsVisible(); }
+void atWindow::SetStyle(const atWindowStyle &style) { m_sysWindow.SetStyle(style); }
 
 void atWindow::SetMenu(atSysMenuHandle hMenu) { m_sysWindow.SetMenu(hMenu); }
 void atWindow::SetIcon(atSysIconHandle hIcon) { m_sysWindow.SetIcon(hIcon); }

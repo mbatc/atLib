@@ -31,6 +31,17 @@
 #include "atColor.h"
 #include "atString.h"
 
+#ifdef IsMinimized 
+#define Win32IsMinimized IsMinimized
+#endif
+
+#ifdef IsMaximized
+#define Win32IsMaximized IsMaximized
+#endif
+
+#undef IsMinimized
+#undef IsMaximized
+
 class atWindow;
 class atWin32Window;
 
@@ -56,7 +67,7 @@ public:
   void Clear(const atCol &color);
   void Swap();
 
-  bool Create();
+  bool Create(const atWindowCreateInfo &info);
   void Destroy();
   void SetTitle(const atString &title);
   void OnResize();
@@ -64,21 +75,23 @@ public:
   void SetWindowRect(const atVec4I &rect);
   void SetWindowed(const bool &windowed);
   void SetVisible(const bool &visible);
+  void SetStyle(const atWindowStyle &style);
 
   void Maximize();
   void Minimize();
   void Restore();
 
-  void SetParent(atSysWndHandle hParent);
-  void SetCursor(atSysCursorHandle hParent);
-  void SetMenu(atSysMenuHandle hParent);
-  void SetIcon(atSysIconHandle hParent);
-  void SetCallback(atSysWndCallback callback);
+  void SetParent(const atSysWndHandle &hParent);
+  void SetCursor(const atSysCursorHandle &hParent);
+  void SetMenu(const atSysMenuHandle &hParent);
+  void SetIcon(const atSysIconHandle &hParent);
+  void SetCallback(const atSysWndCallback &callback);
 
   atWindowStyle GetStyle() const;
 
   atString GetTitle() const;
 
+  atVec2I GetClientSize() const;
   atVec2I GetSize() const;
   atVec2I GetPos() const;
 
@@ -91,8 +104,8 @@ public:
   const atVector<atCol>& Pixels();
   
 protected:
-  bool WINRegister();
-  bool WINCreate();
+  bool WINRegister(const atWindowCreateInfo &info);
+  bool WINCreate(const atWindowCreateInfo &info);
   bool UpdatePixels();
   void LoadDefaultResources();
 
@@ -121,5 +134,13 @@ protected:
     RECT rect;
   } m_windowedState;
 };
+
+#ifdef Win32IsMinimized
+#define IsMinimized Win32IsMinimized
+#endif
+
+#ifdef Win32IsMaximized
+#define IsMaximized Win32IsMaximized
+#endif
 
 #endif // atWinAPI_h__

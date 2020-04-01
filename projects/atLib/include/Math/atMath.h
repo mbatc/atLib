@@ -103,11 +103,6 @@ template<> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>();
 template<typename T> inline T atClipNearZ();
 template<typename T> inline T atClipFarZ();
 
-template<typename T> inline T atMin(const T &a);
-template<typename T> inline T atMax(const T &a);
-template<typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args);
-template<typename T, typename T2, typename... Args> inline T atMax(const T &first, const T2 &second, Args ...args);
-
 template<typename T> inline T atSquare(const T &x);
 template<typename T> inline T atSin(const T &rads);
 template<typename T> inline T atCos(const T &rads);

@@ -8,20 +8,22 @@ win32Build = os.target() == "windows"
 linuxBuild = os.target() == "linux"
 
 if (not win32Build and not linuxBuild) then
-  print("This pperating system is not supported")
+  print("This operating system is not supported.")
   exit()
 end
 
 -- Setup WIN32 Project
-if (wind32Build) then
+if (win32Build == true) then
   defines { "atPLATFORM_WIN32" }
+  print("Creating project for Windows...")
 end
 
 -- Setup Linux Project
-if (linuxBuild) then
+if (linuxBuild == true) then
   defines { "atPLATFORM_LINUX" }
   includedirs { "/usr/include" }
   libdirs {"/usr/lib"}
+  print("Creating project for Linux...")
 end
 
 dependson { "sqlite3" }
