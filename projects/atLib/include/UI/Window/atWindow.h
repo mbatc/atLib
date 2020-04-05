@@ -80,6 +80,7 @@ public:
   int32_t Height() const;
 
   atVec2I Position() const;
+  atVec2I GetScreenPos(const atVec2I &pos) const;
   int32_t GetX() const;
   int32_t GetY() const;
 

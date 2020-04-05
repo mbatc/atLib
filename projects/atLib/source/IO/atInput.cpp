@@ -52,7 +52,6 @@ static void _UpdateMouse()
     POINT tl = { 0, 0 };
     ClientToScreen(hWnd, &tl);
     atVec2I ps = { p.x - tl.x, p.y - tl.y };
-    printf("%d, %d\n", ps.x, ps.y);
     atInput::OnMouseMove({ p.x - tl.x, p.y - tl.y }, _dt);
   }
 }

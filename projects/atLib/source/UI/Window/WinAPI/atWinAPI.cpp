@@ -378,6 +378,15 @@ atString atWin32Window::GetTitle() const
   ::GetWindowText(m_hWnd, titleBuffer.data(), (int)titleLen);
 }
 
+atVec2I atWin32Window::GetScreenPos(const atVec2I &pos) const
+{
+  POINT p;
+  p.x = pos.x;
+  p.y = pos.y;
+  ::ClientToScreen(m_hWnd, &p);
+  return atVec2I(p.x, p.y);
+}
+
 atVec2I atWin32Window::GetClientSize() const
 {
   RECT r;

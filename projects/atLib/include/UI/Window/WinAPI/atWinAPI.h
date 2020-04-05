@@ -90,7 +90,7 @@ public:
   atWindowStyle GetStyle() const;
 
   atString GetTitle() const;
-
+  atVec2I GetScreenPos(const atVec2I &pos) const;
   atVec2I GetClientSize() const;
   atVec2I GetSize() const;
   atVec2I GetPos() const;

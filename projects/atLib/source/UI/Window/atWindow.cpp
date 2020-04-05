@@ -85,6 +85,7 @@ void atWindow::Destroy()
 bool atWindow::MakeWindow(const atWindowCreateInfo &info) { return m_sysWindow.Create(info); }
 
 atVec2I atWindow::Position() const { return m_sysWindow.GetPos(); }
+atVec2I atWindow::GetScreenPos(const atVec2I &pos) const { return m_sysWindow.GetScreenPos(pos); }
 atVec2I atWindow::Size() const { return m_sysWindow.GetClientSize(); }
 atVec2I atWindow::FullSize() const { return m_sysWindow.GetSize(); }
 int32_t atWindow::GetX() const { return Position().x; }
