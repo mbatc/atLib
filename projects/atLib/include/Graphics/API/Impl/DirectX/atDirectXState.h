@@ -1,6 +1,8 @@
 #ifndef atDirectXState_h__
 #define atDirectXState_h__
 
+#ifdef atPLATFORM_WINDOWS
+
 #include "atDirectX.h"
 #include "atRenderState.h"
 
@@ -17,5 +19,7 @@ public:
 protected:
   __atDXStateImpl *m_pDX = nullptr;
 };
+
+#endif
 
 #endif // atDirectXState_h__

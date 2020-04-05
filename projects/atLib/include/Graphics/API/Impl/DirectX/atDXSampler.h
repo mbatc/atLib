@@ -1,6 +1,8 @@
 #ifndef atDXSampler_h__
 #define atDXSampler_h__
 
+#ifdef atPLATFORM_WINDOWS
+
 #include "atGFXSamplerInterface.h"
 
 class atDXSampler : public atGFXSamplerInterface
@@ -13,5 +15,7 @@ public:
   bool Upload() override;
   bool Delete() override;
 };
+
+#endif
 
 #endif // atDXSampler_h__

@@ -1,6 +1,8 @@
 #ifndef atDXPrgm_h__
 #define atDXPrgm_h__
 
+#ifdef atPLATFORM_WINDOWS
+
 #include "atGFXPrgmInterface.h"
 #include "atDXBuffer.h"
 
@@ -36,5 +38,7 @@ protected:
   void *m_pLayout = nullptr;
   atVector<atDXBuffer*> m_inputs;
 };
+
+#endif
 
 #endif // atDXPrgm_h__

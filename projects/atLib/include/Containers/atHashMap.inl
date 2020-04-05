@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#include "atMinMax.h"
+
 template<typename Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
 template<typename Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
 template<typename Key, class Value> void atHashMap<Key, Value>::Clear() 
@@ -34,7 +36,7 @@ template<typename Key, class Value> void atHashMap<Key, Value>::Clear()
 
 template<typename Key, class Value> atHashMap<Key, Value>::atHashMap(const int64_t bucketCount)
 {
-  m_buckets.resize(max(bucketCount, 1));
+  m_buckets.resize(atMax(bucketCount, 1));
   for (auto &bucket : m_buckets)
     bucket.reserve(m_itemCount);
   m_size = 0;
@@ -229,7 +231,7 @@ template<typename Key, class Value> atHashMap<Key, Value>::Iterator::Iterator(at
 }
 
 template<typename Key, class Value> atHashMap<Key, Value>::Iterator::Iterator(Iterator &&move)
-  : iterator(move.m_pMap, move.m_bucket, move.m_pKVP)
+  : Iterator(move.m_pMap, move.m_bucket, move.m_pKVP)
 {
   move.m_pMap = nullptr;
   move.m_pKVP = nullptr;
@@ -254,7 +256,7 @@ template<typename Key, class Value> atHashMap<Key, Value>::ConstIterator::ConstI
 }
 
 template<typename Key, class Value> atHashMap<Key, Value>::ConstIterator::ConstIterator(ConstIterator &&move)
-  : const_iterator(move.m_pMap, move.m_bucket, move.m_pKVP)
+  : ConstIterator(move.m_pMap, move.m_bucket, move.m_pKVP)
 {
   move.m_pMap = nullptr;
   move.m_pKVP = nullptr;
@@ -271,12 +273,12 @@ template<typename Key, class Value> const typename atHashMap<Key, Value>::ConstI
   return *this;
 }
 
-template<typename Key, class Value> atHashMap<Key, Value>::Iterator::Iterator(const Iterator &copy) : iterator(copy.m_pMap, copy.m_bucket, copy.m_pKVP) {}
+template<typename Key, class Value> atHashMap<Key, Value>::Iterator::Iterator(const Iterator &copy) : Iterator(copy.m_pMap, copy.m_bucket, copy.m_pKVP) {}
 template<typename Key, class Value> bool atHashMap<Key, Value>::Iterator::operator==(const Iterator &rhs) const { return m_pKVP == rhs.m_pKVP; }
 template<typename Key, class Value> bool atHashMap<Key, Value>::Iterator::operator!=(const Iterator &rhs) const { return m_pKVP != rhs.m_pKVP; }
 template<typename Key, class Value> atKeyValue<Key, Value>* atHashMap<Key, Value>::Iterator::operator->() { return m_pKVP; }
 template<typename Key, class Value> atKeyValue<Key, Value>& atHashMap<Key, Value>::Iterator::operator*() { return *m_pKVP; }
-template<typename Key, class Value> atHashMap<Key, Value>::ConstIterator::ConstIterator(const ConstIterator &copy) : const_iterator(copy.m_pMap, copy.m_bucket, copy.m_pKVP) {}
+template<typename Key, class Value> atHashMap<Key, Value>::ConstIterator::ConstIterator(const ConstIterator &copy) : ConstIterator(copy.m_pMap, copy.m_bucket, copy.m_pKVP) {}
 template<typename Key, class Value> bool atHashMap<Key, Value>::ConstIterator::operator==(const ConstIterator &rhs) const { return m_pKVP == rhs.m_pKVP; }
 template<typename Key, class Value> bool atHashMap<Key, Value>::ConstIterator::operator!=(const ConstIterator &rhs) const { return m_pKVP != rhs.m_pKVP; }
 template<typename Key, class Value> const atKeyValue<Key, Value>* atHashMap<Key, Value>::ConstIterator::operator->() const { return m_pKVP; }

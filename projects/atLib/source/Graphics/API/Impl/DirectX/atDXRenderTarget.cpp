@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXRenderTarget.h"
 #include "atDXTexture.h"
 #include "atGraphics.h"
@@ -50,3 +52,5 @@ bool atDXRenderTarget::Clear(const atVec4F &color, const float &depth)
 
   return true;
 }
+
+#endif

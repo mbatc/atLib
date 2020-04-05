@@ -44,7 +44,7 @@ void atFree(void *pBlock);
 #define atAlloc(size) _atAllocTrace(size, __LINE__, __FILE__, __FUNCSIG__)
 #define atRealloc(block, size) _atReallocTrace(block, size, __LINE__, __FILE__, __FUNCSIG__)
 #elif atPLATFORM_LINUX
-#define atAllocRelTrace(size) _atAllocRelTrace(size, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+#define atAlloc(size) _atAllocTrace(size, __LINE__, __FILE__, __PRETTY_FUNCTION__)
 #define atReallocRelTrace(block, size) _atReallocRelTrace(block, size, __LINE__, __FILE__, __PRETTY_FUNCTION__)
 #endif
 

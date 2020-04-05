@@ -1,3 +1,5 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXSampler.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
@@ -92,3 +94,5 @@ bool atDXSampler::Delete()
   m_pResource;
   return true;
 }
+
+#endif

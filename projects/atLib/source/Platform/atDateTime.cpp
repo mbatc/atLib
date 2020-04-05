@@ -156,16 +156,15 @@ bool atDateTime::operator!=(const atDateTime &rhs) const { return !(*this == rhs
 void atDateTime::Set(const int64_t time)
 {
   time_t myTime = time;
-  tm data;
-  localtime_s(&data, &myTime);
+  tm *pData = localtime(&myTime);
 
-  SetDay(data.tm_mday);
-  SetYear(data.tm_year + 1900);
-  SetMonth(data.tm_mon + 1);
+  SetDay(pData->tm_mday);
+  SetYear(pData->tm_year + 1900);
+  SetMonth(pData->tm_mon + 1);
 
-  SetMin(data.tm_min);
-  SetHour(data.tm_hour);
-  SetSecond(data.tm_sec);
+  SetMin(pData->tm_min);
+  SetHour(pData->tm_hour);
+  SetSecond(pData->tm_sec);
 }
 
 atString atToString(const atDateTime &date)

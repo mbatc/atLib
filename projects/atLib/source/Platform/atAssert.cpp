@@ -24,16 +24,27 @@
 // -----------------------------------------------------------------------------
 
 #include "atAssert.h"
-#include <crtdbg.h>
+
+#ifdef atPLATFORM_WIN32
 #include <Windows.h>
+#include <crtdbg.h>
+#endif
 
 void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)
 {
   if (!cond)
+  {
 #ifdef _DEBUG
     if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+    {
+      #ifdef atPLATFORM_WIN32
+       __builtin_trap();
+       #elif atPLATFORM_LINUX
+       _CrtDebugBreak();
+       #endif
+    }
 #endif
-      _CrtDbgBreak();
+  }
 }
 
 void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function)

@@ -25,7 +25,6 @@
 
 #include "atAlloc.h"
 #include <malloc.h>
-#include <crtdbg.h>
 
 void* _atRawAlloc(const int64_t size) 
 { 
