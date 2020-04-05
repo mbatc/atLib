@@ -64,6 +64,9 @@ public:
   atFilename operator=(const atString &fn);
   atFilename operator=(const char *fn);
 
+  friend int64_t atStreamRead(atReadStream *pStream, atFilename *pData, const int64_t count);
+  friend int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int64_t count);
+
 protected:
   atString m_fullpath;
   atString m_name;
@@ -72,8 +75,5 @@ protected:
 };
 
 template<> atFilename atFromString<atFilename>(const atString &str);
-
-int64_t atStreamRead(atReadStream *pStream, atFilename *pData, const int64_t count);
-int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int64_t count);
 
 #endif

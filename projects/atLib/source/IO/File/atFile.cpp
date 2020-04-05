@@ -26,7 +26,7 @@
 #include "atFile.h"
 #include "atPlatform.h"
 
-static void _OpenFile(FILE **ppFile, const char *pFilename, const atFileMode &fm)
+static void _OpenFile(FILE **ppFile, const char *pFilename, const int64_t &fm)
 {
 #ifdef atPLATFORM_WIN32
   fopen_s(ppFile, pFilename, atFileCommon::FileMode(fm));
@@ -76,7 +76,7 @@ bool atFile::Open(const atFilename &file, const int64_t mode)
   if (file == m_fn)
     return file != "";
   Close();
-  _OpenFile(&m_pFile, file.c_str(), atFileCommon::FileMode(mode));
+  _OpenFile(&m_pFile, file.c_str(), mode);
   if (m_pFile)
   {
     m_mode = mode;
@@ -187,7 +187,8 @@ bool atFile::Exists(const atFilename &fn)
       errorCode == ERROR_NOT_READY || errorCode == ERROR_INVALID_PARAMETER || 
       errorCode == ERROR_BAD_PATHNAME || errorCode == ERROR_BAD_NETPATH));
 #else
-
+  int result = access(fn.c_str(), X_OK);
+  return result == 0 || result == EACCES || result == EROFS;
 #endif
 }
 

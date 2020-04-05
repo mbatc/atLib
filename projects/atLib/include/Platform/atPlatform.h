@@ -11,6 +11,10 @@ typedef HMENU   atSysMenuHandle;
 typedef LRESULT(__stdcall *atSysWndCallback)(HWND, UINT, WPARAM, LPARAM);
 
 #elif atPLATFORM_LINUX
+
+#include <unistd.h>
+#include <errno.h>
+
 typedef int atSysIconHandle;
 typedef int atSysWndHandle;
 typedef int atSysCursorHandle;

@@ -33,7 +33,7 @@ bool atFileInfo::SetFile(const atFilename &file)
 
 atFileInfo::atFileInfo() : m_exists(false) {}
 atFileInfo::atFileInfo(const atFilename &file) { SetFile(file); }
-bool atFileInfo::IsDirectory() const { return (m_data.st_mode & _S_IFDIR) > 0; }
+bool atFileInfo::IsDirectory() const { return (m_data.st_mode & S_IFDIR) > 0; }
 int64_t atFileInfo::Size() const { return m_data.st_size; }
 int64_t atFileInfo::DriveNo() const { return m_data.st_dev; }
 atDateTime atFileInfo::Created() const { return atDateTime(m_data.st_ctime); }
