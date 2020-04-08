@@ -1,7 +1,7 @@
 #ifndef atDXSampler_h__
 #define atDXSampler_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atGFXSamplerInterface.h"
 

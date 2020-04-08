@@ -1,11 +1,19 @@
-dofile "projects/atLib/3rdParty/sqlite3/project.lua"
-  location "../3rdParty/sqlite3/"
-
-project "atLib"
-configurations { "Debug", "Release" }
 
 win32Build = os.target() == "windows"
 linuxBuild = os.target() == "linux"
+
+if linuxBuild then
+  dofile "projects/atLib/3rdParty/sqlite3/project.lua"
+end
+
+if win32Build then
+  dofile "3rdParty/sqlite3/project.lua"      
+end
+
+location "../3rdParty/sqlite3/"
+
+project "atLib"
+configurations { "Debug", "Release" }
 
 if (not win32Build and not linuxBuild) then
   print("This operating system is not supported.")

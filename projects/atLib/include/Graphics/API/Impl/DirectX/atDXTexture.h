@@ -1,7 +1,7 @@
 #ifndef atDXTexture_h__
 #define atDXTexture_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atGFXTexInterface.h"
 

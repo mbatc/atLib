@@ -38,6 +38,11 @@ struct atWindowCreateInfo
   atVec2I pos = atVec2I(0, 0);
   atWindowStyle style = atWS_Overlapped;
   atWindowFlags flags = atWF_Resizable | atWF_Windowed | atWF_Visible;
+
+  // Buffer descriptions
+  int64_t colourBits = 32;
+  int64_t alphaBits = 8;
+  int64_t depthBits = 24;
 };
 
 #endif

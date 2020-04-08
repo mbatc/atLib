@@ -57,6 +57,8 @@ protected:
   atVector<atCol> m_pixels;
   atVector<atString> m_droppedFiles;
   atWindow *m_pWindow;
+
+  atSysWndHandle m_hWnd = 0;
 };
 
 #endif

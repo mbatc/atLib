@@ -43,9 +43,10 @@ void atWindow::Clear(const atVec4F &color) { Clear(atColor::Pack(color)); }
 
 void atWindow::Clear(const atCol color)
 {
-  m_sysWindow.Clear(color);
   if (m_pGfx)
     m_pGfx->Clear(atColor::UnPack<float>(color), 1.0f);
+  else
+    m_sysWindow.Clear(color);
 }
 
 void atWindow::Swap()

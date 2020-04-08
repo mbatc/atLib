@@ -5,6 +5,7 @@
 #include "atFormat.h"
 #include "atRenderState.h"
 
+#ifdef atPLATFORM_WIN32
 static HGLRC _CreateContext(HWND hWnd, HDC *pDC)
 {
   HGLRC glCtx = 0;
@@ -90,6 +91,31 @@ static HGLRC _CreateContext(HWND hWnd, HDC *pDC)
   return glCtx;
 }
 
+static void _DestroyContext(HGLRC hGL, HWND hWnd, HDC hDC)
+{
+  if (wglGetCurrentContext() == hGL) // unbind the hDC or glContext if either is current
+    wglMakeCurrent(wglGetCurrentDC(), nullptr);
+  else if (wglGetCurrentDC() == hDC)
+    wglMakeCurrent(nullptr, wglGetCurrentContext());
+
+  // Delete the context and free the DC handle
+  wglDeleteContext(hGL);
+  ReleaseDC(hWnd, hDC);
+}
+
+#elif atPLATFORM_LINUX
+static GLXContext _CreateContext(atSysWndHandle hWnd)
+{
+  GLXContext glCtx;
+}
+
+static void _DestroyContext(atSysWndHandle hWnd)
+{
+
+}
+
+#endif
+
 static void GLAPIENTRY _ErrorMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
   atUnused(userParam, length);
@@ -101,7 +127,13 @@ static void GLAPIENTRY _ErrorMessageCallback(GLenum source, GLenum type, GLuint 
 atOpenGL::atOpenGL(atWindow *pWindow, const bool &vsyncEnabled)
 {
   m_hWnd = pWindow->Handle();
+
+#ifdef atPLATFORM_WIN32
   m_hGL = _CreateContext(m_hWnd, &m_hDC);
+#else atPLATFORM_LINUX
+  m_hGL = _CreateContext(m_hWnd);
+#endif
+
   m_pState = atNew<atOpenGLState>();
 
 #ifdef _DEBUG // Enable error logging in debug
@@ -113,14 +145,12 @@ atOpenGL::atOpenGL(atWindow *pWindow, const bool &vsyncEnabled)
 atOpenGL::~atOpenGL()
 {
   atDelete(m_pState);
-  if (wglGetCurrentContext() == m_hGL) // unbind the hDC or glContext if either is current
-    wglMakeCurrent(wglGetCurrentDC(), nullptr);
-  else if (wglGetCurrentDC() == m_hDC)
-    wglMakeCurrent(nullptr, wglGetCurrentContext());
 
-  // Delete the context and free the DC handle
-  wglDeleteContext(m_hGL);  
-  ReleaseDC(m_hWnd, m_hDC);
+#ifdef atPLATFORM_WIN32
+  _DestroyContext(m_hGL, m_hWnd, m_hDC);
+#else atPLATFORM_LINUX
+  _DestroyContext(m_hGL);
+#endif
 }
 
 void atOpenGL::Swap() { SwapBuffers(m_hDC); }

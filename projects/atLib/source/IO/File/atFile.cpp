@@ -50,7 +50,7 @@ static int64_t _WriteFile(const void *pData, size_t len, FILE *pFile)
 static int64_t _ReadFile(void *pBuffer, size_t len, FILE *pFile)
 {
 #ifdef atPLATFORM_WIN32
-  return fread_s(pBuffer, (size_t)size, (size_t)size, 1, m_pFile);
+  return fread_s(pBuffer, (size_t)len, (size_t)len, 1, pFile);
 #else
   return fread(pBuffer, (size_t)len, 1, pFile);
 #endif

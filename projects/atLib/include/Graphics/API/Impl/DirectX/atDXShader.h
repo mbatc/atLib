@@ -1,7 +1,7 @@
 #ifndef atDXShader_h__
 #define atDXShader_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atHashMap.h"
 #include "atDXBuffer.h"

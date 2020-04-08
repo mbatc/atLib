@@ -1,7 +1,7 @@
 #ifndef atDXRenderTarget_h__
 #define atDXRenderTarget_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atGFXRenderTarget.h"
 

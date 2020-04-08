@@ -28,9 +28,16 @@ public:
   atOpenGLState* GetState();
 
 protected:
-  HGLRC m_hGL = 0;
+
+#ifdef atPLATFORM_WIN32
   HWND m_hWnd = 0;
+  HGLRC m_hGL = 0;
   HDC m_hDC = 0;
+#else
+  int m_hWnd = 0;
+  XVisualInfo *m_pVI;
+  GLXContext m_hGL = 0;
+#endif
 
   atOpenGLState *m_pState;
 };

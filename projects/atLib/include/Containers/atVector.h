@@ -83,10 +83,10 @@ public:
   void insert(const int64_t index, const std::vector<T> &items);
   void insert(const int64_t index, vector_const_iterator start, vector_const_iterator end);
 
-  template<typename... Args> void emplace_back(Args... args);
-  template<typename... Args> void emplace_back_array(const int64_t count, Args... args);
-  template<typename... Args> void emplace_array(const int64_t index, const int64_t count, Args... args);
-  template<typename... Args> void emplace(const int64_t index, Args... args);
+  template<typename... Args> void emplace_back(Args&&... args);
+  template<typename... Args> void emplace_back_array(const int64_t count, Args&&... args);
+  template<typename... Args> void emplace_array(const int64_t index, const int64_t count, Args&&... args);
+  template<typename... Args> void emplace(const int64_t index, Args&&... args);
 
   // Memory Management
   void resize(const int64_t size, const T &initial = T());

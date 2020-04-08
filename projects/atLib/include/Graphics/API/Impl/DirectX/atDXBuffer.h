@@ -1,7 +1,7 @@
 #ifndef atDXBuffer_h__
 #define atDXBuffer_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atGFXBufferInterface.h"
 

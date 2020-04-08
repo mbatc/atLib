@@ -93,7 +93,7 @@ inline void atVector<T>::insert(const int64_t index, vector_const_iterator start
 
 template<typename T>
 template<typename... Args>
-inline void atVector<T>::emplace_back_array(const int64_t count, Args... args)
+inline void atVector<T>::emplace_back_array(const int64_t count, Args&&... args)
 {
   grow_reserve(m_size + count);
   atConstructArray<T, Args...>(m_pData + m_size, count, std::forward<Args>(args)...);
@@ -102,7 +102,7 @@ inline void atVector<T>::emplace_back_array(const int64_t count, Args... args)
 
 template<typename T>
 template<typename... Args>
-inline void atVector<T>::emplace_array(const int64_t index, const int64_t count, Args... args)
+inline void atVector<T>::emplace_array(const int64_t index, const int64_t count, Args&&... args)
 {
   emplace_back_array(count, std::forward<Args>(args)...);
   move_to_index(size() - count, index, count);
@@ -110,7 +110,7 @@ inline void atVector<T>::emplace_array(const int64_t index, const int64_t count,
 
 template<typename T>
 template<typename... Args>
-inline void atVector<T>::emplace(const int64_t index, Args... args)
+inline void atVector<T>::emplace(const int64_t index, Args&&... args)
 {
   emplace_back(std::forward<Args>(args)...);
   move_item(size() - 1, index);
@@ -348,6 +348,13 @@ inline void atVector<T>::realloc(const int64_t size)
   m_capacity = size;
 }
 
+template<typename T> template<typename... Args> void atVector<T>::emplace_back(Args&&... args)
+{
+  grow_reserve(m_size + 1);
+  atConstruct<T, Args...>(m_pData + m_size, std::forward<Args>(args)...);
+  m_size += 1;
+}
+
 template<typename T> atVector<T>::atVector() {}
 template<typename T> atVector<T>::atVector(const int64_t _reserve) { reserve(_reserve); }
 template<typename T> atVector<T>::atVector(const std::initializer_list<T> &list) { assign(list.begin(), list.end()); }
@@ -383,7 +390,6 @@ template<typename T> void atVector<T>::swap_pop_front(const int64_t index) { std
 template<typename T> void atVector<T>::insert(const int64_t index, const T &item) { emplace(index, item); }
 template<typename T> void atVector<T>::insert(const int64_t index, const atVector<T> &items) { insert(index, items.begin(), items.end()); }
 template<typename T> void atVector<T>::insert(const int64_t index, const std::vector<T> &items) { insert(index, items.begin(), items.end()); }
-template<typename T> template<typename... Args> void atVector<T>::emplace_back(Args... args) { emplace_back_array(1, std::forward<Args>(args)...); }
 template<typename T> void atVector<T>::shrink_to_fit() { reserve(m_size); }
 template<typename T> void atVector<T>::clear() { shrink_by(m_size); }
 template<typename T> void atVector<T>::erase(vector_iterator start, vector_iterator end) { erase(start - m_pData, end - m_pData); }

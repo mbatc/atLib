@@ -1,7 +1,7 @@
 #ifndef atDirectXState_h__
 #define atDirectXState_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atDirectX.h"
 #include "atRenderState.h"

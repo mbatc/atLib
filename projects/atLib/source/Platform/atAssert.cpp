@@ -38,9 +38,9 @@ void _atRelAssert(const bool cond, const char *message, const int64_t line, cons
     if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
     {
       #ifdef atPLATFORM_WIN32
-       __builtin_trap();
+       _CrtDbgBreak();
        #elif atPLATFORM_LINUX
-       _CrtDebugBreak();
+       __builtin_trap();
        #endif
     }
 #endif

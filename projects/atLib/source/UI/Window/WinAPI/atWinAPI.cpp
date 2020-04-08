@@ -45,8 +45,8 @@ static int64_t s_lastClock;
 static atHashMap<int64_t, atWindow*> _windows;
 static int64_t s_wndClsCounter = 0;
 
-atWindowStyle _CreateLibStyle(const LONG &wndStyle);
-LONG _CreateWin32Style(const atWindowStyle &style);
+static atWindowStyle _CreateLibStyle(const DWORD &wndStyle);
+static DWORD _CreateWin32Style(const atWindowStyle &style);
 
 // WinAPI helpers
 
@@ -297,13 +297,13 @@ bool atWin32Window::WINRegister(const atWindowCreateInfo &info)
 bool atWin32Window::WINCreate(const atWindowCreateInfo &info)
 {
   HINSTANCE hInstance = ::GetModuleHandle(NULL);
-  atVec2I pos = info.pos;;
+  atVec2I pos = info.pos;
   atVec2I size = info.size;
-  int64_t style = _CreateWin32Style(info.style);
+  DWORD style = _CreateWin32Style(info.style);
   RECT rect = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
   ::AdjustWindowRect(&rect, (DWORD)style, false);
 
-  m_hWnd = CreateWindow(m_wndCls.c_str(), info.title.c_str(), (DWORD)style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
+  m_hWnd = CreateWindow(m_wndCls.c_str(), info.title.c_str(), style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
 
   if (!m_hWnd)
     return false;
@@ -332,15 +332,12 @@ bool atWin32Window::UpdatePixels()
 void atWin32Window::Swap()
 {
   HDC hDC = ::GetDC(m_hWnd);
-  const atVector<atCol> &pixels = m_pWindow->PixelsV();
   atVec2I size = m_pWindow->Size();
 
-  if (pixels.size() != 0)
+  if (m_pixels.size() != 0)
   {
-    // Flip RGBA to BGRA
-    static atVector<atCol> pixelsBGRA;
-    pixelsBGRA = pixels;
-    for (atCol &c : pixelsBGRA) c = atColor::RGBAtoBGRA(c);
+    m_pixelsBGRA = m_pixels;
+    for (atCol &c : m_pixelsBGRA) c = atColor::RGBAtoBGRA(c);
 
     // Create Bitmap Info
     BITMAPINFO info = { 0 };
@@ -352,13 +349,14 @@ void atWin32Window::Swap()
     info.bmiHeader.biPlanes = 1;
 
     // Draw Bitmap
-    ::StretchDIBits(hDC, 0, 0, size.x, size.y, 0, 0, size.x, size.y, pixelsBGRA.data(), &info, DIB_RGB_COLORS, SRCCOPY);
+    ::StretchDIBits(hDC, 0, 0, size.x, size.y, 0, 0, size.x, size.y, m_pixelsBGRA.data(), &info, DIB_RGB_COLORS, SRCCOPY);
   }
 
   ::ReleaseDC(m_hWnd, hDC);
 }
 
-void atWin32Window::Clear(const atCol &color) { for (atCol &c : m_pixels) memcpy(&c, &color, sizeof(atCol)); }
+void atWin32Window::Clear(const atCol &color) { memset(m_pixels.data(), *(int*)&color, m_pixels.size() * sizeof(atCol)); }
+
 void atWin32Window::SetCallback(const atSysWndCallback &callback) { m_wndProc = callback; }
 void atWin32Window::SetTitle(const atString &title) { ::SetWindowText(m_hWnd, title.c_str()); }
 void atWin32Window::SetCursor(const atSysCursorHandle &hCursor) { m_hCursor = hCursor; }
@@ -376,6 +374,7 @@ atString atWin32Window::GetTitle() const
   atVector<char> titleBuffer;
   titleBuffer.resize(titleLen, 0);
   ::GetWindowText(m_hWnd, titleBuffer.data(), (int)titleLen);
+  return atString(titleBuffer);
 }
 
 atVec2I atWin32Window::GetScreenPos(const atVec2I &pos) const
@@ -413,7 +412,7 @@ bool atWin32Window::IsMinimized() const { return ::IsIconic(m_hWnd) != 0; }
 bool atWin32Window::IsWindowed() const { return !m_windowedState.wasFullscreen; }
 bool atWin32Window::IsVisible() const { return ::IsWindowVisible(m_hWnd) != 0; }
 
-atWindowStyle _CreateLibStyle(const LONG &wndStyle)
+static atWindowStyle _CreateLibStyle(const DWORD &wndStyle)
 {
   atWindowStyle flags = atWS_None;
   if (wndStyle & WS_BORDER)      flags = flags | atWS_Border;
@@ -428,9 +427,9 @@ atWindowStyle _CreateLibStyle(const LONG &wndStyle)
   return flags;
 }
 
-LONG _CreateWin32Style(const atWindowStyle &style)
+static DWORD _CreateWin32Style(const atWindowStyle &style)
 {
-  LONG flags = 0;
+  DWORD flags = 0;
   if (style & atWS_Border)         flags |= WS_BORDER;
   if (style & atWS_ThickFrame)     flags |= WS_THICKFRAME;
   if (style & atWS_Popup)          flags |= WS_POPUP;

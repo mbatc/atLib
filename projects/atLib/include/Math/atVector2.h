@@ -40,7 +40,7 @@ public:
 
   template<typename T2> explicit atVector2(T2 val);
   template<typename T2> atVector2(T2 _x, T2 _y);
-  template<typename T2> atVector2(atVector2<T2> copy);
+  template<typename T2> atVector2(const atVector2<T2> &copy);
 
 
   static atVector2<T> zero();

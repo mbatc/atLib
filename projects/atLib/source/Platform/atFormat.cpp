@@ -30,7 +30,7 @@
 #define FMT_MASK_RGB    0xFFFF0000
 #define FMT_MASK_DEPTH  0x0000FFFF
 
-#ifdef atPLATFROM_WIN32
+#ifdef atPLATFORM_WIN32
 
 int64_t atFormat::DXGI(const atType &type, const int64_t &width)
 {

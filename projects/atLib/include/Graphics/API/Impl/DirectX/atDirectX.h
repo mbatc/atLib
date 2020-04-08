@@ -1,7 +1,7 @@
 #ifndef atDirectX_h__
 #define atDirectX_h__
 
-#ifdef atPLATFORM_WINDOWS
+#ifdef atPLATFORM_WIN32
 
 #include "atString.h"
 

@@ -111,6 +111,7 @@ protected:
 
   // Hi-level window
   atVector<atCol> m_pixels;
+  atVector<atCol> m_pixelsBGRA;
   atVector<atString> m_droppedFiles;
   atWindow *m_pWindow;
 
