@@ -3,7 +3,7 @@ win32Build = os.target() == "windows"
 linuxBuild = os.target() == "linux"
 
 if linuxBuild then
-  dofile "projects/atLib/3rdParty/sqlite3/project.lua"
+  dofile "3rdParty/sqlite3/project.lua"
 end
 
 if win32Build then
