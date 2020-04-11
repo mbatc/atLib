@@ -52,9 +52,7 @@ template<typename T> inline atVector3<T>::atVector3(atVector3<T> &&move)
   : x(move.x)
   , y(move.y)
   , z(move.z)
-{
-  move = zero();
-}
+{}
 
 template<typename T> template<typename T2> inline atVector3<T>::atVector3(T2 val)
   : x((T)val)
@@ -68,13 +66,13 @@ template<typename T> template<typename T2> inline atVector3<T>::atVector3(T2 _x,
   , z((T)_z)
 {}
 
-template<typename T> template<typename T2> inline atVector3<T>::atVector3(T2 _x, const atVector2<T2>& yz)
+template<typename T> template<typename T2> inline atVector3<T>::atVector3(T2 _x, const atVector2<T2> &yz)
   : x((T)_x)
   , y((T)yz.x)
   , z((T)yz.y)
 {}
 
-template<typename T> template<typename T2> inline atVector3<T>::atVector3(const atVector2<T2>& xy, T2 _z)
+template<typename T> template<typename T2> inline atVector3<T>::atVector3(const atVector2<T2> &xy, T2 _z)
   : x((T)xy.x)
   , y((T)xy.y)
   , z((T)_z)

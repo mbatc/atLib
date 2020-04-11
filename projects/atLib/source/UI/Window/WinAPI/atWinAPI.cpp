@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
+#ifdef atPLATFORM_WIN32
+
 #include "atWinAPI.h"
 #include "atInput.h"
 #include "atImGui.h"
@@ -33,12 +35,18 @@
 #include <gdiplus.h>
 #include <time.h>
 
+#undef IsMinimized
+#undef IsMaximized
+
 #pragma comment(lib, "gdiplus")
 
 static MSG s_msg;
 static int64_t s_lastClock;
 static atHashMap<int64_t, atWindow*> _windows;
 static int64_t s_wndClsCounter = 0;
+
+static atWindowStyle _CreateLibStyle(const DWORD &wndStyle);
+static DWORD _CreateWin32Style(const atWindowStyle &style);
 
 // WinAPI helpers
 
@@ -68,19 +76,6 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
   case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
   case WM_MOUSEMOVE: break;
-  case WM_INPUT:
-  {
-    // UINT size;
-    // RAWINPUT inputData;
-    // GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &inputData, &size, sizeof(RAWINPUTHEADER));
-    // if (inputData.header.dwType == RIM_TYPEMOUSE)
-    // {
-    //   int xPosRelative = inputData.data.mouse.lLastX; // Could be 1, or could be more than 1
-    //   int yPosRelative = inputData.data.mouse.lLastY; // Could be 1, or could be more than 1!
-    //   printf("%d, %d\n", xPosRelative, yPosRelative);
-    // }
-    break;
-  }
   case WM_SIZE: case WM_MOVE:
   {
     atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
@@ -122,7 +117,8 @@ static void _RegisterInputDevices(HWND hWnd)
   Rid.usUsage = HID_USAGE_GENERIC_MOUSE;
   Rid.dwFlags = RIDEV_INPUTSINK;
   Rid.hwndTarget = hWnd;
-  atAssert(!!RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE)), "Failed to register input device.");
+  bool registerInputResult = !!RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE));
+  atAssert(registerInputResult, "Failed to register input device.");
 }
 
 bool atWinAPI::PumpMessage(atWindow *pWindow)
@@ -169,7 +165,7 @@ atWin32Window::atWin32Window(atWindow *pWindow)
 
   m_wndCls += s_wndClsCounter;
 
-  // Initialise Gdiplus on first windows creation
+  // Initialize Gdiplus on first windows creation
   Gdiplus::GdiplusStartupInput _tmp;
   Gdiplus::GdiplusStartup(&s_gdiToken, &_tmp, NULL);
 }
@@ -180,14 +176,15 @@ atWin32Window::~atWin32Window()
     Gdiplus::GdiplusShutdown(s_gdiToken);
 }
 
-bool atWin32Window::Create()
+bool atWin32Window::Create(const atWindowCreateInfo &info)
 {
-  if (!WINRegister())
+  if (!WINRegister(info))
     return false;
-  if (!WINCreate())
+  if (!WINCreate(info))
     return false;
   UpdateWindow(m_hWnd);
-  SetVisible();
+  SetVisible((info.flags & atWF_Visible) > 0);
+  SetWindowed((info.flags & atWF_Windowed) > 0);
   atWinAPI::RegisterWindow(m_hWnd, m_pWindow);
   return true;
 }
@@ -211,27 +208,24 @@ void atWin32Window::OnResize()
   RECT clientRect, wndRect;
   GetClientRect(m_hWnd, &clientRect);
   GetWindowRect(m_hWnd, &wndRect);
-  m_pWindow->m_clientSize = atVec2I(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
-  m_pWindow->m_size = atVec2I(wndRect.right - wndRect.left, wndRect.bottom - wndRect.top);
-  m_pWindow->m_pos = atVec2I(wndRect.left, wndRect.top);
   UpdatePixels();
 }
 
-void atWin32Window::SetWindowRect()
+void atWin32Window::SetWindowRect(const atVec4I &rect)
 {
   if (!m_hWnd)
     return;
   SetWindowPos(m_hWnd, NULL,
-    m_pWindow->m_pos.x,
-    m_pWindow->m_pos.y,
-    m_pWindow->m_size.x,
-    m_pWindow->m_size.y, 0);
+    rect.x,
+    rect.y,
+    rect.z,
+    rect.w, 0);
   UpdatePixels();
 }
 
-void atWin32Window::SetWindowed()
+void atWin32Window::SetWindowed(const bool &windowed)
 {
-  bool fullscreen = !m_pWindow->IsWindowed();
+  bool fullscreen = !windowed;
   
   if (!m_windowedState.wasFullscreen)
   {
@@ -275,15 +269,16 @@ void atWin32Window::SetWindowed()
   }
 }
 
-void atWin32Window::SetVisible() { ShowWindow(m_hWnd, m_pWindow->IsVisible() ? SW_SHOW : SW_HIDE); }
-void atWin32Window::Maximize() { ShowWindow(m_hWnd, SW_MAXIMIZE); }
-void atWin32Window::Minimize() { ShowWindow(m_hWnd, SW_MINIMIZE); }
-void atWin32Window::Restore() { ShowWindow(m_hWnd, SW_RESTORE); }
+void atWin32Window::SetVisible(const bool &visible) { ::ShowWindow(m_hWnd, visible ? SW_SHOW : SW_HIDE); }
+void atWin32Window::SetStyle(const atWindowStyle &style) { ::SetWindowLong(m_hWnd, GWL_STYLE, _CreateWin32Style(style)); }
+void atWin32Window::Maximize() { ::ShowWindow(m_hWnd, SW_MAXIMIZE); }
+void atWin32Window::Minimize() { ::ShowWindow(m_hWnd, SW_MINIMIZE); }
+void atWin32Window::Restore() { ::ShowWindow(m_hWnd, SW_RESTORE); }
 
-bool atWin32Window::WINRegister()
+bool atWin32Window::WINRegister(const atWindowCreateInfo &info)
 {
   LoadDefaultResources();
-  HINSTANCE hInstance = GetModuleHandle(NULL);
+  HINSTANCE hInstance = ::GetModuleHandle(NULL);
   WNDCLASSEX wce;
   wce.cbSize = sizeof(WNDCLASSEX);
   wce.style = 0;
@@ -300,23 +295,22 @@ bool atWin32Window::WINRegister()
   return RegisterClassEx(&wce) != 0;
 }
 
-bool atWin32Window::WINCreate()
+bool atWin32Window::WINCreate(const atWindowCreateInfo &info)
 {
-  HINSTANCE hInstance = GetModuleHandle(NULL);
-  atVec2I pos = m_pWindow->Position();
-  atVec2I size = m_pWindow->Size();
-  int64_t style = m_pWindow->m_style;
+  HINSTANCE hInstance = ::GetModuleHandle(NULL);
+  atVec2I pos = info.pos;
+  atVec2I size = info.size;
+  DWORD style = _CreateWin32Style(info.style);
   RECT rect = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
-  AdjustWindowRect(&rect, (DWORD)style, false);
-  m_pWindow->m_clientSize = size;
-  m_pWindow->m_size = { rect.right - rect.left, rect.bottom - rect.top };
-  size = m_pWindow->m_size;
-  m_hWnd = CreateWindow(m_wndCls.c_str(), m_pWindow->m_title.c_str(), (DWORD)style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
+  ::AdjustWindowRect(&rect, (DWORD)style, false);
+
+  m_hWnd = CreateWindow(m_wndCls.c_str(), info.title.c_str(), style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
+
   if (!m_hWnd)
     return false;
 
   // Enabled drag and drop
-  DragAcceptFiles(m_hWnd, TRUE);
+  ::DragAcceptFiles(m_hWnd, TRUE);
   
   return UpdatePixels();
 }
@@ -324,29 +318,27 @@ bool atWin32Window::WINCreate()
 void atWin32Window::LoadDefaultResources()
 {
   if (!m_hIcon)
-    m_hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    m_hIcon = ::LoadIcon(NULL, IDI_APPLICATION);
   if (!m_hCursor)
-    m_hCursor = LoadCursor(NULL, IDC_ARROW);
+    m_hCursor = ::LoadCursor(NULL, IDC_ARROW);
 }
 
 bool atWin32Window::UpdatePixels()
 {
-  m_pixels.resize(m_pWindow->m_clientSize.x * m_pWindow->m_clientSize.y);
+  atVec2I clientSize = GetClientSize();
+  m_pixels.resize(clientSize.x * clientSize.y);
   return true;
 }
 
 void atWin32Window::Swap()
 {
-  HDC hDC = GetDC(m_hWnd);
-  const atVector<atCol> &pixels = m_pWindow->PixelsV();
+  HDC hDC = ::GetDC(m_hWnd);
   atVec2I size = m_pWindow->Size();
 
-  if (pixels.size() != 0)
+  if (m_pixels.size() != 0)
   {
-    // Flip RGBA to BGRA
-    static atVector<atCol> pixelsBGRA;
-    pixelsBGRA = pixels;
-    for (atCol &c : pixelsBGRA) c = atColor::RGBAtoBGRA(c);
+    m_pixelsBGRA = m_pixels;
+    for (atCol &c : m_pixelsBGRA) c = atColor::RGBAtoBGRA(c);
 
     // Create Bitmap Info
     BITMAPINFO info = { 0 };
@@ -358,18 +350,97 @@ void atWin32Window::Swap()
     info.bmiHeader.biPlanes = 1;
 
     // Draw Bitmap
-    StretchDIBits(hDC, 0, 0, size.x, size.y, 0, 0, size.x, size.y, pixelsBGRA.data(), &info, DIB_RGB_COLORS, SRCCOPY);
+    ::StretchDIBits(hDC, 0, 0, size.x, size.y, 0, 0, size.x, size.y, m_pixelsBGRA.data(), &info, DIB_RGB_COLORS, SRCCOPY);
   }
 
-  ReleaseDC(m_hWnd, hDC);
+  ::ReleaseDC(m_hWnd, hDC);
 }
 
-void atWin32Window::Clear(atCol color) { for (atCol &c : m_pixels) memcpy(&c, &color, sizeof(atCol)); }
-void atWin32Window::SetCallback(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM)) { m_wndProc = wndProc; }
-void atWin32Window::SetTitle() { SetWindowText(m_hWnd, m_pWindow->m_title.c_str()); }
-void atWin32Window::SetCursor(HCURSOR hCursor) { m_hCursor = hCursor; }
-void atWin32Window::SetParent(HWND hParent) { m_hParent = hParent; }
+void atWin32Window::Clear(const atCol &color) { memset(m_pixels.data(), *(int*)&color, m_pixels.size() * sizeof(atCol)); }
+
+void atWin32Window::SetCallback(const atSysWndCallback &callback) { m_wndProc = callback; }
+void atWin32Window::SetTitle(const atString &title) { ::SetWindowText(m_hWnd, title.c_str()); }
+void atWin32Window::SetCursor(const atSysCursorHandle &hCursor) { m_hCursor = hCursor; }
+void atWin32Window::SetParent(const atSysWndHandle &hParent) { m_hParent = hParent; }
 const atVector<atCol>& atWin32Window::Pixels() { return m_pixels; }
-void atWin32Window::SetIcon(HICON hIcon) { m_hIcon = hIcon; }
-void atWin32Window::SetMenu(HMENU hMenu) { hMenu = hMenu; }
+void atWin32Window::SetIcon(const atSysIconHandle &hIcon) { ::SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon); }
+void atWin32Window::SetMenu(const atSysMenuHandle &hMenu) { ::SetMenu(m_hWnd, hMenu); }
 HWND atWin32Window::Handle() const { return m_hWnd; }
+
+atWindowStyle atWin32Window::GetStyle() const { return _CreateLibStyle(::GetWindowLong(m_hWnd, GWL_STYLE)); }
+
+atString atWin32Window::GetTitle() const
+{
+  int64_t titleLen = ::GetWindowTextLength(m_hWnd) + 1;
+  atVector<char> titleBuffer;
+  titleBuffer.resize(titleLen, 0);
+  ::GetWindowText(m_hWnd, titleBuffer.data(), (int)titleLen);
+  return atString(titleBuffer);
+}
+
+atVec2I atWin32Window::GetScreenPos(const atVec2I &pos) const
+{
+  POINT p;
+  p.x = pos.x;
+  p.y = pos.y;
+  ::ClientToScreen(m_hWnd, &p);
+  return atVec2I(p.x, p.y);
+}
+
+atVec2I atWin32Window::GetClientSize() const
+{
+  RECT r;
+  ::GetClientRect(m_hWnd, &r);
+  return atVec2I(r.right, r.bottom);
+}
+
+atVec2I atWin32Window::GetSize() const
+{
+  RECT r;
+  ::GetWindowRect(m_hWnd, &r);
+  return atVec2I(r.right - r.left, r.bottom - r.top);
+}
+
+atVec2I atWin32Window::GetPos() const
+{
+  RECT r;
+  ::GetWindowRect(m_hWnd, &r);
+  return atVec2I(r.left, r.top);
+}
+
+bool atWin32Window::IsMaximized() const { return ::IsZoomed(m_hWnd) != 0; }
+bool atWin32Window::IsMinimized() const { return ::IsIconic(m_hWnd) != 0; }
+bool atWin32Window::IsWindowed() const { return !m_windowedState.wasFullscreen; }
+bool atWin32Window::IsVisible() const { return ::IsWindowVisible(m_hWnd) != 0; }
+
+static atWindowStyle _CreateLibStyle(const DWORD &wndStyle)
+{
+  atWindowStyle flags = atWS_None;
+  if (wndStyle & WS_BORDER)      flags = flags | atWS_Border;
+  if (wndStyle & WS_THICKFRAME)  flags = flags | atWS_ThickFrame;
+  if (wndStyle & WS_POPUP)       flags = flags | atWS_Popup;
+  if (wndStyle & WS_CAPTION)     flags = flags | atWS_Caption;
+  if (wndStyle & WS_MINIMIZEBOX) flags = flags | atWS_MinimizeButton;
+  if (wndStyle & WS_MAXIMIZEBOX) flags = flags | atWS_MaximizeButton;
+  if (wndStyle & WS_SYSMENU)     flags = flags | atWS_SystemMenu;
+  if (wndStyle & WS_HSCROLL)     flags = flags | atWS_HScroll;
+  if (wndStyle & WS_VSCROLL)     flags = flags | atWS_VScroll;
+  return flags;
+}
+
+static DWORD _CreateWin32Style(const atWindowStyle &style)
+{
+  DWORD flags = 0;
+  if (style & atWS_Border)         flags |= WS_BORDER;
+  if (style & atWS_ThickFrame)     flags |= WS_THICKFRAME;
+  if (style & atWS_Popup)          flags |= WS_POPUP;
+  if (style & atWS_Caption)        flags |= WS_CAPTION;
+  if (style & atWS_MinimizeButton) flags |= WS_MINIMIZEBOX;
+  if (style & atWS_MaximizeButton) flags |= WS_MAXIMIZEBOX;
+  if (style & atWS_SystemMenu)     flags |= WS_SYSMENU;
+  if (style & atWS_HScroll)        flags |= WS_HSCROLL;
+  if (style & atWS_VScroll)        flags |= WS_VSCROLL;
+  return flags;
+}
+
+#endif

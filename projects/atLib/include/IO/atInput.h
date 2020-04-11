@@ -30,12 +30,16 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <Windows.h>
+#include "atPlatform.h"
 #include "atButtonState.h"
 #include "atString.h"
 
 enum atKeyCode
 {
+#ifdef atPLATFORM_WIN32
+  // On windows we just map our key codes
+  // so to the windows key codes as it will
+  // handle translation from the hardware.
   atKC_0 = '0',
   atKC_1 = '1',
   atKC_2 = '2',
@@ -133,6 +137,110 @@ enum atKeyCode
   atKC_ImGui_Left = 0,
   atKC_ImGui_Right = 1,
   atKC_ImGui_Middle = 2,
+
+#elif atPLATFORM_LINUX
+
+  // On linux translation from hardware so
+  // software keycodes needs to be done manually
+  // so we just use a regular enum.
+  atKC_0,
+  atKC_1,
+  atKC_2,
+  atKC_3,
+  atKC_4,
+  atKC_5,
+  atKC_6,
+  atKC_7,
+  atKC_8,
+  atKC_9,
+  atKC_A,
+  atKC_B,
+  atKC_C,
+  atKC_D,
+  atKC_E,
+  atKC_F,
+  atKC_G,
+  atKC_H,
+  atKC_I,
+  atKC_J,
+  atKC_K,
+  atKC_L,
+  atKC_M,
+  atKC_N,
+  atKC_O,
+  atKC_P,
+  atKC_Q,
+  atKC_R,
+  atKC_S,
+  atKC_T,
+  atKC_U,
+  atKC_V,
+  atKC_W,
+  atKC_X,
+  atKC_Y,
+  atKC_Z,
+  atKC_Equals,
+  atKC_Apostraphe,
+  atKC_OpenSqrBracket,
+  atKC_CloseSqrBracket,
+  atKC_Period,
+  atKC_Comma,
+  atKC_ForwardSlash,
+  atKC_BackSlash,
+  atKC_Tab,
+  atKC_CapsLock,
+  atKC_Shift,
+  atKC_LShift,
+  atKC_RShift,
+  atKC_Control,
+  atKC_LControl,
+  atKC_RControl,
+  atKC_Return,
+  atKC_Backspace,
+  atKC_LAlt,
+  atKC_RAlt,
+  atKC_Space,
+  atKC_Delete,
+  atKC_Home,
+  atKC_Insert,
+  atKC_PageDown,
+  atKC_PageUp,
+  atKC_End,
+  atKC_ScrollLock,
+  atKC_PauseBreak,
+  atKC_PrintScreen,
+  atKC_NumLock,
+  atKC_Left,
+  atKC_Right,
+  atKC_Up,
+  atKC_Down,
+  atKC_Escape,
+  atKC_F1,
+  atKC_F2,
+  atKC_F3,
+  atKC_F4,
+  atKC_F5,
+  atKC_F6,
+  atKC_F7,
+  atKC_F8,
+  atKC_F9,
+  atKC_F10,
+  atKC_F11,
+  atKC_F12,
+  atKC_Menu,
+
+  atKC_Count,
+  
+  atKC_MB_Left,
+  atKC_MB_Right,
+  atKC_MB_Middle,
+
+  atKC_MB_Count,
+
+  atKC_ImGui_Left,
+  atKC_ImGui_Right,
+  atKC_ImGui_Middle,
+#endif
 };
 
 class atWindow;
@@ -200,8 +308,8 @@ public:
   static atString ToString(const int64_t code);
 
 protected:
-  static void RegisterWindow(HWND hWnd);
-  static void UnRegisterWindow(HWND hWnd);
+  static void RegisterWindow(atSysWndHandle hWnd);
+  static void UnRegisterWindow(atSysWndHandle hWnd);
 };
 
 #endif

@@ -57,4 +57,5 @@ template<typename T> atIterator<T> atIterate(T *pStart, int64_t len);
 template<typename T> atIteratorConst<T> atIterate(const T *pStart, int64_t len);
 
 #include "atIterator.inl"
+
 #endif // atIterator_h__

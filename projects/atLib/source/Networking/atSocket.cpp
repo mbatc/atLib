@@ -38,17 +38,19 @@ enum atSocketState
   atSS_Timeout = 1 << 3,
 };
 
-int64_t atSocket::s_nSockets = 0;
+int64_t atSocket::m_nSockets = 0;
 
 static void _InitialiseSockets()
 {
   WSAData wsaData;
-  atAssert(WSAStartup(MAKEWORD(atWSAMajorVer, atWSAMinorVer), &wsaData) == 0, "WSAStartup Failed()");
+  int wsaStartupResult = WSAStartup(MAKEWORD(atWSAMajorVer, atWSAMinorVer), &wsaData);
+  atAssert(wsaStartupResult == 0, "WSAStartup Failed()");
 }
 
 static void _DeInitSockets()
 {
-  atAssert(WSACleanup() == 0, "WSACleanup Failed()");
+  int wsaCleanupResult = WSACleanup();
+  atAssert(wsaCleanupResult == 0, "WSACleanup Failed()");
 }
 
 static int64_t _GetBytesAvailable(atSocketHandle handle)
@@ -146,8 +148,8 @@ atSocket::~atSocket()
   if (m_handle != INVALID_SOCKET)
     _CloseSocket(m_handle);
   m_handle = INVALID_SOCKET;
-  --s_nSockets;
-  if (s_nSockets == 0)
+  --m_nSockets;
+  if (m_nSockets == 0)
     _DeInitSockets();
 }
 
@@ -199,11 +201,11 @@ atSocket::atSocket(atSocket &&move)
   , m_isHost(move.m_isHost)
   , m_handle(move.m_handle)
 {
-  ++s_nSockets;
+  ++m_nSockets;
   move.m_handle = INVALID_SOCKET; 
 }
 
-atSocket::atSocket() : m_handle(INVALID_SOCKET) { if(++s_nSockets == 1) _InitialiseSockets(); }
+atSocket::atSocket() : m_handle(INVALID_SOCKET) { if(++m_nSockets == 1) _InitialiseSockets(); }
 
 const atSocket& atSocket::operator=(atSocket &&move)
 {

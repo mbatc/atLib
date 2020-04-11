@@ -1,7 +1,10 @@
+#ifdef atPLATFORM_WIN32
+
 #include "atDXRenderTarget.h"
 #include "atDXTexture.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
+#include "atDXInclude_Internal.h"
 #include "atWindow.h"
 
 bool atDXRenderTarget::Upload()
@@ -26,27 +29,31 @@ bool atDXRenderTarget::Bind()
 
   for (const Attachment &att : m_color)
     renderTargets[att.slot] = (ID3D11RenderTargetView*)((atDXTexture*)att.pTex)->RenderView();
-  
-  ((atDirectX*)atGraphics::GetCtx())->GetContext()->OMSetRenderTargets((UINT)maxSlot, renderTargets.data(), pDepthView);
+
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)((atDirectX*)atGraphics::GetCtx())->GetContext();
+  pCtx->OMSetRenderTargets((UINT)maxSlot, renderTargets.data(), pDepthView);
   return true;
 }
 
 bool atDXRenderTarget::Clear(const atVec4F &color, const float &depth)
 {
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)((atDirectX*)atGraphics::GetCtx())->GetContext();
   for (int64_t i = 0; i < m_color.size(); ++i)
   {
     if (!m_color[i].pTex)
       continue;
 
     ID3D11RenderTargetView *pRenderView = (ID3D11RenderTargetView*)((atDXTexture*)m_color[i].pTex)->RenderView();
-    ((atDirectX*)atGraphics::GetCtx())->GetContext()->ClearRenderTargetView(pRenderView, &color[0]);
+    pCtx->ClearRenderTargetView(pRenderView, &color[0]);
   }
 
   if (m_depth.pTex)
   {
     ID3D11DepthStencilView *pDepthView = (ID3D11DepthStencilView*)((atDXTexture*)m_depth.pTex)->DepthView();
-    ((atDirectX*)atGraphics::GetCtx())->GetContext()->ClearDepthStencilView(pDepthView, D3D11_CLEAR_DEPTH, depth, 0);
+    pCtx->ClearDepthStencilView(pDepthView, D3D11_CLEAR_DEPTH, depth, 0);
   }
 
   return true;
 }
+
+#endif

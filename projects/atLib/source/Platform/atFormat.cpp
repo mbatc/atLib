@@ -26,27 +26,12 @@
 #include "atFormat.h"
 #include "atOpenGL.h"
 #include "atDirectX.h"
-
-// enum atType
-// {
-//   atType_Float16,
-//   atType_Float32,
-//   atType_Float64,
-// 
-//   atType_Int8,
-//   atType_Int16,
-//   atType_Int32,
-//   atType_Int64,
-// 
-//   atType_Uint8,
-//   atType_Uint16,
-//   atType_Uint32,
-//   atType_Uint64,
-//   atType_Count,
-// };
+#include "atDXInclude_Internal.h"
 
 #define FMT_MASK_RGB    0xFFFF0000
 #define FMT_MASK_DEPTH  0x0000FFFF
+
+#ifdef atPLATFORM_WIN32
 
 int64_t atFormat::DXGI(const atType &type, const int64_t &width)
 {
@@ -171,6 +156,13 @@ int64_t atFormat::DXGIDepth(const atType &type)
   return format;
 }
 
+#else
+
+int64_t atFormat::DXGI(const atType &, const int64_t &) { return 0; }
+int64_t atFormat::DXGIDepth(const atType &) { return 0; }
+
+#endif
+
 int64_t atFormat::GL(const atType &type, const int64_t &width)
 {
   static int64_t fmtLookup[atType_Count][4] =
@@ -221,9 +213,9 @@ int64_t atFormat::GL(const atType &type, const int64_t &width)
     GL_RGBA_INTEGER, // 4 x 64-bit unsigned int
   };
 
-  atAssert(width <= DXGIMaxWidth(), "Width must be less than 4!");
+  atAssert(width <= GLMaxWidth(), "Width must be less than 4!");
   int64_t format = fmtLookup[type][width - 1] & 0x0000FFFF;
-  atAssert(format != DXGI_FORMAT_UNKNOWN, "Unknown DXGI Format!");
+  atAssert(format != GL_NONE, "Unknown DXGI Format!");
   return format;
 }
 
@@ -277,9 +269,9 @@ int64_t atFormat::GLInternal(const atType &type, const int64_t &width)
     GL_NONE, // 4 x 64-bit unsigned int
   };
 
-  atAssert(width <= DXGIMaxWidth(), "Width must be less than 4!");
+  atAssert(width <= GLMaxWidth(), "Width must be less than 4!");
   int64_t format = fmtLookup[type][width - 1] & 0x0000FFFF;
-  atAssert(format != DXGI_FORMAT_UNKNOWN, "Unknown DXGI Format!");
+  atAssert(format != GL_NONE, "Unknown DXGI Format!");
   return format;
 }
 

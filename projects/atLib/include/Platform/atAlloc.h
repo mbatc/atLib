@@ -26,6 +26,7 @@
 #ifndef _atAlloc_h__
 #define _atAlloc_h__
 
+#include <string.h> // defines memcpy
 #include "atAssert.h"
 
 void* _atRawAlloc(const int64_t size);
@@ -39,10 +40,12 @@ void* _atReallocRelTrace(void *pBlock, const int64_t size, const int64_t line, c
 
 void atFree(void *pBlock);
 
+#ifdef atPLATFORM_WIN32
 #define atAlloc(size) _atAllocTrace(size, __LINE__, __FILE__, __FUNCSIG__)
 #define atRealloc(block, size) _atReallocTrace(block, size, __LINE__, __FILE__, __FUNCSIG__)
-
-#define atAllocRelTrace(size) _atAllocRelTrace(size, __LINE__, __FILE__, __FUNCSIG__ )
-#define atReallocRelTrace(block, size) _atReallocRelTrace(block, size, __LINE__, __FILE__, __FUNCSIG__)
+#elif atPLATFORM_LINUX
+#define atAlloc(size) _atAllocTrace(size, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+#define atReallocRelTrace(block, size) _atReallocRelTrace(block, size, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+#endif
 
 #endif

@@ -1,12 +1,7 @@
 #ifndef atGFXObject_h__
 #define atGFXObject_h__
 
-enum atGraphicsAPI
-{
-  atGfxApi_DirectX,
-  atGfxApi_OpenGL,
-  atGfxApi_None,
-};
+#include "atGFXContext.h"
 
 class atGFXResource
 {

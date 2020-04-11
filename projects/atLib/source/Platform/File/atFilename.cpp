@@ -24,7 +24,6 @@
 // -----------------------------------------------------------------------------
 
 #include "atFilename.h"
-#include <windows.h>
 
 atFilename::atFilename(atFilename &&move)
   : m_fullpath(move.m_fullpath)
@@ -49,9 +48,13 @@ void atFilename::assign(const atString &path)
 
 atFilename atFilename::ResolveFullPath(const atFilename &path)
 {
-  char buffer[MAX_PATH] = { 0 };
-  _fullpath(buffer, path.Path(), MAX_PATH);
+  char buffer[1024] = { 0 };
+  #ifdef atPLATFORM_WIN32
+  _fullpath(buffer, path.Path(), 1024);
   return atFilename(buffer);
+  #else
+  return path;
+  #endif
 }
 
 atFilename atFilename::ResolveRelativePath(const atFilename &to, const atFilename &from)
@@ -135,6 +138,6 @@ int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int
 {
   int64_t ret = 0;
   for (const atFilename &fn : atIterate(pData, count))
-    ret += atStreamWrite(pStream, &fn.Path(), 1);
+    ret += atStreamWrite(pStream, &fn.m_fullpath, 1);
   return ret;
 }

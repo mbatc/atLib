@@ -1,6 +1,8 @@
 #ifndef atDXRenderTarget_h__
 #define atDXRenderTarget_h__
 
+#ifdef atPLATFORM_WIN32
+
 #include "atGFXRenderTarget.h"
 
 class atDXRenderTarget : public atGFXRenderTarget
@@ -20,5 +22,7 @@ public:
 protected:
 
 };
+
+#endif
 
 #endif // atDXRenderTarget_h__

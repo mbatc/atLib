@@ -28,10 +28,12 @@
 
 #include "atString.h"
 #include "atGFXResource.h"
+#include "atGFXTexInterface.h"
+#include "atGFXShaderInterface.h"
+#include "atGFXSamplerInterface.h"
+#include "atGFXPrgmInterface.h"
 
 class atWindow;
-
-class __atGfxImpl;
 
 class atGraphics
 {
@@ -41,8 +43,15 @@ public:
   // Create a graphics context associated with a window
   atGraphics(atWindow *pWindow, const atGraphicsAPI &api = atGfxApi_DirectX);
   ~atGraphics();
-  
-  static void* GetCtx();
+
+  // Create GFX objects that can be used with this graphics api
+  template<typename... Args> std::shared_ptr<atGFXBufferInterface> CreateBuffer(Args&& ...args);
+  template<typename... Args> std::shared_ptr<atGFXTexInterface> CreateTexture(Args&& ...args);
+  template<typename... Args> std::shared_ptr<atGFXSamplerInterface> CreateSampler(Args&& ...args);
+  template<typename... Args> std::shared_ptr<atGFXShaderInterface> CreateShader(Args&& ...args);
+  template<typename... Args> std::shared_ptr<atGFXPrgmInterface> CreateProgram(Args&& ...args);
+
+  static atGFXContext* GetCtx();
 
   // Set the current graphics context
   static void SetCurrent(atGraphics *pContext);
@@ -64,8 +73,10 @@ protected:
   bool SetWindowed(const bool &windowed);
 
   atWindow *m_pWindow = nullptr;
+  atGFXContext *m_pContext = nullptr;
   atGraphicsAPI m_api = atGfxApi_None;
-  __atGfxImpl* m_pImpl = nullptr;
 };
+
+#include "atGraphics.h"
 
 #endif // _atGraphics_h__

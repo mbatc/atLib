@@ -1,5 +1,7 @@
 #include "atFileDialog.h"
-#include <windows.h>
+#include "atPlatform.h"
+
+#ifdef atPLATFORM_WIN32
 
 static const char *_defaultFilter = "All Files\0*.*\0\0";
 static char _path[MAX_PATH] = { 0 };
@@ -42,3 +44,5 @@ const char* atFileDialog::BrowseFolder()
 {
   return "";
 }
+
+#endif

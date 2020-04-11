@@ -1,4 +1,3 @@
-#include "atMatrix.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -23,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
+
+#include <string.h>
 
 template<typename T>
 inline T atMatrixDet2x2(T a, T b, T c, T d)
@@ -309,7 +310,7 @@ template<typename T> inline atVector3<T> atMatrix4x4<T>::Mul(const atVector3<T> 
 
 template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Inverse() const { return Cofactors().Transpose().Mul((T)1 / Determinate()); }
 
-template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs) }
+template<typename T> template<typename T2> atMatrix4x4<T> atMatrix4x4<T>::operator*(const atMatrix4x4<T2> &rhs) const { return Mul<T2>(rhs); }
 
 template<typename T> inline atVector4<T> atMatrix4x4<T>::operator*(const atVector4<T> &rhs) const { return Mul(rhs); }
 

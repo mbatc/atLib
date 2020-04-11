@@ -26,7 +26,7 @@
 #ifndef atMatrix_h__
 #define atMatrix_h__
 
-#include <minmax.h>
+#include "atMinMax.h"
 #include "atAssert.h"
 #include "atTypes.h"
 #include "atVector4.h"

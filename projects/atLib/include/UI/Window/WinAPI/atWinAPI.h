@@ -26,11 +26,22 @@
 #ifndef atWinAPI_h__
 #define atWinAPI_h__
 
-#include <windows.h>
+#include "atPlatform.h"
+
+#include "atWindowDefinitions.h"
 #include "atColor.h"
 #include "atString.h"
 
-// TODO: Software window WINAPI https://docs.microsoft.com/en-us/windows/desktop/api/wingdi/nf-wingdi-createdibsection
+#ifdef IsMinimized 
+#define Win32IsMinimized IsMinimized
+#endif
+
+#ifdef IsMaximized
+#define Win32IsMaximized IsMaximized
+#endif
+
+#undef IsMinimized
+#undef IsMaximized
 
 class atWindow;
 class atWin32Window;
@@ -54,48 +65,65 @@ public:
   atWin32Window(atWindow *pWindow);
   ~atWin32Window();
 
-  bool Create();
+  void Clear(const atCol &color);
+  void Swap();
+
+  bool Create(const atWindowCreateInfo &info);
   void Destroy();
-  void SetTitle();
+  void SetTitle(const atString &title);
   void OnResize();
-  void SetWindowRect();
-  void SetWindowed();
-  void SetVisible();
+  
+  void SetWindowRect(const atVec4I &rect);
+  void SetWindowed(const bool &windowed);
+  void SetVisible(const bool &visible);
+  void SetStyle(const atWindowStyle &style);
 
   void Maximize();
   void Minimize();
   void Restore();
 
-  void SetParent(HWND hParent);
-  void SetCursor(HCURSOR hParent);
-  void SetMenu(HMENU hParent);
-  void SetIcon(HICON hParent);
-  void SetCallback(LRESULT(__stdcall *wndProc)(HWND, UINT, WPARAM, LPARAM));
+  void SetParent(const atSysWndHandle &hParent);
+  void SetCursor(const atSysCursorHandle &hParent);
+  void SetMenu(const atSysMenuHandle &hParent);
+  void SetIcon(const atSysIconHandle &hParent);
+  void SetCallback(const atSysWndCallback &callback);
 
-  void Clear(atCol color);
-  void Swap();
+  atWindowStyle GetStyle() const;
 
-  HWND Handle() const;
+  atString GetTitle() const;
+  atVec2I GetScreenPos(const atVec2I &pos) const;
+  atVec2I GetClientSize() const;
+  atVec2I GetSize() const;
+  atVec2I GetPos() const;
+
+  bool IsMaximized() const;
+  bool IsMinimized() const;
+  bool IsWindowed() const;
+  bool IsVisible() const;
+
+  atSysWndHandle Handle() const;
   const atVector<atCol>& Pixels();
   
 protected:
-  bool WINRegister();
-  bool WINCreate();
+  bool WINRegister(const atWindowCreateInfo &info);
+  bool WINCreate(const atWindowCreateInfo &info);
   bool UpdatePixels();
   void LoadDefaultResources();
 
   // Hi-level window
   atVector<atCol> m_pixels;
+  atVector<atCol> m_pixelsBGRA;
   atVector<atString> m_droppedFiles;
   atWindow *m_pWindow;
 
   // WinAPI junk
   atString m_wndCls = "atDefaultWndCls";
-  HWND m_hWnd = NULL;
-  HWND m_hParent = NULL;
-  HMENU m_hMenu = NULL;
-  HICON m_hIcon = NULL;
-  HCURSOR m_hCursor = NULL;
+  atSysWndHandle m_hWnd = NULL;
+  atSysWndHandle m_hParent = NULL;
+  atSysMenuHandle m_hMenu = NULL;
+  atSysIconHandle m_hIcon = NULL;
+  atSysCursorHandle m_hCursor = NULL;
+
   LRESULT(__stdcall *m_wndProc)(HWND, UINT, WPARAM, LPARAM) = atWinAPI::WindowProc;
 
   // windowed state
@@ -108,5 +136,13 @@ protected:
     RECT rect;
   } m_windowedState;
 };
+
+#ifdef Win32IsMinimized
+#define IsMinimized Win32IsMinimized
+#endif
+
+#ifdef Win32IsMaximized
+#define IsMaximized Win32IsMaximized
+#endif
 
 #endif // atWinAPI_h__

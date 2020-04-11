@@ -169,12 +169,12 @@ template<typename T> inline T atQuaternion<T>::AngleTo(const atQuaternion<T> &fr
   T s = atSqrt(from.Length() * to.Length());
   if (abs(s) < atLimitsSmallest<T>())
     return 0;
-  return 2 * atACos(Dot(to) / s)
+  return 2 * atACos(Dot(to) / s);
 }
 
 template<typename T> inline T atQuaternion<T>::Angle(const atQuaternion<T> &quat)
 {
-  return T(2) * atACos(w);
+  return T(2) * atACos(quat.w);
 }
 
 template<typename T> inline T atQuaternion<T>::Length(const atQuaternion<T> &quat)
@@ -205,11 +205,11 @@ template<typename T> inline atVector3<T> atQuaternion<T>::Rotate(const atQuatern
 
 template<typename T> inline atVector3<T> atQuaternion<T>::Axis(const atQuaternion<T> &quat)
 {
-  T s_sqr = T(1) - atSquare(w);
+  T s_sqr = T(1) - atSquare(quat.w);
+  T s = T(1) / atSqrt(s_sqr);
   if (s < atLimitsSmallest<T>())
     return atVector3<T>(1, 0, 0);
-  T s = T(1) / atSqrt(s_sqr);
-  return atVector3<T>(x * s, y * s, z * s);
+  return atVector3<T>(quat.x * s, quat.y * s, quat.z * s);
 }
 
 template<typename T> inline atVector3<T> atQuaternion<T>::EulerAngles(const atQuaternion<T> &quat)
@@ -346,7 +346,7 @@ template<typename T> template<typename T2> inline atQuaternion<T> atQuaternion<T
 template<typename T> template<typename T2> inline const atQuaternion<T>& atQuaternion<T>::operator*=(const atQuaternion<T2> &rhs) { return *this = Mul(atQuaternion<T>((T)rhs.x, (T)rhs.y, (T)rhs.z, (T)rhs.w)); }
 template<typename T> template<typename T2> inline const atQuaternion<T>& atQuaternion<T>::operator*=(const T2 &rhs) { return *this = Mul((T)rhs); }
 
-template<typename T> inline const T& atQuaternion<T>::at(int64_t index) const { return (&x)[index] }
+template<typename T> inline const T& atQuaternion<T>::at(int64_t index) const { return (&x)[index]; }
 template<typename T> inline const T& atQuaternion<T>::operator[](int64_t index) const { return at(index); }
 template<typename T> inline T& atQuaternion<T>::at(int64_t index) { return (&x)[index]; }
 template<typename T> inline T& atQuaternion<T>::operator[](int64_t index) { return at(index); }

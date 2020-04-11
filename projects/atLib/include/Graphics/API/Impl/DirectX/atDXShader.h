@@ -1,6 +1,8 @@
 #ifndef atDXShader_h__
 #define atDXShader_h__
 
+#ifdef atPLATFORM_WIN32
+
 #include "atHashMap.h"
 #include "atDXBuffer.h"
 #include "atDXSampler.h"
@@ -93,5 +95,7 @@ protected:
   atVector<AttributeDesc> m_attributes;
   atVector<uint8_t> m_byteCode;
 };
+
+#endif
 
 #endif // atDXShader_h__

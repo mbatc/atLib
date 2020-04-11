@@ -170,7 +170,7 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
     for (int64_t x = 0; x < width; ++x)
     {
       uint8_t col = glyphPixels[x + y * width];
-      m_bitmap.Pixels()[(m_nextPos.x + x) + (m_nextPos.y + y) * m_bitmap.Width()] = atColor::Pack(255ui8, 255ui8, 255ui8, col);
+      m_bitmap.Pixels()[(m_nextPos.x + x) + (m_nextPos.y + y) * m_bitmap.Width()] = atColor::Pack((uint8_t)255, (uint8_t)255, (uint8_t)255, col);
     }
 
   glyph.tl = atVec2I{ m_nextPos.x, m_nextPos.y + (int32_t)height };

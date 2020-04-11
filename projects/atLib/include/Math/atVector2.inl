@@ -39,17 +39,15 @@ template<typename T> inline atVector2<T>::atVector2(T _x, T _y)
   , y(_y)
 {}
 
-template<typename T> inline atVector2<T>::atVector2(const atVector2<T>& copy)
+template<typename T> inline atVector2<T>::atVector2(const atVector2<T> &copy)
   : x(copy.x)
   , y(copy.y)
 {}
 
-template<typename T> inline atVector2<T>::atVector2(atVector2<T>&& move)
+template<typename T> inline atVector2<T>::atVector2(atVector2<T> &&move)
   : x(move.x)
   , y(move.y)
-{
-  move = zero();
-}
+{}
 
 template<typename T> template<typename T2> inline atVector2<T>::atVector2(T2 val)
   : x((T)val)
@@ -61,7 +59,7 @@ template<typename T> template<typename T2> inline atVector2<T>::atVector2(T2 _x,
   , y((T)_y)
 {}
 
-template<typename T> template<typename T2> inline atVector2<T>::atVector2(atVector2<T2> copy)
+template<typename T> template<typename T2> inline atVector2<T>::atVector2(const atVector2<T2> &copy)
   : x((T)copy.x)
   , y((T)copy.y)
 {}

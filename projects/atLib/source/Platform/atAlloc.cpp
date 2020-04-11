@@ -25,7 +25,6 @@
 
 #include "atAlloc.h"
 #include <malloc.h>
-#include <crtdbg.h>
 
 void* _atRawAlloc(const int64_t size) 
 { 
@@ -58,14 +57,14 @@ void* _atReallocTrace(void *pBlock, const int64_t size, const int64_t line, cons
 void* _atAllocRelTrace(const int64_t size, const int64_t line, const char * file, const char *function)
 {
   void *ret = _atRawAlloc(size);
-  _atRelAssert(ret != nullptr, "Memory Allocation Failure", line, file, function);
+  _atAssert(ret != nullptr, "ret != nullptr", "Memory Allocation Failure", line, file, function);
   return ret;
 }
 
 void* _atReallocRelTrace(void *pBlock, const int64_t size, const int64_t line, const char * file, const char *function)
 {
   void *ret = _atRawRealloc(pBlock, size);
-  _atRelAssert(ret != nullptr, "Memory Allocation Failure", line, file, function);
+  _atAssert(ret != nullptr, "ret != nullptr", "Memory Allocation Failure", line, file, function);
   return ret;
 }
 

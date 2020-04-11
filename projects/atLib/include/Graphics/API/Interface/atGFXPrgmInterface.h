@@ -6,17 +6,6 @@
 #include "atGFXShaderInterface.h"
 #include "atGFXBufferInterface.h"
 
-enum atGFX_PrimitiveType
-{
-  atGFX_PT_PointList,
-  atGFX_PT_LineList,
-  atGFX_PT_TriangleList,
-  atGFX_PT_TriangleStrip,
-  atGFX_PT_PointListAdj,
-  atGFX_PT_LineListAdj,
-  atGFX_PT_TriangleListAdj,
-};
-
 class atGFXPrgmInterface : public atGFXResource
 {
 public:
@@ -50,7 +39,7 @@ protected:
   std::shared_ptr<atGFXShaderInterface> m_pStages[atPS_Count];
 };
 
-template<typename T> inline bool atGFXPrgmInterface::SetUniform(const atString &name, const T &value) { SetUniform(name, (const void*)&value, atGetTypeDesc(value)); }
-template<typename T> inline bool atGFXPrgmInterface::SetUniform(const atString &name, const atVector<T> &value) { SetUniform(name, (const void*)value.data(), atGetTypeDesc(value)); }
+template<typename T> inline bool atGFXPrgmInterface::SetUniform(const atString &name, const T &value) { return SetUniform(name, (const void*)&value, atGetTypeDesc(value)); }
+template<typename T> inline bool atGFXPrgmInterface::SetUniform(const atString &name, const atVector<T> &value) { return SetUniform(name, (const void*)value.data(), atGetTypeDesc(value)); }
 
 #endif // atGFXPrgmInterface_h__

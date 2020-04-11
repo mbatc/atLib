@@ -15,7 +15,7 @@ template<typename T> inline T atRect<T>::Area() const
   return dims.x * dims.y;
 }
 
-template<typename T> inline atVector2<T> atRect<T>::Dimensions() const { return max - min; }
+template<typename T> inline atVector2<T> atRect<T>::Dimensions() const { return m_max - m_min; }
 
 template<typename T> inline bool atRect<T>::Contains(const atRect &rect) { return Contains(rect.m_min) && Contains(rect.m_max); }
 
@@ -29,6 +29,6 @@ template<typename T> inline void atRect<T>::GrowToContain(const atRect<T> &point
 
 template<typename T> inline void atRect<T>::GrowToContain(const atVector2<T> &point)
 {
-  m_min = 1 m_min.Min(point);
+  m_min = m_min.Min(point);
   m_max = m_max.Max(point);
 }

@@ -187,11 +187,14 @@ static bool _Initialise()
   if (!::QueryPerformanceCounter((LARGE_INTEGER *)&_lastTime))
     return false;
 
+  io.BackendFlags = ImGuiBackendFlags_HasMouseCursors;
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   // io.ConfigViewportsNoAutoMerge = true;
   // io.ConfigViewportsNoTaskBarIcon = false;
   io.ConfigDockingTabBarOnSingleWindows = true;
   io.ConfigDockingTransparentPayload = true;
+  io.ConfigWindowsResizeFromEdges = true;
+  io.ConfigDockingWithShift = true;
 
   io.KeyMap[ImGuiKey_Tab] = atKC_Tab;
   io.KeyMap[ImGuiKey_LeftArrow] = atKC_Left;
@@ -221,9 +224,9 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
   static atVector<uint32_t> indices;
 
   indices.clear(); indices.resize(pDrawData->TotalIdxCount);
-  colours.clear(); colours.resize(pDrawData->TotalVtxCount);
-  positions.clear(); positions.resize(pDrawData->TotalVtxCount);
-  texcoords.clear(); texcoords.resize(pDrawData->TotalVtxCount);
+  colours.clear(); colours.reserve(pDrawData->TotalVtxCount);
+  positions.clear(); positions.reserve(pDrawData->TotalVtxCount);
+  texcoords.clear(); texcoords.reserve(pDrawData->TotalVtxCount);
 
   int64_t idxOffset = 0;
   int64_t vtxOffset = 0;
@@ -234,9 +237,9 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
 
     for (int64_t v = 0; v < pCmdList->VtxBuffer.Size; ++v)
     {
-      memcpy(positions.data() + vtxOffset + v, (uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->pos, sizeof(ImDrawVert::pos));
-      memcpy(texcoords.data() + vtxOffset + v, (uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->uv, sizeof(ImDrawVert::uv));
-      colours.data()[vtxOffset + v] = atColor::UnPack<float>(*(uint32_t*)((uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->col));
+      positions.emplace_back(*(atVec2F*)((uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->pos));
+      texcoords.emplace_back(*(atVec2F*)((uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->uv));
+      colours.emplace_back(atColor::UnPack<float>(*(uint32_t*)((uint8_t*)pCmdList->VtxBuffer.Data + v * sizeof(ImDrawVert) + (int64_t)&((ImDrawVert*)(0))->col)));
     }
 
     memcpy(indices.data() + idxOffset, pCmdList->IdxBuffer.Data, pCmdList->IdxBuffer.Size * sizeof(ImDrawIdx));

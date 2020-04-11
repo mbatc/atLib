@@ -25,13 +25,14 @@
 
 #include "atAssert.h"
 #include "atMatrixNxM.h"
+#include <algorithm>
 
-template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Identity()
+template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Identity(const int64_t &cols, const int64_t &rows)
 {
-  atAssert(m_rows == m_columns, "rows and col must be equal!");
-  atMatrixNxM<T> ret;
-  for (int64_t i = 0; i < m_rows; ++i)
-    ret[i + i * m_columns] = (T)1;
+  atAssert(rows == cols, "rows and cols must be equal!");
+  atMatrixNxM<T> ret(cols, rows);
+  for (int64_t i = 0; i < rows; ++i)
+    ret[i + i * cols] = (T)1;
   return ret;
 }
 
@@ -50,7 +51,7 @@ template <typename T> T atMatrixNxM<T>::Determinate() const
     return m_data[0] * m_data[3] - m_data[1] * m_data[2];
   T ret = 0;
   for (int64_t c = 0; c < m_columns; ++c)
-    ret += m_data[c] * LowOrderMatrix<max(2, m_rows - 1)>(c, 0).Determinate() * ((c % 2 == 0) ? 1 : -1);
+    ret += m_data[c] * LowOrderMatrix(c, 0, std::max(int64_t(2), m_rows - 1)).Determinate() * ((c % 2 == 0) ? 1 : -1);
   return ret;
 }
 
@@ -63,7 +64,7 @@ template <typename T> atMatrixNxM<T> atMatrixNxM<T>::Cofactors() const
   atMatrixNxM<T> ret;
   for (int64_t r = 0; r < m_rows; ++r)
     for (int64_t c = 0; c < m_columns; ++c)
-      ret[c + r * m_columns] = LowOrderMatrix<max(2, m_rows - 1)>(c, r).Determinate() * (((r + c) % 2 == 0) ? 1 : -1);
+      ret[c + r * m_columns] = LowOrderMatrix(c, r, std::max(int64_t(2), m_rows - 1)).Determinate() * (((r + c) % 2 == 0) ? 1 : -1);
   return ret;
 }
 

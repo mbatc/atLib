@@ -24,6 +24,8 @@
 // -----------------------------------------------------------------------------
 
 #include "atFileSystem.h"
+
+#ifdef atPLATFORM_WIN32
 #include <direct.h>
 #include <shlobj.h>
 
@@ -102,3 +104,5 @@ atFilename atFileSystem::GetDirectory_Recents() { return _GetSystemPath(CSIDL_RE
 atFilename atFileSystem::GetDirectory_StartMenu() { return _GetSystemPath(CSIDL_STARTMENU); }
 atFilename atFileSystem::GetDirectory_ProgramFiles() { return _GetSystemPath(CSIDL_PROGRAM_FILES); }
 atFilename atFileSystem::GetDirectory_ProgramFiles86() { return _GetSystemPath(CSIDL_PROGRAM_FILESX86); }
+
+#endif

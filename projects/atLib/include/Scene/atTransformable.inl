@@ -35,7 +35,7 @@ template<typename T> inline typename atTransformable<T>::Mat atTransformable<T>:
   return atMatrixRotation(m_rotation);
 }
 
-template<typename T> inline typename const atTransformable<T>::Vec& atTransformable<T>::Pivot() const
+template<typename T> inline const typename atTransformable<T>::Vec& atTransformable<T>::Pivot() const
 {
   return m_pivot;
 }

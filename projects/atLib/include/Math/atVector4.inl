@@ -45,35 +45,35 @@ template<typename T> inline atVector4<T>::atVector4(T _x, T _y, T _z, T _w)
   , w(_w)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(const atVector3<T>& xyz, T _w)
+template<typename T> inline atVector4<T>::atVector4(const atVector3<T> &xyz, T _w)
   : x(xyz.x)
   , y(xyz.y)
   , z(xyz.z)
   , w(_w)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(T _x, const atVector3<T>& yzw)
+template<typename T> inline atVector4<T>::atVector4(T _x, const atVector3<T> &yzw)
   : x(_x)
   , y(yzw.x)
   , z(yzw.y)
   , w(yzw.z)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(T _x, T _y, const atVector2<T>& zw)
+template<typename T> inline atVector4<T>::atVector4(T _x, T _y, const atVector2<T> &zw)
   : x(_x)
   , y(_y)
   , z(zw.x)
   , w(zw.y)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(T _x, const atVector2<T>& yz, T _w)
+template<typename T> inline atVector4<T>::atVector4(T _x, const atVector2<T> &yz, T _w)
   : x(_x)
   , y(yz.x)
   , z(yz.y)
   , w(_w)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(const atVector2<T>& xy, T _z, T _w)
+template<typename T> inline atVector4<T>::atVector4(const atVector2<T> &xy, T _z, T _w)
   : x(xy.x)
   , y(xy.y)
   , z(_z)
@@ -94,28 +94,28 @@ template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x,
   , w((T)_w)
 {}
 
-template<typename T> template<typename T2> inline atVector4<T>::atVector4(const atVector3<T2>& xyz, T2 _w)
+template<typename T> template<typename T2> inline atVector4<T>::atVector4(const atVector3<T2> &xyz, T2 _w)
   : x((T)xyz.x)
   , y((T)xyz.y)
   , z((T)xyz.z)
   , w((T)_w)
 {}
 
-template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, const atVector3<T2>& yzw)
+template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, const atVector3<T2> &yzw)
   : x((T)_x)
   , y((T)yzw.x)
   , z((T)yzw.y)
   , w((T)yzw.z)
 {}
 
-template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, T2 _y, const atVector2<T2>& zw)
+template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, T2 _y, const atVector2<T2> &zw)
   : x((T)_x)
   , y((T)_y)
   , z((T)zw.x)
   , w((T)zw.y)
 {}
 
-template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, const atVector2<T2>& yz, T2 _w)
+template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x, const atVector2<T2> &yz, T2 _w)
   : x((T)_x)
   , y((T)yz.x)
   , z((T)yz.y)
@@ -123,7 +123,7 @@ template<typename T> template<typename T2> inline atVector4<T>::atVector4(T2 _x,
 {}
 
 
-template<typename T> template<typename T2> inline atVector4<T>::atVector4(const atVector2<T2>& xy, T2 _z, T2 _w)
+template<typename T> template<typename T2> inline atVector4<T>::atVector4(const atVector2<T2> &xy, T2 _z, T2 _w)
   : x((T)xy.x)
   , y((T)xy.y)
   , z((T)_z)
@@ -137,28 +137,26 @@ template<typename T> template<typename T2> inline atVector4<T>::atVector4(atVect
   , w((T)copy.w)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(const atVector2<T>& xy, const atVector2<T>& yw)
+template<typename T> inline atVector4<T>::atVector4(const atVector2<T> &xy, const atVector2<T> &yw)
   : x(xy.x)
   , y(xy.y)
   , z(yw.x)
   , w(yw.y)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(const atVector4<T>& copy)
+template<typename T> inline atVector4<T>::atVector4(const atVector4<T> &copy)
   : x(copy.x)
   , y(copy.y)
   , z(copy.z)
   , w(copy.w)
 {}
 
-template<typename T> inline atVector4<T>::atVector4(atVector4<T>&& move)
+template<typename T> inline atVector4<T>::atVector4(atVector4<T> &&move)
   : x(move.x)
   , y(move.y)
   , z(move.z)
   , w(move.w)
-{
-  move = zero();
-}
+{}
 
 template<typename T> inline const atVector4<T>& atVector4<T>::assign(T _x, T _y, T _z, T _w)
 {
@@ -289,7 +287,7 @@ template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::ope
 template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::operator-(const T2 &rhs) const { return atVector4<T>(x - (T)rhs, y - (T)rhs, z - (T)rhs, w - (T)rhs); }
 template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::operator*(const T2 &rhs) const { return atVector4<T>(x * (T)rhs, y * (T)rhs, z * (T)rhs, w * (T)rhs); }
 template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::operator/(const T2 &rhs) const { return atVector4<T>(x / (T)rhs, y / (T)rhs, z / (T)rhs, w / (T)rhs); }
-template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::operator%(const T2 &rhs) const { return atVector4<T>(atMod(x, (T)rhs), atMod(y, (T)rhs), atMod(z (T)rhs), atMod(w, (T)rhs)); }
+template<typename T> template<typename T2> inline atVector4<T> atVector4<T>::operator%(const T2 &rhs) const { return atVector4<T>(atMod(x, (T)rhs), atMod(y, (T)rhs), atMod(z, (T)rhs), atMod(w, (T)rhs)); }
 template<typename T> template<typename T2> inline const atVector4<T>& atVector4<T>::operator+=(const T2 &rhs) { return assign(*this + rhs); }
 template<typename T> template<typename T2> inline const atVector4<T>& atVector4<T>::operator-=(const T2 &rhs) { return assign(*this - rhs); }
 template<typename T> template<typename T2> inline const atVector4<T>& atVector4<T>::operator*=(const T2 &rhs) { return assign(*this * rhs); }

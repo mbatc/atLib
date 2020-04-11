@@ -1,6 +1,8 @@
 #ifndef atDXTexture_h__
 #define atDXTexture_h__
 
+#ifdef atPLATFORM_WIN32
+
 #include "atGFXTexInterface.h"
 
 class atDXTexture : public atGFXTexInterface
@@ -26,4 +28,5 @@ protected:
   void *m_pDepthView = nullptr;
 };
 
+#endif
 #endif // atDXTexture_h__

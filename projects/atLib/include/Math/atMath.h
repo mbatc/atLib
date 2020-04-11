@@ -26,10 +26,8 @@
 #ifndef _atMath_h__
 #define _atMath_h__
 
-#include "atMatrix.h"
 #include "atReadStream.h"
 #include "atWriteStream.h"
-#include "atMatrixNxM.h"
 #include <math.h>
 #include <functional>
 
@@ -53,6 +51,45 @@
 
 #define atArraySize(val) (sizeof(val) / sizeof(decltype(val[0])))
 
+template<typename T> inline T atClipNearZ();
+template<typename T> inline T atClipFarZ();
+
+template<typename T> inline T atSquare(const T &x);
+template<typename T> inline T atSin(const T &rads);
+template<typename T> inline T atCos(const T &rads);
+template<typename T> inline T atTan(const T &rads);
+template<typename T> inline T atASin(const T &rads);
+template<typename T> inline T atACos(const T &rads);
+template<typename T> inline T atATan(const T &rads);
+template<typename T> inline T atATan2(const T &y, const T &x);
+
+template<typename T, typename T2, typename T3> inline T atClamp(const T &val, const T2 &min, const T3 &max);
+
+template<typename T> inline T atSigmoid(const T &val);
+template<typename InT, typename OutT> inline OutT atDerivative(const InT &val, const std::function<OutT(InT)> &func, const InT step = InT(0.001));
+template<typename InT, typename OutT> inline OutT atNthDerivative(const InT &val, const std::function<OutT(InT)> &func, const int64_t &n, const InT step = InT(0.001));
+template<typename T> inline T atCatmullRomSpline(const T &p1, const T &p2, const T &p3, const T &p4, const T &t, const T &s = T(0.5));
+
+int64_t atFactorial(const int64_t &n);
+
+template<typename T> inline T atMod(const T &a, const T &b);
+template<> inline float atMod(const float &a, const float &b);
+template<> inline double atMod(const double &a, const double &b);
+
+template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time);
+
+template<typename T> inline T atNumBitsOn(const T &val);
+
+inline float atSqrt(const float &val);
+inline double atSqrt(const double &val);
+inline int64_t atSqrt(const int64_t &val);
+inline int32_t atSqrt(const int32_t &val);
+inline int16_t atSqrt(const int16_t &val);
+inline int8_t atSqrt(const int8_t &val);
+
+#include "atMatrix.h"
+#include "atMatrixNxM.h"
+
 typedef atVector2<int32_t> atVec2I;
 typedef atVector3<int32_t> atVec3I;
 typedef atVector4<int32_t> atVec4I;
@@ -71,7 +108,6 @@ typedef atVector4<double> atVec4D;
 
 typedef atMatrix4x4<double> atMat4D;
 typedef atMatrix4x4<float> atMat4F;
-
 
 template<> atTypeDesc atGetTypeDesc<atVector2<float>>();
 template<> atTypeDesc atGetTypeDesc<atVector3<float>>();
@@ -100,53 +136,13 @@ template<> atTypeDesc atGetTypeDesc<atVector4<int16_t>>();
 template<> atTypeDesc atGetTypeDesc<atMatrix4x4<double>>();
 template<> atTypeDesc atGetTypeDesc<atMatrix4x4<float>>();
 
-template<typename T> inline T atClipNearZ();
-template<typename T> inline T atClipFarZ();
-
-template<typename T> inline T atMin(const T &a);
-template<typename T> inline T atMax(const T &a);
-template<typename T, typename T2, typename... Args> inline T atMin(const T &first, const T2 &second, Args ...args);
-template<typename T, typename T2, typename... Args> inline T atMax(const T &first, const T2 &second, Args ...args);
-
-template<typename T> inline T atSquare(const T &x);
-template<typename T> inline T atSin(const T &rads);
-template<typename T> inline T atCos(const T &rads);
-template<typename T> inline T atTan(const T &rads);
-template<typename T> inline T atASin(const T &rads);
-template<typename T> inline T atACos(const T &rads);
-template<typename T> inline T atATan(const T &rads);
-template<typename T> inline T atATan2(const atVector2<T> &pos);
-template<typename T> inline T atATan2(const T &y, const T &x);
-
-template<typename T, typename T2, typename T3> inline T atClamp(const T &val, const T2 &min, const T3 &max);
-
-template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c);
-template<typename T> inline T atSigmoid(const T &val);
-template<typename InT, typename OutT> inline OutT atDerivative(const InT &val, const std::function<OutT(InT)> &func, const InT step = InT(0.001));
-template<typename InT, typename OutT> inline OutT atNthDerivative(const InT &val, const std::function<OutT(InT)> &func, const int64_t &n, const InT step = InT(0.001));
-template<typename T> inline T atCatmullRomSpline(const T &p1, const T &p2, const T &p3, const T &p4, const T &t, const T &s = T(0.5));
-
-int64_t atFactorial(const int64_t &n);
-
-template<typename T> inline T atMod(const T &a, const T &b);
-template<> inline float atMod(const float &a, const float &b);
-template<> inline double atMod(const double &a, const double &b);
-
-template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time);
-
-template<typename T> inline T atNumBitsOn(const T &val);
-
-inline float atSqrt(const float &val);
-inline double atSqrt(const double &val);
-inline int64_t atSqrt(const int64_t &val);
-inline int32_t atSqrt(const int32_t &val);
-inline int16_t atSqrt(const int16_t &val);
-inline int8_t atSqrt(const int8_t &val);
-
 #include "atQuaternion.h" // atQuaternion relies on some of the above functions
 
 typedef atQuaternion<double> atQuatD;
 typedef atQuaternion<float> atQuatF;
+
+template<typename T> inline T atATan2(const atVector2<T> &pos);
+template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c);
 
 template<> atTypeDesc atGetTypeDesc<atQuaternion<double>>();
 template<> atTypeDesc atGetTypeDesc<atQuaternion<float>>();
