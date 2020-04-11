@@ -36,6 +36,12 @@
 // and End() on destruction.
 // This will hopefully remove mismatched Begin()/End() funcitons
 
+class atImGuiRenderer
+{
+public:
+
+};
+
 class atImGui
 {
 public:

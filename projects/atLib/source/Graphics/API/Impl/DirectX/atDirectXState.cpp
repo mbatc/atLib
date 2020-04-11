@@ -3,6 +3,7 @@
 #include "atDirectXState.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
+#include "atDXInclude_Internal.h"
 
 // DX11 State objects
 struct __atDXStateImpl
@@ -18,6 +19,20 @@ struct __atDXStateImpl
   D3D11_RECT scissorDesc;
 };
 
+// ----------------------------------------------------------------------------------------
+// DirectX Type Description Comparison Functions
+
+bool operator==(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_SAMPLER_DESC)) == 0; }
+bool operator==(const D3D11_BLEND_DESC &lhs, const D3D11_BLEND_DESC &rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_BLEND_DESC)) == 0; }
+bool operator==(const D3D11_RASTERIZER_DESC &lhs, const D3D11_RASTERIZER_DESC &rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_RASTERIZER_DESC)) == 0; }
+bool operator==(const D3D11_DEPTH_STENCIL_DESC &lhs, const D3D11_DEPTH_STENCIL_DESC &rhs) { return memcmp(&lhs, &rhs, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0; }
+bool operator!=(const D3D11_SAMPLER_DESC &lhs, const D3D11_SAMPLER_DESC &rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_BLEND_DESC &lhs, const D3D11_BLEND_DESC &rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_RASTERIZER_DESC &lhs, const D3D11_RASTERIZER_DESC &rhs) { return !(lhs == rhs); }
+bool operator!=(const D3D11_DEPTH_STENCIL_DESC &lhs, const D3D11_DEPTH_STENCIL_DESC &rhs) { return !(lhs == rhs); }
+
+// ----------------------------------------------------------------------------------------
+
 // Extract DX11 state descriptions from atRenderStateCore::State
 static D3D11_DEPTH_STENCIL_DESC _DX11DepthDesc(const atRenderState::State &state);
 static D3D11_RASTERIZER_DESC _DX11RasterDesc(const atRenderState::State &state);
@@ -25,59 +40,59 @@ static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state);
 static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state);
 static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state);
 
-atDirectXState::atDirectXState()
-{
-  m_pDX = atNew<__atDXStateImpl>();
-}
-
-atDirectXState::~atDirectXState() { atDelete(m_pDX); }
+atDirectXState::atDirectXState() { m_pImpl = atNew<__atDXStateImpl>(); }
+atDirectXState::~atDirectXState() { atDelete((__atDXStateImpl*)m_pImpl); }
 
 void atDirectXState::Set(const atRenderState::State &state)
 {
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
-  __atDXStateImpl &imp = *m_pDX;
+  __atDXStateImpl &imp = *(__atDXStateImpl*)m_pImpl;
 
   D3D11_BLEND_DESC blendDesc = _DX11BlendDesc(state);
+
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+
   if (blendDesc != imp.blendDesc || !imp.pBlendState)
   {
-    pDX->GetContext()->OMSetBlendState(nullptr, 0, 0x00);
+    pCtx->OMSetBlendState(nullptr, 0, 0x00);
     atDirectX::SafeRelease(imp.pBlendState);
-    pDX->GetDevice()->CreateBlendState(&blendDesc, &imp.pBlendState);
-    pDX->GetContext()->OMSetBlendState(imp.pBlendState, 0, 0xFFFFFF);
+    pDev->CreateBlendState(&blendDesc, &imp.pBlendState);
+    pCtx->OMSetBlendState(imp.pBlendState, 0, 0xFFFFFF);
     imp.blendDesc = blendDesc;
   }
 
   D3D11_DEPTH_STENCIL_DESC depthDesc = _DX11DepthDesc(state);
   if (depthDesc != imp.depthDesc || !imp.pDepthState)
   {
-    pDX->GetContext()->OMSetDepthStencilState(nullptr, 0);
+    pCtx->OMSetDepthStencilState(nullptr, 0);
     atDirectX::SafeRelease(imp.pDepthState);
-    pDX->GetDevice()->CreateDepthStencilState(&depthDesc, &imp.pDepthState);
-    pDX->GetContext()->OMSetDepthStencilState(imp.pDepthState, 0);
+    pDev->CreateDepthStencilState(&depthDesc, &imp.pDepthState);
+    pCtx->OMSetDepthStencilState(imp.pDepthState, 0);
     imp.depthDesc = depthDesc;
   }
 
   D3D11_RASTERIZER_DESC rasterDesc = _DX11RasterDesc(state);
   if (rasterDesc != imp.rasterDesc || !imp.pRasterState)
   {
-    pDX->GetContext()->RSSetState(nullptr);
+    pCtx->RSSetState(nullptr);
     atDirectX::SafeRelease(imp.pRasterState);
-    pDX->GetDevice()->CreateRasterizerState(&rasterDesc, &imp.pRasterState);
-    pDX->GetContext()->RSSetState(imp.pRasterState);
+    pDev->CreateRasterizerState(&rasterDesc, &imp.pRasterState);
+    pCtx->RSSetState(imp.pRasterState);
     imp.rasterDesc = rasterDesc;
   }
 
   D3D11_VIEWPORT vp = _DX11ViewportDesc(state);
   if (vp != imp.vpDesc)
   {
-    pDX->GetContext()->RSSetViewports(1, &vp);
+    pCtx->RSSetViewports(1, &vp);
     imp.vpDesc = vp;
   }
 
   D3D11_RECT sc = _DX11ScissorDesc(state);
   if (sc != imp.scissorDesc)
   {
-    pDX->GetContext()->RSSetScissorRects(1, &sc);
+    pCtx->RSSetScissorRects(1, &sc);
     imp.scissorDesc = sc;
   }
 }

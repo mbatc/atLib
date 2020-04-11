@@ -27,6 +27,7 @@
 #define atWinAPI_h__
 
 #include "atPlatform.h"
+
 #include "atWindowDefinitions.h"
 #include "atColor.h"
 #include "atString.h"

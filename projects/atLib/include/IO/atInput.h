@@ -30,7 +30,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <atPlatform.h>
+#include "atPlatform.h"
 #include "atButtonState.h"
 #include "atString.h"
 

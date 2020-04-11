@@ -3,6 +3,7 @@
 
 #include "atMemoryWriter.h"
 #include "atGFXResource.h"
+#include <memory>
 
 enum atBufferType
 {

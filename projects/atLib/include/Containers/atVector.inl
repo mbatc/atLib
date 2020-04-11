@@ -121,8 +121,10 @@ inline void atVector<T>::resize(const int64_t size, const T &initial)
 {
   if (try_resize(size, initial))
     return;
-  atAssert(try_grow(size), "Could not resize, try_grow failed!");
-  atAssert(try_resize(size, initial), "Could not resize atVector");
+  bool growSucceeded = try_grow(size);
+  atAssert(growSucceeded, "Could not resize, try_grow failed!");
+  bool resizeSucceeded = try_resize(size, initial);
+  atAssert(resizeSucceeded, "Could not resize atVector");
 }
 
 template<typename T>
@@ -134,7 +136,8 @@ inline void atVector<T>::reserve(const int64_t capacity)
     return; // [capacity] is > [m_size] so realloc succeeded
 
   // [capacity] is < [m_size] so resize the vector before realloc
-  atAssert(shrink_by(m_size - capacity), "Could not resize, reserve failed!");
+  bool shrinkSucceeded = shrink_by(m_size - capacity);
+  atAssert(shrinkSucceeded, "Could not resize, reserve failed!");
   try_realloc(capacity);
 }
 

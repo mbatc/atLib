@@ -4,20 +4,18 @@
 #ifdef atPLATFORM_WIN32
 
 #include "atDirectX.h"
-#include "atRenderState.h"
+#include "atGFXContextState.h"
 
-struct __atDXStateImpl;
-
-class atDirectXState
+class atDirectXState : public atGFXContextState
 {
 public:
   atDirectXState();
   ~atDirectXState();
 
-  void Set(const atRenderState::State &state);
+  void Set(const atRenderState::State &state) override;
 
 protected:
-  __atDXStateImpl *m_pDX = nullptr;
+  void *m_pImpl = nullptr;
 };
 
 #endif

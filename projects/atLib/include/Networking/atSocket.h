@@ -66,7 +66,7 @@ protected:
   atString m_port;
   bool m_isHost;
 
-  static int64_t s_nSockets;
+  static int64_t m_nSockets;
 };
 
 #endif // atSocket_h__

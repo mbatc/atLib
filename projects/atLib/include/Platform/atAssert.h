@@ -28,14 +28,22 @@
 
 #include "atTypes.h"
 
-void _atRelAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
-void _atAssert(const bool cond, const char *message, const int64_t line, const char *file, const char *function);
+// Don't include system headers in atPlatform
+#define atPLATFORM_NO_SYS_INCLUDE
+#include "atPlatform.h"
+#undef atPLATFORM_NO_SYS_INCLUDE
 
-#ifdef atPLATFORM_WIN32
-#define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
-#define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __FUNCSIG__)
-#elif atPLATFORM_LINUX
-#define atAssert(cond, message) _atAssert((bool)(cond), message, __LINE__, __FILE__, __PRETTY_FUNCTION__)
-#define atRelAssert(cond, message) _atRelAssert((bool)(cond), message, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+void _atAssert(const bool cond, const char *expression, const char *message, const int64_t line, const char *file, const char *function);
+
+#define atRelAssert(cond, message) _atAssert((bool)(cond), #cond, message, __LINE__, __FILE__, atFUNCSIG)
+
+#ifdef _DEBUG
+#define atAssert(cond, message) atRelAssert(cond, message)
+#else
+#define atAssert(cond, message) (void())
 #endif
+
+#define atFail(message) atAssert(false, message)
+#define atRelFail(message) atRelAssert(false, message)
+
 #endif

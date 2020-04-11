@@ -3,8 +3,9 @@
 
 #include "atOpenGL.h"
 #include "atRenderState.h"
+#include "atGFXContextState.h"
 
-class atOpenGLState
+class atOpenGLState : public atGFXContextState
 {
 public:
   atOpenGLState();

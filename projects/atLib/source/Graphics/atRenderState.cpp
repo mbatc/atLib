@@ -32,19 +32,6 @@
 
 static atRenderState *s_pGlobalState = nullptr;
 
-// DX11 State objects
-static ID3D11DepthStencilState *s_pDepthState = nullptr;
-static ID3D11RasterizerState *s_pRasterState = nullptr;
-static ID3D11BlendState *s_pBlendState = nullptr;
-
-// Extract DX11 state descriptions from atRenderStateCore::State
-
-static D3D11_DEPTH_STENCIL_DESC _DX11DepthDesc(const atRenderState::State &state);
-static D3D11_RASTERIZER_DESC _DX11RasterDesc(const atRenderState::State &state);
-static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state);
-static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state);
-static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state);
-
 atVector<atRenderState::State> atRenderState::m_stack;
 atRenderState::State atRenderState::m_activeState;
 bool atRenderState::m_setViewport = false;

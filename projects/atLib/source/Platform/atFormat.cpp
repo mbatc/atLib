@@ -26,6 +26,7 @@
 #include "atFormat.h"
 #include "atOpenGL.h"
 #include "atDirectX.h"
+#include "atDXInclude_Internal.h"
 
 #define FMT_MASK_RGB    0xFFFF0000
 #define FMT_MASK_DEPTH  0x0000FFFF

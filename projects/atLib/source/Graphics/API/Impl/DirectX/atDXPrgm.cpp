@@ -5,6 +5,7 @@
 #include "atDirectX.h"
 #include "atDXPrgm.h"
 #include "atFormat.h"
+#include "atDXInclude_Internal.h"
 
 static atDXPrgm *_pBoundProgram = nullptr;
 
@@ -32,11 +33,12 @@ void atDXPrgm::BindInput(const int64_t &i)
     return;
 
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
   UINT slot = (UINT)pVertShader->AttributeSlot(i);
   UINT offset = 0;
   UINT stride = (UINT)(m_inputs[i]->Size() / m_inputs[i]->Count());
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_inputs[i]->GFXResource();
-  pDX->GetContext()->IASetVertexBuffers(slot, 1, &pBuffer, &stride, &offset);
+  pCtx->IASetVertexBuffers(slot, 1, &pBuffer, &stride, &offset);
 }
 
 bool atDXPrgm::BindAttribute(const atString &name, atGFXBufferInterface *pBuffer)
@@ -141,7 +143,8 @@ bool atDXPrgm::Upload()
 
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
   ID3D11InputLayout *pLayout = nullptr;
-  if (FAILED(pDX->GetDevice()->CreateInputLayout(d3dDesc.data(), (UINT)d3dDesc.size(), pShader->ByteCode().data(), (size_t)pShader->ByteCode().size(), &pLayout)))
+  ID3D11Device *pCtx = (ID3D11Device*)pDX->GetDevice();
+  if (FAILED(pCtx->CreateInputLayout(d3dDesc.data(), (UINT)d3dDesc.size(), pShader->ByteCode().data(), (size_t)pShader->ByteCode().size(), &pLayout)))
     return false;
 
   m_pLayout = pLayout;
@@ -169,14 +172,16 @@ bool atDXPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType
     pDXShader->UpdateConstantBuffers();
   }
 
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+
   switch (primType)
   {
-  case atGFX_PT_LineList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
-  case atGFX_PT_PointList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
-  case atGFX_PT_LineListAdj: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
-  case atGFX_PT_TriangleList: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-  case atGFX_PT_TriangleStrip: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
-  case atGFX_PT_TriangleListAdj: pDX->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
+  case atGFX_PT_LineList: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); break;
+  case atGFX_PT_PointList: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+  case atGFX_PT_LineListAdj: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ); break;
+  case atGFX_PT_TriangleList: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+  case atGFX_PT_TriangleStrip: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+  case atGFX_PT_TriangleListAdj: pCtx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ); break;
   }
 
   if (m_pIndices && indexedMode)
@@ -192,7 +197,9 @@ void atDXPrgm::BindLayout()
   if (!m_pLayout)
     return;
 
-  ((atDirectX*)atGraphics::GetCtx())->GetContext()->IASetInputLayout((ID3D11InputLayout*)m_pLayout);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+  pCtx->IASetInputLayout((ID3D11InputLayout*)m_pLayout);
 }
 
 void atDXPrgm::BindIndices()
@@ -200,9 +207,28 @@ void atDXPrgm::BindIndices()
   if (!m_pIndices)
     return;
 
-  ((atDirectX*)atGraphics::GetCtx())->GetContext()->IASetIndexBuffer((ID3D11Buffer*)m_pIndices->GFXResource(), m_pIndices->Desc().type == atType_Uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+  pCtx->IASetIndexBuffer((ID3D11Buffer*)m_pIndices->GFXResource(), m_pIndices->Desc().type == atType_Uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 }
 
 bool atDXPrgm::IsBound() { return _pBoundProgram == this; }
+
+#else
+
+bool atDXPrgm::Bind() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+void atDXPrgm::BindInput(const int64_t &) { atRelAssert("DirectX is only supported on Windows platforms."); }
+bool atDXPrgm::BindAttribute(const atString &, atGFXBufferInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::BindIndices(atGFXBufferInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return true; }
+bool atDXPrgm::BindTexture(const atString &, atGFXTexInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::BindSampler(const atString &, atGFXSamplerInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::SetUniform(const atString &, const void *, const atTypeDesc &) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::HasUniform(const atString &) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::Upload() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXPrgm::Draw(const bool &, const atGFX_PrimitiveType &, const int64_t &, const int64_t &, const int64_t &) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+void atDXPrgm::BindLayout() { atRelAssert("DirectX is only supported on Windows platforms."); }
+void atDXPrgm::BindIndices() { atRelAssert("DirectX is only supported on Windows platforms."); }
+bool atDXPrgm::IsBound() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
 
 #endif

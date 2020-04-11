@@ -6,17 +6,6 @@
 #include "atGFXShaderInterface.h"
 #include "atGFXBufferInterface.h"
 
-enum atGFX_PrimitiveType
-{
-  atGFX_PT_PointList,
-  atGFX_PT_LineList,
-  atGFX_PT_TriangleList,
-  atGFX_PT_TriangleStrip,
-  atGFX_PT_PointListAdj,
-  atGFX_PT_LineListAdj,
-  atGFX_PT_TriangleListAdj,
-};
-
 class atGFXPrgmInterface : public atGFXResource
 {
 public:

@@ -117,7 +117,8 @@ static void _RegisterInputDevices(HWND hWnd)
   Rid.usUsage = HID_USAGE_GENERIC_MOUSE;
   Rid.dwFlags = RIDEV_INPUTSINK;
   Rid.hwndTarget = hWnd;
-  atAssert(!!RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE)), "Failed to register input device.");
+  bool registerInputResult = !!RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE));
+  atAssert(registerInputResult, "Failed to register input device.");
 }
 
 bool atWinAPI::PumpMessage(atWindow *pWindow)

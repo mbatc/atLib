@@ -3,6 +3,7 @@
 #include "atDXSampler.h"
 #include "atGraphics.h"
 #include "atDirectX.h"
+#include "atDXInclude_Internal.h"
 
 static int64_t _GetDXFilter(const atSampleFilter &minFilter, const atSampleFilter &magFilter)
 {
@@ -80,7 +81,10 @@ bool atDXSampler::Upload()
   desc.MipLODBias = m_mipLoadBias;
   desc.MaxAnisotropy = m_useAnistropicFiltering ? 1 : 0;
   memcpy(desc.BorderColor, m_borderCol.data(), (size_t)atGetTypeDesc(m_borderCol).size);
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateSamplerState(&desc, (ID3D11SamplerState**)&m_pResource);
+
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pCtx = (ID3D11Device*)pDX->GetDevice();
+  pCtx->CreateSamplerState(&desc, (ID3D11SamplerState**)&m_pResource);
   return m_pResource != nullptr;
 }
 
@@ -94,5 +98,11 @@ bool atDXSampler::Delete()
   m_pResource;
   return true;
 }
+
+#else
+
+atDXSampler::atDXSampler(const atSampleFilter &, const atSampleFilter &, const atTexCoordMode &, const atTexCoordMode &, const atTexCoordMode &, const float &, const atComparison &, const bool &, const float &, const float &, const atVec4F &) { atRelAssert("DirectX is only supported on Windows platforms."); }
+bool atDXSampler::Upload() { atRelAssert("DirectX is only supported on Windows platforms.");  return false; }
+bool atDXSampler::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
 
 #endif

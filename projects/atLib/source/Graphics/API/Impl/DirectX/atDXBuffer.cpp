@@ -3,6 +3,7 @@
 #include "atDXBuffer.h"
 #include "atDirectX.h"
 #include "atGraphics.h"
+#include "atDXInclude_Internal.h"
 
 bool atDXBuffer::Update()
 {
@@ -20,13 +21,15 @@ bool atDXBuffer::Update()
   }
 
   D3D11_MAPPED_SUBRESOURCE resource;
-  pDX->GetContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+
+  pCtx->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
   if (!resource.pData)
     return false;
 
   memcpy(resource.pData, Data().data(), Size());
-  pDX->GetContext()->Unmap(pBuffer, 0);
+  pCtx->Unmap(pBuffer, 0);
   return true;
 }
 
@@ -73,7 +76,7 @@ bool atDXBuffer::Upload()
   data.SysMemSlicePitch = 0;
 
   ID3D11Buffer *pBuffer = nullptr;
-  bool success = !FAILED(((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateBuffer(&desc, size > 0 ? &data : nullptr, &pBuffer));
+  bool success = !FAILED(((ID3D11Device*)((atDirectX*)atGraphics::GetCtx())->GetDevice())->CreateBuffer(&desc, size > 0 ? &data : nullptr, &pBuffer));
   m_pResource = pBuffer;
   return success;
 }
@@ -87,5 +90,11 @@ bool atDXBuffer::Delete()
   m_pResource = nullptr;
   return true;
 }
+
+#else
+
+bool atDXBuffer::Update() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXBuffer::Upload() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXBuffer::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
 
 #endif

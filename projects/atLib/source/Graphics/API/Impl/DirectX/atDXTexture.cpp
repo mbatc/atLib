@@ -4,6 +4,7 @@
 #include "atGraphics.h"
 #include "atDirectX.h"
 #include "atFormat.h"
+#include "atDXInclude_Internal.h"
 
 static void* _CreateTex1D(const atVec2I &size, const bool &isDepthTex, const bool &genMipmaps, const int64_t &sampleCount, const int64_t &arraySize);
 static void* _CreateTex2D(const atVec2I &size, const bool &isDepthTex, const bool &genMipmaps, const int64_t &sampleCount, const int64_t &arraySize);
@@ -77,7 +78,7 @@ bool atDXTexture::Upload()
   {
     int64_t bytesPerImage = m_pixels.size() / m_layerCount / m_size.y;
     for (int64_t i = 0; i < m_layerCount; ++i)
-      ((atDirectX*)atGraphics::GetCtx())->GetContext()->UpdateSubresource((ID3D11Resource*)m_pResource, (UINT)i, nullptr, m_pixels.data() + bytesPerImage * i, (UINT)bytesPerImage, 0);
+      ((ID3D11DeviceContext*)((atDirectX*)atGraphics::GetCtx())->GetContext())->UpdateSubresource((ID3D11Resource*)m_pResource, (UINT)i, nullptr, m_pixels.data() + bytesPerImage * i, (UINT)bytesPerImage, 0);
   }
 
   if (m_isDepthTex)
@@ -108,7 +109,9 @@ static void* _CreateTex1D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture1D *pTex = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture1D(&texDesc, nullptr, &pTex);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateTexture1D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
@@ -126,7 +129,9 @@ static void* _CreateTex2D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture2D *pTex = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture2D(&texDesc, nullptr, &pTex);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateTexture2D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
@@ -142,38 +147,73 @@ static void* _CreateTex3D(const atVec2I &size, const bool &isDepthTex, const boo
   texDesc.MipLevels = sampleCount > 1 ? 1 : 0;
   texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS * genMipmaps;
   ID3D11Texture3D *pTex = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateTexture3D(&texDesc, nullptr, &pTex);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateTexture3D(&texDesc, nullptr, &pTex);
   return pTex;
 }
 
 static void *_CreateSRView(void *pTexture, const bool &genMipmaps)
 {
   ID3D11ShaderResourceView *pView = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateShaderResourceView((ID3D11Resource*)pTexture, nullptr, &pView);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetDevice();
+  pDev->CreateShaderResourceView((ID3D11Resource*)pTexture, nullptr, &pView);
   if (genMipmaps)
-    ((atDirectX*)atGraphics::GetCtx())->GetContext()->GenerateMips(pView);
+    pCtx->GenerateMips(pView);
   return pView;
 }
 
 static void *_CreateDSView(void *pTexture)
 {
   ID3D11DepthStencilView *pView = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateDepthStencilView((ID3D11Resource*)pTexture, nullptr, &pView);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateDepthStencilView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
 
 static void *_CreateRTView(void *pTexture)
 {
   ID3D11RenderTargetView *pView = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateRenderTargetView((ID3D11Resource*)pTexture, nullptr, &pView);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateRenderTargetView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
 
 static void *_CreateUAView(void *pTexture)
 {
   ID3D11UnorderedAccessView *pView = nullptr;
-  ((atDirectX*)atGraphics::GetCtx())->GetDevice()->CreateUnorderedAccessView((ID3D11Resource*)pTexture, nullptr, &pView);
+  atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
+  pDev->CreateUnorderedAccessView((ID3D11Resource*)pTexture, nullptr, &pView);
   return pView;
 }
+
+#else
+
+atDXTexture::atDXTexture(const atVector<float> &image, const atVec2I &size, const atGFXTextureType &type, const int64_t &sampleCount) : atGFXTexInterface(image, size, type, sampleCount) { atRelFail("DirectX is only supported on Windows platforms."); }
+atDXTexture::atDXTexture(const atImage &image, const atGFXTextureType &type, const bool &genMipMaps, const int64_t &sampleCount) : atGFXTexInterface(image, type, genMipMaps, sampleCount) { atRelFail("DirectX is only supported on Windows platforms."); }
+atDXTexture::atDXTexture(const atVector<atVector<float>> &images, const atVec2I &size, const atGFXTextureType &type, const int64_t &sampleCount) : atGFXTexInterface(images, size, type, sampleCount) { atRelFail("DirectX is only supported on Windows platforms."); }
+atDXTexture::atDXTexture(const atVector<atImage> &images, const atVec2I &size, const atGFXTextureType &type, const bool &genMipMaps, const int64_t &sampleCount) : atGFXTexInterface(images, size, type, genMipMaps, sampleCount) { atRelFail("DirectX is only supported on Windows platforms."); }
+atDXTexture::atDXTexture(const atVec2I &size, const atGFXTextureType &type, const bool &isDepthTex, const bool &genMipMaps, const int64_t &sampleCount, const int64_t &arraySize) : atGFXTexInterface(size, type, isDepthTex, genMipMaps, sampleCount, arraySize) { atRelFail("DirectX is only supported on Windows platforms."); }
+
+bool atDXTexture::Delete()
+{
+  atRelFail("DirectX is only supported on Windows platforms.");
+  return false;
+}
+
+bool atDXTexture::Upload()
+{
+  atRelFail("DirectX is only supported on Windows platforms.");
+  return false;
+}
+
+void* atDXTexture::ShaderView() { atRelFail("DirectX is only supported on Windows platforms."); return nullptr; }
+void* atDXTexture::RenderView() { atRelFail("DirectX is only supported on Windows platforms."); return nullptr; }
+void* atDXTexture::DepthView() { atRelFail("DirectX is only supported on Windows platforms."); return nullptr; }
 
 #endif

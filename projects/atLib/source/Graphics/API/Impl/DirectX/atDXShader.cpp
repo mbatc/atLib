@@ -4,6 +4,7 @@
 #include "atDXShader.h"
 #include "atDirectX.h"
 #include "atHashSet.h"
+#include "atDXInclude_Internal.h"
 
 static const char *_shaderStrID[atPS_Count] =
 {
@@ -109,14 +110,16 @@ bool atDXShader::Bind()
     return false;
 
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
+
   switch (Stage())
   {
-  case atPS_Vertex: pDX->GetContext()->VSSetShader((ID3D11VertexShader*)m_pResource, 0, 0); break;
-  case atPS_Fragment: pDX->GetContext()->PSSetShader((ID3D11PixelShader*)m_pResource, 0, 0); break;
-  case atPS_Geometry: pDX->GetContext()->GSSetShader((ID3D11GeometryShader*)m_pResource, 0, 0); break;
-  case atPS_Compute: pDX->GetContext()->CSSetShader((ID3D11ComputeShader*)m_pResource, 0, 0); break;
-  case atPS_Domain: pDX->GetContext()->DSSetShader((ID3D11DomainShader*)m_pResource, 0, 0); break;
-  case atPS_Hull: pDX->GetContext()->HSSetShader((ID3D11HullShader*)m_pResource, 0, 0); break;
+  case atPS_Vertex: pCtx->VSSetShader((ID3D11VertexShader*)m_pResource, 0, 0); break;
+  case atPS_Fragment: pCtx->PSSetShader((ID3D11PixelShader*)m_pResource, 0, 0); break;
+  case atPS_Geometry: pCtx->GSSetShader((ID3D11GeometryShader*)m_pResource, 0, 0); break;
+  case atPS_Compute: pCtx->CSSetShader((ID3D11ComputeShader*)m_pResource, 0, 0); break;
+  case atPS_Domain: pCtx->DSSetShader((ID3D11DomainShader*)m_pResource, 0, 0); break;
+  case atPS_Hull: pCtx->HSSetShader((ID3D11HullShader*)m_pResource, 0, 0); break;
   default: return false;
   }
 
@@ -155,18 +158,19 @@ bool atDXShader::Upload()
   ID3D10Blob *pError = nullptr;
   if (FAILED(D3DCompile(m_src.c_str(), m_src.length(), NULL, NULL, NULL, "main", _shaderStrID[Stage()], D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
   {
-    atAssert(false, (char*)pError->GetBufferPointer());
+    atFail((char*)pError->GetBufferPointer());
     return false;
   }
 
+  ID3D11Device *pDev = (ID3D11Device*)pDX->GetDevice();
   switch (Stage())
   {
-  case atPS_Vertex:   pDX->GetDevice()->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)&m_pResource); break;
-  case atPS_Fragment: pDX->GetDevice()->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)&m_pResource); break;
-  case atPS_Geometry: pDX->GetDevice()->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)&m_pResource); break;
-  case atPS_Hull:     pDX->GetDevice()->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)&m_pResource); break;
-  case atPS_Domain:   pDX->GetDevice()->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)&m_pResource); break;
-  case atPS_Compute:  pDX->GetDevice()->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)&m_pResource); break;
+  case atPS_Vertex:   pDev->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11VertexShader**)&m_pResource); break;
+  case atPS_Fragment: pDev->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11PixelShader**)&m_pResource); break;
+  case atPS_Geometry: pDev->CreateGeometryShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11GeometryShader**)&m_pResource); break;
+  case atPS_Hull:     pDev->CreateHullShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11HullShader**)&m_pResource); break;
+  case atPS_Domain:   pDev->CreateDomainShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11DomainShader**)&m_pResource); break;
+  case atPS_Compute:  pDev->CreateComputeShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), NULL, (ID3D11ComputeShader**)&m_pResource); break;
   }
 
   Reflect(pShaderBlob);
@@ -365,15 +369,16 @@ static void _BindConstantBuffer(const atPipelineStage &stage, atDXBuffer *pBuffe
   bool validBuffer = pBuffer && pBuffer->Upload();
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
   ID3D11Buffer *pDxBuf = validBuffer ? (ID3D11Buffer*)pBuffer->GFXResource() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: pDX->GetContext()->VSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: pDX->GetContext()->PSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: pDX->GetContext()->DSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: pDX->GetContext()->HSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: pDX->GetContext()->CSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: pDX->GetContext()->GSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pCtx->VSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pCtx->PSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pCtx->DSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pCtx->HSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pCtx->CSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pCtx->GSSetConstantBuffers((UINT)slot, 1, &pDxBuf); break;
   }
 }
 
@@ -382,15 +387,16 @@ static void _BindSampler(const atPipelineStage &stage, atDXSampler *pBuffer, int
   bool validBuffer = pBuffer && pBuffer->Upload();
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
   ID3D11SamplerState *pDxBuf = validBuffer ? (ID3D11SamplerState*)pBuffer->GFXResource() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: pDX->GetContext()->VSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: pDX->GetContext()->PSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: pDX->GetContext()->DSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: pDX->GetContext()->HSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: pDX->GetContext()->CSSetSamplers((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: pDX->GetContext()->GSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pCtx->VSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pCtx->PSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pCtx->DSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pCtx->HSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pCtx->CSSetSamplers((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pCtx->GSSetSamplers((UINT)slot, 1, &pDxBuf); break;
   }
 }
 
@@ -399,16 +405,56 @@ static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int
   bool validBuffer = pBuffer && pBuffer->Upload();
   atDirectX *pDX = (atDirectX*)atGraphics::GetCtx();
 
+  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
   ID3D11ShaderResourceView *pDxBuf = validBuffer ? (ID3D11ShaderResourceView*)pBuffer->ShaderView() : nullptr;
   switch (stage)
   {
-  case atPS_Vertex: pDX->GetContext()->VSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Fragment: pDX->GetContext()->PSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Domain: pDX->GetContext()->DSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Hull: pDX->GetContext()->HSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Compute: pDX->GetContext()->CSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
-  case atPS_Geometry: pDX->GetContext()->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Vertex: pCtx->VSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Fragment: pCtx->PSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Domain: pCtx->DSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Hull: pCtx->HSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Compute: pCtx->CSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
+  case atPS_Geometry: pCtx->GSSetShaderResources((UINT)slot, 1, &pDxBuf); break;
   }
 }
+
+#else
+
+// Used for functions that return const& of 
+static atString _unused_str;
+static int64_t _unused_i64 = 0;
+static atTypeDesc _unused_typeDesc;
+static atVector<uint8_t> _unused_vec_ui8;
+
+bool atDXShader::BindTexture(const atString &, atGFXTexInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXShader::BindSampler(const atString &, atGFXSamplerInterface *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXShader::SetUniform(const atString &, const void *, const atTypeDesc &) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+
+atVector<atString> atDXShader::Textures() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
+atVector<atString> atDXShader::Samplers() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
+atVector<atString> atDXShader::Uniforms() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
+const atVector<uint8_t>& atDXShader::ByteCode() const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_vec_ui8; }
+
+bool atDXShader::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXShader::Bind() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+
+void atDXShader::UpdateConstantBuffers() { atRelAssert("DirectX is only supported on Windows platforms."); }
+
+bool atDXShader::Upload() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXShader::Reflect(void *) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+
+void atDXShader::SetBufferSlot(const atString &, const int64_t &) { atRelAssert("DirectX is only supported on Windows platforms."); }
+void atDXShader::SetTextureSlot(const atString &, const int64_t &) { atRelAssert("DirectX is only supported on Windows platforms."); }
+void atDXShader::SetSamplerSlot(const atString &, const int64_t &) { atRelAssert("DirectX is only supported on Windows platforms."); }
+
+atDXShader::ConstBufferDesc* atDXShader::FindVarBuffer(const atString &, VarDesc **) { atRelAssert("DirectX is only supported on Windows platforms."); return nullptr; }
+
+bool atDXShader::HasUniform(const atString &) { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+int64_t atDXShader::AttributeCount() const { atRelAssert("DirectX is only supported on Windows platforms."); return 0; }
+const atString& atDXShader::AttributeName(const int64_t &) const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_str; }
+const atString& atDXShader::AttributeFullName(const int64_t &) const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_str; }
+const atTypeDesc& atDXShader::AttributeInfo(const int64_t &) const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_typeDesc; }
+const int64_t& atDXShader::AttributeIndex(const int64_t &) const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_i64; }
+const int64_t& atDXShader::AttributeSlot(const int64_t &) const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_i64; }
 
 #endif

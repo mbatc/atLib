@@ -26,7 +26,7 @@
 #ifndef _atRenderState_h__
 #define _atRenderState_h__
 
-#include "atGFXResource.h"
+#include "atGFXContext.h"
 #include "atWindow.h"
 #include "atMath.h"
 
