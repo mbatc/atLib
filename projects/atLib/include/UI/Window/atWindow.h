@@ -26,6 +26,8 @@
 #ifndef _atWindow_h__
 #define _atWindow_h__
 
+#include "atPlatform.h"
+
 #ifdef atPLATFORM_WIN32
 #include "atWinAPI.h"
 #elif atPLATFORM_LINUX
@@ -52,7 +54,7 @@ public:
   static bool PumpMessage(atWindow *pWindow);
   static int GetResult();
 
-  atWindow(const atWindowCreateInfo &info);
+  atWindow(const atWindowCreateInfo &info = atWindowCreateInfo());
   ~atWindow();
 
   void Clear(const atCol color = 0xFF000000);
@@ -118,7 +120,7 @@ protected:
 
   atWindowCreateInfo m_createInfo;
 
-#if atPLATFORM_WIN32
+#ifdef atPLATFORM_WIN32
   // WINAPI  
   atWin32Window m_sysWindow;
 #elif atPLATFORM_LINUX

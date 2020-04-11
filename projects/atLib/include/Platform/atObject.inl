@@ -1,3 +1,4 @@
+#include "atObject.h"
 
 // -----------------------------------------------------------------------------
 // The MIT License
@@ -30,20 +31,31 @@ inline bool atObject::Is() const
 }
 
 template<typename T>
-inline const T& atObject::As() const
+inline typename const std::enable_if<!std::is_void<T>::value, T>::type& atObject::As() const
 {
   return *(T*)m_data.data();
 }
 
 template<typename T>
-inline const atObject& atObject::operator=(const T &val)
+inline typename std::enable_if<std::is_void<T>::value, T>::type atObject::As() const {}
+
+template<typename T>
+inline T atObject::AsOr(const T &defVal) const
+{
+  if (!Is<T>())
+    return defVal;
+  return As<T>();
+}
+
+template<typename T>
+inline atObject& atObject::operator=(const T &val)
 {
   Assign(val);
   return *this;
 }
 
 template<typename T>
-inline const atObject& atObject::operator=(T &&val)
+inline atObject& atObject::operator=(T &&val)
 {
   Assign(val);
   return *this;
@@ -69,15 +81,24 @@ inline atObject::atObject(const T &val)
 }
 
 template<typename T>
+inline atObject::atObject(T &&val)
+  : atObject()
+{
+  Assign(std::forward<T>(val));
+}
+
+template<typename T>
 inline void atObject::Assign(const T &value)
 {
-  if (m_destructFunc)
-    m_destructFunc(m_data.data());
-  m_typeInfo = typeid(T);
-  m_data.resize(sizeof(T));
-  T* pMem = (T*)m_data.data();
-  new(pMem) T(value);
-  m_destructFunc = atObjectDestructFunc<T>;
+  SetType<T>();
+  m_copyFunc(&m_data, &value);
+}
+
+template<typename T>
+inline void atObject::Assign(T &&value)
+{
+  SetType<T>();
+  m_moveFunc(&m_data, &value);
 }
 
 template<typename T>
@@ -87,8 +108,53 @@ inline void atObject::SetMember(const atString &name, const T &value)
 }
 
 template<typename T>
-inline void atObjectDestructFunc(void *pData)
+inline void atObject::SetMember(const atString &name, T &&value)
 {
-  T* pObj = (T*)pData;
+  SetMember(name, atObject(std::move(value)));
+}
+
+template<typename T>
+inline void __atObjectDestructFunc(atVector<uint8_t> *pMem)
+{
+  T* pObj = (T*)pMem->data();
   pObj->~T();
+  pMem->clear();
+}
+
+template<typename T>
+inline void __atObjectCopyFunc(atVector<uint8_t> *pMem, const void *pData)
+{
+  const T* pSrc = (const T*)pData;
+  T* pDst = (T*)pMem->data();
+  new (pDst)T(*pSrc);
+}
+
+template<typename T>
+inline void __atObjectMoveFunc(atVector<uint8_t> *pMem, void *pData)
+{
+  T* pSrc = (T*)pData;
+  T* pDst = (T*)pMem->data();
+  new (pDst)T(std::move(*pSrc));
+}
+
+template<typename T>
+T atObject::GetMemberOr(const atString &name, const T &defVal) const
+{
+  if (!HasMember(name))
+    return defVal;
+  return GetMember(name).AsOr<T>(defVal);
+}
+
+template<typename T>
+inline void atObject::SetType()
+{
+  if (Is<T>())
+    return;
+
+  Destroy();
+  m_destructFunc = __atObjectDestructFunc<std::decay_t<T>>;
+  m_copyFunc = __atObjectCopyFunc<std::decay_t<T>>;
+  m_moveFunc = __atObjectMoveFunc<std::decay_t<T>>;
+  m_typeInfo = typeid(T);
+  m_data.resize(sizeof(T));
 }

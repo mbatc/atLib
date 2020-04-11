@@ -25,7 +25,7 @@
 
 #include "atObject.h"
 
-atObject::atObject() 
+atObject::atObject()
   : m_typeInfo(typeid(void))
   , m_destructFunc(nullptr)
 {}
@@ -33,51 +33,54 @@ atObject::atObject()
 atObject::atObject(const atObject &copy)
   : atObject()
 {
-  m_typeInfo = copy.m_typeInfo;
-  m_members = copy.m_members;
-  m_data = copy.m_data;
+  Assign(copy);
 }
 
 atObject::atObject(atObject &&move)
   : atObject()
 {
-  Assign(move);
+  Assign(std::move(move));
 }
 
 atObject::~atObject()
 {
-  if (m_destructFunc)
-    m_destructFunc(m_data.data());
+  Destroy();
 }
 
 void atObject::Assign(const atObject &value)
 {
-  m_typeInfo = value.m_typeInfo;
   m_members = value.m_members;
-  m_data = value.m_data;
+  MirrorType(value);
+  if (!value.Is<void>())
+    m_copyFunc(&m_data, value.m_data.data());
 }
 
 void atObject::Assign(atObject &&value)
 {
-  m_typeInfo = std::move(value.m_typeInfo);
   m_members = std::move(value.m_members);
-  m_data = std::move(value.m_data);
-  m_destructFunc = value.m_destructFunc;
-  value.m_destructFunc = nullptr;
+  MirrorType(value);
+  if (!value.Is<void>())
+    m_moveFunc(&m_data, value.m_data.data());
 }
 
 void atObject::SetMember(const atString &name, const atObject &value)
 {
-  if (!HasMember(name))
-    m_members.Add(name);
   m_members[name] = value;
 }
 
 void atObject::SetMember(const atString &name, atObject &&value)
 {
-  if (!HasMember(name))
-    m_members.Add(name);
   m_members[name] = std::move(value);
+}
+
+void atObject::Destroy()
+{
+  if (m_destructFunc)
+    m_destructFunc(&m_data);
+  m_destructFunc = nullptr;
+  m_copyFunc = nullptr;
+  m_moveFunc = nullptr;
+  m_typeInfo = typeid(void);
 }
 
 bool atObject::HasMember(const atString &name) const
@@ -95,13 +98,13 @@ const atObject& atObject::GetMember(const atString &name) const
   return m_members[name];
 }
 
-const atObject& atObject::operator=(const atObject &rhs)
+atObject& atObject::operator=(const atObject &rhs)
 {
   Assign(rhs);
   return *this;
 }
 
-const atObject& atObject::operator=(atObject &&rhs)
+atObject& atObject::operator=(atObject &&rhs)
 {
   Assign(std::move(rhs));
   return *this;
@@ -117,4 +120,19 @@ const atObject& atObject::operator[](const atString &name) const
   return GetMember(name);
 }
 
-atVector<atString> atObject::GetMemberNames() const { return m_members.GetKeys(); }
+bool atObject::Empty() const { return m_data.size() == 0 && m_members.Size() == 0 && m_typeInfo == typeid(void); }
+
+atString atObject::Typename() const { return m_typeInfo.name(); }
+
+void atObject::MirrorType(const atObject &o)
+{
+  if (o.m_typeInfo == m_typeInfo)
+    return;
+
+  Destroy();
+  m_typeInfo = o.m_typeInfo;
+  m_copyFunc = o.m_copyFunc;
+  m_moveFunc = o.m_moveFunc;
+  m_destructFunc = o.m_destructFunc;
+  m_data.resize(o.m_data.size());
+}

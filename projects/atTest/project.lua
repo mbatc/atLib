@@ -41,13 +41,14 @@ flags { "MultiProcessorCompile" }
 
   files { "source/**.cpp", "source/**.h", "source/**.inl" , "**.natvis" }
 
-  links { "atLib" }
+  links { "atLib", "LuaLib" }
 
 -- Debug Configuration Settings
 
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
+    libdirs {"../atLib/3rdParty/lua/Debug/"}
 
 -- Release Configuration Settings
 
@@ -55,3 +56,5 @@ flags { "MultiProcessorCompile" }
     flags { "LinkTimeOptimization" }
     defines { "NDEBUG" }
     optimize "On"
+
+    libdirs {"../atLib/3rdParty/lua/Release/"}

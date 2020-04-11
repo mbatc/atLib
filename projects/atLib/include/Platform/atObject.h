@@ -26,9 +26,10 @@
 #ifndef atObject_h__
 #define atObject_h__
 
-#include "atString.h"
-#include "atHashMap.h"
 #include <typeindex>
+#include <type_traits>
+#include "atHashMap.h"
+#include "atString.h"
 
 class atObject
 {
@@ -42,14 +43,15 @@ public:
   void Assign(atObject &&value);
   void SetMember(const atString &name, const atObject &value);
   void SetMember(const atString &name, atObject &&value);
+  void Destroy();
 
   bool HasMember(const atString &name) const;
 
   atObject& GetMember(const atString &name);
   const atObject& GetMember(const atString &name) const;
 
-  const atObject& operator=(const atObject &rhs);
-  const atObject& operator=(atObject &&rhs);
+  atObject& operator=(const atObject &rhs);
+  atObject& operator=(atObject &&rhs);
 
   atObject& operator[](const atString &name);
   const atObject& operator[](const atString &name) const;
@@ -58,17 +60,23 @@ public:
   bool Is() const;
 
   template<typename T>
-  const T& As() const;
+  typename const std::enable_if<!std::is_void<T>::value, T>::type& As() const;
 
   template<typename T>
-  const atObject& operator=(const T &val);
+  typename std::enable_if<std::is_void<T>::value, T>::type As() const;
 
   template<typename T>
-  const atObject& operator=(T &&val);
+  T AsOr(const T &defVal) const;
+
+  template<typename T>
+  atObject& operator=(const T &val);
+
+  template<typename T>
+  atObject& operator=(T &&val);
 
   template<typename T>
   bool operator==(const T &val) const;
-  
+
   template<typename T>
   bool operator!=(const T &val) const;
 
@@ -76,13 +84,19 @@ public:
   atObject(const T &val);
 
   template<typename T>
+  atObject(T &&val);
+
+  template<typename T>
   void Assign(const T &value);
 
-  // template<typename T>
-  // void Assign(T &&value);
+  template<typename T>
+  void Assign(T &&value);
 
   template<typename T>
   void SetMember(const atString &name, const T &value);
+
+  template<typename T>
+  void SetMember(const atString &name, T &&value);
 
   template<typename T>
   T& GetMember(const atString &name);
@@ -90,17 +104,28 @@ public:
   template<typename T>
   const T& GetMember(const atString &name) const;
 
-  atVector<atString> GetMemberNames() const;
+  template<typename T> T GetMemberOr(const atString &name, const T &defVal) const;
+
+  bool Empty() const;
+
+  atString Typename() const;
 
 protected:
   std::type_index m_typeInfo;
   atVector<uint8_t> m_data;
   atHashMap<atString, atObject> m_members;
 
-  void (*m_destructFunc) (void*);
+  void MirrorType(const atObject &o);
+  template<typename T> void SetType();
+
+  void(*m_copyFunc) (atVector<uint8_t> *pMem, const void *) = nullptr;
+  void(*m_moveFunc) (atVector<uint8_t> *pMem, void *) = nullptr;
+  void(*m_destructFunc) (atVector<uint8_t> *pMem) = nullptr;
 };
 
-template<typename T> void atObjectDestructFunc(void *pData);
+template<typename T> void __atObjectDestructFunc(atVector<uint8_t> *pMem);
+template<typename T> void __atObjectCopyFunc(atVector<uint8_t> *pMem, const void *pData);
+template<typename T> void __atObjectMoveFunc(atVector<uint8_t> *pMem, void *pData);
 
 #include "atObject.inl"
 #endif // atObject_h__

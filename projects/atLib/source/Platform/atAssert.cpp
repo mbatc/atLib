@@ -36,7 +36,7 @@ void _atAssert(const bool cond, const char *expression, const char *message, con
 #ifdef atPLATFORM_WIN32
 #ifdef _DEBUG
     expression;
-    if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function, message))
+    if (_CrtDbgReport(_CRT_ASSERT, file, (int)line, function,"%s\n\n%s", expression, message))
 #endif
       _CrtDbgBreak();
 #endif

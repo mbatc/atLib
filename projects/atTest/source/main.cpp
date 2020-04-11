@@ -112,7 +112,10 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
   // atGraphicsModel model(path.c_str());
 
   // Create a window
-  atWindow window("Default Window", wndSize);
+  atWindowCreateInfo info;
+  info.title = "Default Window";
+  info.size = wndSize;
+  atWindow window(info);
 
   // Create a camera
   atFPSCamera camera(&window, { 0, 1, 5 });
@@ -179,7 +182,9 @@ void ExampleRenderText()
 {
   const atString fontPath = "Assets/Fonts/RomanSerif.ttf";
 
-  atWindow window("Font Renderer Example");
+  atWindowCreateInfo info;
+  info.title = "Font Renderer Example";
+  atWindow window(info);
 
   // Set/Load a font (.ttf files)
   at2DRenderer::SetFont(fontPath);
@@ -359,7 +364,11 @@ void ExampleRayTraceMesh()
   mesh.Import("assets/test/models/level.obj");
   
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
-  atWindow window("Window", { 800, 600 }, false);
+  atWindowCreateInfo info;
+  info.title = "Window";
+  info.size = { 800, 600 };
+  atWindow window(info);
+
   atFPSCamera cam(&window);
   while (atInput::Update())
   {

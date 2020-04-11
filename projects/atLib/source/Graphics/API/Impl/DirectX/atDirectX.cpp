@@ -191,7 +191,7 @@ void atDirectX::CreateDeviceAndContext()
     return;
 
 #ifdef _DEBUG
-  m_flags = D3D11_CREATE_DEVICE_DEBUG;
+  m_pDX->m_flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
   D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, nullptr, m_pDX->m_flags, m_pDX->m_featureList, sizeof(m_pDX->m_featureList) / sizeof(D3D_FEATURE_LEVEL), D3D11_SDK_VERSION,
