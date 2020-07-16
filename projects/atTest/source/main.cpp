@@ -455,7 +455,7 @@ void ExampleImGui()
 void ExampeBackPropagation()
 {
   atBPGNetwork network(4, 4, 2, 16);
-  
+
   for (int64_t layer = 0; layer < network.LayerCount(); ++layer)
   {
     // Randomize weights

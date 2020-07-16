@@ -42,25 +42,35 @@ atObject::atObject(atObject &&move)
   Assign(std::move(move));
 }
 
-atObject::~atObject()
+atObject::~atObject() { Destroy(); }
+
+void atObject::Destroy()
 {
   Destroy();
 }
 
 void atObject::Assign(const atObject &value)
 {
-  m_members = value.m_members;
-  MirrorType(value);
-  if (!value.Is<void>())
+  SetType(value);
+
+  // Call type specific copy assign
+  if (m_copyFunc)
     m_copyFunc(&m_data, value.m_data.data());
+
+  // Copy members
+  m_members = value.m_members;
 }
 
 void atObject::Assign(atObject &&value)
 {
-  m_members = std::move(value.m_members);
-  MirrorType(value);
-  if (!value.Is<void>())
+  SetType(value);
+
+  // Call type specific move assign
+  if (m_moveFunc)
     m_moveFunc(&m_data, value.m_data.data());
+
+  // Move members
+  m_members = std::move(value.m_members);
 }
 
 void atObject::SetMember(const atString &name, const atObject &value)
@@ -124,15 +134,13 @@ bool atObject::Empty() const { return m_data.size() == 0 && m_members.Size() == 
 
 atString atObject::Typename() const { return m_typeInfo.name(); }
 
-void atObject::MirrorType(const atObject &o)
-{
-  if (o.m_typeInfo == m_typeInfo)
-    return;
 
-  Destroy();
-  m_typeInfo = o.m_typeInfo;
-  m_copyFunc = o.m_copyFunc;
-  m_moveFunc = o.m_moveFunc;
-  m_destructFunc = o.m_destructFunc;
-  m_data.resize(o.m_data.size());
+int64_t atStreamRead(atReadStream * pStream, atObject * pData, const int64_t count)
+{
+  return int64_t();
+}
+
+int64_t atStreamWrite(atWriteStream * pStream, atObject * pData, const int64_t count)
+{
+  return int64_t();
 }
