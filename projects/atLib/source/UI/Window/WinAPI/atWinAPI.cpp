@@ -362,7 +362,8 @@ void atWin32Window::SetCallback(const atSysWndCallback &callback) { m_wndProc = 
 void atWin32Window::SetTitle(const atString &title) { ::SetWindowText(m_hWnd, title.c_str()); }
 void atWin32Window::SetCursor(const atSysCursorHandle &hCursor) { m_hCursor = hCursor; }
 void atWin32Window::SetParent(const atSysWndHandle &hParent) { m_hParent = hParent; }
-const atVector<atCol>& atWin32Window::Pixels() { return m_pixels; }
+atVector<atCol>& atWin32Window::Pixels() { return m_pixels; }
+const atVector<atCol>& atWin32Window::Pixels() const { return m_pixels; }
 void atWin32Window::SetIcon(const atSysIconHandle &hIcon) { ::SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon); }
 void atWin32Window::SetMenu(const atSysMenuHandle &hMenu) { ::SetMenu(m_hWnd, hMenu); }
 HWND atWin32Window::Handle() const { return m_hWnd; }

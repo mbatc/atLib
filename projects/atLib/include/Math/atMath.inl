@@ -287,6 +287,13 @@ template<typename T> inline T atNumBitsOn(const T &val)
   return lookup[addr] + atNumBitsOn(val >> 4);
 }
 
+template<typename T> inline T atToIndex(const atVector2<T> &coord, const atVector2<T> &dims) { return coord.x + coord.y * dims.x; }
+template<typename T> inline T atToIndex(const atVector3<T> &coord, const atVector3<T> &dims) { return coord.x + coord.y * dims.x + coord.z * dims.x * dims.y; }
+template<typename T> inline T atToIndex(const atVector4<T> &coord, const atVector4<T> &dims) { return coord.x + coord.y * dims.x + coord.z * dims.x * dims.y + coord.w * coord.x * coord.y * coord.z; }
+template<typename T> inline atVector2<T> atFromIndex(const T &index, const atVector2<T> &dims) { return atVector2<T>(atMod(index, dims.x), index / dims.y); }
+template<typename T> inline atVector3<T> atFromIndex(const T &index, const atVector3<T> &dims) { return atVector3<T>(atMod(index, dims.x), atMod(index, dims.x * dims.y) / dims.y, index / (dims.x * dims.y)); }
+template<typename T> inline atVector4<T> atFromIndex(const T &index, const atVector4<T> &dims) { return atVector3<T>(atMod(index, dims.x), atMod(index, dims.x * dims.y) / dims.y, atMod(index, dims.x * dims.y * dims.z) / (dims.x * dims.y), index / (dims.x * dims.y * dims.z)); }
+
 template<typename T> inline atVector4<T> operator*(const T &lhs, const atVector4<T>& rhs) { return rhs * lhs; }
 
 template<typename T> inline atVector3<T> operator*(const T &lhs, const atVector3<T>& rhs) { return rhs * lhs; }

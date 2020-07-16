@@ -627,7 +627,51 @@ public:
 
 #include <time.h>
 
-atGraphics *pGraphics = nullptr;
+#include "atImageCompressor.h"
+#include "atRect.h"
+
+void DrawImage(atWindow *pWindow, const atRectF &region, const atImage &image)
+{
+  atVec2I dstMin = region.m_min * pWindow->Size();
+  atVec2I dstMax = region.m_max * pWindow->Size();
+  atVec2I dstSize = dstMax - dstMin;
+  atVec2D uvStep = atVec2D(1.0) / dstSize;
+  atVec2D uv = atVec2D(0, 1);
+
+  for (int64_t y = dstMin.y; y < dstMax.y; ++y, uv.x = 0, uv.y -= uvStep.y)
+    for (int64_t x = dstMin.x; x < dstMax.x; ++x, uv.x += uvStep.x)
+      pWindow->Pixel({ x, y }) = image.Sample(uv);
+}
+
+void ExampleCompressImage()
+{
+  // atImage original("C:/Users/Mick/Pictures/Backgrounds/20171224_133223.jpg");
+  atImage original(atVec2I(800, 600), atColor::blue);
+  printf("Decompressed Size: %lld\n", original.Pixels().size() * sizeof(uint32_t));
+
+  atVector<uint8_t> data = atImageCompressor::Compress(original);
+  printf("Compressed Size:   %lld\n", data.size());
+
+  atImage decompressed = atImageCompressor::Decompress(data);
+
+  atWindowCreateInfo info;
+  info.size = { 1280, 720 };
+
+  atWindow window(info);
+  while (atInput::Update())
+  {
+    window.Clear();
+
+    DrawImage(&window, { 0, 0, 0.5, 1 }, original);
+
+    data = atImageCompressor::Compress(original);
+    decompressed = atImageCompressor::Decompress(data);
+
+    DrawImage(&window, { 0.5, 0, 1, 1 }, decompressed);
+
+    window.Swap();
+  }
+}
 
 int main(int argc, char **argv)
 {
@@ -636,86 +680,6 @@ int main(int argc, char **argv)
 #ifdef RUN_ATTEST
   atTest();
 #endif
-
-  Model *pModel = nullptr;
-  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
-
-  {
-    atGraphicsAPI api = atGfxApi_DirectX;
-
-    atWindow window;
-    pGraphics = atNew<atGraphics>(&window, api);
-    atRenderState rs;  
-
-    int64_t t = (int64_t)clock();
-
-    atFPSCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
-    while (atInput::Update())
-    {
-      if (atInput::ButtonPressed(atKC_F11))
-        window.SetWindowed(!window.IsWindowed());
-
-      // Process dropped files
-      for (const atString &f : window.DroppedFiles())
-      {
-        if (pModel) atDelete(pModel);
-        pModel = nullptr;
-
-        modelPath = f;
-      }
-
-      // Load model
-      if (modelPath != "" && !pModel)
-      {
-        atMesh m;
-        if (m.Import(modelPath))
-        {
-          m.MakeValid();
-          m.DiscoverTextures();
-          m.FlipTextures(false, true);
-          if (pModel) atDelete(pModel);
-          pModel = atNew<Model>(m, api);
-        }
-      }
-
-      // Update camera
-      cam.Update(double(clock() - t) / CLOCKS_PER_SEC);
-      t = clock();
-
-      // Draw
-      rs.SetViewport(atVec4I(0, 0, window.Size()));
-      cam.SetViewport(&window);
-
-      window.Clear(api == atGfxApi_DirectX ? atVec4F{0.3f, 0.3f, 1.0f, 1} : atVec4F{0.3f, 1.0f, 0.3f, 1});
-  
-      if (pModel)
-      {
-        // Get correct project matrix depending on the graphics api
-        atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
-        atMat4D view = cam.ViewMat();
-        atMat4D vp = (proj * view).Transpose();
-
-        for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
-        for (atRenderable &ro : pModel->meshes) ro.Draw(false);
-      }
-
-      window.Swap();
-
-      // Switch GFX api on key press (this will cause the model to be reloaded)
-      if (atInput::ButtonPressed(atKC_P))
-      {
-        if (pModel)    atDelete(pModel);
-        if (pGraphics) atDelete(pGraphics);
-        pModel = nullptr;
-        pGraphics = nullptr;
-        api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
-        pGraphics = atNew<atGraphics>(&window, api);
-      }
-    }
-
-    atDelete(pGraphics);
-    pGraphics = nullptr;
-  }
 
   // Uncomment Something!
 
@@ -734,6 +698,7 @@ int main(int argc, char **argv)
   // ExampleRayTraceMesh();
   // ExampeBackPropagation();
   // ExampleRunLua();
+  ExampleCompressImage();
   
   system("pause");
   return atWindow::GetResult();

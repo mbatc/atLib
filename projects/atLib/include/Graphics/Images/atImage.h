@@ -38,7 +38,7 @@ class atImage
 {
 public:
   atImage();
-  atImage(const atVec2I &size);
+  atImage(const atVec2I &size, const atCol &colour = atColor::black);
   atImage(const atFilename &file);
   atImage(const atCol *pPixels, const atVec2I &size);
   atImage(const atVector<atCol> &data, const atVec2I &size);

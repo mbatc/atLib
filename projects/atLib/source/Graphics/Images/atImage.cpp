@@ -29,17 +29,20 @@ static atCol _SampleNearest(const atVec2F &uv, const atVector<atCol> &pixels, co
 
 static atCol _SampleBilinear(const atVec2F &uv, const atVector<atCol> &pixels, const int64_t w, const int64_t h)
 {
-  int64_t x = (int64_t)(uv.x * w);
-  int64_t y = (int64_t)(uv.y * h);
+  int64_t x = (int64_t)(uv.x * w) % w;
+  int64_t y = (int64_t)(uv.y * h) % h;
+  int64_t x2 = (x + 1) % w;
+  int64_t y2 = (y + 1) % h;
+
   atVec2F _min = atVec2F{ (float)x / (float)w, (float)y / (float)h };
   atVec2F _max = atVec2F{ (float)(x + 1) / (float)w, (float)(y + 1) / (float)h };
   atVec2F _lower = (_max - uv) / (_max - _min);
   atVec2F _upper = (uv - _min) / (_max - _min);
 
   atVec4F a = atColor::UnPack<float>(pixels[x + y * w]) * (1.f - _lower.x) * (1.f - _lower.y);
-  atVec4F b = atColor::UnPack<float>(pixels[x + (y + 1) * w]) * (1.f - _lower.x) * (1.f - _upper.y);
-  atVec4F c = atColor::UnPack<float>(pixels[x + 1 + y * w]) * (1.f - _upper.x) * (1.f - _lower.y);
-  atVec4F d = atColor::UnPack<float>(pixels[x + 1 + (y + 1) * w]) * (1.f - _upper.x) * (1.f - _upper.y);
+  atVec4F b = atColor::UnPack<float>(pixels[x + y2 * w]) * (1.f - _lower.x) * (1.f - _upper.y);
+  atVec4F c = atColor::UnPack<float>(pixels[x2 + y * w]) * (1.f - _upper.x) * (1.f - _lower.y);
+  atVec4F d = atColor::UnPack<float>(pixels[x2 + y2 * w]) * (1.f - _upper.x) * (1.f - _upper.y);
 
   return atColor::Pack(a + b + c + d);
 }
@@ -56,7 +59,7 @@ atImage::atImage(const atFilename &file) { m_pixels = std::move(atImageHelper::L
 const atCol &atImage::Get(const int64_t x, const int64_t y) const { return m_pixels[x + y * Width()]; }
 atImage::atImage(const atVector<atCol> &data, const atVec2I &size) : m_pixels(data), m_size(size) {}
 atCol& atImage::Get(const int64_t x, const int64_t y) { return m_pixels[x + y * Width()]; }
-atImage::atImage(const atVec2I &size) : m_pixels(size.x * size.y, 0), m_size(size) {}
+atImage::atImage(const atVec2I &size, const atCol &colour) : m_pixels(size.x * size.y, colour), m_size(size) {}
 const atCol &atImage::operator[](const int64_t i) const { return m_pixels[i]; }
 atCol &atImage::operator[](const int64_t i) { return m_pixels[i]; }
 const atVector<atCol>& atImage::Pixels() const { return m_pixels; }

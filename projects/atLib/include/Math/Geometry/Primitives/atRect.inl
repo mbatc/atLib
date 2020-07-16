@@ -1,4 +1,9 @@
 
+template<typename T> inline atRect<T>::atRect(const T &left, const T &top, const T &right, const T &bottom)
+  : m_min(left, top)
+  , m_max(right, bottom)
+{}
+
 template<typename T> inline atRect<T>::atRect(const atVector4<T> &rect)
   : m_min(rect.xy())
   , m_max(rect.zw())

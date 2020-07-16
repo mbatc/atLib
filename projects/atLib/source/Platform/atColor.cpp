@@ -25,6 +25,12 @@
 
 #include "atColor.h"
 
+atCol atColor::black = atCOL_PACK_RGBA(0, 0, 0, 255);
+atCol atColor::white = atCOL_PACK_RGBA(255, 255, 255, 255);
+atCol atColor::red = atCOL_PACK_RGBA(255, 0, 0, 255);
+atCol atColor::green = atCOL_PACK_RGBA(0, 255, 0, 255);
+atCol atColor::blue = atCOL_PACK_RGBA(0, 0, 255, 255);
+
 atCol atColor::RGBAtoBGRA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETB(col), atCOL_GETG(col), atCOL_GETR(col), atCOL_GETA(col)); }
 atCol atColor::RGBAtoARGB(atCol col) { return atCOL_PACK_RGBA(atCOL_GETA(col), atCOL_GETR(col), atCOL_GETG(col), atCOL_GETB(col)); }
 atCol atColor::ARGBtoRGBA(atCol col) { return atCOL_PACK_RGBA(atCOL_GETG(col), atCOL_GETB(col), atCOL_GETA(col), atCOL_GETR(col)); }

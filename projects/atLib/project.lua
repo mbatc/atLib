@@ -101,6 +101,7 @@ linkoptions { "/ignore:4075" }
     symbols "On"
 	editandcontinue "On"
     libdirs {"3rdParty/lua/Debug/"}
+    postbuildcommands { "xcopy \"3rdParty\\lua\\Debug\\LuaLib.pdb\" \"..\\..\\builds\\bin\\\" /y /s /q /I" }
 
 -- Release Configuration Settings
 
@@ -110,3 +111,4 @@ linkoptions { "/ignore:4075" }
     optimize "On"
 	editandcontinue "Off"
     libdirs {"3rdParty/lua/Release/"}
+    postbuildcommands { "xcopy \"3rdParty\\lua\\Release\\LuaLib.pdb\" \"..\\..\\builds\\bin\\\" /y /s /q /I" }
