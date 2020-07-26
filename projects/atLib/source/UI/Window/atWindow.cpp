@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -65,7 +65,7 @@ void atWindow::OnResize()
 {
   m_sysWindow.OnResize();
   if (m_pGfx)
-    m_pGfx->Resize();
+    m_pGfx->Resize(Size());
 }
 
 void atWindow::SetWindowed(const bool &windowed) { m_sysWindow.SetWindowed(windowed); }

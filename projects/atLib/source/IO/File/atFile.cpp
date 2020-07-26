@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -25,6 +25,7 @@
 
 #include "atFile.h"
 #include "atPlatform.h"
+#include "atFileSystem.h"
 
 static void _OpenFile(FILE **ppFile, const char *pFilename, const int64_t &fm)
 {
@@ -175,6 +176,27 @@ int64_t atFile::Read(void *pBuffer, const int64_t size)
       atAssert(false, "Read failed with error: " + atString(ferror(m_pFile)));
   m_pos += size;
   return size;
+}
+
+atFilename atFile::Find(const atFilename &fn, bool *pResult)
+{
+  if (pResult)
+    *pResult = true;
+
+  if (Exists(fn))
+    return fn;
+
+  // Iterate sub folders and check if the file exists in them
+  for (const atFileSystem::FileInfo &subFolder : atFileSystem::EnumerateFolders(fn.Directory()))
+  {
+    atFilename path = subFolder.path.Path() + "/" + fn.Name();
+    if (Exists(path))
+      return path;
+  }
+
+  if (pResult)
+    *pResult = false;
+  return fn;
 }
 
 bool atFile::Exists(const atFilename &fn)

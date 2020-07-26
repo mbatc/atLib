@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -83,6 +83,7 @@ public:
   template<typename T> int64_t Write(const T *pData, const int64_t count = 1);
   template<typename T> int64_t Write(const T &data);
 
+  static atFilename Find(const atFilename &fn, bool *pResult = nullptr);
   static bool Exists(const atFilename &fn);
   static bool Create(const atFilename &fn);
   static bool Delete(const atFilename &fn);

@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -346,7 +346,7 @@ int64_t atFormat::GLDepth(const atType &type)
   };
 
   int64_t format = fmtLookup[type][0] >> 32;
-  atAssert(format != GL_NONE, "Unknown DXGI Format!");
+  atAssert(format != GL_NONE, "Unknown GL Format!");
   return format;
 }
 
@@ -401,6 +401,6 @@ int64_t atFormat::GLDepthInternal(const atType &type)
   };
 
   int64_t format = fmtLookup[type][0] >> 32;
-  atAssert(format != GL_NONE, "Unknown DXGI Format!");
+  atAssert(format != GL_NONE, "Unknown GL Format!");
   return format;
 }

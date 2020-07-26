@@ -2,15 +2,11 @@
 win32Build = os.target() == "windows"
 linuxBuild = os.target() == "linux"
 
-if linuxBuild then
-  dofile "3rdParty/sqlite3/project.lua"
-end
-
-if win32Build then
-  dofile "3rdParty/sqlite3/project.lua"      
-end
-
+dofile "3rdParty/sqlite3/project.lua"
 location "../3rdParty/sqlite3/"
+
+dofile "3rdParty/lua/project.lua"
+location "../3rdParty/lua/"
 
 project "atLib"
 configurations { "Debug", "Release" }
@@ -34,6 +30,7 @@ if (linuxBuild == true) then
   print("Creating project for Linux...")
 end
 
+dependson { "lua" }
 dependson { "sqlite3" }
 
 kind "StaticLib"
@@ -42,6 +39,8 @@ language "C++"
 characterset ("MBCS")
 
 -- Set Directories
+
+bin_path = "..\\..\\builds\\bin"
 
 symbolspath '$(OutDir)$(TargetName).pdb'
 targetdir "../../builds/bin/"
@@ -78,6 +77,7 @@ linkoptions { "/ignore:4075" }
   includedirs { "3rdParty/lua/include" }
   includedirs { "3rdParty/glew/include" }
   includedirs { "3rdParty/imgui" }
+  includedirs { "3rdParty/fbxsdk/include" }
 
 
 -- Third Party Files
@@ -89,9 +89,11 @@ linkoptions { "/ignore:4075" }
 
   files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
 
-  links { "LuaLib" }
+  links { "lua" }
   links { "sqlite3" }
+  links { "libfbxsdk" }
   links { "opengl32", "glew32" }
+  
   libdirs { "3rdParty/glew/lib/Release/x64/" }
 
 -- Debug Configuration Settings
@@ -99,8 +101,12 @@ linkoptions { "/ignore:4075" }
   filter { "configurations:Debug" }
     defines { "DEBUG"}
     symbols "On"
-	editandcontinue "On"
-    libdirs {"3rdParty/lua/Debug/"}
+	  editandcontinue "On"
+    libdirs { "3rdParty/fbxsdk/lib/x64/debug" }
+    
+    -- Copy PDB's and DLL's
+    postbuildcommands { "copy \"3rdParty\\lua\\Debug\\LuaLib.pdb\" \"" .. bin_path .. "\\LuaLib.pdb\" /y" }
+    postbuildcommands { "copy \"3rdParty\\fbxsdk\\lib\\x64\\debug\\libfbxsdk.dll\" \"" .. bin_path .. "\\libfbxsdk.dll\" /y" }
 
 -- Release Configuration Settings
 
@@ -108,5 +114,9 @@ linkoptions { "/ignore:4075" }
     flags { "LinkTimeOptimization" }
     defines { "NDEBUG" }
     optimize "On"
-	editandcontinue "Off"
-    libdirs {"3rdParty/lua/Release/"}
+	  editandcontinue "Off"
+    libdirs { "3rdParty/fbxsdk/lib/x64/release" }
+
+    -- Copy PDB's and DLL's
+    postbuildcommands { "copy \"3rdParty\\lua\\Release\\LuaLib.pdb\" \"" .. bin_path .. "\\LuaLib.pdb\" /y" }
+    postbuildcommands { "copy \"3rdParty\\fbxsdk\\lib\\x64\\release\\libfbxsdk.dll\" \"" .. bin_path .. "\\libfbxsdk.dll\" /y" }

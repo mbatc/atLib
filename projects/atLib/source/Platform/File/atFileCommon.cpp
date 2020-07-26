@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -45,12 +45,14 @@ const char* atFileCommon::FileExtension(const atFileExtension ext)
   case atFE_Obj: return "obj";
   case atFE_Txt: return "txt";
   case atFE_Atm: return "atm";
+  case atFE_Fbx: return "fbx";
   case atFE_Unknown: default: return "";
   }
 }
 
 atFileExtension atFileCommon::FileExtension(const char* ext)
 {
+  if (atString::compare(ext, FileExtension(atFE_Fbx), atSCO_None)) return atFE_Fbx;
   if (atString::compare(ext, FileExtension(atFE_Obj), atSCO_None)) return atFE_Obj;
   if (atString::compare(ext, FileExtension(atFE_Txt), atSCO_None)) return atFE_Txt;
   if (atString::compare(ext, FileExtension(atFE_Atm), atSCO_None)) return atFE_Atm;

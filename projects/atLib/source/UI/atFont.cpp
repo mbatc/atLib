@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -39,18 +39,14 @@ const atFilename &atFont::Filename() const { return m_filename; }
 int64_t atFont::Height() const { return m_height; }
 int64_t atFont::Resolution() const { return m_resolution; }
 
-int64_t atFont::GetTextureID(const bool updateTexture)
+atTexture* atFont::GetTexture(const bool updateTexture)
 {
   atUnused(updateTexture);
-
-  // if (m_texID == AT_INVALID_ID)
-  //   m_texID = atHardwareTexture::UploadTexture(m_bitmap);
-  // else if (m_stale && updateTexture)
-  // {
-  //   atHardwareTexture::UpdateTexture(m_texID, m_bitmap);
-  //   m_stale = false;
-  // }
-  return m_texID;
+  if (!m_pTexture)
+    m_pTexture = atGraphics::GetCurrent()->CreateTexture();
+  if (m_stale && updateTexture)
+    m_pTexture->Set(m_bitmap);
+  return m_pTexture;
 }
 
 atFont::atFont(const atFilename &filename, const int64_t scale, const int64_t resolution)
@@ -81,7 +77,7 @@ atFont::atFont(const atFilename &filename, const int64_t scale, const int64_t re
 
 atFont::atFont(const atFont &copy)
 {
-  m_texID = AT_INVALID_ID;
+  m_pTexture = nullptr;
   m_lastSize = copy.m_lastSize;
   m_nextPos = copy.m_nextPos;
   m_bitmap = copy.m_bitmap;
@@ -104,7 +100,7 @@ atFont::atFont(atFont &&move)
   , m_font(std::move(move.m_font))
   , m_glyphs(std::move(move.m_glyphs))
   , m_stale(move.m_stale)
-  , m_texID(move.m_texID)
+  , m_pTexture(move.m_pTexture)
   , m_bitmap(std::move(move.m_bitmap))
   , m_scale(move.m_scale)
   , m_height(move.m_height)
@@ -113,7 +109,7 @@ atFont::atFont(atFont &&move)
   , m_lastWhiteUV(move.m_lastWhiteUV)
   , m_lastSize(move.m_lastSize)
 {
-  move.m_texID = AT_INVALID_ID;
+  move.m_pTexture = nullptr;
   move.m_stale = true;
 }
 

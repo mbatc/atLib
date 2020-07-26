@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -24,16 +24,15 @@
 // -----------------------------------------------------------------------------
 
 #include "atGraphics.h"
+#include "atGFXResource.h"
 #include "atDirectX.h"
 #include "atOpenGL.h"
 #include "atWindow.h"
 
 static atGraphics *_pCurrent = nullptr;
 
-atGraphics::atGraphics(atWindow *pWindow, const atGraphicsAPI &api)
+atGraphics::atGraphics(atWindow *pWindow, const bool &vsync)
   : m_pWindow(pWindow)
-  , m_api(api)
-  , m_pContext(atGFXContext::Create(api, pWindow, true))
 {
   if (!_pCurrent)
     SetCurrent(this);
@@ -47,32 +46,30 @@ atGraphics::~atGraphics()
   m_pWindow->SetHardwareCtx(nullptr);
 }
 
-atGFXContext* atGraphics::GetCtx() { return _pCurrent->m_pContext; }
-
-void atGraphics::Resize() { m_pContext->Resize(m_pWindow->Size()); }
+atGraphics* atGraphics::Create(const atGraphicsAPI &apiID, atWindow *pWindow, const bool &vsync)
+{
+  switch (apiID)
+  {
+  case atGfxApi_DirectX: return atNew<atDirectX>(pWindow, vsync);
+  case atGfxApi_OpenGL: return atNew<atOpenGL>(pWindow, vsync);
+  }
+  return nullptr;
+}
 
 bool atGraphics::Clear(const atVec4F &color, const float &depth)
 {
-  m_pContext->ClearColour(color);
-  m_pContext->ClearDepth(depth);
-  m_pContext->ClearStencil();
+  ClearColour(color);
+  ClearDepth(depth);
+  ClearStencil();
   return true;
 }
 
-bool atGraphics::Swap()
+void atGraphics::Release(atGFXResource *pResource)
 {
-  m_pContext->Swap();
-  return true;
-}
-
-bool atGraphics::SetWindowed(const bool &windowed)
-{
-  m_pContext->SetWindowed(windowed);
-  return true;
+  if (pResource && pResource->Release())
+    atDelete(pResource);
 }
 
 void atGraphics::SetCurrent(atGraphics *pContext) { _pCurrent = pContext; }
 
 atGraphics* atGraphics::GetCurrent() { return _pCurrent; }
-
-const atGraphicsAPI& atGraphics::GetAPI() const { return m_api; }

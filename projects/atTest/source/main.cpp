@@ -30,6 +30,7 @@
 #include "atMesh.h"
 #include "atInput.h"
 #include "atLight.h"
+#include "atHashMap.h"
 
 //---------------------------------------------------------------------------------
 // NOTE: This file is used for testing but does contain a few pieces of sample code
@@ -93,7 +94,7 @@ void ExampleStrings()
 #include "atRenderState.h"
 #include "atCamera.h"
 
-void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
+void ExampleRenderMesh(atVec2I wndSize = { 800, 600 }, bool useLighting = true)
 {
   at2DRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
@@ -102,12 +103,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 
   // Set the windows clear colour
   const atVec4F clearColor = atVec4F(.3f, .3f, .3f, 1.f);
-  
+
   atLight light;
   light.m_diffuseColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
   light.m_ambientColor = atVec4F(0.3f, 0.3f, 0.3f, 1.0f);
   light.m_specularColor = atVec4F(0.8f, 0.6f, 0.5f, 1.0f);
-  
+
   // Import the model
   // atGraphicsModel model(path.c_str());
 
@@ -133,7 +134,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     //   atShaderPool::ReloadShaders();
 
     // Update camera
-    camera.Update(0.016);
+    camera.Update(atMilliSeconds(16ll));
     camera.SetViewport(&window);
 
     // Clear window
@@ -362,7 +363,7 @@ void ExampleRayTraceMesh()
 {
   atMesh mesh;
   mesh.Import("assets/test/models/level.obj");
-  
+
   atBVH<atTriangle<double>> bvh(mesh.GetTriangles());
   atWindowCreateInfo info;
   info.title = "Window";
@@ -373,7 +374,7 @@ void ExampleRayTraceMesh()
   while (atInput::Update())
   {
     window.Clear(0xFF333333);
-    cam.Update(0.016);
+    cam.Update(atMilliSeconds(16ll));
 
     atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
     vp = vp.Transpose();
@@ -413,11 +414,11 @@ void ExampleRayTraceMesh()
 
 #include "atLua.h"
 
-void ExampleRunLua()
-{
-  atLua lua;
-  lua.RunText("print([[hello from lua]])");
-}
+// void ExampleRunLua()
+// {
+//   atLua lua;
+//   lua.RunText("print([[hello from lua]])");
+// }
 
 #include "atImGui.h"
 
@@ -452,7 +453,7 @@ void ExampleImGui()
 #include "atBPGNetwork.h"
 #include "atFile.h"
 
-void ExampeBackPropagation()
+void ExampleBackPropagation()
 {
   atBPGNetwork network(4, 4, 2, 16);
 
@@ -476,7 +477,7 @@ void ExampeBackPropagation()
     myFile.Write(network);
   }
 
-  atBPGNetwork otherNetwork(1,1,1);
+  atBPGNetwork otherNetwork(1, 1, 1);
   {
     atFile myFile("atLib.net", atFM_Read);
     if (myFile.IsOpen())
@@ -491,7 +492,7 @@ void ExampeBackPropagation()
   for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
 
-  for(int64_t i = 0; i < 10000; ++i)
+  for (int64_t i = 0; i < 10000; ++i)
     network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
 
   printf("\n\nTrained Network results: \n");
@@ -499,26 +500,9 @@ void ExampeBackPropagation()
     printf("%lf, ", val);
 
   printf("\n");
-  getchar();
 }
 
-#include "atBVH.h"
-#include "atIntersects.h"
-#include "atHashSet.h"
-
-#include "atTest.h"
-
 #include "atGraphics.h"
-#include "atDXPrgm.h"
-#include "atDXShader.h"
-#include "atDXBuffer.h"
-#include "atDXSampler.h"
-
-#include "atGLTexture.h"
-#include "atGLPrgm.h"
-#include "atGLShader.h"
-#include "atGLBuffer.h"
-
 #include "atRenderable.h"
 
 class Model
@@ -530,137 +514,337 @@ public:
     atVector<atVec2F> tex;
     atVector<atVec3F> nrm;
     atVector<atVec4F> col;
+
+    atVector<atMesh::VertexDeformer> deformers;
   };
 
   Model(const atMesh &mesh, const atGraphicsAPI &api = atGfxApi_DirectX)
   {
-    atVector<SubMesh> submesh;
-    submesh.resize(mesh.m_materials.size());
+    atVector<SubMesh> submeshes;
+    submeshes.resize(mesh.m_materials.size());
 
-    for (const atMesh::Triangle &tri : mesh.m_triangles)
+    // Create a lookup from vertex position to deformation group index
+    atVector<atVector<atKeyValue<int64_t, int64_t>>> positionDeformerLookup;
+    positionDeformerLookup.resize(mesh.m_positions.size());
+    for (int64_t deformerIdx = 0; deformerIdx < mesh.m_deformationGroups.size(); ++deformerIdx)
     {
-      int64_t matID = tri.mat;
-      SubMesh &m = submesh[matID];
-      for (const atMesh::Vertex &v : tri.verts)
+      const atMesh::VertexDeformer &deformer = mesh.m_deformationGroups[deformerIdx];
+      for (int64_t deformerVert = 0; deformerVert < mesh.m_deformationGroups[deformerIdx].vertices.size(); ++deformerVert)
       {
-        m.col.push_back(mesh.m_colors[v.color]);
-        m.pos.push_back(mesh.m_positions[v.position]);
-        m.nrm.push_back(mesh.m_normals[v.normal]);
-        m.tex.push_back(mesh.m_texCoords[v.texCoord]);
+        int64_t posIdx = deformer.vertices[deformerVert];
+        positionDeformerLookup[posIdx].emplace_back(deformerIdx, deformerVert);
       }
     }
 
-    switch (api)
     {
-    case atGfxApi_DirectX:
-    {
-      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.vs"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.ps"), atPS_Fragment));
-      
-      for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atDXTexture>(atImage(mat.m_tDiffuse[0])));
-      meshes.resize(submesh.size());
+      // Src deformer index to dst derformer index per sub mesh
+      atVector<atVector<int64_t>> dstDeformerLookup;
+      dstDeformerLookup.resize(submeshes.size());
+      for (atVector<int64_t> &idLookup : dstDeformerLookup)
+        idLookup.resize(mesh.m_deformationGroups.size(), -1);
 
-      for (int64_t i = 0; i < meshes.size(); ++i)
+      for (const atMesh::Triangle &tri : mesh.m_triangles)
       {
-        atRenderable &ro = meshes[i];
-        ro.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[i].col));
-        ro.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[i].pos));
-        ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
-        ro.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[i].nrm));
-
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
-        std::shared_ptr<atGFXTexInterface> tex;
-        if (texPath.length())
-          tex = textures[texPath];
-        else
+        int64_t matID = tri.mat;
+        SubMesh &m = submeshes[matID];
+        for (const atMesh::Vertex &v : tri.verts)
         {
-          atVector<atCol> colours;
-          colours.resize(100, 0xFFFFFFFF);
-          tex = std::make_shared<atDXTexture>(atImage(colours.data(), { 10, 10 }));
+          for (const atKeyValue<int64_t, int64_t> &deformerID : positionDeformerLookup[v.position])
+          {
+            const atMesh::VertexDeformer &srcDeformer = mesh.m_deformationGroups[deformerID.m_key];
+
+            int64_t &dstDeformerIdx = dstDeformerLookup[matID][deformerID.m_key];
+            if (dstDeformerIdx == -1)
+            {
+              dstDeformerIdx = m.deformers.size();
+              m.deformers.emplace_back();
+
+              atMesh::VertexDeformer &dstDeformer = m.deformers.back();
+              dstDeformer.boneID = srcDeformer.boneID;
+              dstDeformer.transform = srcDeformer.transform;
+              dstDeformer.inverseTransform = srcDeformer.inverseTransform;
+            }
+
+            // Add the models vertex and weight to the submeshes deformer
+            m.deformers[dstDeformerIdx].vertices.push_back(m.pos.size());
+            m.deformers[dstDeformerIdx].weights.push_back(srcDeformer.weights[deformerID.m_val]);
+          }
+
+          // Add the geometry
+          m.col.push_back(mesh.m_colors[v.color]);
+          m.pos.push_back(mesh.m_positions[v.position]);
+          m.nrm.push_back(mesh.m_normals[v.normal]);
+          m.tex.push_back(mesh.m_texCoords[v.texCoord]);
         }
-
-        ro.SetTexture("texture0", tex);
-        ro.SetSampler("sampler0", std::make_shared<atDXSampler>());
-        ro.SetProgram(prgm);
       }
-    } break;
-
-    case atGfxApi_OpenGL:
-    {
-      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atGLPrgm>();
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.vert"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.frag"), atPS_Fragment));
-
-      for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atGLTexture>(atImage(mat.m_tDiffuse[0])));
-      meshes.resize(submesh.size());
-
-      for (int64_t i = 0; i < meshes.size(); ++i)
-      {
-        atRenderable &ro = meshes[i];
-        ro.SetAttribute("color0", std::make_shared<atGLBuffer>(submesh[i].col));
-        ro.SetAttribute("position0", std::make_shared<atGLBuffer>(submesh[i].pos));
-        ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
-        ro.SetAttribute("normal0", std::make_shared<atGLBuffer>(submesh[i].nrm));
-
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
-        std::shared_ptr<atGFXTexInterface> tex;
-        if (texPath.length())
-          tex = textures[texPath];
-        else
-          tex = std::make_shared<atGLTexture>(atImage());
-
-        ro.SetTexture("texture0", tex);
-        ro.SetProgram(prgm);
-      }
-    } break;
     }
+
+    atGraphics *pGfx = atGraphics::GetCurrent();
+
+    atProgram *pPrgm = pGfx->CreateProgram();
+    pPrgm->SetStageFile(pGfx->API() == atGfxApi_DirectX ? "Assets/Shaders/color.vs" : "Assets/Shaders/color.vert", atPS_Vertex);
+    pPrgm->SetStageFile(pGfx->API() == atGfxApi_DirectX ? "Assets/Shaders/color.ps" : "Assets/Shaders/color.frag", atPS_Fragment);
+
+    for (const atMaterial &mat : mesh.m_materials)
+      if (mat.m_tDiffuse.size() && !m_textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
+      {
+        atTexture *pTex = pGfx->CreateTexture();
+        pTex->Set(atImage(mat.m_tDiffuse[0]));
+        m_textures.Add(mat.m_tDiffuse[0].Path().to_lower(), pTex);
+      }
+
+    m_renderables.resize(submeshes.size());
+
+    for (int64_t i = 0; i < m_renderables.size(); ++i)
+    {
+      atRenderable &ro = m_renderables[i];
+
+      atGPUBuffer *pColorBuffer = pGfx->CreateBuffer();
+      atGPUBuffer *pPositionBuffer = pGfx->CreateBuffer();
+      atGPUBuffer *pTexcoordBuffer = pGfx->CreateBuffer();
+      atGPUBuffer *pNormalBuffer = pGfx->CreateBuffer();
+      pColorBuffer->Set(submeshes[i].col);
+      pPositionBuffer->Set(submeshes[i].pos);
+      pTexcoordBuffer->Set(submeshes[i].tex);
+      pNormalBuffer->Set(submeshes[i].nrm);
+      ro.SetAttribute("COLOR", pColorBuffer);
+      ro.SetAttribute("POSITION", pPositionBuffer);
+      ro.SetAttribute("TEXCOORD", pTexcoordBuffer);
+      ro.SetAttribute("NORMAL", pNormalBuffer);
+
+      atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+      atTexture *pTex = nullptr;
+      if (texPath.length())
+      {
+        pTex = m_textures[texPath];
+        pTex->GenerateMipmaps();
+      }
+      else
+      {
+        atVector<atCol> colours;
+        colours.resize(100, 0xFFFFFFFF);
+        pTex = pGfx->CreateTexture();
+        pTex->Set(atImage(colours.data(), { 10, 10 }));
+      }
+
+      atSampler *pSampler = pGfx->CreateSampler();
+      ro.SetTexture("texture0", pTex);
+      ro.SetSampler("sampler0", pSampler);
+      ro.SetUniform("diffuseColour0", mesh.m_materials[i].m_cDiffuse);
+
+      ro.SetProgram(pPrgm);
+
+      pGfx->Release(pPrgm);
+      pGfx->Release(pSampler);
+      pGfx->Release(pColorBuffer);
+      pGfx->Release(pNormalBuffer);
+      pGfx->Release(pPositionBuffer);
+      pGfx->Release(pTexcoordBuffer);
+    }
+
+    m_skeleton = mesh.m_skeleton;
+    m_takes = mesh.m_takes;
+    m_subMeshes = std::move(submeshes);
   }
 
-  atVector<atRenderable> meshes;
-  atHashMap<atString, std::shared_ptr<atGFXTexInterface>> textures;
+  ~Model()
+  {
+    atGraphics *pGfx = atGraphics::GetCurrent();
+
+    for (const atKeyValue<atString, atTexture *> &kvp : m_textures)
+      pGfx->Release(kvp.m_val);
+  }
+
+  void Draw(const atMat4D &vp, const atMat4D &modelMat = atMat4D::Identity())
+  {
+    ApplyAnimation();
+    for (atRenderable &ro : m_renderables) ro.SetUniform("mvp", atMat4F(vp * modelMat).Transpose());
+    for (atRenderable &ro : m_renderables) ro.Draw(false);
+  }
+
+  void SetAnimationTime(const atNanoSeconds &time)
+  {
+    m_animTime = time;
+  }
+
+  void SetAnimation(const int64_t &index)
+  {
+    if (m_activeTake == index)
+      return;
+
+    m_activeTake = atClamp(index, 0, m_takes.size());
+    m_loadedAnimTime = atNanoSeconds(-1ll);
+  }
+
+  void ApplyAnimation()
+  {
+    if (m_takes.size() == 0)
+      return;
+
+    atMesh::AnimTake &take = m_takes[m_activeTake];
+    m_animTime = atNanoSeconds(atMax(0ll, (m_animTime - take.startTime).Get())) % (take.endTime - take.startTime) + take.startTime;
+    if (m_animTime == m_loadedAnimTime)
+      return;
+
+
+    // Update all the local transforms
+    for (const atKeyValue<int64_t, int64_t> &kvp : take.links)
+    {
+      int64_t boneID = kvp.m_key;
+      int64_t animID = kvp.m_val;
+
+      atAnimation *pAnim = take.anim.GetAnimation(animID);
+      pAnim->Evaluate(m_animTime);
+      m_skeleton.SetTransform(boneID, pAnim->GetTransform());
+    }
+
+    for (int64_t meshIdx = 0; meshIdx < m_subMeshes.size(); ++meshIdx)
+    {
+      SubMesh &mesh = m_subMeshes[meshIdx];
+      atVector<atVec3F> animPos = mesh.pos;
+      atVector<atVec3F> animNrm = mesh.nrm;
+    
+      atVector<double> weights;
+      atVector<atMat4F> deformation;
+    
+      weights.resize(mesh.pos.size());
+      deformation.resize(mesh.pos.size(), atMat4F::Identity());
+    
+      for (const atMesh::VertexDeformer &deformer : mesh.deformers)
+      {
+        atMat4D invPose = m_skeleton.GetPose(0).GetInverse(deformer.boneID);
+        atMat4D curPose = m_skeleton.EvaluateGlobalTransform(deformer.boneID);
+        atMat4D relativeInitTransform = invPose * deformer.transform;
+        atMat4D relativeCurPosTransform = deformer.inverseTransform * curPose;
+        atMat4F vertexTransform = relativeCurPosTransform * relativeInitTransform;
+    
+        for (int64_t idx = 0; idx < deformer.vertices.size(); ++idx)
+        {
+          int64_t vertIdx = deformer.vertices[idx];
+          float weight = (float)deformer.weights[idx];
+    
+          if (weight == 0)
+            continue;
+    
+          atMat4F influence = vertexTransform;
+          influence = influence * weight;
+          influence = influence.AddDiagonal(1.0f - weight);
+          deformation[vertIdx] = influence * deformation[vertIdx];
+          weights[vertIdx] = 1;
+        }
+      }
+    
+      for (int64_t vtx = 0; vtx < animPos.size(); ++vtx)
+      {
+        if (weights[vtx] == 0)
+          continue;
+    
+        atVec3F srcPos = animPos[vtx];
+        atVec3F srcNrm = animNrm[vtx];
+        animPos[vtx] = deformation[vtx] * srcPos;
+        animNrm[vtx] = deformation[vtx].Inverse().Transpose() * srcNrm;
+      }
+    
+      atRenderable &ro = m_renderables[meshIdx];
+      ro.GetAttribute("POSITION")->Set(animPos);
+      ro.GetAttribute("NORMAL")->Set(animNrm);
+    }
+
+    m_loadedAnimTime = m_animTime;
+  }
+
+  atVector<SubMesh> m_subMeshes;
+  atVector<atRenderable> m_renderables;
+
+  atHashMap<atString, atTexture *> m_textures;
+
+  atSkeleton m_skeleton;
+  atVector<atMesh::AnimTake> m_takes;
+
+protected:
+  int64_t m_activeTake = 0;
+  atNanoSeconds m_animTime = atNanoSeconds(0ll);
+  atNanoSeconds m_loadedAnimTime = atNanoSeconds(-1ll);
 };
 
 #include <time.h>
 
-atGraphics *pGraphics = nullptr;
-
-int main(int argc, char **argv)
+static void ExampleRuntimeGraphicsAPI()
 {
-  atUnused(argc, argv);
-
-#ifdef RUN_ATTEST
-  atTest();
-#endif
+  atGraphics *pGraphics = nullptr;
 
   Model *pModel = nullptr;
-  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
+  // atString modelPath = "assets/test/models/dragon.fbx";
+  // atString modelPath = "assets/test/models/animated_dragon.fbx"; // With animations
+  // atString modelPath = "assets/test/models/Animated_Dragon_ASCII.fbx"; // With animations
+  atString jointPath = "assets/test/models/sphere.obj";
+  atString axisPath = "assets/test/models/axis/axis.fbx";
+  atString modelPath = "assets/test/models/anim/cubes.fbx"; // With animations
+  // atString modelPath = "assets/test/models/level.obj";
+  // atString modelPath = "assets/test/models/steve.fbx";
+
+  bool drawModel = true;
+  bool playAnimation = false;
 
   {
     atGraphicsAPI api = atGfxApi_DirectX;
 
     atWindow window;
-    pGraphics = atNew<atGraphics>(&window, api);
-    atRenderState rs;  
+    pGraphics = atGraphics::Create(api, &window);
+    atRenderState rs;
 
-    int64_t t = (int64_t)clock();
+    atMesh jointMesh;
+    jointMesh.Import(jointPath);
+    jointMesh.Validate();
+    Model joint(jointMesh);
 
-    atFPSCamera cam(&window, { 0, 0, -1 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
+    atMesh axisMesh;
+    axisMesh.Import(axisPath);
+    axisMesh.Validate();
+    Model axis(axisMesh);
+
+    atFPSCamera cam(&window, { 5, 0, 7 }, { 0, 0, 0 }, 1.0471, 0.1, 1000);
+
+    atMilliSeconds animTime = atMilliSeconds(0ll);
+    atMilliSeconds curClock = atMilliSeconds((int64_t)clock());
+
+    double moveSpeed = 4;
+
     while (atInput::Update())
     {
+      atMilliSeconds curTime((int64_t)clock());
+
+      // Toggle fullscreens
       if (atInput::ButtonPressed(atKC_F11))
         window.SetWindowed(!window.IsWindowed());
+
+      // Hide the geometry
+      if (atInput::ButtonPressed(atKC_Space))
+        drawModel = !drawModel;
+
+      // Pause the animation
+      if (atInput::ButtonPressed(atKC_P))
+        playAnimation = !playAnimation;
+
+      // Reset the animation time
+      if (atInput::ButtonPressed(atKC_R))
+        animTime.Set(0ll);
+
+      // Move the time along
+      if (atInput::ButtonPressed(atKC_Right))
+        animTime += atSeconds(1ll);
+      if (atInput::ButtonPressed(atKC_Left))
+        animTime -= atSeconds(1ll);
+
+      if (playAnimation)
+        animTime += curTime - curClock;
 
       // Process dropped files
       for (const atString &f : window.DroppedFiles())
       {
-        if (pModel) atDelete(pModel);
+        if (pModel)
+          atDelete(pModel);
         pModel = nullptr;
-
         modelPath = f;
       }
 
@@ -670,57 +854,83 @@ int main(int argc, char **argv)
         atMesh m;
         if (m.Import(modelPath))
         {
-          m.MakeValid();
+          m.Validate();
           m.DiscoverTextures();
           m.FlipTextures(false, true);
-          if (pModel) atDelete(pModel);
+          if (pModel)
+            atDelete(pModel);
           pModel = atNew<Model>(m, api);
+          pModel->m_skeleton.SetPose(0);
+        }
+        else
+        {
+          modelPath = "";
         }
       }
 
       // Update camera
-      cam.Update(double(clock() - t) / CLOCKS_PER_SEC);
-      t = clock();
+      cam.m_moveSpeed = moveSpeed;
+      cam.Update(curTime - curClock);
 
       // Draw
       rs.SetViewport(atVec4I(0, 0, window.Size()));
       cam.SetViewport(&window);
 
-      window.Clear(api == atGfxApi_DirectX ? atVec4F{0.3f, 0.3f, 1.0f, 1} : atVec4F{0.3f, 1.0f, 0.3f, 1});
-  
+      window.Clear(api == atGfxApi_DirectX ? atVec4F{ 0.3f, 0.3f, 1.0f, 1 } : atVec4F{ 0.3f, 1.0f, 0.3f, 1 });
+
+      // Get correct project matrix depending on the graphics api
+      atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
+      atMat4D view = cam.ViewMat();
+      atMat4D vp = proj * view;
+
       if (pModel)
       {
-        // Get correct project matrix depending on the graphics api
-        atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
-        atMat4D view = cam.ViewMat();
-        atMat4D vp = (proj * view).Transpose();
+        pModel->SetAnimationTime(animTime);
+        pModel->ApplyAnimation();
+        if (drawModel)
+          pModel->Draw(vp);
+        axis.Draw(vp);
+        pGraphics->ClearDepth(1);
 
-        for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
-        for (atRenderable &ro : pModel->meshes) ro.Draw(false);
+        for (const int64_t &boneID : pModel->m_skeleton.GetIDs())
+          joint.Draw(vp, pModel->m_skeleton.EvaluateGlobalTransform(boneID) * atMatrixScaleUniform(0.5));
       }
 
       window.Swap();
 
       // Switch GFX api on key press (this will cause the model to be reloaded)
-      if (atInput::ButtonPressed(atKC_P))
-      {
-        if (pModel)    atDelete(pModel);
-        if (pGraphics) atDelete(pGraphics);
-        pModel = nullptr;
-        pGraphics = nullptr;
-        api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
-        pGraphics = atNew<atGraphics>(&window, api);
-      }
+      // if (atInput::ButtonPressed(atKC_P))
+      // {
+      //   if (pModel)    atDelete(pModel);
+      //   if (pGraphics) atDelete(pGraphics);
+      //   pModel = nullptr;
+      //   pGraphics = nullptr;
+      //   api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
+      //   pGraphics = atGraphics::Create(api, &window);
+      // }
+
+      curClock = curTime;
     }
 
     atDelete(pGraphics);
     pGraphics = nullptr;
   }
+}
+
+#include "atTest.h"
+
+int main(int argc, char **argv)
+{
+  atUnused(argc, argv);
+
+#ifdef RUN_ATTEST
+  atTest();
+#endif
 
   // Uncomment Something!
 
   // Functional
-  
+
   // ExampleRenderText();
   // ExampleRenderMesh();
   // ExampleCreateScene();
@@ -729,12 +939,16 @@ int main(int argc, char **argv)
   // ExampleImGui();
 
   // Not Quite Functional
-  
+
   // ExampleImportExportMesh();
   // ExampleRayTraceMesh();
-  // ExampeBackPropagation();
+  // ExampleBackPropagation();
   // ExampleRunLua();
-  
-  system("pause");
+  ExampleRuntimeGraphicsAPI();
+
+#ifndef atVS2019 // VS2019 pauses by default in the IDE
+  getchar();
+#endif
+
   return atWindow::GetResult();
 }

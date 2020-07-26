@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -31,6 +31,8 @@
 template<typename T> class atVector3
 {
 public:
+  enum { ElementCount = 3 };
+
   atVector3();
   atVector3(T val);
   atVector3(T _x, T _y, T _z);

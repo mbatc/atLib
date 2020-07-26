@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -138,7 +138,7 @@ static int64_t _ScanInteger(const char *str, int64_t *pLen, const char *candidat
   const int64_t intlen = lastNum - nextChar;
   const int64_t baseChar = candidates[0];
 
-  int64_t mag = (int64_t)pow(nCandidates, intlen - 1);
+  int64_t mag = (int64_t)pow((double)nCandidates, double(intlen - 1));
   int64_t res = 0;
   for (int64_t c = nextChar; c < lastNum; ++c, mag /= nCandidates)
     res += (str[c] - baseChar) * mag;

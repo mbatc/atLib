@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -93,16 +93,16 @@ float4 main(PS_INPUT input) : SV_Target
 
 )";
 
-static std::shared_ptr<atDXPrgm> _prgm;
-static std::shared_ptr<atDXShader> _vertShader;
-static std::shared_ptr<atDXShader> _fragShader;
+static atProgram *_pPrgm;
+static atShader *_pVertShader;
+static atShader *_pFragShader;
 
-static std::shared_ptr<atDXSampler> _sampler;
+static atSampler *_pSampler;
 
-static std::shared_ptr<atDXBuffer> _positions;
-static std::shared_ptr<atDXBuffer> _texCoords;
-static std::shared_ptr<atDXBuffer> _colours;
-static std::shared_ptr<atDXBuffer> _indices;
+static atGPUBuffer *_pPositions;
+static atGPUBuffer *_pTexCoords;
+static atGPUBuffer *_pColours;
+static atGPUBuffer *_pIndices;
 
 static atVector<atFilename> _fontFiles;
 
@@ -169,18 +169,21 @@ static bool _Initialise()
   int32_t width, height;
   io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
-  std::shared_ptr<atDXTexture> *pTex = atNew<std::shared_ptr<atDXTexture>>(std::make_shared<atDXTexture>(atImage((uint8_t*)pPixels, {width, height}, 4)));
+  atGraphics *pGfx = atGraphics::GetCurrent();
+  atTexture *pTex = pGfx->CreateTexture(atTexture_2D);
+  pTex->Set(atImage((uint8_t*)pPixels, { width, height }, 4));
   io.Fonts->TexID = (ImTextureID)pTex;
 
-  _prgm = std::make_shared<atDXPrgm>();
-  _vertShader = std::make_shared<atDXShader>(_vertShaderSrc, atPS_Vertex);
-  _fragShader = std::make_shared<atDXShader>(_fragShaderSrc, atPS_Fragment);
-  _sampler = std::make_shared<atDXSampler>();
+  _pPrgm = pGfx->CreateProgram();
+  _pVertShader = pGfx->CreateShader(_vertShaderSrc, atPS_Vertex);
+  _pFragShader = pGfx->CreateShader(_fragShaderSrc, atPS_Fragment);
+  _pSampler = pGfx->CreateSampler();
 
-  _prgm->SetStage(_vertShader);
-  _prgm->SetStage(_fragShader);
-  _ro.SetProgram(_prgm);
-  _ro.SetSampler("sampler0", _sampler);
+  _pPrgm->SetStage(_pVertShader);
+  _pPrgm->SetStage(_pFragShader);
+  _ro.SetProgram(_pPrgm);
+  if (_pSampler)
+    _ro.SetSampler("sampler0", _pSampler);
 
   if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&_ticksPerSecond))
     return false;
@@ -254,18 +257,15 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
     _ro.SetUniform("ProjectionMatrix", ortho);
   }
 
-  if (!_positions) _positions = std::make_shared<atDXBuffer>(positions, atBT_VertexData);
-  else             _positions->Set(positions);
-
-  if (!_texCoords) _texCoords = std::make_shared<atDXBuffer>(texcoords, atBT_VertexData);
-  else             _texCoords->Set(texcoords);
-
-  if (!_colours) _colours = std::make_shared<atDXBuffer>(colours, atBT_VertexData);
-  else           _colours->Set(colours);
-
-  if (!_indices) _indices = std::make_shared<atDXBuffer>(indices, atBT_IndexData);
-  else           _indices->Set(indices);
-
+  atGraphics *pGfx = atGraphics::GetCurrent();
+  if (!_pPositions) _pPositions = pGfx->CreateBuffer(atBT_VertexData);
+  if (!_pTexCoords) _pTexCoords = pGfx->CreateBuffer(atBT_VertexData);
+  if (!_pColours) _pColours = pGfx->CreateBuffer(atBT_VertexData);
+  if (!_pIndices) _pIndices = pGfx->CreateBuffer(atBT_VertexData);
+  _pPositions->Set(positions);
+  _pTexCoords->Set(texcoords);
+  _pColours->Set(colours);
+  _pIndices->Set(indices);
   return true;
 }
 
@@ -308,10 +308,10 @@ bool atImGui::Render()
   rs.SetStencilEnabled(false);
   rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y));
 
-  _ro.SetAttribute("POSITION", _positions);
-  _ro.SetAttribute("TEXCOORD", _texCoords);
-  _ro.SetAttribute("COLOR", _colours);
-  _ro.SetAttribute("indices", _indices);
+  _ro.SetAttribute("POSITION", _pPositions);
+  _ro.SetAttribute("TEXCOORD", _pTexCoords);
+  _ro.SetAttribute("COLOR", _pColours);
+  _ro.SetAttribute("indices", _pIndices);
 
   unsigned int stride = sizeof(ImDrawVert);
   unsigned int offset = 0;
@@ -335,7 +335,7 @@ bool atImGui::Render()
         rs.SetScissor(atVec4I{ (LONG)(pCmd->ClipRect.x - pos.x), (LONG)(pCmd->ClipRect.y - pos.y), (LONG)(pCmd->ClipRect.z - pCmd->ClipRect.x), (LONG)(pCmd->ClipRect.w - pCmd->ClipRect.y) });
 
         // Bind texture, Draw
-        _ro.SetTexture("texture0", *(std::shared_ptr<atDXTexture>*)pCmd->TextureId);
+        _ro.SetTexture("texture0", (atTexture*)pCmd->TextureId);
 
         _ro.Draw(true, atGFX_PT_TriangleList, pCmd->ElemCount, idxOffset, vtxOffset);
       }

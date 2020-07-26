@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -35,7 +35,7 @@
 
 void _atAssert(const bool cond, const char *expression, const char *message, const int64_t line, const char *file, const char *function);
 
-#define atRelAssert(cond, message) _atAssert((bool)(cond), #cond, message, __LINE__, __FILE__, atFUNCSIG)
+#define atRelAssert(cond, message) ((bool)(cond) ? void() : _atAssert(false, #cond, message, atLINE, atFILE, atFUNCSIG))
 
 #ifdef _DEBUG
 #define atAssert(cond, message) atRelAssert(cond, message)

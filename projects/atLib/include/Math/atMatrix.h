@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -65,6 +65,7 @@ public:
   atMatrix4x4<T> Mul(const T &rhs) const;
   atMatrix4x4<T> Sub(const T &rhs) const;
   atMatrix4x4<T> Add(const T &rhs) const;
+  atMatrix4x4<T> AddDiagonal(const T &rhs) const;
   atMatrix4x4<T> Mul(const atMatrix4x4<T> &rhs) const;
   atVector4<T> Mul(const atVector4<T> &rhs) const;
   atVector3<T> Mul(const atVector3<T> &rhs) const;
@@ -83,7 +84,11 @@ public:
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
 
-  T m[16];
+  union
+  {
+    T m[16];
+    atVector4<T> row[4];
+  };
 };
 
 #include "atMatrix.inl"
