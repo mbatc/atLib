@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -27,31 +27,56 @@
 #define _atGraphics_h__
 
 #include "atString.h"
-#include "atGFXResource.h"
-#include "atGFXTexInterface.h"
-#include "atGFXShaderInterface.h"
-#include "atGFXSamplerInterface.h"
-#include "atGFXPrgmInterface.h"
+#include "atGFXDefinitions.h"
 
 class atWindow;
+class atGFXContextState;
+class atGFXResource;
+class atGPUBuffer;
+class atTexture;
+class atSampler;
+class atShader;
+class atRenderTarget;
+class atProgram;
 
 class atGraphics
 {
   friend atWindow;
 
 public:
-  // Create a graphics context associated with a window
-  atGraphics(atWindow *pWindow, const atGraphicsAPI &api = atGfxApi_DirectX);
+  atGraphics(atWindow *pWindow, const bool &vsync);
   ~atGraphics();
 
-  // Create GFX objects that can be used with this graphics api
-  template<typename... Args> std::shared_ptr<atGFXBufferInterface> CreateBuffer(Args&& ...args);
-  template<typename... Args> std::shared_ptr<atGFXTexInterface> CreateTexture(Args&& ...args);
-  template<typename... Args> std::shared_ptr<atGFXSamplerInterface> CreateSampler(Args&& ...args);
-  template<typename... Args> std::shared_ptr<atGFXShaderInterface> CreateShader(Args&& ...args);
-  template<typename... Args> std::shared_ptr<atGFXPrgmInterface> CreateProgram(Args&& ...args);
+  static atGraphics* Create(const atGraphicsAPI& apiID, atWindow *pWindow, const bool &vsync = true);
 
-  static atGFXContext* GetCtx();
+  virtual atGFXContextState* GetState() = 0;
+  virtual atGraphicsAPI API() = 0;
+
+  // Commands
+  virtual void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const atType &indicesType = atType_Uint32) = 0;
+  virtual void Draw(int64_t nVerts, int64_t startLocation = 00, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList) = 0;
+
+  // Swap chain
+  virtual void Swap() = 0;
+  virtual void SetWindowed(const bool &windowed) = 0;
+  virtual void Resize(const atVec2I &size) = 0;
+
+  // Back buffer
+  virtual void ClearColour(const atVec4F &colour) = 0;
+  virtual void ClearDepth(const float  &colour) = 0;
+  virtual void ClearStencil() = 0;
+
+  // Clear the window
+  bool Clear(const atVec4F &color, const float &depth = 1.0f);
+
+  // Create GFX objects that can be used with this graphics api
+  virtual atSampler*      CreateSampler() = 0;
+  virtual atShader*       CreateShader(const atString &src, const atPipelineStage &stage) = 0;
+  virtual atProgram*      CreateProgram() = 0;
+  virtual atGPUBuffer*    CreateBuffer(const atBufferType &bufferType = atBT_VertexData) = 0;
+  virtual atTexture*      CreateTexture(const atTextureType &texType = atTexture_2D) = 0;
+  virtual atRenderTarget* CreateRenderTarget() = 0;
+  void Release(atGFXResource *pResource);
 
   // Set the current graphics context
   static void SetCurrent(atGraphics *pContext);
@@ -59,22 +84,8 @@ public:
   // Get the current graphics context
   static atGraphics* GetCurrent();
 
-  const atGraphicsAPI& GetAPI() const;
-
 protected:
-  void Resize();
-
-  // Clear the window
-  bool Clear(const atVec4F &color, const float &depth = 1.0f);
-
-  // Display the window
-  bool Swap();
-
-  bool SetWindowed(const bool &windowed);
-
   atWindow *m_pWindow = nullptr;
-  atGFXContext *m_pContext = nullptr;
-  atGraphicsAPI m_api = atGfxApi_None;
 };
 
 #include "atGraphics.h"

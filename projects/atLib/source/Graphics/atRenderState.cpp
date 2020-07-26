@@ -53,13 +53,13 @@ atRenderState::~atRenderState()
 
 void atRenderState::Bind()
 {
-  switch (atGraphics::GetCurrent()->GetAPI())
+  switch (atGraphics::GetCurrent()->API())
   {
   case atGfxApi_DirectX:
-    ((atDirectX*)atGraphics::GetCtx())->GetState()->Set(m_stack.back());
+    ((atDirectX*)atGraphics::GetCurrent())->GetState()->Set(m_stack.back());
     break;
   case atGfxApi_OpenGL:
-    ((atOpenGL*)atGraphics::GetCtx())->GetState()->Set(m_stack.back());
+    ((atOpenGL*)atGraphics::GetCurrent())->GetState()->Set(m_stack.back());
     break;
   }
 }

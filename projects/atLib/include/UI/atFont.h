@@ -29,6 +29,7 @@
 #include "atHashMap.h"
 #include "atFilename.h"
 #include "atImage.h"
+#include "atTexture.h"
 
 //---------------------
 // THIRD PARTY INCLUDES
@@ -72,7 +73,7 @@ public:
 
   // This value should not be stored as a call to GetTextureID() will 
   // also update the Texture if new glyphs are loaded
-  int64_t GetTextureID(const bool updateTexture = true);
+  atTexture* GetTexture(const bool updateTexture = true);
 
   int64_t Height() const;
   int64_t Resolution() const;
@@ -95,7 +96,7 @@ protected:
   int64_t m_height = 0;
   int64_t m_resolution = 0;
 
-  int64_t m_texID = AT_INVALID_ID;
+  atTexture* m_pTexture = nullptr;
   int32_t m_lastRowHeight = 0;
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();

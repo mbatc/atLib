@@ -65,7 +65,7 @@ void atWindow::OnResize()
 {
   m_sysWindow.OnResize();
   if (m_pGfx)
-    m_pGfx->Resize();
+    m_pGfx->Resize(Size());
 }
 
 void atWindow::SetWindowed(const bool &windowed) { m_sysWindow.SetWindowed(windowed); }

@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -27,6 +27,7 @@
 #define at2DRenderer_h__
 
 #include "atFilename.h"
+#include "atTexture.h"
 #include "atWindow.h"
 
 class at2DRenderer
@@ -54,7 +55,7 @@ public:
   static void AddCircle(const int64_t x, const int64_t y, const double radius, int64_t segments = 16, double phase = 0.0, const atVec2F &pivot = { 0, 0 });
   
   // TODO: Create a global state to contain different rendering properties that may be added
-  static void PushTexture(const int64_t id);
+  static void PushTexture(atTexture *pTexture);
   static void PopTexture(const int64_t count = 1);
   static void PushColour(const atVec4F &color);
   static void PopColour(const int64_t count = 1);

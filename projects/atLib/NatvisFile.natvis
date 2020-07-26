@@ -12,8 +12,58 @@
     </Expand>
   </Type>
 
-  <Type Name="atString&lt;&gt;">
-    <DisplayString>{m_data.m_pData, su}</DisplayString>
-    <StringView>{m_data.m_pData, su}</StringView>
+  <Type Name="atString">
+    <DisplayString>{m_data.m_pData,s}</DisplayString>
+    <StringView>m_data.m_pData,s</StringView>
+  </Type>
+
+  <Type Name="atMatrix4x4&lt;*&gt;">
+    <DisplayString>{m}</DisplayString>
+    <Expand>
+      <Synthetic Name="[Rows]">
+        <Expand>
+          <Item Name="1">row[0]</Item>
+          <Item Name="2">row[1]</Item>
+          <Item Name="3">row[2]</Item>
+          <Item Name="4">row[3]</Item>
+        </Expand>
+      </Synthetic>
+      <Synthetic Name="[Columns]">
+        <Expand>
+          <Synthetic Name="X Axis">
+            <Expand>
+              <Item Name="x">m[0]</Item>
+              <Item Name="y">m[4]</Item>
+              <Item Name="z">m[8]</Item>
+              <Item Name="w">m[12]</Item>
+            </Expand>
+          </Synthetic>
+          <Synthetic Name="Y Axis">
+            <Expand>
+              <Item Name="x">m[1]</Item>
+              <Item Name="y">m[5]</Item>
+              <Item Name="z">m[9]</Item>
+              <Item Name="w">m[13]</Item>
+            </Expand>
+          </Synthetic>
+          <Synthetic Name="Z Axis">
+            <Expand>
+              <Item Name="x">m[2]</Item>
+              <Item Name="y">m[6]</Item>
+              <Item Name="z">m[10]</Item>
+              <Item Name="w">m[14]</Item>
+            </Expand>
+          </Synthetic>
+          <Synthetic Name="Translation">
+            <Expand>
+              <Item Name="x">m[3]</Item>
+              <Item Name="y">m[7]</Item>
+              <Item Name="z">m[11]</Item>
+              <Item Name="w">m[15]</Item>
+            </Expand>
+          </Synthetic>
+        </Expand>
+      </Synthetic>
+    </Expand>
   </Type>
 </AutoVisualizer>
