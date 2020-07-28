@@ -7,6 +7,7 @@
 template<typename T> class atRect
 {
 public:
+  atRect(const T &left, const T &top, const T &right, const T &bottom);
   atRect(const atVector4<T> &rect);
   atRect(const atVector2<T> &min, const atVector2<T> &max);
 
