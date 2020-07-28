@@ -640,16 +640,19 @@ void DrawImage(atWindow *pWindow, const atRectF &region, const atImage &image)
 
   for (int64_t y = dstMin.y; y < dstMax.y; ++y, uv.x = 0, uv.y -= uvStep.y)
     for (int64_t x = dstMin.x; x < dstMax.x; ++x, uv.x += uvStep.x)
-      pWindow->Pixel({ x, y }) = image.Sample(uv);
+    {
+      // atVec4D colour = atColor::UnPack<double>(image.Sample(uv));
+      pWindow->Pixel({ x, y }) = image.Sample(uv); //  atColor::Pack(colour * colour);
+    }
 }
 
 void ExampleCompressImage()
 {
-  // atImage original("C:/Users/Mick/Pictures/Backgrounds/20171224_133223.jpg");
-  atImage original(atVec2I(800, 600), atColor::blue);
+  atImage original = atImage("C:/Users/Mick/Pictures/Backgrounds/20171224_133223.jpg").Resize({ 1280, 720 }, atST_Bilinear);
+  // atImage original(atVec2I(800, 600), atColor::blue);
   printf("Decompressed Size: %lld\n", original.Pixels().size() * sizeof(uint32_t));
 
-  atVector<uint8_t> data = atImageCompressor::Compress(original);
+  atVector<uint8_t> data = atImageCompressor::Compress(original, 5);
   printf("Compressed Size:   %lld\n", data.size());
 
   atImage decompressed = atImageCompressor::Decompress(data);
@@ -663,10 +666,6 @@ void ExampleCompressImage()
     window.Clear();
 
     DrawImage(&window, { 0, 0, 0.5, 1 }, original);
-
-    data = atImageCompressor::Compress(original);
-    decompressed = atImageCompressor::Decompress(data);
-
     DrawImage(&window, { 0.5, 0, 1, 1 }, decompressed);
 
     window.Swap();

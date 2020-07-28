@@ -34,7 +34,13 @@
 class atImageCompressor
 {
 public:
-  static atVector<uint8_t> Compress(const atImage &image);
+  // Compress an image.
+  // The quality setting should be a number between 1 and 7.
+  // This setting sets how much data loss to allow.
+  //
+  // i.e between 1 and 7 bits lost per channel.
+
+  static atVector<uint8_t> Compress(const atImage &image, const int64_t &quality = 2);
   static atImage Decompress(const atVector<uint8_t> &data);
 };
 
