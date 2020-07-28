@@ -1,7 +1,13 @@
+##  Welcome to A Typical Library
+
+atLib is a collection of tools written in C++ mainly focusing on 3D graphics (but anything goes really).
+
+For me, this library is a hobby project which I develop on and off in my free time. As such there are no guaratees made that everything will work as intended. I'm sure there are probably plenty of bugs (big and small) scattered about.
+
+
 ## Licensing
 
-All source code in this repository including 3rd Party libraries are License under
-the following:
+All source code in this repository is License under the following:
 
 ### The MIT License
 
@@ -26,6 +32,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+All 3rdParty code is distributed under the licenses supplied by it's owner/s. Details can be found in the following section, or in the folder containing the goven 3rdParty source or binaries.
 
 ## 3rd Party Library Acknowledgements
 
