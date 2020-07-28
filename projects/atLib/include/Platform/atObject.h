@@ -39,6 +39,8 @@ public:
   atObject(atObject &&move);
   ~atObject();
 
+  void Destroy();
+
   void Assign(const atObject &value);
   void Assign(atObject &&value);
   void SetMember(const atString &name, const atObject &value);
@@ -110,7 +112,15 @@ public:
 
   atString Typename() const;
 
+  friend int64_t atStreamRead(atReadStream *pStream, atObject *pData, const int64_t count);
+  friend int64_t atStreamWrite(atWriteStream *pStream, atObject *pData, const int64_t count);
+
 protected:
+  void SetType(const atObject &obj);
+  
+  template<typename T>
+  void SetType();
+
   std::type_index m_typeInfo;
   atVector<uint8_t> m_data;
   atHashMap<atString, atObject> m_members;
@@ -121,11 +131,41 @@ protected:
   void(*m_copyFunc) (atVector<uint8_t> *pMem, const void *) = nullptr;
   void(*m_moveFunc) (atVector<uint8_t> *pMem, void *) = nullptr;
   void(*m_destructFunc) (atVector<uint8_t> *pMem) = nullptr;
+  int64_t (*m_writeFunc) (atWriteStream *pStream, const atVector<uint8_t> *pSrc);
+  int64_t (*m_readFunc) (atReadStream *pStream, atVector<uint8_t> *pDst);
 };
 
 template<typename T> void __atObjectDestructFunc(atVector<uint8_t> *pMem);
 template<typename T> void __atObjectCopyFunc(atVector<uint8_t> *pMem, const void *pData);
 template<typename T> void __atObjectMoveFunc(atVector<uint8_t> *pMem, void *pData);
+template<typename T> int64_t atObjectWriteFunc(atWriteStream *pStream, atVector<uint8_t> *pData);
+template<typename T> int64_t atObjectReadFunc(atReadStream *pRead, atVector<uint8_t> *pData);
+
+int64_t atStreamRead(atReadStream *pStream, atObject *pData, const int64_t count)
+{    
+  int64_t size = 0;
+  for (int64_t i = 0; i < count; ++i)
+    if (!pData[i].Is<void>())
+    {
+      size += pData[i].m_readFunc(pStream, &pData->m_data);
+      size += atStreamRead(pStream, &pData->m_members, 1);
+    }
+
+  return size;
+}
+
+int64_t atStreamWrite(atWriteStream *pStream, atObject *pData, const int64_t count)
+{
+  int64_t size = 0;
+  for (int64_t i = 0; i < count; ++i)
+    if (!pData[i].Is<void>())
+    {
+      size += pData[i].m_writeFunc(pStream, &pData->m_data);
+      size += atStreamWrite(pStream, &pData->m_members, 1);
+    }
+
+  return size;
+}
 
 #include "atObject.inl"
 #endif // atObject_h__

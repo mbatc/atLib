@@ -113,6 +113,19 @@ inline void atObject::SetMember(const atString &name, T &&value)
   SetMember(name, atObject(std::move(value)));
 }
 
+inline void atObject::SetType(const atObject &obj)
+{
+  if (obj.m_typeInfo == m_typeInfo)
+    return;
+
+  Destroy();
+  m_typeInfo = obj.m_typeInfo;
+  m_moveFunc = obj.m_moveFunc;
+  m_copyFunc = obj.m_copyFunc;
+  m_destructFunc = obj.m_destructFunc;
+  m_data.reserve(obj.m_data.size());
+}
+
 template<typename T>
 inline void __atObjectDestructFunc(atVector<uint8_t> *pMem)
 {
@@ -145,6 +158,11 @@ T atObject::GetMemberOr(const atString &name, const T &defVal) const
   return GetMember(name).AsOr<T>(defVal);
 }
 
+template<typename T>
+inline void atObjectWriteFunc(atWriteStream *pStream, atVector<uint8_t> *pData) { return atStreamWrite(pStream, (T*)pData->data(), 1); }
+
+template<typename T>
+inline void atObjectReadFunc(atReadStream *pStream, atVector<uint8_t> *pData) { return atStreamRead(pStream, (T*)pData->data(), 1); }
 template<typename T>
 inline void atObject::SetType()
 {
