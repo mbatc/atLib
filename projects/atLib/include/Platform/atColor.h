@@ -80,6 +80,12 @@ public:
 
   // Reversible
   static atCol RGBAtoBGRA(atCol col);
+
+  static atCol black;
+  static atCol white;
+  static atCol red;
+  static atCol green;
+  static atCol blue;
 };
 
 // Specialization for floating point values (Color values range from 0-1 instead of 0-255)

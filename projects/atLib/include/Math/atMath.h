@@ -90,6 +90,13 @@ inline int8_t atSqrt(const int8_t &val);
 #include "atMatrix.h"
 #include "atMatrixNxM.h"
 
+template<typename T> inline T atToIndex(const atVector2<T> &coord, const atVector2<T> &dims);
+template<typename T> inline T atToIndex(const atVector3<T> &coord, const atVector3<T> &dims);
+template<typename T> inline T atToIndex(const atVector4<T> &coord, const atVector4<T> &dims);
+template<typename T> inline atVector2<T> atFromIndex(const T &index, const atVector2<T> &dims);
+template<typename T> inline atVector3<T> atFromIndex(const T &index, const atVector3<T> &dims);
+template<typename T> inline atVector4<T> atFromIndex(const T &index, const atVector4<T> &dims);
+
 typedef atVector2<int32_t> atVec2I;
 typedef atVector3<int32_t> atVec3I;
 typedef atVector4<int32_t> atVec4I;
