@@ -93,6 +93,7 @@ bool atXLibWindow::IsWindowed() const { return false; }
 bool atXLibWindow::IsVisible() const { return false; }
 
 atSysWndHandle atXLibWindow::Handle() const { return m_hWnd; }
-const atVector<atCol>& atXLibWindow::Pixels() { return m_pixels; }
+atVector<atCol>& atXLibWindow::Pixels() { return m_pixels; }
+const atVector<atCol>& atXLibWindow::Pixels() const { return m_pixels; }
 
 #endif

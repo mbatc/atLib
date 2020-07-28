@@ -105,6 +105,12 @@ public:
   void OnResize();
 
   atCol* Pixels();
+  const atCol* Pixels() const;
+
+  atCol& Pixel(const atVec2I &coord);
+  atCol& Pixel(const int64_t &index);
+  const atCol& Pixel(const atVec2I &coord) const;
+  const atCol& Pixel(const int64_t &index) const;
 
   atVector<atString> DroppedFiles();
   
@@ -114,7 +120,9 @@ protected:
   void SetHardwareCtx(atGraphics *pGfx);
   void AddDroppedFile(const atString &file);
 
-  const atVector<atCol>& PixelsV();
+  atVector<atCol>& PixelsV();
+  const atVector<atCol>& PixelsV() const;
+
   atVector<atString> m_droppedFiles;
   atGraphics *m_pGfx = nullptr;
 

@@ -102,7 +102,8 @@ public:
   bool IsVisible() const;
 
   atSysWndHandle Handle() const;
-  const atVector<atCol>& Pixels();
+  atVector<atCol>& Pixels();
+  const atVector<atCol>& Pixels() const;
   
 protected:
   bool WINRegister(const atWindowCreateInfo &info);
