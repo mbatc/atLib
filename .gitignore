@@ -31,9 +31,8 @@
 *.out
 *.app
 *.obj
-/projects/atLib/Debug/*.exe
-/projects/atLib/Debug/*.log
-/projects/atLib/x64/Release/aberrant.5910BD68.tlog/*.lastbuildstate
+*.log
+*.lastbuildstate
 *.tlog
 *.pdb
 *.enc
@@ -43,15 +42,19 @@
 *.idb
 *.ilk
 *.log
-/aberrantToothbrushLibrary.sln
-/projects/atLib/*.vcxproj
-/projects/atLib/*.filters
-/projects/atLib/*.user
+*.sln
 *.vcxproj
 *.filters
 *.user
-/builds/output/_Debug/Debug/atLib/*.cache
-/builds/output/_Release/Release/atLib/*.cache
+*.cache
+*.cache
 
 # Makefiles
 **/Makefile
+
+# Directories
+/.vs
+/.vscode
+/[dD]ebug
+/[rR]elease
+/[bB]uilds
