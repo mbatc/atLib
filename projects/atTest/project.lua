@@ -41,7 +41,7 @@ flags { "MultiProcessorCompile" }
 
   files { "source/**.cpp", "source/**.h", "source/**.inl" , "**.natvis" }
 
-  links { "atLib", "LuaLib" }
+  links { "atLib" }
 
 -- Debug Configuration Settings
 
