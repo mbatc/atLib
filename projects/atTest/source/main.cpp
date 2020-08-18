@@ -413,11 +413,11 @@ void ExampleRayTraceMesh()
 
 #include "atLua.h"
 
-void ExampleRunLua()
-{
-  atLua lua;
-  lua.RunText("print([[hello from lua]])");
-}
+// void ExampleRunLua()
+// {
+//   atLua lua;
+//   lua.RunText("print([[hello from lua]])");
+// }
 
 #include "atImGui.h"
 
@@ -452,7 +452,7 @@ void ExampleImGui()
 #include "atBPGNetwork.h"
 #include "atFile.h"
 
-void ExampeBackPropagation()
+void ExampleBackPropagation()
 {
   atBPGNetwork network(4, 4, 2, 16);
 
@@ -476,7 +476,7 @@ void ExampeBackPropagation()
     myFile.Write(network);
   }
 
-  atBPGNetwork otherNetwork(1,1,1);
+  atBPGNetwork otherNetwork(1, 1, 1);
   {
     atFile myFile("atLib.net", atFM_Read);
     if (myFile.IsOpen())
@@ -491,7 +491,7 @@ void ExampeBackPropagation()
   for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
 
-  for(int64_t i = 0; i < 10000; ++i)
+  for (int64_t i = 0; i < 10000; ++i)
     network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
 
   printf("\n\nTrained Network results: \n");
@@ -627,15 +627,9 @@ public:
 
 #include <time.h>
 
-atGraphics *pGraphics = nullptr;
-
-int main(int argc, char **argv)
+static void ExampleRuntimeGraphicsAPI()
 {
-  atUnused(argc, argv);
-
-#ifdef RUN_ATTEST
-  atTest();
-#endif
+  atGraphics *pGraphics = nullptr;
 
   Model *pModel = nullptr;
   atString modelPath = "Assets/Test/models/sponza/sponza.obj";
@@ -716,6 +710,17 @@ int main(int argc, char **argv)
     atDelete(pGraphics);
     pGraphics = nullptr;
   }
+}
+
+#include "atTest.h"
+
+int main(int argc, char **argv)
+{
+  atUnused(argc, argv);
+
+#ifdef RUN_ATTEST
+  atTest();
+#endif
 
   // Uncomment Something!
 
@@ -734,7 +739,11 @@ int main(int argc, char **argv)
   // ExampleRayTraceMesh();
   // ExampeBackPropagation();
   // ExampleRunLua();
-  
-  system("pause");
+  ExampleRuntimeGraphicsAPI();
+
+#ifndef atVS2019 // VS2019 pauses by default in the IDE
+  getchar();
+#endif
+
   return atWindow::GetResult();
 }

@@ -23,23 +23,22 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-#include "atRenderState.h"
-#include "at2DRenderer.h"
-#include "atInput.h"
 #include "atAABB.h"
 #include "atFont.h"
 #include "atRect.h"
+#include "atInput.h"
+#include "at2DRenderer.h"
+#include "atRenderable.h"
+#include "atRenderState.h"
 
 struct DrawData
 {
   atVec4F colour;
-  int64_t texture;
+  atTexture *pTexture = nullptr;
   atVec4I clipRect;
 
-  atVector<atVec4F> color;
-  atVector<atVec3F> verts;
-  atVector<atVec2F> uvs;
-  atVector<uint32_t> indices;
+  int64_t startElement = 0;
+  int64_t elementCount = -1;
 };
 
 struct DrawContext
@@ -47,31 +46,56 @@ struct DrawContext
   static atFont& Font() { return fonts[activeFont]; }
   static const atVec4I Clip() { return clip.size() ? clip.back() : atVec4I(-INT32_MAX, -INT32_MAX, INT32_MAX, INT32_MAX);; }
   static const atVec4F Colour() { return col.size() ? col.back() : atVec4F::one(); }
-  static const int64_t Texture() { return tex.size() ? tex.back() : Font().GetTextureID(false); }
+  static atTexture* Texture() { return tex.size() ? tex.back() : Font().GetTexture(false); }
   static DrawData& Data() { return drawList.back(); }
 
   static int64_t activeFont;
   
   static atVector<atFont> fonts;
-  static atVector<int64_t> tex;
+  static atVector<atTexture*> tex;
   static atVector<atVec4F> col;
   static atVector<atVec4I> clip;
 
+  struct Buffers
+  {
+    atGPUBuffer *pColour = nullptr;
+    atGPUBuffer *pPos = nullptr;
+    atGPUBuffer *pUV = nullptr;
+    atGPUBuffer *pIndices = nullptr;
+
+    atProgram *pProgram = nullptr;
+    atSampler *pSampler = nullptr;
+  } static gpu;
+
+  struct DD
+  {
+    atVector<atVec4F> color;
+    atVector<atVec3F> pos;
+    atVector<atVec2F> uvs;
+    atVector<uint32_t> indices;
+  } static drawData;
+
   static atVector<DrawData> drawList;
+  static atRenderable renderer;
 };
 
 int64_t DrawContext::activeFont;
 atVector<atFont> DrawContext::fonts;
-atVector<int64_t> DrawContext::tex;
+atVector<atTexture*> DrawContext::tex;
 atVector<atVec4F> DrawContext::col;
 atVector<atVec4I> DrawContext::clip;
+
+DrawContext::Buffers DrawContext::gpu;
+DrawContext::DD DrawContext::drawData;
+
 atVector<DrawData> DrawContext::drawList;
 
-static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs, atVector<uint32_t> *pIdx = nullptr, atVector<atVec3F> *pVert = nullptr, atVector<atVec4F> *pCol = nullptr, atVector<atVec2F> *pUV = nullptr);
-static void _AddPoly(const atVector<atVec2F> &points, const atVec2F &uv, atVector<uint32_t> *pIdx = nullptr, atVector<atVec3F> *pVert = nullptr, atVector<atVec4F> *pCol = nullptr, atVector<atVec2F> *pUV = nullptr);
+atRenderable DrawContext::renderer;
+
+static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs);
+static void _AddPoly(const atVector<atVec2F> &points, const atVec2F &uv);
 static void _AdvanceCursor(const char c, const atFont::Glyph &g, int64_t *pLineHeight, atVec2I *pPos, const atVec2I &tl = { 0, 0 });
-static void _GetDrawData(atVector<uint32_t> **pIdx, atVector<atVec3F> **pVert, atVector<atVec4F> **pCol, atVector<atVec2F> **pUV);
-static DrawData& _GetDrawData();
+static DrawData& _TryAddDrawCommand();
 static atAABB<int32_t> _TextBounds(const atString &text);
 
 // ------------------------------------------------------
@@ -100,22 +124,18 @@ void at2DRenderer::AddText(const int64_t x, const int64_t y, const atString &tex
   if (!atIntersects(atRectI(clip), atRectI(tl, tl + bounds.Dimensions().xy())))
     return;
 
-  PushTexture(DrawContext::Font().GetTextureID());
+  PushTexture(DrawContext::Font().GetTexture());
   tl -= offset;
   atVec2I cursor = tl;
   int64_t rowHeight = 0;
 
   atFont &font = DrawContext::Font();
-  atVector<uint32_t> *pIdx;
-  atVector<atVec3F> *pVert;
-  atVector<atVec4F> *pCol;
-  atVector<atVec2F> *pUV;
-  _GetDrawData(&pIdx, &pVert, &pCol, &pUV);
+  _TryAddDrawCommand();
 
   for (const char c : text)
   {
     atFont::Glyph g = font.GetGlyph(c);
-    uint32_t i = (uint32_t)pVert->size();
+    // uint32_t i = (uint32_t)DrawContext::drawData.pos.size();
     atVec4F rect = { 
       (float)cursor.x + g.xOff,  
       (float)cursor.y + g.yOff, 
@@ -129,11 +149,43 @@ void at2DRenderer::AddText(const int64_t x, const int64_t y, const atString &tex
 
     _AddPoly(
     { atVec2F(rect.x, rect.y), atVec2F(rect.z, rect.y), atVec2F(rect.z, rect.w), atVec2F(rect.x, rect.w) },
-    atVector<atVec2F>({atVec2F(g.tl.x, g.br.y), atVec2F(g.br.x, g.br.y), atVec2F(g.br.x, g.tl.y), atVec2F(g.tl.x, g.tl.y) }),
-      pIdx, pVert, pCol, pUV);
+    atVector<atVec2F>({atVec2F(g.tl.x, g.br.y), atVec2F(g.br.x, g.br.y), atVec2F(g.br.x, g.tl.y), atVec2F(g.tl.x, g.tl.y) }));
   }
-
   PopTexture();
+}
+
+static void _InitDC()
+{
+  static bool initialised = false;
+  if (initialised)
+    return;
+
+  atGraphics *pCtx = atGraphics::GetCurrent();
+  if (!pCtx)
+    return;
+
+  // Setup the shader
+  DrawContext::gpu.pProgram = pCtx->CreateProgram();
+  DrawContext::gpu.pProgram->SetStageFile("assets/shaders/text.vs", atPS_Vertex);
+  DrawContext::gpu.pProgram->SetStageFile("assets/shaders/text.ps", atPS_Fragment);
+
+  // Create the sampler
+  DrawContext::gpu.pSampler = pCtx->CreateSampler();
+
+  // Create buffers
+  DrawContext::gpu.pColour = pCtx->CreateBuffer();
+  DrawContext::gpu.pUV = pCtx->CreateBuffer();
+  DrawContext::gpu.pPos = pCtx->CreateBuffer();
+  DrawContext::gpu.pIndices = pCtx->CreateBuffer(atBT_IndexData);
+
+  // Setup renderable
+  DrawContext::renderer.SetProgram(DrawContext::gpu.pProgram);
+  DrawContext::renderer.SetSampler("samplerType", DrawContext::gpu.pSampler);
+  DrawContext::renderer.SetAttribute("COLOR", DrawContext::gpu.pColour);
+  DrawContext::renderer.SetAttribute("TEXCOORD", DrawContext::gpu.pUV);
+  DrawContext::renderer.SetAttribute("POSITION", DrawContext::gpu.pPos);
+  DrawContext::renderer.SetAttribute("idxBuffer", DrawContext::gpu.pIndices);
+  initialised = true;
 }
 
 void at2DRenderer::Draw(const atVec2I &dimensions)
@@ -144,26 +196,35 @@ void at2DRenderer::Draw(const atVec2I &dimensions)
 
   atUnused(dimensions);
 
-  // static atRenderable ro;
-  // atRenderState rs;
-  // 
-  // for (atFont &f : DrawContext::fonts)
-  //   f.GetTextureID();
-  // 
-  // ro.SetShader("assets/shaders/text");
-  // ro.SetSampler("samplerType", AT_INVALID_ID);
-  // ro.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
-  // for (DrawData &dd : DrawContext::drawList)
-  // {
-  //   rs.SetScissor(dd.clipRect);
-  //   ro.SetTexture("tex0", dd.texture);
-  //   ro.SetAttribute("COLOR", dd.color);
-  //   ro.SetAttribute("TEXCOORD", dd.uvs);
-  //   ro.SetAttribute("POSITION", dd.verts);
-  //   ro.SetIndices("idxBuffer", dd.indices);
-  //   ro.DrawTriangles();
-  // }
+  atRenderState rs;
+
+  // Make sure the textures are up to date
+  for (atFont &f : DrawContext::fonts)
+    f.GetTexture();
+
+  // Update the buffers
+  DrawContext::gpu.pIndices->Set(DrawContext::drawData.indices);
+  DrawContext::gpu.pColour->Set(DrawContext::drawData.color);
+  DrawContext::gpu.pPos->Set(DrawContext::drawData.pos);
+  DrawContext::gpu.pUV->Set(DrawContext::drawData.uvs);
+
+  // Update the viewport
+  DrawContext::renderer.SetUniform("mvp", atMat4F(atMatrixOrtho((float)dimensions.x, (float)dimensions.y, -1.f, 1.f)));
+
+  // Draw each of command
+  for (DrawData &dd : DrawContext::drawList)
+  {
+    rs.SetScissor(dd.clipRect);
+    DrawContext::renderer.SetTexture("tex0", dd.pTexture);
+    DrawContext::renderer.Draw(true, atGFX_PT_TriangleList, dd.elementCount, dd.startElement);
+  }
+
+  // Clear the draw list
   DrawContext::drawList.clear();
+  DrawContext::drawData.indices.clear();
+  DrawContext::drawData.color.clear();
+  DrawContext::drawData.pos.clear();
+  DrawContext::drawData.uvs.clear();
 }
 
 atVec4I at2DRenderer::TextRect(const int64_t x, const int64_t y, const atString &text, const atVec2F &pivot)
@@ -206,7 +267,7 @@ void at2DRenderer::AddCircle(const int64_t x, const int64_t y, const double radi
 atVec2I at2DRenderer::TextSize(const atString &text) { return _TextBounds(text).Dimensions().xy(); }
 void at2DRenderer::Draw(atWindow &wnd) { Draw(wnd.Size()); }
 void at2DRenderer::AddPolygon(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs) { _AddPoly(points, uvs); }
-void at2DRenderer::PushTexture(const int64_t id) { DrawContext::tex.push_back(id); }
+void at2DRenderer::PushTexture(atTexture *pTexture) { DrawContext::tex.push_back(pTexture); }
 void at2DRenderer::PopTexture(const int64_t count) { DrawContext::tex.erase(atMax(0, DrawContext::tex.size() - count), (atMin(count, DrawContext::tex.size()))); }
 void at2DRenderer::PushColour(const atVec4F &color) { DrawContext::col.push_back(color); }
 void at2DRenderer::PushClipRect(const atVec4I &rect) { DrawContext::clip.push_back(rect); }
@@ -244,60 +305,53 @@ static atAABB<int32_t> _TextBounds(const atString &text)
   return bounds;
 }
 
-static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs, atVector<uint32_t> *pIdx, atVector<atVec3F> *pVert, atVector<atVec4F> *pCol, atVector<atVec2F> *pUV)
+static void _AddPoly(const atVector<atVec2F> &points, const atVector<atVec2F> &uvs)
 {
   atAssert(points.size() == uvs.size(), "Points and UVS must contain the same number of elements.");
-  if (!pIdx || !pVert || !pCol || !pUV)
-    _GetDrawData(&pIdx, &pVert, &pCol, &pUV);
+  DrawData &dd = _TryAddDrawCommand();
   atVec4F color = DrawContext::Colour();
-  uint32_t start = (uint32_t)pVert->size();
+  uint32_t start = (uint32_t)DrawContext::drawData.pos.size();
   for (const atVec2F &v : points)
   {
-    pVert->push_back(atVec3F(v, 0.f));
-    pCol->push_back(color);
+    DrawContext::drawData.pos.push_back(atVec3F(v, 0.f));
+    DrawContext::drawData.color.push_back(color);
   }
 
-  pUV->push_back(uvs);
-  for (uint32_t i = 0; i < points.size() - 2; ++i) pIdx->push_back({ start, start + i + 1, start + i + 2 });
+  DrawContext::drawData.uvs.push_back(uvs);
+  for (uint32_t i = 0; i < points.size() - 2; ++i)
+    DrawContext::drawData.indices.push_back({ start, start + i + 1, start + i + 2 });
+  dd.elementCount = DrawContext::drawData.indices.size() - dd.startElement;
 }
 
-void _AddPoly(const atVector<atVec2F>& points, const atVec2F &uv, atVector<uint32_t>* pIdx, atVector<atVec3F>* pVert, atVector<atVec4F>* pCol, atVector<atVec2F>* pUV)
+void _AddPoly(const atVector<atVec2F> &points, const atVec2F &uv)
 {
-  if (!pIdx || !pVert || !pCol || !pUV)
-    _GetDrawData(&pIdx, &pVert, &pCol, &pUV);
+  _TryAddDrawCommand();
   atVec4F color = DrawContext::Colour();
-  uint32_t start = (uint32_t)pVert->size();
+  uint32_t start = (uint32_t)DrawContext::drawData.pos.size();
   for (const atVec2F &v : points)
   {
-    pUV->push_back(uv);
-    pVert->push_back(atVec3F(v, 0.f));
-    pCol->push_back(color);
+    DrawContext::drawData.uvs.push_back(uv);
+    DrawContext::drawData.pos.push_back(atVec3F(v, 0.f));
+    DrawContext::drawData.color.push_back(color);
   }
 
-  for (uint32_t i = 0; i < points.size() - 2; ++i) pIdx->push_back({ start, start + i + 1, start + i + 2 });
+  for (uint32_t i = 0; i < points.size() - 2; ++i)
+    DrawContext::drawData.indices.push_back({ start, start + i + 1, start + i + 2 });
 }
 
-static DrawData& _GetDrawData()
+static DrawData& _TryAddDrawCommand()
 {
   if (DrawContext::drawList.size() > 0)
   {
     DrawData& dd = DrawContext::Data();
-    if (DrawContext::Clip() == dd.clipRect && DrawContext::Texture() == dd.texture)
+    dd.startElement = DrawContext::drawData.indices.size();
+    if (DrawContext::Clip() == dd.clipRect && DrawContext::Texture() == dd.pTexture)
       return dd;
   }
 
   DrawData data;
   data.clipRect = DrawContext::Clip();
-  data.texture = DrawContext::Texture();
+  data.pTexture = DrawContext::Texture();
   DrawContext::drawList.push_back(data);
   return DrawContext::Data();
-}
-
-static void _GetDrawData(atVector<uint32_t> **pIdx, atVector<atVec3F> **pVert, atVector<atVec4F> **pCol, atVector<atVec2F> **pUV)
-{
-  DrawData &dd = _GetDrawData();
-  *pIdx = &dd.indices;
-  *pVert = &dd.verts;
-  *pCol = &dd.color;
-  *pUV = &dd.uvs;
 }

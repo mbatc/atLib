@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -45,6 +45,7 @@ enum atFileExtension
 {
   atFE_Txt,
   atFE_Obj,
+  atFE_Fbx,
   atFE_Atm,
   atFE_Unknown
 };

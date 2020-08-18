@@ -2,7 +2,7 @@
 // -----------------------------------------------------------------------------
 // The MIT License
 // 
-// Copyright(c) 2018 Michael Batchelor, 
+// Copyright(c) 2020 Michael Batchelor, 
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -26,7 +26,7 @@
 #ifndef _atRenderState_h__
 #define _atRenderState_h__
 
-#include "atGFXContext.h"
+#include "atGraphics.h"
 #include "atWindow.h"
 #include "atMath.h"
 

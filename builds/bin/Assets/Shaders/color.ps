@@ -1,6 +1,11 @@
 Texture2D texture0;
 SamplerState sampler0;
 
+cbuffer material
+{
+  float4 diffuseColour0;
+}
+
 struct psOutput
 {
   float4 color : COLOR;
@@ -18,6 +23,6 @@ psOutput main(vsOutput In) : SV_Target
 {
   psOutput Out;
   Out.color = texture0.Sample(sampler0, In.texCoord);
-  Out.color *= In.color;
+  Out.color *= In.color * diffuseColour0;
   return Out;
 }
