@@ -133,7 +133,7 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     //   atShaderPool::ReloadShaders();
 
     // Update camera
-    camera.Update(0.016);
+    camera.Update(atMilliSeconds(16ll));
     camera.SetViewport(&window);
 
     // Clear window
@@ -373,7 +373,7 @@ void ExampleRayTraceMesh()
   while (atInput::Update())
   {
     window.Clear(0xFF333333);
-    cam.Update(0.016);
+    cam.Update(atMilliSeconds(16ll));
 
     atMat4F vp = cam.ProjectionMat() * cam.ViewMat();
     vp = vp.Transpose();
@@ -521,109 +521,109 @@ void ExampleBackPropagation()
 
 #include "atRenderable.h"
 
-class Model
-{
-public:
-  struct SubMesh
-  {
-    atVector<atVec3F> pos;
-    atVector<atVec2F> tex;
-    atVector<atVec3F> nrm;
-    atVector<atVec4F> col;
-  };
-
-  Model(const atMesh &mesh, const atGraphicsAPI &api = atGfxApi_DirectX)
-  {
-    atVector<SubMesh> submesh;
-    submesh.resize(mesh.m_materials.size());
-
-    for (const atMesh::Triangle &tri : mesh.m_triangles)
-    {
-      int64_t matID = tri.mat;
-      SubMesh &m = submesh[matID];
-      for (const atMesh::Vertex &v : tri.verts)
-      {
-        m.col.push_back(mesh.m_colors[v.color]);
-        m.pos.push_back(mesh.m_positions[v.position]);
-        m.nrm.push_back(mesh.m_normals[v.normal]);
-        m.tex.push_back(mesh.m_texCoords[v.texCoord]);
-      }
-    }
-
-    switch (api)
-    {
-    case atGfxApi_DirectX:
-    {
-      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.vs"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.ps"), atPS_Fragment));
-      
-      for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atDXTexture>(atImage(mat.m_tDiffuse[0])));
-      meshes.resize(submesh.size());
-
-      for (int64_t i = 0; i < meshes.size(); ++i)
-      {
-        atRenderable &ro = meshes[i];
-        ro.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[i].col));
-        ro.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[i].pos));
-        ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
-        ro.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[i].nrm));
-
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
-        std::shared_ptr<atGFXTexInterface> tex;
-        if (texPath.length())
-          tex = textures[texPath];
-        else
-        {
-          atVector<atCol> colours;
-          colours.resize(100, 0xFFFFFFFF);
-          tex = std::make_shared<atDXTexture>(atImage(colours.data(), { 10, 10 }));
-        }
-
-        ro.SetTexture("texture0", tex);
-        ro.SetSampler("sampler0", std::make_shared<atDXSampler>());
-        ro.SetProgram(prgm);
-      }
-    } break;
-
-    case atGfxApi_OpenGL:
-    {
-      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atGLPrgm>();
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.vert"), atPS_Vertex));
-      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.frag"), atPS_Fragment));
-
-      for (const atMaterial &mat : mesh.m_materials)
-        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
-          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atGLTexture>(atImage(mat.m_tDiffuse[0])));
-      meshes.resize(submesh.size());
-
-      for (int64_t i = 0; i < meshes.size(); ++i)
-      {
-        atRenderable &ro = meshes[i];
-        ro.SetAttribute("color0", std::make_shared<atGLBuffer>(submesh[i].col));
-        ro.SetAttribute("position0", std::make_shared<atGLBuffer>(submesh[i].pos));
-        ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
-        ro.SetAttribute("normal0", std::make_shared<atGLBuffer>(submesh[i].nrm));
-
-        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
-        std::shared_ptr<atGFXTexInterface> tex;
-        if (texPath.length())
-          tex = textures[texPath];
-        else
-          tex = std::make_shared<atGLTexture>(atImage());
-
-        ro.SetTexture("texture0", tex);
-        ro.SetProgram(prgm);
-      }
-    } break;
-    }
-  }
-
-  atVector<atRenderable> meshes;
-  atHashMap<atString, std::shared_ptr<atGFXTexInterface>> textures;
-};
+//class Model
+//{
+//public:
+//  struct SubMesh
+//  {
+//    atVector<atVec3F> pos;
+//    atVector<atVec2F> tex;
+//    atVector<atVec3F> nrm;
+//    atVector<atVec4F> col;
+//  };
+//
+//  Model(const atMesh &mesh, const atGraphicsAPI &api = atGfxApi_DirectX)
+//  {
+//    atVector<SubMesh> submesh;
+//    submesh.resize(mesh.m_materials.size());
+//
+//    for (const atMesh::Triangle &tri : mesh.m_triangles)
+//    {
+//      int64_t matID = tri.mat;
+//      SubMesh &m = submesh[matID];
+//      for (const atMesh::Vertex &v : tri.verts)
+//      {
+//        m.col.push_back(mesh.m_colors[v.color]);
+//        m.pos.push_back(mesh.m_positions[v.position]);
+//        m.nrm.push_back(mesh.m_normals[v.normal]);
+//        m.tex.push_back(mesh.m_texCoords[v.texCoord]);
+//      }
+//    }
+//
+//    switch (api)
+//    {
+//    case atGfxApi_DirectX:
+//    {
+//      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atDXPrgm>();
+//      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.vs"), atPS_Vertex));
+//      prgm->SetStage(std::make_shared<atDXShader>(atFile::ReadText("Assets/Shaders/color.ps"), atPS_Fragment));
+//
+//      for (const atMaterial &mat : mesh.m_materials)
+//        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
+//          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atDXTexture>(atImage(mat.m_tDiffuse[0])));
+//      meshes.resize(submesh.size());
+//
+//      for (int64_t i = 0; i < meshes.size(); ++i)
+//      {
+//        atRenderable &ro = meshes[i];
+//        ro.SetAttribute("COLOR", std::make_shared<atDXBuffer>(submesh[i].col));
+//        ro.SetAttribute("POSITION", std::make_shared<atDXBuffer>(submesh[i].pos));
+//        ro.SetAttribute("TEXCOORD", std::make_shared<atDXBuffer>(submesh[i].tex));
+//        ro.SetAttribute("NORMAL", std::make_shared<atDXBuffer>(submesh[i].nrm));
+//
+//        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+//        std::shared_ptr<atGFXTexInterface> tex;
+//        if (texPath.length())
+//          tex = textures[texPath];
+//        else
+//        {
+//          atVector<atCol> colours;
+//          colours.resize(100, 0xFFFFFFFF);
+//          tex = std::make_shared<atDXTexture>(atImage(colours.data(), { 10, 10 }));
+//        }
+//
+//        ro.SetTexture("texture0", tex);
+//        ro.SetSampler("sampler0", std::make_shared<atDXSampler>());
+//        ro.SetProgram(prgm);
+//      }
+//    } break;
+//
+//    case atGfxApi_OpenGL:
+//    {
+//      std::shared_ptr<atGFXPrgmInterface> prgm = std::make_shared<atGLPrgm>();
+//      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.vert"), atPS_Vertex));
+//      prgm->SetStage(std::make_shared<atGLShader>(atFile::ReadText("Assets/Shaders/color.frag"), atPS_Fragment));
+//
+//      for (const atMaterial &mat : mesh.m_materials)
+//        if (mat.m_tDiffuse.size() && !textures.Contains(mat.m_tDiffuse[0].Path().to_lower()))
+//          textures.Add(mat.m_tDiffuse[0].Path().to_lower(), std::make_shared<atGLTexture>(atImage(mat.m_tDiffuse[0])));
+//      meshes.resize(submesh.size());
+//
+//      for (int64_t i = 0; i < meshes.size(); ++i)
+//      {
+//        atRenderable &ro = meshes[i];
+//        ro.SetAttribute("color0", std::make_shared<atGLBuffer>(submesh[i].col));
+//        ro.SetAttribute("position0", std::make_shared<atGLBuffer>(submesh[i].pos));
+//        ro.SetAttribute("texcoord0", std::make_shared<atGLBuffer>(submesh[i].tex));
+//        ro.SetAttribute("normal0", std::make_shared<atGLBuffer>(submesh[i].nrm));
+//
+//        atString texPath = mesh.m_materials[i].m_tDiffuse.size() ? mesh.m_materials[i].m_tDiffuse[0].Path().to_lower() : "";
+//        std::shared_ptr<atGFXTexInterface> tex;
+//        if (texPath.length())
+//          tex = textures[texPath];
+//        else
+//          tex = std::make_shared<atGLTexture>(atImage());
+//
+//        ro.SetTexture("texture0", tex);
+//        ro.SetProgram(prgm);
+//      }
+//    } break;
+//    }
+//  }
+//
+//  atVector<atRenderable> meshes;
+//  atHashMap<atString, std::shared_ptr<atGFXTexInterface>> textures;
+//};
 
 #include <time.h>
 
@@ -631,14 +631,14 @@ static void ExampleRuntimeGraphicsAPI()
 {
   atGraphics *pGraphics = nullptr;
 
-  Model *pModel = nullptr;
+  // Model *pModel = nullptr;
   atString modelPath = "Assets/Test/models/sponza/sponza.obj";
 
   {
     atGraphicsAPI api = atGfxApi_DirectX;
 
     atWindow window;
-    pGraphics = atNew<atGraphics>(&window, api);
+    pGraphics = atGraphics::Create(api, &window);
     atRenderState rs;  
 
     int64_t t = (int64_t)clock();
@@ -652,28 +652,28 @@ static void ExampleRuntimeGraphicsAPI()
       // Process dropped files
       for (const atString &f : window.DroppedFiles())
       {
-        if (pModel) atDelete(pModel);
-        pModel = nullptr;
+        // if (pModel) atDelete(pModel);
+        // pModel = nullptr;
 
         modelPath = f;
       }
 
       // Load model
-      if (modelPath != "" && !pModel)
-      {
-        atMesh m;
-        if (m.Import(modelPath))
-        {
-          m.MakeValid();
-          m.DiscoverTextures();
-          m.FlipTextures(false, true);
-          if (pModel) atDelete(pModel);
-          pModel = atNew<Model>(m, api);
-        }
-      }
+      // if (modelPath != "" && !pModel)
+      // {
+      //   atMesh m;
+      //   if (m.Import(modelPath))
+      //   {
+      //     m.Validate();
+      //     m.DiscoverTextures();
+      //     m.FlipTextures(false, true);
+      //     // if (pModel) atDelete(pModel);
+      //     // pModel = atNew<Model>(m, api);
+      //   }
+      // }
 
       // Update camera
-      cam.Update(double(clock() - t) / CLOCKS_PER_SEC);
+      cam.Update(atMilliSeconds(int64_t(clock() - t)));
       t = clock();
 
       // Draw
@@ -682,28 +682,28 @@ static void ExampleRuntimeGraphicsAPI()
 
       window.Clear(api == atGfxApi_DirectX ? atVec4F{0.3f, 0.3f, 1.0f, 1} : atVec4F{0.3f, 1.0f, 0.3f, 1});
   
-      if (pModel)
-      {
-        // Get correct project matrix depending on the graphics api
-        atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
-        atMat4D view = cam.ViewMat();
-        atMat4D vp = (proj * view).Transpose();
-
-        for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
-        for (atRenderable &ro : pModel->meshes) ro.Draw(false);
-      }
+      // if (pModel)
+      // {
+      //   // Get correct project matrix depending on the graphics api
+      //   atMat4D proj = api == atGfxApi_DirectX ? cam.ProjectionMat(0, 1) : cam.ProjectionMat(-1, 1);
+      //   atMat4D view = cam.ViewMat();
+      //   atMat4D vp = (proj * view).Transpose();
+      // 
+      //   for (atRenderable &ro : pModel->meshes) ro.SetUniform("mvp", atMat4F(vp));
+      //   for (atRenderable &ro : pModel->meshes) ro.Draw(false);
+      // }
 
       window.Swap();
 
       // Switch GFX api on key press (this will cause the model to be reloaded)
       if (atInput::ButtonPressed(atKC_P))
       {
-        if (pModel)    atDelete(pModel);
+        // if (pModel)    atDelete(pModel);
         if (pGraphics) atDelete(pGraphics);
-        pModel = nullptr;
+        // pModel = nullptr;
         pGraphics = nullptr;
         api = api == atGfxApi_DirectX ? atGfxApi_OpenGL : atGfxApi_DirectX;
-        pGraphics = atNew<atGraphics>(&window, api);
+        pGraphics = atGraphics::Create(api, &window);
       }
     }
 

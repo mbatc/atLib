@@ -54,7 +54,7 @@ public:
 
   // Commands
   virtual void DrawIndexed(int64_t nIndices, int64_t startLocation = 0, int64_t baseVertIndex = 0, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const atType &indicesType = atType_Uint32) = 0;
-  virtual void Draw(int64_t nVerts, int64_t startLocation = 00, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList) = 0;
+  virtual void Draw(int64_t nVerts, int64_t startLocation = 0, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList) = 0;
 
   // Swap chain
   virtual void Swap() = 0;
