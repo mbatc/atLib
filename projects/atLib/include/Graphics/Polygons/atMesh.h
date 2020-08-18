@@ -28,8 +28,13 @@
 
 #include "atVector.h"
 #include "atMath.h"
+#include "atVector.h"
 #include "atMaterial.h"
 #include "atTriangle.h"
+#include "atSkeleton.h"
+#include "atAnimation.h"
+#include "atVertexGroup.h"
+#include "atAnimationGroup.h"
 
 enum atVertexElement
 {
@@ -63,12 +68,28 @@ public:
     Vertex verts[3];
   };
 
-  struct Face
+  class VertexDeformer
   {
-    int64_t mat;
-    atVector<Vertex> verts;
+  public:
+    int64_t boneID = -1;
+
+	  atMat4D transform;
+	  atMat4D inverseTransform;
+
+    atVector<int64_t> vertices;
+    atVector<double> weights;
   };
-    
+
+  class AnimTake
+  {
+  public:
+    atHashMap<int64_t, int64_t> links;
+    atAnimationGroup anim;
+
+    atNanoSeconds startTime = atNanoSeconds(0ll);
+    atNanoSeconds endTime = atNanoSeconds(1ll);
+  };
+  
   atMesh();
   atMesh(const atMesh &copy);
   atMesh(atMesh &&move);
@@ -79,7 +100,7 @@ public:
 
   // Fills missing data with default values
   // This should be called before using a mesh
-  bool MakeValid();
+  bool Validate();
 
   // Apply transforms to the mesh
   void SpatialTransform(const atMat4D &transform);
@@ -99,18 +120,26 @@ public:
   // If the dot product of two normals is < threshold they will not be blended
   void GenSmoothNormals(const double threshold = 0.6, const bool regenNormals = true);
 
-  // Flip all normals
+  // Flip texture coordinates
   void FlipTextures(const bool u, const bool v);
+
+  // Flip all normals
   void FlipNormals();
 
-  atVector<atTriangle<double>> GetTriangles();
+  // Combine a mesh
+  void Combine(const atMesh &src);
 
+  atVector<atTriangle<double>> GetTriangles() const;
+
+  // Paths
   atString m_name;
   atString m_sourceFile;
   atString m_resourceDir;
 
+  // Triangles
   atVector<Triangle> m_triangles;
 
+  // Geometry
   atVector<atVec3D> m_positions;
   atVector<atVec3D> m_normals;
   atVector<atVec4D> m_colors;
@@ -118,7 +147,18 @@ public:
   atVector<atVec3D> m_tangents;
   atVector<atVec3D> m_binormals;
 
+  // Bones
+  atSkeleton m_skeleton;
+
+  // Deformation vertex groups
+  atVector<VertexDeformer> m_deformationGroups;
+
+  // Materials
   atVector<atMaterial> m_materials;
+
+  // Animations
+  // Each group contains a collection of curves
+  atVector<AnimTake> m_takes;
 
   const atMesh& operator=(const atMesh &rhs);
   const atMesh& operator=(atMesh &&rhs);
@@ -130,8 +170,6 @@ atTrivialStreamWrite(atMesh::Triangle);
 atTrivialStreamWrite(atMesh::Vertex);
 
 int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count);
-int64_t atStreamRead(atReadStream *pStream, atMesh::Face *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count);
-int64_t atStreamWrite(atWriteStream *pStream, const atMesh::Face *pData, const int64_t count);
 
 #endif

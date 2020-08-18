@@ -259,45 +259,32 @@ template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Mul(const T &rhs) const
 template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Sub(const T &rhs) const
 {
   return atMatrix4x4<T>(
-    m[0] - rhs,
-    m[1] - rhs,
-    m[2] - rhs,
-    m[3] - rhs,
-    m[4] - rhs,
-    m[5] - rhs,
-    m[6] - rhs,
-    m[7] - rhs,
-    m[8] - rhs,
-    m[9] - rhs,
-    m[10] - rhs,
-    m[11] - rhs,
-    m[12] - rhs,
-    m[13] - rhs,
-    m[14] - rhs,
-    m[15] - rhs
+    m[0] - rhs, m[1] - rhs, m[2] - rhs, m[3] - rhs,
+    m[4] - rhs, m[5] - rhs, m[6] - rhs, m[7] - rhs,
+    m[8] - rhs, m[9] - rhs, m[10] - rhs, m[11] - rhs,
+    m[12] - rhs, m[13] - rhs, m[14] - rhs, m[15] - rhs
   );
 }
 
 template<typename T> atMatrix4x4<T> atMatrix4x4<T>::Add(const T &rhs) const
 {
   return atMatrix4x4<T>(
-    m[0] + rhs,
-    m[1] + rhs,
-    m[2] + rhs,
-    m[3] + rhs,
-    m[4] + rhs,
-    m[5] + rhs,
-    m[6] + rhs,
-    m[7] + rhs,
-    m[8] + rhs,
-    m[9] + rhs,
-    m[10] + rhs,
-    m[11] + rhs,
-    m[12] + rhs,
-    m[13] + rhs,
-    m[14] + rhs,
-    m[15] + rhs
+    m[0] + rhs, m[1] + rhs, m[2] + rhs, m[3] + rhs,
+    m[4] + rhs, m[5] + rhs, m[6] + rhs, m[7] + rhs,
+    m[8] + rhs, m[9] + rhs, m[10] + rhs, m[11] + rhs,
+    m[12] + rhs, m[13] + rhs, m[14] + rhs, m[15] + rhs
   );
+}
+
+template<typename T>
+inline atMatrix4x4<T> atMatrix4x4<T>::AddDiagonal(const T &rhs) const
+{
+  atMatrix4x4<T> ret = *this;
+  ret.m[0] += rhs;
+  ret.m[5] += rhs;
+  ret.m[10] += rhs;
+  ret.m[15] += rhs;
+  return ret;
 }
 
 template<typename T> const atMatrix4x4<T>& atMatrix4x4<T>::operator=(const atMatrix4x4<T> &copy)

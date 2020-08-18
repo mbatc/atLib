@@ -32,6 +32,8 @@
 template<typename T> class atVector2
 {
 public:
+  enum { ElementCount = 2 };
+
   atVector2();
   atVector2(T val);
   atVector2(T _x, T _y);
@@ -41,7 +43,6 @@ public:
   template<typename T2> explicit atVector2(T2 val);
   template<typename T2> atVector2(T2 _x, T2 _y);
   template<typename T2> atVector2(const atVector2<T2> &copy);
-
 
   static atVector2<T> zero();
   static atVector2<T> one();

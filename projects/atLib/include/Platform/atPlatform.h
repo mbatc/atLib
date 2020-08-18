@@ -1,9 +1,31 @@
 #ifndef _atPlatform_h__
 #define _atPlatform_h__
 
-#if _MSC_VER
+// Compiler definitions
+#if _MSC_VER // MS Visual studio / MS build
 #define atMSVC 1
 #define atCOMPILER atMSVC
+
+// Determine the visual studio IDE version
+#if _MSC_VER >= 1920
+#define atVS2019
+#define atIDE "vs2019"
+#elif _MSC_VER >= 1910
+#define atVS2017
+#define atIDE "vs2017"
+#elif _MSC_VER >= 1900
+#define atVS2015
+#define atIDE "vs2015"
+#elif _MSC_VER >= 1800
+#define atVS2013
+#define atIDE "vs2013"
+#elif _MSC_VER >= 1700
+#define atVS2012
+#define atIDE "vs2012"
+#elif _MSC_VER >= 1600
+#define atVS2010
+#define atIDE "vs2010"
+#endif
 #endif
 
 #ifdef __GNUC__
@@ -25,12 +47,17 @@
 static_assert(false, "Building on an unsupported compiler. Specify atNO_COMPILER_WARNING to disregard this message.");
 #endif
 
+// Compiler specific Function/File/Line definitions
 #if atMSVC
 #define atFUNCSIG __FUNCSIG__
 #else
 #define atFUNCSIG __PRETTY_FUNCTION__
 #endif
 
+#define atLINE __LINE__
+#define atFILE __FILE__
+
+// OS Defines
 #if defined(_WIN32) || defined(_WIN64)
 #ifndef atPLATFORM_WIN32
 #define atPLATFORM_WIN32

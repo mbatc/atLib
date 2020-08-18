@@ -28,6 +28,7 @@
 
 #include "atMath.h"
 #include "atWindow.h"
+#include "atTimespan.h"
 #include "atTransformable.h"
 
 class atCamera : public atTransformable<double>
@@ -58,7 +59,7 @@ public:
   atFPSCamera(double aspect = 1.0, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
   atFPSCamera(const atWindow *pWindow, const atVec3D &pos = { 0,0,0 }, const atVec3D &rot = { 0,0,0 }, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
 
-  bool Update(const double dt);
+  bool Update(const atNanoSeconds &dt);
 
   double m_moveSpeed = 1.0;
   bool m_lockMouse = false;

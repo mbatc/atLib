@@ -31,6 +31,8 @@
 template<typename T> class atVector4
 {
 public:
+  enum { ElementCount = 4 };
+
   atVector4();
   atVector4(T val);
   atVector4(T _x, T _y, T _z, T _w);

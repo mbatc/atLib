@@ -37,11 +37,10 @@ public:
   static int64_t GLType(const atType &type);
   static int64_t GLDepth(const atType &type);
   static int64_t GLDepthInternal(const atType &type);
-  
+
   static int64_t DXGIMaxWidth() { return 4; }
   static int64_t DXGI(const atType &type, const int64_t &width);
   static int64_t DXGIDepth(const atType &type);
-
 };
 
 #endif // atFormat_h__
