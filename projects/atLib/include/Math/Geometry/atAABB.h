@@ -62,7 +62,6 @@ public:
   Vec3 Center() const;
   Vec3 Dimensions() const;
 
-
   T LongestEdgeLength() const;
 
   template<typename Type> void GrowToContain(const Type &type);

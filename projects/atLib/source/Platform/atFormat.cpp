@@ -346,7 +346,7 @@ int64_t atFormat::GLDepth(const atType &type)
   };
 
   int64_t format = fmtLookup[type][0] >> 32;
-  atAssert(format != GL_NONE, "Unknown DXGI Format!");
+  atAssert(format != GL_NONE, "Unknown GL Format!");
   return format;
 }
 

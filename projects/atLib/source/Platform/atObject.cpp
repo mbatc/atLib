@@ -44,11 +44,6 @@ atObject::atObject(atObject &&move)
 
 atObject::~atObject() { Destroy(); }
 
-void atObject::Destroy()
-{
-  Destroy();
-}
-
 void atObject::Assign(const atObject &value)
 {
   SetType(value);
@@ -134,13 +129,28 @@ bool atObject::Empty() const { return m_data.size() == 0 && m_members.Size() == 
 
 atString atObject::Typename() const { return m_typeInfo.name(); }
 
-
-int64_t atStreamRead(atReadStream * pStream, atObject * pData, const int64_t count)
+int64_t atStreamRead(atReadStream *pStream, atObject *pData, const int64_t count)
 {
-  return int64_t();
+  int64_t size = 0;
+  for (int64_t i = 0; i < count; ++i)
+    if (!pData[i].Is<void>())
+    {
+      size += pData[i].m_readFunc(pStream, &pData->m_data);
+      size += atStreamRead(pStream, &pData->m_members, 1);
+    }
+
+  return size;
 }
 
-int64_t atStreamWrite(atWriteStream * pStream, atObject * pData, const int64_t count)
+int64_t atStreamWrite(atWriteStream *pStream, atObject *pData, const int64_t count)
 {
-  return int64_t();
+  int64_t size = 0;
+  for (int64_t i = 0; i < count; ++i)
+    if (!pData[i].Is<void>())
+    {
+      size += pData[i].m_writeFunc(pStream, &pData->m_data);
+      size += atStreamWrite(pStream, &pData->m_members, 1);
+    }
+
+  return size;
 }

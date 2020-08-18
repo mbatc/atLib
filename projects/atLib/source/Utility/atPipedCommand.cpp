@@ -11,7 +11,7 @@ atVector<uint8_t> atPipedCommand::Run(const atString &command, const atVector<at
   atString result = "";
   FILE* hPipe = _popen(cmdLine.c_str(), "r");
   if (!hPipe)
-    throw std::runtime_error("popen() failed!");
+    return {};
   
   try
   {
@@ -19,10 +19,8 @@ atVector<uint8_t> atPipedCommand::Run(const atString &command, const atVector<at
       result += buffer;
   }
   catch (...) {
-    _pclose(hPipe);
-    throw;
+    // Something went wrong
   }
-
   _pclose(hPipe);
 
   return atVector<uint8_t>((uint8_t*)result.c_str(), result.length() + 1);

@@ -257,11 +257,9 @@ template<typename Key, class Value> atHashMap<Key, Value>::Iterator::Iterator(It
 
 template<typename Key, class Value> const typename atHashMap<Key, Value>::Iterator& atHashMap<Key, Value>::Iterator::operator++()
 {
-  if (++m_pKVP == m_pMap->m_buckets[m_bucket].end() && m_bucket < m_pMap->m_buckets.size() - 1)
-  {
-    m_bucket++;
-    m_pKVP = m_pMap->m_buckets[m_bucket].begin();
-  }
+  ++m_pKVP;
+  while (m_pKVP >= m_pMap->m_buckets[m_bucket].end() && m_bucket < m_pMap->m_buckets.size() - 1)
+    m_pKVP = m_pMap->m_buckets[++m_bucket].begin();
   return *this;
 }
 
@@ -282,11 +280,9 @@ template<typename Key, class Value> atHashMap<Key, Value>::ConstIterator::ConstI
 
 template<typename Key, class Value> const typename atHashMap<Key, Value>::ConstIterator& atHashMap<Key, Value>::ConstIterator::operator++()
 {
-  if (++m_pKVP == m_pMap->m_buckets[m_bucket].end() && m_bucket < m_pMap->m_buckets.size() - 1)
-  {
-    m_bucket++;
-    m_pKVP = m_pMap->m_buckets[m_bucket].begin();
-  }
+  ++m_pKVP;
+  while (m_pKVP >= m_pMap->m_buckets[m_bucket].end() && m_bucket < m_pMap->m_buckets.size() - 1)
+    m_pKVP = m_pMap->m_buckets[++m_bucket].begin();
   return *this;
 }
 

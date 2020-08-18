@@ -38,7 +38,7 @@ enum atLightType
 class atLight
 {
 public:
-  atLightType m_type;
+  atLightType m_type = atLightType::atLT_Directional;
 
   atVec3D m_position = atVec3D::zero();
   atVec3D m_direction = -atVec3D::one();
