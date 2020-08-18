@@ -1,6 +1,13 @@
+#include "atHierarchy.h"
 
 template<typename T>
 inline atHierarchy<T>::atHierarchy() { Clear(); }
+
+template<typename T>
+inline atHierarchy<T>::atHierarchy(const atHierarchy<T> &o) { *this = o; }
+
+template<typename T>
+inline atHierarchy<T>::atHierarchy(atHierarchy<T>&& o) { *this = std::move(o); }
 
 template<typename T>
 inline void atHierarchy<T>::Clear()
@@ -8,7 +15,13 @@ inline void atHierarchy<T>::Clear()
   m_nodes.Clear();
   m_parents.Clear();
   m_nextID = 0;
-  m_nodes.Add(atHierarchy_atRootNodeID, {});
+  m_nodes.Add(atHierarchy_RootNodeID, {});
+}
+
+template<typename T>
+inline atVector<int64_t> atHierarchy<T>::GetIDs() const
+{
+  return m_nodes.GetKeys();
 }
 
 template <typename T>
@@ -26,6 +39,9 @@ inline int64_t atHierarchy<T>::Add(T &&node, const int64_t &parentID)
   newNode.node = std::move(node);
   return Add(std::move(newNode), parentID);
 }
+
+template<typename T>
+inline bool atHierarchy<T>::Contains(const int64_t &nodeID) const { return m_nodes.Contains(nodeID); }
 
 template<typename T>
 inline void atHierarchy<T>::Remove(const int64_t &nodeID)
@@ -50,7 +66,7 @@ inline void atHierarchy<T>::Remove(const int64_t &nodeID)
 template<typename T>
 inline void atHierarchy<T>::MoveChildren(const int64_t &nodeID, const int64_t &toNodeID)
 {
-  if (nodeID == atHierarchy_atRootNodeID)
+  if (nodeID == atHierarchy_RootNodeID)
     return;
 
   for (int64_t id : Children(nodeID))
@@ -60,7 +76,7 @@ inline void atHierarchy<T>::MoveChildren(const int64_t &nodeID, const int64_t &t
 template<typename T>
 inline void atHierarchy<T>::Move(const int64_t &nodeID, const int64_t &toNodeID)
 {
-  if (nodeID == atHierarchy_atRootNodeID)
+  if (nodeID == atHierarchy_RootNodeID)
     return;
 
   RemoveChildID(m_parents[nodeID], nodeID);
@@ -74,15 +90,15 @@ template<typename T>
 inline const T& atHierarchy<T>::Get(const int64_t &nodeID) const { return m_nodes[nodeID].node; }
 
 template<typename T>
-inline T & atHierarchy<T>::Root()
+inline T& atHierarchy<T>::Root()
 {
-  return Get(atHierarchy_atRootNodeID);
+  return Get(atHierarchy_RootNodeID);
 }
 
 template<typename T>
-inline const T & atHierarchy<T>::Root() const
+inline const T& atHierarchy<T>::Root() const
 {
-  return Get(atHierarchy_atRootNodeID);
+  return Get(atHierarchy_RootNodeID);
 }
 
 template<typename T>
@@ -94,12 +110,60 @@ inline atVector<int64_t> atHierarchy<T>::Children(const int64_t &nodeID)
 
 template<typename T>
 template<typename T2>
-inline void atHierarchy<T>::Visit(T2 *pVisitor, const int64_t &nodeID = atHierarchy_atRootNodeID)
+inline void atHierarchy<T>::Visit(T2 *pVisitor, const int64_t &nodeID)
 {
   if (pVisitor->Visit(nodeID, this))
+  {
     for (int64_t childID : Children(nodeID))
       Visit(pVisitor, childID);
-  pVisitor->Leave(nodeID, this);
+    pVisitor->Leave(nodeID, this);
+  }
+}
+
+template<typename T>
+inline void atHierarchy<T>::Visit(const std::function<bool(int64_t, atHierarchy<T>*)> &visitor, const int64_t &nodeID, const std::function<void(int64_t, atHierarchy<T>*)> &leave)
+{
+  if (visitor(nodeID, this))
+  {
+    for (const int64_t &childID : Children(nodeID))
+      Visit(visitor, childID);
+
+    if (leave)
+      leave(nodeID, this);
+  }
+}
+
+template<typename T>
+inline void atHierarchy<T>::VisitParent(const std::function<bool(int64_t, atHierarchy<T>*)> &visitor, const int64_t &nodeID, const std::function<void(int64_t, atHierarchy<T>*)> &leave)
+{
+  if (visitor(nodeID, this))
+  {
+    int64_t *pParent = m_parents.TryGet(nodeID);
+    if (pParent)
+      VisitParent(visitor, *pParent, leave);
+
+    if (leave)
+      leave(nodeID, this);
+  }
+}
+
+template<typename T>
+inline atHierarchy<T>& atHierarchy<T>::operator=(const atHierarchy<T> &rhs)
+{
+  m_nodes = rhs.m_nodes;
+  m_parents = rhs.m_parents;
+  m_nextID = rhs.m_nextID;
+  return *this;
+}
+
+template<typename T>
+inline atHierarchy<T>& atHierarchy<T>::operator=(atHierarchy<T> &&rhs)
+{
+  m_nodes = std::move(rhs.m_nodes);
+  m_parents = std::move(rhs.m_parents);
+  m_nextID = rhs.m_nextID;
+  rhs.m_nextID = 0;
+  return *this;
 }
 
 template<typename T>
