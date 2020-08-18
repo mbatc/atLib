@@ -25,6 +25,7 @@
 
 #include "atMeshParser.h"
 #include "atOBJParser.h"
+#include "atFBXParser.h"
 #include "atFile.h"
 
 static bool _ReadATM(const atFilename &filename, atMesh *pMesh)
@@ -38,10 +39,20 @@ static bool _ReadATM(const atFilename &filename, atMesh *pMesh)
 bool atMeshReader::Read(const atFilename& file, atMesh *pMesh)
 {
   atFileExtension ext = atFileCommon::FileExtension(file.Extension());
+  bool success = false;
   switch (ext)
   {
-  case atFE_Obj: return atOBJReader::Read(file, pMesh);
-  case atFE_Atm: return _ReadATM(file, pMesh);
+  case atFE_Obj: success = atOBJReader::Read(file, pMesh); break;
+  case atFE_Fbx: success = atFBXReader::Read(file, pMesh); break;
+  case atFE_Atm: success = _ReadATM(file, pMesh); break;
   }
-  return false;
+
+  if (success)
+  {
+    pMesh->m_sourceFile = file.Path();
+    if (pMesh->m_resourceDir.length() == 0)
+      pMesh->m_resourceDir = file.Directory();
+  }
+
+  return success;
 }

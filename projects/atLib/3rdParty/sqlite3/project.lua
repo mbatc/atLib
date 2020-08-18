@@ -30,7 +30,8 @@ linkoptions { "/ignore:4075" }
 
 -- Project Files
 
-  files { "source/sqlite3.c", "include/sqlite3.h", "include/sqlite3ext.h", }
+includedirs { "include", "include/**" }
+  files { "source/**.c" }
 
 -- Debug Configuration Settings
 
