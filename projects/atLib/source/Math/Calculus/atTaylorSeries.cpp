@@ -32,7 +32,7 @@ double atTaylorSeries::Get(const double &x) const
 
   double value = m_coefficients[0];
   for (int64_t n = 1; n < m_coefficients.size(); ++n)
-    value += m_coefficients[n] * pow(x - m_approxStart, n);
+    value += m_coefficients[n] * pow(x - m_approxStart, (double)n);
   return value;
 }
 
