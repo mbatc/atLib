@@ -25,12 +25,12 @@
 
 #define ATLIB_DIRECTX
 
-#include "atEngine.h"
+#include "atEApp.h"
 
 int main(int argc, char **argv)
 {
-  atEngine::Instance(argc, argv);
-  int result = (int)atEngine::Instance()->Result();
-  atEngine::Destroy();
+  atEApp::Instance()->Initialise(argc, argv);
+  int result = atEApp::Instance()->Run();
+  atEApp::Destroy();
   return result;
 }

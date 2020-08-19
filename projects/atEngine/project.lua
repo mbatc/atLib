@@ -26,7 +26,7 @@ flags { "MultiProcessorCompile" }
 -- Includes
 
   -- atLib Includes
-  includedirs { "include", "include/**" } 
+  includedirs { "source", "source/**" } 
   includedirs { "../atLib/include", "../atLib/include/**" } 
   includedirs { "../atLib/3rdParty/**" } 
 
@@ -39,7 +39,7 @@ flags { "MultiProcessorCompile" }
 
 -- Project Files
 
-  files { "source/**.cpp", "include/**.h", "include/**.inl" , "**.natvis" }
+  files { "source/**.cpp", "source/**.h", "source/**.inl" , "**.natvis" }
 
   links { "atLib" }
 

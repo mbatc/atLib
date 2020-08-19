@@ -57,6 +57,10 @@ protected:
   int64_t m_shaderRound = -1;
 
   static int64_t m_globalShaderRound;
+
+  int64_t m_shaderRound = -1;
+
+  static int64_t m_globalShaderRound;
 };
 
 template<typename T> inline bool atProgram::SetUniform(const atString &name, const T &value) { return SetUniform(name, (const void*)&value, atGetTypeDesc(value)); }

@@ -161,6 +161,34 @@ bool atDXPrgm::Upload()
     }
   }
 
+  // Create lookups for the uniforms, textures and samplers
+  for (int64_t shaderIdx = 0; shaderIdx < atArraySize(m_pStages); ++shaderIdx)
+  {
+    atDXShader *pShader = (atDXShader*)m_pStages[shaderIdx];
+    if (!pShader)
+      continue;
+
+    for (const atKeyValue<atString, atDXShader::UniformLocation> &loc : pShader->Uniforms())
+    {
+      m_uniformLookup.Add(loc.m_key, m_uniformLoc.size());
+      m_uniformLoc.emplace_back(shaderIdx, loc.m_val);
+    }
+
+    atVector<atString> texNames = pShader->Textures();
+    for (int64_t texIdx = 0; texIdx < texNames.size(); ++texIdx)
+    {
+      m_textureLookup.Add(texNames[texIdx], m_textureLoc.size());
+      m_textureLoc.emplace_back(shaderIdx, texIdx);
+    }
+
+    atVector<atString> samplerNames = pShader->Samplers();
+    for (int64_t samplerIdx = 0; samplerIdx < samplerNames.size(); ++samplerIdx)
+    {
+      m_samplerLookup.Add(samplerNames[samplerIdx], m_samplerLoc.size());
+      m_samplerLoc.emplace_back(shaderIdx, samplerIdx);
+    }
+  }
+
   atDXShader *pShader = (atDXShader*)m_pStages[atPS_Vertex];
   atVector<D3D11_INPUT_ELEMENT_DESC> d3dDesc;
   for (int64_t i = 0; i < pShader->AttributeCount(); ++i)

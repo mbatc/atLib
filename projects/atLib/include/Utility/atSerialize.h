@@ -38,14 +38,12 @@ template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atV
 template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atVector4<T> &src);
 template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atMatrix4x4<T> &src);
 template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atQuaternion<T> &src);
-template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atMatrixNxM<T> &src);
 
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atVector2<T> *pDst);
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atVector3<T> *pDst);
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atVector4<T> *pDst);
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atMatrix4x4<T> *pDst);
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atQuaternion<T> *pDst);
-template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atMatrixNxM<T> *pDst);
 
 
 // Containers

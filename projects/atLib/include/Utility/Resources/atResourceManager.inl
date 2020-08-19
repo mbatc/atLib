@@ -13,7 +13,7 @@ inline bool atResourceManager::AddHandler()
 {
   if (HasHandler<T>())
     false;
-  m_handlers.emplace_back(atNew(T));
+  m_handlers.emplace_back(atNew<T>());
   m_handlerType.emplace_back(typeid(T));
   m_handlers.back()->m_pManager = this;
   return true;

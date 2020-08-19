@@ -731,6 +731,73 @@ static void ExampleRuntimeGraphicsAPI()
   }
 }
 
+#include "atScene.h"
+
+class atCameraComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atCameraComponent, atSceneComponent, "CameraComponent");
+public:
+
+};
+
+class atMeshComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atMeshComponent, atSceneComponent, "MeshComponent");
+public:
+
+};
+
+class atDerivedComponent : public atMeshComponent
+{
+  atImplementSceneComponent(atDerivedComponent, atMeshComponent, "DerivedTest");
+public:
+};
+
+class atDataComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atDataComponent, atSceneComponent, "DataComponent");
+public:
+};
+
+void ExampleScene()
+{
+  // Register component types once
+  atMeshComponent::Register();
+  atCameraComponent::Register();
+  atDataComponent::Register();
+
+  // Create a scene with those components
+  atScene scene;
+  atSceneNode *pCam = scene.AddNode("Camera");
+  pCam->AddComponent<atCameraComponent>();
+
+  atSceneNode *pMesh = scene.AddNode("Mesh");
+  pMesh->AddComponent("MeshComponent");
+
+  atSceneNode *pData = scene.AddNode("Data");
+  atDataComponent *pDataComponent = (atDataComponent*)pData->AddComponent(atDataComponent::TypeString());
+
+  atSceneNode *pDer = scene.AddNode("Derived");
+  pDer->AddComponent<atDerivedComponent>();
+
+  // Retrieve components from the scene
+  atDerivedComponent *pDerived = pDer->GetComponent<atDerivedComponent>(); // This is NOT null
+  atMeshComponent *pC1 = pDerived->As<atMeshComponent>();                  // This is NOT null
+  atSceneComponent *pC2 = pDerived->As<atSceneComponent>();                // This is NOT null
+  atDataComponent *pDerData = pDerived->As<atDataComponent>();             // This IS null
+
+  // Update the scene
+  scene.Update();
+}
+
+void ExampleObjectDescriptor()
+{
+  atObjectDescriptor o;
+  o.Add("url") = "THis is a url value";
+
+  atString url = o["url"].AsString();
+}
+
 void ExampleObjectDescriptor()
 {
   atObjectDescriptor o;
@@ -798,6 +865,7 @@ int main(int argc, char **argv)
   // ExampleRunLua();
   // ExampleRuntimeGraphicsAPI();
   // ExampleResourceManager();
+  // ExampleScene();
   // ExampleObjectDescriptor();
   ExampleLoadDLL();
 

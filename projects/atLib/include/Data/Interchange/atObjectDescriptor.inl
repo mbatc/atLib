@@ -1,11 +1,12 @@
 
-template<typename T> inline atObjectDescriptor::atObjectDescriptor(const T &o) : atObjectDescriptor() { Serialize(o); }
+template<typename T> inline atObjectDescriptor::atObjectDescriptor(const T &o) : atObjectDescriptor() { atSerialize(this, &o); }
 
 template<typename T> inline atObjectDescriptor atObjectDescriptor::operator=(const T &o) { return Serialize(o); }
 
 template<typename T>
 inline atObjectDescriptor atObjectDescriptor::Serialize(const T &value)
 {
+  Clear();
   atSerialize(this, value);
   return *this;
 }
