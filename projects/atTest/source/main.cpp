@@ -712,6 +712,53 @@ static void ExampleRuntimeGraphicsAPI()
   }
 }
 
+#include "atScene.h"
+
+class atCameraComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atCameraComponent, "CameraComponent");
+public:
+
+};
+
+class atMeshComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atMeshComponent, "MeshComponent");
+public:
+
+};
+
+class atDataComponent : public atSceneComponent
+{
+  atImplementSceneComponent(atDataComponent, "DataComponent");
+public:
+
+};
+
+void RegisterComponents()
+{
+  atMeshComponent::Register();
+  atCameraComponent::Register();
+  atDataComponent::Register();
+}
+
+void ExampleScene()
+{
+  RegisterComponents();
+
+  atScene scene;
+  atSceneNode *pCam = scene.AddNode("Camera");
+  pCam->AddComponent<atCameraComponent>();
+
+  atSceneNode *pMesh = scene.AddNode("Mesh");
+  pMesh->AddComponent("MeshComponent");
+
+  atSceneNode *pData = scene.AddNode("Data");
+  atDataComponent *pDataComponent = (atDataComponent*)pData->AddComponent(atDataComponent::TypeString());
+
+  getchar();
+}
+
 #include "atTest.h"
 
 int main(int argc, char **argv)
@@ -739,7 +786,8 @@ int main(int argc, char **argv)
   // ExampleRayTraceMesh();
   // ExampeBackPropagation();
   // ExampleRunLua();
-  ExampleRuntimeGraphicsAPI();
+  // ExampleRuntimeGraphicsAPI();
+  ExampleScene();
 
 #ifndef atVS2019 // VS2019 pauses by default in the IDE
   getchar();

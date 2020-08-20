@@ -171,6 +171,7 @@ template<typename T> inline atMatrix4x4<T> atMatrixScaleUniform(const T &scale);
 template<typename T> inline void atMatrixDecompose(const atMatrix4x4<T> &mat, atVector3<T> *pTranslation, atVector3<T> *pRotation, atVector3<T> *pScale);
 template<typename T> inline atVector3<T> atMatrixExtractTranslation(const atMatrix4x4<T> &mat);
 template<typename T> inline atVector3<T> atMatrixExtractRotation(const atMatrix4x4<T> &mat);
+template<typename T> inline atVector3<T> atMatrixExtractOrientation(const atMatrix4x4<T> &mat);
 template<typename T> inline atVector3<T> atMatrixExtractScale(const atMatrix4x4<T> &mat);
 
 template<typename T> inline atVector4<T> operator*(const T &lhs, const atVector4<T> &rhs);
