@@ -20,6 +20,7 @@ atSceneNode* atScene::AddNode(const atString &name, const int64_t &parentID)
 bool atScene::RemoveNode(const int64_t &nodeID)
 {
   atUnused(nodeID);
+  m_hierarchy.Get();
   return false;
 }
 

@@ -716,21 +716,21 @@ static void ExampleRuntimeGraphicsAPI()
 
 class atCameraComponent : public atSceneComponent
 {
-  atImplementSceneComponent(atCameraComponent, "CameraComponent");
+  atImplementSceneComponent(atCameraComponent, atSceneComponent, "CameraComponent");
 public:
 
 };
 
 class atMeshComponent : public atSceneComponent
 {
-  atImplementSceneComponent(atMeshComponent, "MeshComponent");
+  atImplementSceneComponent(atMeshComponent, atSceneComponent, "MeshComponent");
 public:
 
 };
 
 class atDataComponent : public atSceneComponent
 {
-  atImplementSceneComponent(atDataComponent, "DataComponent");
+  atImplementSceneComponent(atDataComponent, atSceneComponent, "DataComponent");
 public:
 
 };

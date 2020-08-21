@@ -50,14 +50,17 @@ private:
 #include "atSceneComponent.inl"
 
 // When creating a new component type, use this to implement the required functions
-#define atImplementSceneComponent(type, stringID)                                                          \
+#define atImplementSceneComponent(type, base, stringID)                                                    \
   friend class atSceneComponentFactory;                                                                    \
   friend class atSceneNode;                                                                                \
 public:                                                                                                    \
   static int64_t  Register()   { return atSceneComponentFactory::RegisterComponent<type>(stringID); }      \
   static int64_t  TypeID()     { return atSceneComponentFactory::GetComponentID<type>(); }                 \
   static const atString& TypeString() { static const atString &typeString = stringID; return typeString; } \
-private: type() : atSceneComponent(TypeID(), TypeString()) {}                                              \
+private:                                                                                                   \
+  type(const int64_t &instanceTypeID = TypeID(), const atString &instanceTypeName = TypeString())          \
+    : base(instanceTypeID, instanceTypeName)                                                               \
+  {}                                                                                                       \
 
 
 #endif // atSceneComponent_h__

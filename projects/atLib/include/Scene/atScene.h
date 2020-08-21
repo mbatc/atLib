@@ -23,6 +23,7 @@ public:
   // Add a node to the scene, optionally providing a name
   atSceneNode* AddNode(const atString &name = "", const int64_t &parentID = atScene_RootNodeID);
   
+  // Remove a node from the scene
   bool RemoveNode(const int64_t &nodeID);
 
   // Find a node in the scene by name
