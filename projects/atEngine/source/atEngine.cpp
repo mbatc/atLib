@@ -1,7 +1,6 @@
 #include "atEngine.h"
 #include "atInput.h"
 #include "atImGui.h"
-#include "atSceneRenderer.h"
 #include "atRenderState.h"
 
 atEngine *atEngine::m_pInstance = nullptr;
@@ -57,10 +56,10 @@ int64_t atEngine::Run()
     m_pWindow->Clear(0xFF333333);
 
     BeginGUI();
+    EndGUI();
+
     if (!Update() || !Render())
       res = 1;
-
-    EndGUI();
     m_pWindow->Swap();
   }
   return 0;
@@ -76,10 +75,12 @@ bool atEngine::Update()
 
 bool atEngine::Render()
 {
-  atMat4D vp = m_pCamera->ProjectionMat() * m_pCamera->ViewMat();
-  bool result = m_script.DoDrawEvent(vp);
-  result &= m_scene.Draw();
+  // atMat4D vp = m_pCamera->ProjectionMat() * m_pCamera->ViewMat();
+
+  // bool result = m_script.DoDrawEvent(vp);
+  // result &= m_scene.Draw();
   // result &= atSceneRenderer::Render(m_scene.GetRoot(), vp);
+  
   return true;
 }
 

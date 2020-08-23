@@ -1,0 +1,1 @@
+#include "atResourceManager.h"

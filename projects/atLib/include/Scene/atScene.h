@@ -32,6 +32,10 @@ public:
   // Find a node in the scene by tag
   atSceneNode* FindByName(const atString &name, const int64_t &root = atScene_RootNodeID) const;
 
+  bool Init(const int64_t &root = atScene_RootNodeID);
+  bool Update(const int64_t &root = atScene_RootNodeID);
+  bool Destroy(const int64_t &root = atScene_RootNodeID);
+
   atString name;
 
 protected:

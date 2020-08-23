@@ -40,7 +40,7 @@ public:
 
   // Remove a node from the tree
   // Removes all child nodes as well
-  void Remove(const int64_t &nodeID);
+  bool Remove(const int64_t &nodeID);
 
   // Moves all child nodes to a new parent
   bool MoveChildren(const int64_t &nodeID, const int64_t &toNodeID, const bool &persistOnError);

@@ -86,7 +86,7 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Contains(const K
   return false;
 }
 
-template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key &key)
+template<typename Key, class Value> bool atHashMap<Key, Value>::Remove(const Key &key)
 {
   Bucket &bucket = GetBucket(key);
   for (int64_t i = 0; i < bucket.size(); ++i)
@@ -94,8 +94,10 @@ template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key
     {
       bucket.swap_pop_back(i);
       --m_size;
-      return;
+      return true;
     }
+
+  return false;
 }
 
 template<typename Key, class Value> Value& atHashMap<Key, Value>::GetOrAdd(const Key &key)

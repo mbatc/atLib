@@ -54,8 +54,9 @@ private:
   friend class atSceneComponentFactory;                                                                    \
   friend class atSceneNode;                                                                                \
 public:                                                                                                    \
-  static int64_t  Register()   { return atSceneComponentFactory::RegisterComponent<type>(stringID); }      \
-  static int64_t  TypeID()     { return atSceneComponentFactory::GetComponentID<type>(); }                 \
+  static int64_t Register()   { return atSceneComponentFactory::RegisterComponent<type>(stringID); }       \
+  static int64_t TypeID()     { return atSceneComponentFactory::GetComponentID<type>(); }                  \
+  static int64_t BaseID()     { return atSceneComponentFactory::GetComponentID<base>(); }                  \
   static const atString& TypeString() { static const atString &typeString = stringID; return typeString; } \
 private:                                                                                                   \
   type(const int64_t &instanceTypeID = TypeID(), const atString &instanceTypeName = TypeString())          \

@@ -22,8 +22,8 @@ public:
   const atString& GetTag() const;
 
   // Attributes
-  void SetAttributeValue(const atString &name, const atString &value);
-  atString GetAttributeValue(const atString &name) const;
+  void SetAttribute(const atString &name, const atString &value);
+  atString GetAttribute(const atString &name) const;
   void SetAttributes(const atHashMap<atString, atString> &attribs);
   const atHashMap<atString, atString>& GetAttributes() const;
 
@@ -32,6 +32,11 @@ public:
   int64_t AsInt() const;
   bool AsBool() const;
   const atString& AsString() const;
+
+  void Set(const bool &value);
+  void Set(const double &value);
+  void Set(const int64_t &value);
+  void Set(const atString &value);
 
   // Children
   int64_t GetChildCount() const;

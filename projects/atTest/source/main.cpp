@@ -632,7 +632,7 @@ static void ExampleRuntimeGraphicsAPI()
   atGraphics *pGraphics = nullptr;
 
   // Model *pModel = nullptr;
-  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
+  atString modelPath = "Assets/Test/models/level.obj";
 
   {
     atGraphicsAPI api = atGfxApi_DirectX;
@@ -759,6 +759,47 @@ void ExampleScene()
   getchar();
 }
 
+#include "atResourceManager.h"
+
+class ExampleMeshHandler : public atResourceHandler<atMesh>
+{
+public:
+  ExampleMeshHandler() : atResourceHandler("mesh") {}
+
+  bool Load(const atObjectDescriptor &request, atMesh *pResource) override
+  {
+    atString path = request["url"].AsString();
+    atConstruct(pResource);
+    return pResource->Import(path);
+  }
+};
+
+void ExampleObjectDescriptor()
+{
+  atObjectDescriptor o;
+  o.Add("url") = "THis is a url value";
+
+  atString url = o["url"].AsString();
+  getchar();
+}
+
+void ExampleResourceManager()
+{
+  atResourceManager manager;
+  manager.AddHandler<ExampleMeshHandler>();
+
+  atObjectDescriptor request;
+  request.Add("url") = "Assets/Test/models/level.obj";
+
+  atResourceHandle sponza = manager.Request<atMesh>(request);
+  atResourceHandle sponza2 = manager.Request<atMesh>(request);
+
+  atMesh &m = sponza.m_pInstance->resource.As<atMesh>();
+  atMesh &m2 = sponza2.m_pInstance->resource.As<atMesh>();
+
+  getchar();
+}
+
 #include "atTest.h"
 
 int main(int argc, char **argv)
@@ -787,7 +828,9 @@ int main(int argc, char **argv)
   // ExampeBackPropagation();
   // ExampleRunLua();
   // ExampleRuntimeGraphicsAPI();
-  ExampleScene();
+  // ExampleScene();
+  ExampleResourceManager();
+  // ExampleObjectDescriptor();
 
 #ifndef atVS2019 // VS2019 pauses by default in the IDE
   getchar();

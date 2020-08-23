@@ -121,13 +121,13 @@ public:
   // added to help readability
   atString ToString(const bool prettyPrint = false) const; 
 
+  // Change the JSON element type
   void MakeNull();
-
-protected:
   void MakeArray();
   void MakeObject();
   void MakeValue(const bool &isString);
 
+protected:
   bool m_isString = false;
   atString *m_pValue = nullptr;
   atVector<atJSON> *m_pArray = nullptr;

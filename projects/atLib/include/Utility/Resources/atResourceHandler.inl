@@ -47,7 +47,7 @@ public:
   }
 
 protected:
-  virtual bool Handles(const std::type_index &typeInfo) const = 0;
+  virtual bool Handles(const std::type_index &typeInfo) = 0;
   virtual atObject _Load(const atObjectDescriptor &request) = 0;
 
   atHashMap<atResourceGUID, atResourceHandle> m_resources;
@@ -58,8 +58,6 @@ protected:
 template<typename T> class atResourceHandler : public atResourceHandlerBase
 {
 public:
-  atResourceHandler(const atString &resourceTypeID) : atResourceHandlerBase(resourceTypeID) {}
-
   virtual bool Load(const atObjectDescriptor &request, T *pResource) = 0;
 
 protected:
@@ -67,11 +65,11 @@ protected:
   {
     uint8_t buffer[sizeof(T)] = { 0 };
     if (Load(request, (T *)buffer))
-      return std::move(*(T*)buffer);
+      return std::move(buffer);
     return atObject();
   }
 
-  virtual bool Handles(const std::type_index &typeInfo) const { return typeInfo == typeid(T); }
+  virtual bool Handles(const std::type_index &typeInfo) { return typeInfo == typeid(T); }
 };
 
 #endif // atResourceHandler_h__

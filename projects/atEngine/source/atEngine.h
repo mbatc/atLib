@@ -5,7 +5,6 @@
 #include "atScene.h"
 #include "atWindow.h"
 #include "atCamera.h"
-#include "atEScripting.h"
 
 class atEngine
 {
@@ -42,7 +41,6 @@ protected:
   atWindow *m_pWindow;
   int64_t m_result;
 
-  atEScripting m_script;
   atScene m_scene;
 };
 

@@ -99,7 +99,7 @@ public:
 
   bool Contains(const Key &key) const;
 
-  void Remove(const Key &key);
+  bool Remove(const Key &key);
 
   Value& GetOrAdd(const Key &key);
   Value& Get(const Key &key);

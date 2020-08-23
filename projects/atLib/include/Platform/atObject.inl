@@ -40,6 +40,15 @@ template<typename T>
 inline typename std::enable_if<std::is_void<T>::value, T>::type atObject::As() const {}
 
 template<typename T>
+inline typename std::enable_if<!std::is_void<T>::value, T>::type &atObject::As()
+{
+  return *(T *)m_data.data();
+}
+
+template<typename T>
+inline typename std::enable_if<std::is_void<T>::value, T>::type atObject::As() {}
+
+template<typename T>
 inline T atObject::AsOr(const T &defVal) const
 {
   if (!Is<T>())

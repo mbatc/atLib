@@ -43,14 +43,17 @@ template<typename T>
 inline bool atHierarchy<T>::Contains(const int64_t &nodeID) const { return m_nodes.Contains(nodeID); }
 
 template<typename T>
-inline void atHierarchy<T>::Remove(const int64_t &nodeID)
+inline bool atHierarchy<T>::Remove(const int64_t &nodeID)
 {
   // Remove node recursively
   Node *pNode = GetNode(nodeID);
+  if (!pNode)
+    return false;
+
   for (int64_t i = 0; i < pNode->children.size(); ++i)
   {
     m_parents.Remove(pNode->children[i]);
-    Remove(std::copy(pNode->children[i]));
+    Remove(int64_t(pNode->children[i]));
   }
 
   // Remove reference to node from parent
@@ -59,7 +62,7 @@ inline void atHierarchy<T>::Remove(const int64_t &nodeID)
     RemoveChildID(*pParentID, nodeID);
 
   // Delete node
-  m_nodes.Remove(nodeID);
+  return m_nodes.Remove(nodeID);
 }
 
 template<typename T>
