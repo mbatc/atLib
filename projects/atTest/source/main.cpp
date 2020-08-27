@@ -95,7 +95,8 @@ void ExampleStrings()
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
-  at2DRenderer::SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
+  at2DRenderer render2D;
+  render2D.SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
 
   // Set the model being loaded
   const atString path = "assets/test/models/cube1x1.obj";
@@ -151,12 +152,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
     // Drawing Text - See ExampleRenderText() for more examples
-    at2DRenderer::AddText(10, 10, "Press 'L' to toggle lighting.");
+    render2D.AddText(10, 10, "Press 'L' to toggle lighting.");
     {
       atRenderState rs; // State changes are reverted when 'rs' falls out of scope
       rs.SetDepthReadEnabled(false);
       rs.SetBlendEnabled(true);
-      at2DRenderer::Draw(window);
+      render2D.Draw(window);
     }
     // Display rendered frame
     window.Swap();
@@ -186,8 +187,9 @@ void ExampleRenderText()
   info.title = "Font Renderer Example";
   atWindow window(info);
 
+  at2DRenderer render2D;
   // Set/Load a font (.ttf files)
-  at2DRenderer::SetFont(fontPath);
+  render2D.SetFont(fontPath);
 
   // Setup correct render state
   atRenderState rs;
@@ -212,33 +214,33 @@ void ExampleRenderText()
     // Bake Text
     if (usePivot)
     {
-      at2DRenderer::AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
-      at2DRenderer::AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
-      at2DRenderer::AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
-      at2DRenderer::AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+      render2D.AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
+      render2D.AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
+      render2D.AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
+      render2D.AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
 
-      at2DRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      at2DRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, at2DRenderer::TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
-      at2DRenderer::PopColour();
+      render2D.PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      render2D.AddRectangle(window.Width() / 2, window.Height() / 2, render2D.TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
+      render2D.PopColour();
 
-      at2DRenderer::AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
+      render2D.AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
     }
     else
     {
-      at2DRenderer::AddText(0, 0, "Top Left");
-      at2DRenderer::AddText(window.Width(), 0, "Top Right");
-      at2DRenderer::AddText(0, window.Height(), "Bottom Left");
-      at2DRenderer::AddText(window.Width(), window.Height(), "Bottom Right");
+      render2D.AddText(0, 0, "Top Left");
+      render2D.AddText(window.Width(), 0, "Top Right");
+      render2D.AddText(0, window.Height(), "Bottom Left");
+      render2D.AddText(window.Width(), window.Height(), "Bottom Right");
 
-      at2DRenderer::PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      at2DRenderer::AddRectangle(window.Width() / 2, window.Height() / 2, at2DRenderer::TextSize("Center"), { .5f, .5f });
-      at2DRenderer::PopColour();
+      render2D.PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
+      render2D.AddRectangle(window.Width() / 2, window.Height() / 2, render2D.TextSize("Center"), { .5f, .5f });
+      render2D.PopColour();
 
-      at2DRenderer::AddText(window.Width() / 2, window.Height() / 2, "Center");
+      render2D.AddText(window.Width() / 2, window.Height() / 2, "Center");
     }
 
     // Render Text
-    at2DRenderer::Draw(window);
+    render2D.Draw(window);
 
     window.Swap();
   }
