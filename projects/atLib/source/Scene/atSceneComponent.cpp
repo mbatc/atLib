@@ -12,12 +12,10 @@ bool atSceneComponent::OnRender() { return true; }
 bool atSceneComponent::OnDestroy() { return true; }
 
 atSceneNode* atSceneComponent::GetNode() const { return m_pNode; }
-
 atScene* atSceneComponent::GetScene() const { return GetNode()->GetScene(); }
 
-atTransformable<double> atSceneComponent::GlobalTransform(const bool &reEvaluate)
-{
-  return GetNode()->GlobalTransform(reEvaluate);
-}
-
+atTransformable<double> atSceneComponent::GlobalTransform(const bool &reEvaluate) { return GetNode()->GlobalTransform(reEvaluate); }
 atTransformable<double>& atSceneComponent::Transform() const { return *(atTransformable<double>*)GetNode(); }
+
+int64_t atSceneComponent::TypeID() { return atSceneComponentFactory::GetComponentID<atSceneComponent>(); }
+bool atSceneComponent::_IsDerived(const int64_t &typeID) { return false; }

@@ -2,8 +2,7 @@
 template<typename T>
 int64_t atSceneComponentFactory::GetComponentID()
 {
-  static_assert(std::is_base_of<atSceneComponent, T>::value, "T must be derived from atSceneComponent");
-
+  static_assert(std::is_same<atSceneComponent, T>::value || std::is_base_of<atSceneComponent, T>::value, "T must be derived from atSceneComponent");
   static const int64_t id = NextComponentID(); // Retrieve an ID once per type this function is instantiated for
   return id;
 }

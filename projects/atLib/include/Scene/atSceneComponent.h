@@ -35,13 +35,24 @@ public:
 
   // Get this component as the specified type.
   // Returns nullptr if the provided type does typeID.
-  template<typename T> T* As() const;
+  template<typename T> T* As(const bool &allowDerived = true);
+  template<typename T> const T* As(const bool &allowDerived = true) const;
 
   // Check if the component pointer is of a derived type T
   template<typename T> bool Is() const;
 
+  // Check if the component is derived from the type T
+  template<typename T> bool IsDerived() const;
+
+  virtual bool IsDerived(const int64_t &typeID) const = 0;
+
+  static int64_t TypeID();
+
   const int64_t  typeID;
   const atString typeString;
+  
+protected:
+  static bool _IsDerived(const int64_t &typeID);
 
 private:
   atSceneNode* m_pNode;
@@ -53,15 +64,18 @@ private:
 #define atImplementSceneComponent(type, base, stringID)                                                    \
   friend class atSceneComponentFactory;                                                                    \
   friend class atSceneNode;                                                                                \
-public:                                                                                                    \
-  static int64_t Register()   { return atSceneComponentFactory::RegisterComponent<type>(stringID); }       \
-  static int64_t TypeID()     { return atSceneComponentFactory::GetComponentID<type>(); }                  \
-  static int64_t BaseID()     { return atSceneComponentFactory::GetComponentID<base>(); }                  \
-  static const atString& TypeString() { static const atString &typeString = stringID; return typeString; } \
-private:                                                                                                   \
+protected:                                                                                                 \
+  static bool _IsDerived(const int64_t &typeID) { return BaseID() == typeID || base::_IsDerived(typeID); } \
   type(const int64_t &instanceTypeID = TypeID(), const atString &instanceTypeName = TypeString())          \
     : base(instanceTypeID, instanceTypeName)                                                               \
   {}                                                                                                       \
+public:                                                                                                    \
+  static int64_t Register() { return atSceneComponentFactory::RegisterComponent<type>(stringID); }         \
+  static int64_t TypeID()   { return atSceneComponentFactory::GetComponentID<type>(); }                    \
+  static int64_t BaseID()   { return atSceneComponentFactory::GetComponentID<base>(); }                    \
+  static const atString& TypeString() { static const atString &typeString = stringID; return typeString; } \
+  bool IsDerived(const int64_t &typeID) const override { return _IsDerived(typeID); }                      \
+private:                                                                                                   \
 
 
 #endif // atSceneComponent_h__

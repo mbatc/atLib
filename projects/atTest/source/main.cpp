@@ -728,11 +728,16 @@ public:
 
 };
 
+class atDerivedComponent : public atMeshComponent
+{
+  atImplementSceneComponent(atDerivedComponent, atMeshComponent, "DerivedTest");
+public:
+};
+
 class atDataComponent : public atSceneComponent
 {
   atImplementSceneComponent(atDataComponent, atSceneComponent, "DataComponent");
 public:
-
 };
 
 void RegisterComponents()
@@ -755,6 +760,14 @@ void ExampleScene()
 
   atSceneNode *pData = scene.AddNode("Data");
   atDataComponent *pDataComponent = (atDataComponent*)pData->AddComponent(atDataComponent::TypeString());
+
+  atSceneNode *pDer = scene.AddNode("Derived");
+  pDer->AddComponent<atDerivedComponent>();
+
+  atDerivedComponent *pDerived = pDer->GetComponent<atDerivedComponent>(); // This is NOT null
+  atMeshComponent *pC1 = pDerived->As<atMeshComponent>();                  // This is NOT null
+  atSceneComponent *pC2 = pDerived->As<atSceneComponent>();                // This is NOT null
+  atDataComponent *pDerData = pDerived->As<atDataComponent>();             // This IS null
 
   getchar();
 }
@@ -828,7 +841,7 @@ int main(int argc, char **argv)
   // ExampeBackPropagation();
   // ExampleRunLua();
   // ExampleRuntimeGraphicsAPI();
-  // ExampleScene();
+  ExampleScene();
   ExampleResourceManager();
   // ExampleObjectDescriptor();
 

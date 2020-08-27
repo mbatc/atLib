@@ -42,6 +42,7 @@ public:
   // Get a component that is attached to this node by type.
   // Returns nullptr if no such component exists.
   atSceneComponent* GetComponent(const atString &type) const;
+
   template<typename T> T* GetComponent() const;
 
   int64_t GetComponentCount() const;

@@ -7,12 +7,15 @@
 template<typename T> class atRect
 {
 public:
+  atRect(const atVector2<T> &min = atLimitsMax<T>(), const atVector2<T> &max = atLimitsMin<T>());
   atRect(const T &left, const T &top, const T &right, const T &bottom);
   atRect(const atVector4<T> &rect);
-  atRect(const atVector2<T> &min, const atVector2<T> &max);
 
   T Area() const;
   atVector2<T> Dimensions() const;
+
+  T Width() const;
+  T Height() const;
 
   bool Contains(const atRect &rect);
   bool Contains(const atVector2<T> &point);

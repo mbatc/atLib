@@ -9,7 +9,6 @@ atEngine::atEngine(int argc, char **argv)
   : m_result(-1)
   , m_pWindow(nullptr)
   , m_pCamera(nullptr)
-  , m_script("packages")
 {
   m_pInstance = this;
   if(Initialise(argc, argv))
@@ -55,9 +54,6 @@ int64_t atEngine::Run()
   {
     m_pWindow->Clear(0xFF333333);
 
-    BeginGUI();
-    EndGUI();
-
     if (!Update() || !Render())
       res = 1;
     m_pWindow->Swap();
@@ -67,10 +63,7 @@ int64_t atEngine::Run()
 
 bool atEngine::Update()
 {
-  m_script.Update();
-  bool result = m_script.DoUpdateEvent(0.0016);
-  result &= m_scene.Update();
-  return true;
+  return m_scene.Update();
 }
 
 bool atEngine::Render()
@@ -86,8 +79,7 @@ bool atEngine::Render()
 
 bool atEngine::BeginGUI()
 {
-  atImGui::BeginFrame(m_pWindow);
-  return m_script.DoGUIEvent();
+  return atImGui::BeginFrame(m_pWindow);
 }
 
 bool atEngine::EndGUI() { return atImGui::EndFrame() && atImGui::Render(); }

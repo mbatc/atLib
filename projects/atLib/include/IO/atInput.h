@@ -38,7 +38,7 @@ enum atKeyCode
 {
 #ifdef atPLATFORM_WIN32
   // On windows we just map our key codes
-  // so to the windows key codes as it will
+  // to the windows key codes as it will
   // handle translation from the hardware.
   atKC_0 = '0',
   atKC_1 = '1',
@@ -140,7 +140,7 @@ enum atKeyCode
 
 #elif atPLATFORM_LINUX
 
-  // On linux translation from hardware so
+  // On linux translation from hardware to
   // software keycodes needs to be done manually
   // so we just use a regular enum.
   atKC_0,
@@ -252,9 +252,9 @@ public:
   static bool Update(const bool escExit = true, atWindow *pWindow = nullptr);
   
   // Update button inputs
-  static void OnButtonDown(const int64_t keyCode, const double dt);
-  static void OnButtonUp(const int64_t keyCode, const double dt);
-  static void OnMouseMove(const atVec2I &pos, const double dt);
+  static void OnButtonDown(const int64_t keyCode);
+  static void OnButtonUp(const int64_t keyCode);
+  static void OnMouseMove(const atVec2I &pos);
 
   // Get Mouse/Key inputs using an atKeyCode
   static const atButtonState &GetButton(int64_t keyCode);
@@ -302,8 +302,6 @@ public:
   static void SetMousePos(const atVec2I& pos, const bool updateLastPos = true);
 
   static bool MouseMoved();
-
-  static void SetDT(const double dt);
 
   static atString ToString(const int64_t code);
 

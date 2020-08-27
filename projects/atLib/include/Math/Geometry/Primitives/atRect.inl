@@ -22,8 +22,10 @@ template<typename T> inline T atRect<T>::Area() const
 
 template<typename T> inline atVector2<T> atRect<T>::Dimensions() const { return m_max - m_min; }
 
-template<typename T> inline bool atRect<T>::Contains(const atRect &rect) { return Contains(rect.m_min) && Contains(rect.m_max); }
+template<typename T> inline T atRect<T>::Width() const { return m_max.x - m_min.x; }
+template<typename T> inline T atRect<T>::Height() const { return m_max.y - m_min.y; }
 
+template<typename T> inline bool atRect<T>::Contains(const atRect &rect) { return Contains(rect.m_min) && Contains(rect.m_max); }
 template<typename T> inline bool atRect<T>::Contains(const atVector2<T> &point) { return point.Clamp(m_min, m_max) == point; }
 
 template<typename T> inline void atRect<T>::GrowToContain(const atRect<T> &point)
