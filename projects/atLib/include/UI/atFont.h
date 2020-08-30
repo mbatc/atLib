@@ -34,7 +34,7 @@
 //---------------------
 // THIRD PARTY INCLUDES
 
-#include "stb_truetype.h" // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
+#include "../../3rdParty/stb/stb_truetype.h" // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
 
 // --------------------
 
