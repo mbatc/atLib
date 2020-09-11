@@ -66,17 +66,19 @@ public:
   virtual void ClearDepth(const float  &colour) = 0;
   virtual void ClearStencil() = 0;
 
+  virtual void BindContext() = 0;
+
   // Clear the window
   bool Clear(const atVec4F &color, const float &depth = 1.0f);
 
   // Create GFX objects that can be used with this graphics api
   virtual atSampler*      CreateSampler() = 0;
-  virtual atShader*       CreateShader(const atString &src, const atPipelineStage &stage) = 0;
+  virtual atShader*       CreateShader(const atPipelineStage &stage) = 0;
   virtual atProgram*      CreateProgram() = 0;
-  virtual atGPUBuffer*    CreateBuffer(const atBufferType &bufferType = atBT_VertexData) = 0;
+  virtual atGPUBuffer*    CreateBuffer(const atBufferType &bufferType = atBT_VertexData, const int64_t &size = 0) = 0;
   virtual atTexture*      CreateTexture(const atTextureType &texType = atTexture_2D) = 0;
   virtual atRenderTarget* CreateRenderTarget() = 0;
-  void Release(atGFXResource *pResource);
+  static void Release(atGFXResource *pResource);
 
   // Set the current graphics context
   static void SetCurrent(atGraphics *pContext);

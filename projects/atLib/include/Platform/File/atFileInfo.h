@@ -28,6 +28,7 @@
 
 #include "atFileCommon.h"
 #include "atDateTime.h"
+#include "atFilename.h"
 #include <sys/stat.h>
 
 class atFileInfo

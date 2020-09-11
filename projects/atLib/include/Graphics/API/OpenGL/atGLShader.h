@@ -6,7 +6,7 @@
 class atGLShader : public atShader
 {
 public:
-  atGLShader(const atString &src = "", const atPipelineStage &stage = atPS_None);
+  atGLShader(const atPipelineStage &stage = atPS_None);
 
   bool Bind() override;
   bool Upload() override;

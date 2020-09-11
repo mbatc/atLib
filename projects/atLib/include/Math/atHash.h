@@ -28,7 +28,6 @@
 
 #include "atMemoryWriter.h"
 
-
 class atHash
 {
 public:

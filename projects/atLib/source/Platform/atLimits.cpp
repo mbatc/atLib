@@ -37,8 +37,8 @@ template<> uint16_t atLimitsMax<uint16_t>() { return UINT16_MAX; }
 template<> uint32_t atLimitsMax<uint32_t>() { return UINT32_MAX; }
 template<> uint64_t atLimitsMax<uint64_t>() { return UINT64_MAX; }
 
-template<> double atLimitsMin<double>() { return -DBL_MIN; }
-template<> float atLimitsMin<float>() { return -FLT_MIN; }
+template<> double atLimitsMin<double>() { return -DBL_MAX; }
+template<> float atLimitsMin<float>() { return -FLT_MAX; }
 template<> int8_t atLimitsMin<int8_t>() { return INT8_MIN; }
 template<> int16_t atLimitsMin<int16_t>() { return INT16_MIN; }
 template<> int32_t atLimitsMin<int32_t>() { return INT32_MIN; }

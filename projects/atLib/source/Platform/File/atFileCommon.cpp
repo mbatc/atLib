@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atFileCommon.h"
+#include "atString.h"
 
 const char* atFileCommon::FileMode(const int64_t mode)
 {

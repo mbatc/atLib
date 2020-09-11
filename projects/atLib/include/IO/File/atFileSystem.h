@@ -27,6 +27,7 @@
 #define atFileSystem_h__
 
 #include "atFileCommon.h"
+#include "atFilename.h"
 
 class atFileSystem
 {
@@ -56,7 +57,6 @@ public:
   static atFilename GetDirectory_StartMenu();
   static atFilename GetDirectory_ProgramFiles();
   static atFilename GetDirectory_ProgramFiles86();
-
 };
 
 #endif // atFileSystem_h__

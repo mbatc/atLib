@@ -1,12 +1,9 @@
 #include "atGLShader.h"
 #include "atOpenGL.h"
 
-atGLShader::atGLShader(const atString &src, const atPipelineStage &stage) : atShader(src, stage) {}
+atGLShader::atGLShader(const atPipelineStage &stage) : atShader(stage) {}
 
-bool atGLShader::Bind()
-{
-  return false;
-}
+bool atGLShader::Bind() { return false; }
 
 bool atGLShader::Upload()
 {
@@ -17,9 +14,10 @@ bool atGLShader::Upload()
   if (glShaderID == 0)
     return false;
 
-  const char *src = m_src.c_str();
-  int len = (int)m_src.length();
-  glShaderSource(glShaderID, 1, &src, &len);
+  atString src = LoadSource();
+  const char *srcRaw = src.c_str();
+  int len = (int)src.length();
+  glShaderSource(glShaderID, 1, &srcRaw, &len);
   glCompileShader(glShaderID);
 
   GLint result;

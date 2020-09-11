@@ -470,3 +470,10 @@ void atMesh::Combine(const atMesh &src)
     }
   }
 }
+
+bool atResourceHandlers::MeshHandler::Load(const atObjectDescriptor &request, atMesh *pResource)
+{
+  atString path = request["url"].AsString();
+  atConstruct(pResource);
+  return pResource->Import(path);
+}

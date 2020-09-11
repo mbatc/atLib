@@ -26,7 +26,7 @@
 #ifndef atFileCommon_h__
 #define atFileCommon_h__
 
-#include "atFilename.h"
+#include "atTypes.h"
 
 enum atFileMode
 {

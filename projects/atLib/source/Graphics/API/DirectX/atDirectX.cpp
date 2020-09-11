@@ -342,12 +342,17 @@ bool atDirectX::GetVsyncEnabled() const { return m_pDX->m_refresh.vsync; }
 atString atDirectX::GetAdapterDescription() { return m_pDX->m_adapterDesc; }
 atGFXContextState* atDirectX::GetState() { return m_pState; }
 
-atGPUBuffer*    atDirectX::CreateBuffer(const atBufferType &type)                          { return atNew<atDXBuffer>(type); }
-atTexture*      atDirectX::CreateTexture(const atTextureType &type)                        { return atNew<atDXTexture>(type); }
-atSampler*      atDirectX::CreateSampler()                                                 { return atNew<atDXSampler>(); }
-atShader*       atDirectX::CreateShader(const atString &src, const atPipelineStage &stage) { return atNew<atDXShader>(src, stage); }
-atProgram*      atDirectX::CreateProgram()                                                 { return atNew<atDXPrgm>(); }
-atRenderTarget* atDirectX::CreateRenderTarget()                                            { return atNew<atDXRenderTarget>(); }
+void atDirectX::BindContext()
+{
+  // Don't need to do anything special here - DirectX does not have a 'Global' context
+}
+
+atGPUBuffer*    atDirectX::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew<atDXBuffer>(type, size); }
+atTexture*      atDirectX::CreateTexture(const atTextureType &type)                    { return atNew<atDXTexture>(type); }
+atSampler*      atDirectX::CreateSampler()                                             { return atNew<atDXSampler>(); }
+atShader*       atDirectX::CreateShader(const atPipelineStage &stage)                  { return atNew<atDXShader>(stage); }
+atProgram*      atDirectX::CreateProgram()                                             { return atNew<atDXPrgm>(); }
+atRenderTarget* atDirectX::CreateRenderTarget()                                        { return atNew<atDXRenderTarget>(); }
 
 void* atDirectX::GetSwapChain() { return m_pDX->m_pSwapChain; }
 void* atDirectX::GetBackbuffer() { return m_pDX->m_pBackBuffer; }

@@ -1,4 +1,5 @@
 #include "atTexture.h"
+#include "atResourceManager.h"
 
 atTexture::atTexture(const atTextureType &type, const atImage &image, const int64_t &sampleCount)
   : m_sampleCount(sampleCount)
@@ -120,5 +121,21 @@ void atTexture::Set(const atVector<atVector<float>> &images, const atVec2I &size
   m_isDepthTex = true;
 }
 
+const int64_t &atTexture::GetSampleCount() const { return m_sampleCount; }
+void atTexture::SetSampleCount(const int64_t &sampleCount) { m_sampleCount = sampleCount; }
+
 const atVec2I& atTexture::Size() const { return m_size; }
 const atTextureType& atTexture::Type() const { return m_type; }
+
+bool atResourceHandlers::TextureHandler::Load(const atObjectDescriptor &request, atTexture **pResource)
+{
+  atResourceHandle img = GetResourceManager()->Request<atImage>(request);
+  if (!img.HasResource())
+    return false;
+
+  atTextureType texType = (atTextureType)request["type"].AsInt(atTexture_2D);
+  int64_t samples = (atTextureType)request["samples"].AsInt(1);
+  *pResource = atGraphics::GetCurrent()->CreateTexture(texType);
+  (*pResource)->Set(img.GetReadable<atImage>().Get());
+  return true;
+}

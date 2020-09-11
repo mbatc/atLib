@@ -89,14 +89,15 @@ void ExampleStrings()
 // Shift - Speed up
 // Right Mouse + Mouse Move - Look
 
-#include "at2DRenderer.h"
+#include "atCanvas2D.h"
 #include "atRenderState.h"
 #include "atCamera.h"
 
 void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
 {
-  at2DRenderer render2D;
-  render2D.SetFont(atFilename("assets/fonts/RomanSerif.ttf"));
+  atCanvas2D canvas;
+  atFont font(atFilename("assets/fonts/RomanSerif.ttf"));
+  canvas.SetFont(&font);
 
   // Set the model being loaded
   const atString path = "assets/test/models/cube1x1.obj";
@@ -152,12 +153,12 @@ void ExampleRenderMesh(atVec2I wndSize = {800, 600}, bool useLighting = true)
     // model.Draw(camera.ProjectionMat() * camera.ViewMat());
 
     // Drawing Text - See ExampleRenderText() for more examples
-    render2D.AddText(10, 10, "Press 'L' to toggle lighting.");
+    canvas.AddText({ 10, 10 }, "Press 'L' to toggle lighting.");
     {
       atRenderState rs; // State changes are reverted when 'rs' falls out of scope
       rs.SetDepthReadEnabled(false);
       rs.SetBlendEnabled(true);
-      render2D.Draw(window);
+      canvas.Draw(window);
     }
     // Display rendered frame
     window.Swap();
@@ -187,9 +188,11 @@ void ExampleRenderText()
   info.title = "Font Renderer Example";
   atWindow window(info);
 
-  at2DRenderer render2D;
+  atCanvas2D canvas;
+  atFont font(fontPath);
+
   // Set/Load a font (.ttf files)
-  render2D.SetFont(fontPath);
+  canvas.SetFont(&font);
 
   // Setup correct render state
   atRenderState rs;
@@ -212,35 +215,17 @@ void ExampleRenderText()
     usePivot = atInput::ButtonPressed(atKC_P) ? !usePivot : usePivot;
 
     // Bake Text
-    if (usePivot)
-    {
-      render2D.AddText(0, 0, "Top Left (Pivot: 0.0, 0.0)");
-      render2D.AddText(window.Width(), 0, "(Pivot: 1.0, 0.0) Top Right", { 1.f, 0.f });
-      render2D.AddText(0, window.Height(), "Bottom Left (Pivot: 0.0, 1.0)", { 0.f, 1.f });
-      render2D.AddText(window.Width(), window.Height(), "(Pivot: 1.0, 1.0) Bottom Right", { 1.f, 1.f });
+    canvas.AddText({0, 0}, "Top Left (Pivot: 0.0, 0.0)");
+    canvas.AddText({ window.Width(), 0 }, "(Pivot: 1.0, 0.0) Top Right");
+    canvas.AddText({ 0, window.Height() }, "Bottom Left (Pivot: 0.0, 1.0)");
+    canvas.AddText({ window.Width(), window.Height() }, "(Pivot: 1.0, 1.0) Bottom Right");
 
-      render2D.PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      render2D.AddRectangle(window.Width() / 2, window.Height() / 2, render2D.TextSize("(Pivot 0.5,0.5): Center"), { .5f, .5f });
-      render2D.PopColour();
-
-      render2D.AddText(window.Width() / 2, window.Height() / 2, "(Pivot 0.5,0.5): Center", { .5f, .5f });
-    }
-    else
-    {
-      render2D.AddText(0, 0, "Top Left");
-      render2D.AddText(window.Width(), 0, "Top Right");
-      render2D.AddText(0, window.Height(), "Bottom Left");
-      render2D.AddText(window.Width(), window.Height(), "Bottom Right");
-
-      render2D.PushColour(atVec4F(0.7f, 0.7f, 0.7f, 0.8f));
-      render2D.AddRectangle(window.Width() / 2, window.Height() / 2, render2D.TextSize("Center"), { .5f, .5f });
-      render2D.PopColour();
-
-      render2D.AddText(window.Width() / 2, window.Height() / 2, "Center");
-    }
+    atVec2F textDims = font.CalcTextBounds("(Pivot 0.5,0.5): Center").Dimensions();
+    canvas.AddRectFilled(window.Size() - textDims / 2, textDims, atColor::Pack(0.7f, 0.7f, 0.7f, 0.8f));
+    canvas.AddText((window.Size() - textDims), "(Pivot 0.5,0.5): Center");
 
     // Render Text
-    render2D.Draw(window);
+    canvas.Draw(window);
 
     window.Swap();
   }
@@ -634,7 +619,7 @@ static void ExampleRuntimeGraphicsAPI()
   atGraphics *pGraphics = nullptr;
 
   // Model *pModel = nullptr;
-  atString modelPath = "Assets/Test/models/sponza/sponza.obj";
+  atString modelPath = "Assets/Test/models/level.obj";
 
   {
     atGraphicsAPI api = atGfxApi_DirectX;
@@ -714,6 +699,44 @@ static void ExampleRuntimeGraphicsAPI()
   }
 }
 
+void ExampleObjectDescriptor()
+{
+  atObjectDescriptor o;
+  o.Add("url") = "THis is a url value";
+
+  atString url = o["url"].AsString();
+}
+
+#include "atResourceManager.h"
+
+class ExampleMeshHandler : public atResourceHandler<atMesh>
+{
+public:
+  ExampleMeshHandler() : atResourceHandler("mesh") {}
+
+  bool Load(const atObjectDescriptor &request, atMesh *pResource) override
+  {
+    atString path = request["url"].AsString();
+    atConstruct(pResource);
+    return pResource->Import(path);
+  }
+};
+
+void ExampleResourceManager()
+{
+  atResourceManager manager(false);
+  manager.AddHandler<ExampleMeshHandler>();
+
+  atObjectDescriptor request;
+  request.Add("url") = "Assets/Test/models/level.obj";
+
+  atResourceHandle sponza = manager.Request<atMesh>(request);
+  atResourceHandle sponza2 = manager.Request<atMesh>(request);
+
+  atMesh &m = sponza.GetWriteable<atMesh>().Get();
+  atMesh &m2 = sponza.GetWriteable<atMesh>().Get();
+}
+
 #include "atTest.h"
 
 int main(int argc, char **argv)
@@ -741,7 +764,9 @@ int main(int argc, char **argv)
   // ExampleRayTraceMesh();
   // ExampeBackPropagation();
   // ExampleRunLua();
-  ExampleRuntimeGraphicsAPI();
+  // ExampleRuntimeGraphicsAPI();
+  ExampleResourceManager();
+  // ExampleObjectDescriptor();
 
 #ifndef atVS2019 // VS2019 pauses by default in the IDE
   getchar();

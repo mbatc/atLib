@@ -112,6 +112,8 @@ public:
   const atCol& Pixel(const atVec2I &coord) const;
   const atCol& Pixel(const int64_t &index) const;
 
+  atGraphics* Graphics() const;
+
   atVector<atString> DroppedFiles();
   
   bool PumpMessage();

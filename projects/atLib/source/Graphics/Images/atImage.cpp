@@ -123,3 +123,10 @@ const atImage& atImage::operator=(atImage &&move)
   move.m_size = atVec2I::zero();
   return *this;
 }
+
+bool atResourceHandlers::ImageHandler::Load(const atObjectDescriptor &request, atImage *pResource)
+{
+  atString path = request["url"].AsString();
+  atConstruct(pResource, atFilename(path));
+  return pResource->Size().x != 0 && pResource->Size().y != 0;
+}

@@ -41,7 +41,6 @@
 #pragma comment(lib, "gdiplus")
 
 static MSG s_msg;
-static int64_t s_lastClock;
 static atHashMap<int64_t, atWindow*> _windows;
 static int64_t s_wndClsCounter = 0;
 
@@ -52,16 +51,15 @@ static DWORD _CreateWin32Style(const atWindowStyle &style);
 
 LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  const double dt = (double)(clock() - s_lastClock) / (double)CLOCKS_PER_SEC;
   if (!atImGui::ProcessMessage(hWnd, msg, wParam, lParam))
   {
     // Messages blocked by ImGui windows
     switch (msg)
     {
-    case WM_KEYDOWN: atInput::OnButtonDown(wParam, dt); break;
-    case WM_LBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Left, dt); break;
-    case WM_RBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Right, dt); break;
-    case WM_MBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Middle, dt); break;
+    case WM_KEYDOWN: atInput::OnButtonDown(wParam); break;
+    case WM_LBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Left); break;
+    case WM_RBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Right); break;
+    case WM_MBUTTONDOWN: atInput::OnButtonDown(atKC_MB_Middle); break;
     case WM_MOUSEWHEEL: atInput::OnMouseWheel((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     case WM_MOUSEHWHEEL: atInput::OnMouseWheelH((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA); break;
     }
@@ -71,10 +69,10 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
   case WM_CLOSE:  PostQuitMessage(0); break;
   case WM_DESTROY: PostQuitMessage(0); break;
-  case WM_KEYUP: atInput::OnButtonUp(wParam, dt); break;
-  case WM_LBUTTONUP: atInput::OnButtonUp(atKC_MB_Left, dt); break;
-  case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right, dt); break;
-  case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle, dt); break;
+  case WM_KEYUP: atInput::OnButtonUp(wParam); break;
+  case WM_LBUTTONUP: atInput::OnButtonUp(atKC_MB_Left); break;
+  case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right); break;
+  case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle); break;
   case WM_MOUSEMOVE: break;
   case WM_SIZE: case WM_MOVE:
   {
@@ -106,7 +104,6 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   break;
   default: return DefWindowProc(hWnd, msg, wParam, lParam);
   }
-  atInput::SetDT(dt);
   return 0;
 }
 
@@ -130,7 +127,7 @@ bool atWinAPI::PumpMessage(atWindow *pWindow)
     if (s_msg.message == WM_QUIT)
       return false;
   }
-  s_lastClock = clock();
+
   return true;
 }
 

@@ -22,51 +22,41 @@ static void _BindConstantBuffer(const atPipelineStage &stage, atDXBuffer *pBuffe
 static void _BindSampler(const atPipelineStage &stage, atDXSampler *pBuffer, int64_t slot);
 static void _BindTexture(const atPipelineStage &stage, atDXTexture *pBuffer, int64_t slot);
 
-bool atDXShader::BindTexture(const atString &name, atTexture *pTexture)
+bool atDXShader::BindTexture(const int64_t &index, atTexture *pTexture)
 {
-  if (pTexture->API() != API())
+  if (pTexture->API() != API() || index < 0 || index >= m_textures.size())
     return false;
 
-  for (TextureDesc &desc : m_textures)
-    if (desc.name == name)
-    {
-      desc.pTex = (atDXTexture*)pTexture;
-      _BindTexture(Stage(), desc.pTex, desc.slot);
-      return true;
-    }
-
-  return false;
+  TextureDesc &desc = m_textures[index];
+  desc.pTex = (atDXTexture*)pTexture;
+  _BindTexture(Stage(), desc.pTex, desc.slot);
+  return true;
 }
 
-bool atDXShader::BindSampler(const atString &name, atSampler *pSampler)
+bool atDXShader::BindSampler(const int64_t &index, atSampler *pSampler)
 {
-  if (pSampler->API() != API())
+  if (pSampler->API() != API() || index < 0 || index >= m_samplers.size())
     return false;
 
-  for (SamplerDesc &desc : m_samplers)
-    if (desc.name == name)
-    {
-      desc.pSampler = (atDXSampler*)pSampler;
-      _BindSampler(Stage(), desc.pSampler, desc.slot);
-      return true;
-    }
-
-  return false;
+  SamplerDesc &desc = m_samplers[index];
+  desc.pSampler = (atDXSampler *)pSampler;
+  _BindSampler(Stage(), desc.pSampler, desc.slot);
+  return true;
 }
 
-bool atDXShader::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
+bool atDXShader::SetUniform(const int64_t &bufferIdx, const int64_t &varIdx, const void *pData, const atTypeDesc &info)
 {
-  VarDesc *pVar = nullptr;
-  ConstBufferDesc *pBuffer = FindVarBuffer(name, &pVar);
-  if (!pBuffer)
+  if (bufferIdx < 0 || bufferIdx >= m_buffers.size())
     return false;
-  if (atTypeCast(pBuffer->data.data() + pVar->offset, pData, pVar->desc, info))
-  {
-    pBuffer->updated = true;
-    return true;
-  }
 
-  return false;
+  ConstBufferDesc &buffer = m_buffers[bufferIdx];
+  if (varIdx < 0 || varIdx >= buffer.vars.size())
+    return false;
+
+  VarDesc &var = buffer.vars[varIdx];
+  bool success = atTypeCast(buffer.data.data() + var.offset, pData, var.desc, info);
+  buffer.updated |= success;
+  return success;
 }
 
 atVector<atString> atDXShader::Textures() const
@@ -85,13 +75,19 @@ atVector<atString> atDXShader::Samplers() const
   return names;
 }
 
-atVector<atString> atDXShader::Uniforms() const
+atVector<atKeyValue<atString, atDXShader::UniformLocation>> atDXShader::Uniforms() const
 {
-  atVector<atString> names;
-  for (const ConstBufferDesc &desc : m_buffers)
-    for (const VarDesc &var : desc.vars)
-      names.push_back(var.name);
-  return names;
+  atVector<atKeyValue<atString, UniformLocation>> uniforms;
+  for (int64_t bufferIdx = 0; bufferIdx < m_buffers.size(); ++bufferIdx)
+    for (int64_t varIdx = 0; varIdx < m_buffers[bufferIdx].vars.size(); ++varIdx)
+    {
+      UniformLocation loc;
+      loc.bufferIdx = bufferIdx;
+      loc.variableIdx = varIdx;
+      uniforms.emplace_back(m_buffers[bufferIdx].vars[varIdx].name, loc);
+    }
+
+  return uniforms;
 }
 
 const atVector<uint8_t>& atDXShader::ByteCode() const { return m_byteCode; }
@@ -154,9 +150,10 @@ bool atDXShader::Upload()
   if (m_src.length() == 0 || !pDX->GetDevice())
     return false;
 
+  atString src = LoadSource();
   ID3D10Blob *pShaderBlob = nullptr;
   ID3D10Blob *pError = nullptr;
-  if (FAILED(D3DCompile(m_src.c_str(), m_src.length(), NULL, NULL, NULL, "main", _shaderStrID[Stage()], D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
+  if (FAILED(D3DCompile(src.c_str(), src.length(), NULL, NULL, NULL, "main", _shaderStrID[Stage()], D3D10_SHADER_ENABLE_STRICTNESS, 0, &pShaderBlob, &pError)))
   {
     atFail((char*)pError->GetBufferPointer());
     return false;
@@ -325,7 +322,6 @@ atDXShader::ConstBufferDesc* atDXShader::FindVarBuffer(const atString &name, Var
   return nullptr;
 }
 
-bool atDXShader::HasUniform(const atString &name) { return FindVarBuffer(name) != nullptr; }
 int64_t atDXShader::AttributeCount() const { return m_attributes.size(); }
 const atString& atDXShader::AttributeName(const int64_t &index) const { return m_attributes[index].name; }
 const atString& atDXShader::AttributeFullName(const int64_t &index) const { return m_attributes[index].fullName; }
@@ -433,7 +429,7 @@ bool atDXShader::SetUniform(const atString &, const void *, const atTypeDesc &) 
 
 atVector<atString> atDXShader::Textures() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
 atVector<atString> atDXShader::Samplers() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
-atVector<atString> atDXShader::Uniforms() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
+atVector<atKeyValue<atString, atDXShader::UniformLocation>> atDXShader::Uniforms() const { atRelAssert("DirectX is only supported on Windows platforms."); return{}; }
 const atVector<uint8_t>& atDXShader::ByteCode() const { atRelAssert("DirectX is only supported on Windows platforms."); return _unused_vec_ui8; }
 
 bool atDXShader::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }

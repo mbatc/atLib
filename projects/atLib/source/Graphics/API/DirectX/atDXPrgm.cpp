@@ -23,9 +23,9 @@ bool atDXPrgm::Bind()
   return true;
 }
 
-void atDXPrgm::BindInput(const int64_t &i)
+void atDXPrgm::BindInput(const int64_t &loc)
 {
-  if (!m_inputs[i])
+  if (!m_inputs[loc])
     return;
 
   atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex];
@@ -34,32 +34,16 @@ void atDXPrgm::BindInput(const int64_t &i)
 
   atDirectX *pDX = (atDirectX*)atGraphics::GetCurrent();
   ID3D11DeviceContext *pCtx = (ID3D11DeviceContext*)pDX->GetContext();
-  UINT slot = (UINT)pVertShader->AttributeSlot(i);
+  UINT slot = (UINT)pVertShader->AttributeSlot(loc);
   UINT offset = 0;
-  UINT stride = (UINT)(m_inputs[i]->Size() / atMax(1ll, m_inputs[i]->Count()));
-  ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_inputs[i]->NativeResource();
+  UINT stride = (UINT)(m_inputs[loc]->Size() / atMax(1ll, m_inputs[loc]->Count()));
+  ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_inputs[loc]->NativeResource();
   pCtx->IASetVertexBuffers(slot, 1, &pBuffer, &stride, &offset);
 }
 
 bool atDXPrgm::BindAttribute(const atString &name, atGPUBuffer *pBuffer)
 {
-  if (pBuffer->API() != API())
-    return false;
-
-  atDXShader *pVertShader = (atDXShader*)m_pStages[atPS_Vertex];
-  if (!pVertShader)
-    return false;
-
-  for (int64_t i = 0; i < pVertShader->AttributeCount(); ++i)
-    if (pVertShader->AttributeFullName(i) == name)
-    {
-      m_inputs[i] = (atDXBuffer*)pBuffer;
-      if (IsBound())
-        BindInput(i);
-      return true;
-    }
-
-  return false;
+  return BindAttribute(FindAttribute(name), pBuffer);
 }
 
 bool atDXPrgm::BindIndices(atGPUBuffer *pBuffer)
@@ -78,52 +62,106 @@ bool atDXPrgm::BindIndices(atGPUBuffer *pBuffer)
   return true;
 }
 
-bool atDXPrgm::BindTexture(const atString &name, atTexture *pTexture)
+bool atDXPrgm::BindTexture(const atString &name, atTexture *pTexture) { return BindTexture(FindTexture(name), pTexture); }
+bool atDXPrgm::BindSampler(const atString &name, atSampler *pSampler) { return BindSampler(FindSampler(name), pSampler); }
+bool atDXPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info) { return SetUniform(FindUniform(name), pData, info); }
+
+int64_t atDXPrgm::FindUniform(const atString &name) const { return m_uniformLookup.GetOr(name, AT_INVALID_INDEX); }
+int64_t atDXPrgm::FindAttribute(const atString &name) const { return m_attributeLookup.GetOr(name, AT_INVALID_INDEX); }
+int64_t atDXPrgm::FindTexture(const atString &name) const { return m_textureLookup.GetOr(name, AT_INVALID_INDEX); }
+int64_t atDXPrgm::FindSampler(const atString &name) const { return m_samplerLookup.GetOr(name, AT_INVALID_INDEX); }
+
+bool atDXPrgm::BindAttribute(const int64_t &index, atGPUBuffer *pBuffer)
 {
-  for (atShader* pShader : m_pStages)
-    if (pShader && ((atDXShader*)pShader)->BindTexture(name, pTexture))
-      return true;
+  if (pBuffer->API() != API() || index < 0 || index >= m_attributeLookup.Size())
+    return false;
+
+  atDXShader *pVertShader = (atDXShader *)m_pStages[atPS_Vertex];
+  if (!pVertShader)
+    return false;
+  int64_t loc = m_attributeLoc[index];
+  m_inputs[loc] = (atDXBuffer *)pBuffer;
+  if (IsBound())
+    BindInput(loc);
+  return true;
+}
+
+bool atDXPrgm::BindTexture(const int64_t &index, atTexture *pTexture)
+{
+  if (pTexture->API() != API() || index < 0 || index >= m_textureLoc.size())
+    return false;
+
+  atKeyValue<int64_t, int64_t> &loc = m_textureLoc[index];
+  ((atDXShader *)m_pStages[loc.m_key])->BindTexture(loc.m_val, pTexture);
   return false;
 }
 
-bool atDXPrgm::BindSampler(const atString &name, atSampler *pSampler)
+bool atDXPrgm::BindSampler(const int64_t &index, atSampler *pSampler)
 {
-  for (atShader* pShader : m_pStages)
-    if (pShader && ((atDXShader*)pShader)->BindSampler(name, pSampler))
-      return true;
+  if (pSampler->API() != API() || index < 0 || index >= m_samplerLoc.size())
+    return false;
+
+  atKeyValue<int64_t, int64_t> &loc = m_samplerLoc[index];
+  ((atDXShader *)m_pStages[loc.m_key])->BindSampler(loc.m_val, pSampler);
   return false;
 }
 
-bool atDXPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
+bool atDXPrgm::SetUniform(const int64_t &index, const void *pData, const atTypeDesc &info)
 {
-  for (atShader* pShader : m_pStages)
-    if (pShader && ((atDXShader*)pShader)->SetUniform(name, pData, info))
-      return true;
-  return false;
+  if (index < 0 || index >= m_uniformLoc.size())
+    return false;
+
+  atKeyValue<int64_t, atDXShader::UniformLocation> &loc = m_uniformLoc[index];
+  ((atDXShader *)m_pStages[loc.m_key])->SetUniform(loc.m_val.bufferIdx, loc.m_val.variableIdx, pData, info);
+  return true;
 }
 
-bool atDXPrgm::HasUniform(const atString &name)
-{
-  for (atShader* pShader : m_pStages)
-    if (pShader && ((atDXShader*)pShader)->HasUniform(name))
-      return true;
-  return false;
-}
+bool atDXPrgm::HasUniform(const atString &name) const { return FindUniform(name) != -1; }
 
 bool atDXPrgm::Upload()
 {
   if (!(m_pStages[atPS_Vertex] && m_pStages[atPS_Fragment]))
     return false; // Must have at least a vertex and fragment shader
 
-  if (m_pLayout)
+  if (m_pLayout || ShouldReload())
     return true;
+
+  Delete(); // Delete previously compiled shader
 
   bool success = true;
   for (atShader* pStage : m_pStages)
-    success &= !pStage || pStage->Upload();
+    if (pStage)
+      success &= pStage->Upload();
+
+  // Create lookups for the uniforms, textures and samplers
+  for (int64_t shaderIdx = 0; shaderIdx < atArraySize(m_pStages); ++shaderIdx)
+  {
+    atDXShader *pShader = (atDXShader*)m_pStages[shaderIdx];
+    if (!pShader)
+      continue;
+
+    for (const atKeyValue<atString, atDXShader::UniformLocation> &loc : pShader->Uniforms())
+    {
+      m_uniformLookup.Add(loc.m_key, m_uniformLoc.size());
+      m_uniformLoc.emplace_back(shaderIdx, loc.m_val);
+    }
+
+    atVector<atString> texNames = pShader->Textures();
+    for (int64_t texIdx = 0; texIdx < texNames.size(); ++texIdx)
+    {
+      m_textureLookup.Add(texNames[texIdx], m_textureLoc.size());
+      m_textureLoc.emplace_back(shaderIdx, texIdx);
+    }
+
+    atVector<atString> samplerNames = pShader->Samplers();
+    for (int64_t samplerIdx = 0; samplerIdx < samplerNames.size(); ++samplerIdx)
+    {
+      m_samplerLookup.Add(samplerNames[samplerIdx], m_samplerLoc.size());
+      m_samplerLoc.emplace_back(shaderIdx, samplerIdx);
+    }
+  }
 
   atDXShader *pShader = (atDXShader*)m_pStages[atPS_Vertex];
-
   atVector<D3D11_INPUT_ELEMENT_DESC> d3dDesc;
   for (int64_t i = 0; i < pShader->AttributeCount(); ++i)
   {
@@ -137,6 +175,9 @@ bool atDXPrgm::Upload()
     element.InstanceDataStepRate = 0;
     element.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
     d3dDesc.push_back(element);
+
+    m_attributeLookup.Add(element.SemanticName, m_attributeLoc.size());
+    m_attributeLoc.push_back(i);
   }
   m_inputs.clear();
   m_inputs.resize(d3dDesc.size(), 0);
@@ -148,14 +189,34 @@ bool atDXPrgm::Upload()
     return false;
 
   m_pLayout = pLayout;
+  m_shaderRound = m_globalShaderRound;
   return true;
 }
 
 bool atDXPrgm::Delete()
 {
+  if (!m_pLayout)
+    return false;
+
+  // Delete input layout
   ID3D11InputLayout *pLayout = (ID3D11InputLayout*)m_pLayout;
   atDirectX::SafeRelease(pLayout);
+
+  // Delete sub shaders
+  for (atShader *pShader : m_pStages)
+    pShader->Delete();
+
+  // Clear inputs
   m_inputs.clear();
+  m_pLayout = nullptr;
+  m_attributeLoc.clear();
+  m_textureLoc.clear();
+  m_samplerLoc.clear();
+  m_uniformLoc.clear();
+  m_uniformLookup.Clear();
+  m_textureLookup.Clear();
+  m_samplerLookup.Clear();
+  m_attributeLookup.Clear();
   return true;
 }
 

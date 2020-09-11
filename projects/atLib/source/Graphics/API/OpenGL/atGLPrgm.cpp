@@ -6,7 +6,303 @@
 #include "atGLBuffer.h"
 #include "atFormat.h"
 
-atTypeDesc _GetTypeDesc(GLenum glType)
+static atTypeDesc _GetTypeDesc(GLenum glType);
+static atTextureType _GetTexTypeDesc(GLenum glType);
+
+bool atGLPrgm::BindIndices(atGPUBuffer *pBuffer)
+{
+  atGLBuffer *pGLBuffer = (atGLBuffer*)pBuffer;
+  if (pBuffer->Type() != atBT_IndexData)
+    return false;
+ 
+  glBindBuffer((GLenum)pGLBuffer->Target(), (uint32_t)(int64_t)pGLBuffer->NativeResource());
+  m_indicesType = pGLBuffer->Desc().type;
+  m_indexCount = pGLBuffer->Count();
+  return true;
+}
+
+bool atGLPrgm::BindAttribute(const atString &name, atGPUBuffer *pBuffer) { return BindAttribute(FindAttribute(name), pBuffer); }
+bool atGLPrgm::BindTexture(const atString &name, atTexture *pTexture) { return BindTexture(FindTexture(name), pTexture); }
+bool atGLPrgm::BindSampler(const atString &name, atSampler *pSampler) { return false; }
+bool atGLPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info) { return SetUniform(FindUniform(name), pData, info); }
+
+bool atGLPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset, const int64_t &baseVtxIdx)
+{
+  atOpenGL *pGL = (atOpenGL*)atGraphics::GetCurrent();
+  if (!pGL)
+    return false;
+
+  if (indexedMode && m_activeTextures != atType_Unknown)
+    pGL->DrawIndexed(elementCount < 0 ? m_indexCount : elementCount, elementOffset, 0, primType, m_indicesType);
+  else
+    pGL->Draw(elementCount < 0 ? m_vertexCount : elementCount, elementOffset, primType);
+
+  return true;
+}
+
+bool atGLPrgm::Delete()
+{
+  if (!NativeResource())
+    return false;
+
+  uint32_t prgmID = (uint32_t)(int64_t)NativeResource();
+  uint32_t vaoID = (uint32_t)m_vao;
+
+  glDeleteProgram(prgmID);
+  glDeleteVertexArrays(1, &vaoID);
+
+  for (atShader *pShader : m_pStages)
+    if (pShader)
+      pShader->Delete();
+
+  m_vao = 0;
+  m_pResource = 0;
+  m_activeTextures = 0;
+  m_indexCount = INT64_MAX;
+  m_vertexCount = INT64_MAX;
+  m_attributes.clear();
+  m_textures.clear();
+  m_uniforms.clear();
+  m_uniformLookup.Clear();
+  m_attributeLookup.Clear();
+  m_textureLookup.Clear();
+  return true;
+}
+
+bool atGLPrgm::Upload()
+{
+  if (NativeResource() && !ShouldReload())
+    return true;
+
+  // Delete any previously compiled shader
+  Delete();
+
+  if (!m_pStages[atPS_Vertex] || !m_pStages[atPS_Fragment])
+    return false;
+
+  uint32_t glPrgmID = 0;
+  glPrgmID = glCreateProgram();
+
+  if (glPrgmID == 0)
+    return false;
+
+  bool success = true;
+  for (atShader* pShader : m_pStages)
+  {
+    if (!pShader)
+      continue;
+
+    if (pShader->Upload())
+      glAttachShader(glPrgmID, (uint32_t)(int64_t)pShader->NativeResource());
+    else
+      success = false;
+  }
+
+  if (success)
+    glLinkProgram(glPrgmID);
+
+  for (atShader *pShader : m_pStages)
+    if (pShader && pShader->NativeResource() != 0)
+      glDetachShader(glPrgmID, (uint32_t)(int64_t)pShader->NativeResource());
+
+  GLint result = 1;
+  glGetProgramiv(glPrgmID, GL_LINK_STATUS, &result);
+
+  if (result == GL_FALSE)
+  {
+    GLint bufLen = 0;
+    glGetProgramiv(glPrgmID, GL_INFO_LOG_LENGTH, &bufLen);
+    atVector<char> buffer(bufLen + 1, 0);
+    glGetProgramInfoLog(glPrgmID, (GLint)buffer.size(), 0, buffer.data());
+    atRelAssert(false, atString("Failed to link shader program: \n") + buffer.data());
+    return false;
+  }
+
+  m_pResource = (void*)(int64_t)glPrgmID;
+
+  GLuint vaoID;
+  glGenVertexArrays(1, &vaoID);
+  m_vao = vaoID;
+
+  Reflect();
+  m_shaderRound = m_globalShaderRound;
+  return true;
+}
+
+bool atGLPrgm::Bind()
+{
+  if (!Upload())
+    return false;
+
+  m_indicesType = atType_Unknown;
+  m_indexCount = INT64_MAX;
+  m_vertexCount = INT64_MAX;
+  glUseProgram((uint32_t)(int64_t)NativeResource());
+  glBindVertexArray((GLuint)m_vao);
+  return true;
+}
+
+void atGLPrgm::Reflect()
+{
+  uint32_t glPrgmID = (uint32_t)(int64_t)NativeResource();
+
+  glUseProgram(glPrgmID);
+
+  atVector<char> nameBuffer;
+
+  GLint attrCount = 0;
+  GLint attMaxLen = 0;
+  glGetProgramiv(glPrgmID, GL_ACTIVE_ATTRIBUTES, &attrCount);
+  glGetProgramiv(glPrgmID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attMaxLen);
+  nameBuffer.resize(attMaxLen, 0);
+  for (int64_t i = 0; i < attrCount; ++i)
+  {
+    GLsizei attribSize = 0;
+    GLenum attribType = 0;
+
+    glGetActiveAttrib(glPrgmID, (GLuint)i, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, nullptr, &attribSize, &attribType, nameBuffer.data());
+    AttributeDesc desc;
+    desc.glLoc = glGetAttribLocation(glPrgmID, nameBuffer.data());
+    desc.name = nameBuffer.data();
+    desc.desc = _GetTypeDesc(attribType);
+    m_attributeLookup.Add(desc.name, m_attributes.size());
+    m_attributes.push_back(desc);
+  }
+
+  GLint uniformCount = 0;  
+  GLint uniMaxLen = 0;
+  glGetProgramiv(glPrgmID, GL_ACTIVE_UNIFORMS, &uniformCount);
+  glGetProgramiv(glPrgmID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniMaxLen);
+  nameBuffer.clear();
+  nameBuffer.resize(uniMaxLen, 0);
+  for (int64_t i = 0; i < uniformCount; ++i)
+  {
+    GLsizei uniSize = 0;
+    GLenum uniType = 0;
+
+    glGetActiveUniform(glPrgmID, (GLuint)i, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, nullptr, &uniSize, &uniType, nameBuffer.data());
+    
+    atTypeDesc typeDesc = _GetTypeDesc(uniType);
+    if (typeDesc != atGetTypeDesc<void>())
+    {
+      VarDesc desc;
+      desc.desc = typeDesc;
+      desc.name = nameBuffer.data();
+      desc.glLoc = glGetUniformLocation(glPrgmID, nameBuffer.data());
+      m_uniformLookup.Add(desc.name, m_uniforms.size());
+      m_uniforms.push_back(desc);
+    }
+    else
+    {
+      TexDesc desc;
+      desc.type = _GetTexTypeDesc(uniType);
+
+      if (desc.type != atTexture_None)
+      {
+        desc.name = nameBuffer.data();
+        desc.glLoc = glGetUniformLocation(glPrgmID, nameBuffer.data());
+        desc.unit = m_activeTextures++;
+        glUniform1i((GLint)desc.glLoc, (GLint)desc.unit);
+        m_textureLookup.Add(desc.name, m_textures.size());
+        m_textures.push_back(desc);
+      }
+    }
+  }
+  glUseProgram(0);
+}
+
+bool atGLPrgm::HasUniform(const atString &name) const { return FindUniform(name) != -1;; }
+
+int64_t atGLPrgm::FindUniform(const atString &name) const { return m_uniformLookup.GetOr(name, -1); }
+int64_t atGLPrgm::FindAttribute(const atString &name) const { return m_attributeLookup.GetOr(name, -1); }
+int64_t atGLPrgm::FindTexture(const atString &name) const { return m_textureLookup.GetOr(name, -1); }
+int64_t atGLPrgm::FindSampler(const atString &name) const { return -1; }
+
+bool atGLPrgm::BindAttribute(const int64_t &index, atGPUBuffer *pBuffer)
+{
+  if (index < 0 || index >= m_attributes.size())
+    return false;
+  AttributeDesc &desc = m_attributes[index];
+  atGLBuffer *pGLBuffer = (atGLBuffer *)pBuffer;
+  if (pBuffer->Type() != atBT_VertexData)
+    return false;
+
+  m_vertexCount = atMin(pBuffer->Count(), m_vertexCount);
+  glBindBuffer((GLenum)pGLBuffer->Target(), (uint32_t)(int64_t)pGLBuffer->NativeResource());
+  glEnableVertexAttribArray((GLuint)desc.glLoc);
+  glVertexAttribPointer((GLuint)desc.glLoc, (GLint)pBuffer->Desc().width, (GLenum)atFormat::GLType(pBuffer->Desc().type), GL_FALSE, 0, 0);
+  return true;
+}
+
+bool atGLPrgm::BindTexture(const int64_t &index, atTexture *pTexture)
+{
+  if (index < 0 || index >= m_textures.size())
+    return false;
+
+  // Bind texture to texture unit
+  TexDesc &desc = m_textures[index];
+  glActiveTexture((GLenum)(GL_TEXTURE0 + desc.unit));
+  pTexture->Bind();
+  return true;
+}
+
+bool atGLPrgm::BindSampler(const int64_t &index, atSampler *pSampler) { return false; }
+
+bool atGLPrgm::SetUniform(const int64_t &index, const void *pData, const atTypeDesc &info)
+{
+  if (index < 0 || index >= m_uniforms.size())
+    return false;
+
+  VarDesc &desc = m_uniforms[index];
+  uint32_t glLoc = (uint32_t)desc.glLoc;
+  float *f = (float *)pData;
+  int32_t *i = (int32_t *)pData;
+  uint32_t *ui = (uint32_t *)pData;
+  GLsizei glCount = (GLsizei)info.count;
+
+  switch (info.type)
+  {
+  case atType_Float32:
+    switch (info.width)
+    {
+    case 1: glUniform1fv(glLoc, glCount, f); break;
+    case 2: glUniform2fv(glLoc, glCount, f); break;
+    case 3: glUniform3fv(glLoc, glCount, f); break;
+    case 4: glUniform4fv(glLoc, glCount, f); break;
+    case 16: glUniformMatrix4fv(glLoc, glCount, GL_FALSE, f);
+    default: return false;
+    }
+    break;
+
+  case atType_Int32:
+    switch (info.width)
+    {
+    case 1: glUniform1iv(glLoc, glCount, i); break;
+    case 2: glUniform2iv(glLoc, glCount, i); break;
+    case 3: glUniform3iv(glLoc, glCount, i); break;
+    case 4: glUniform4iv(glLoc, glCount, i); break;
+    default: return false;
+    }
+    break;
+
+  case atType_Uint32:
+    switch (info.width)
+    {
+    case 1: glUniform1uiv(glLoc, glCount, ui); break;
+    case 2: glUniform2uiv(glLoc, glCount, ui); break;
+    case 3: glUniform3uiv(glLoc, glCount, ui); break;
+    case 4: glUniform4uiv(glLoc, glCount, ui); break;
+    default: return false;
+    }
+    break;
+
+  default: return false;
+  }
+
+  return true;
+}
+
+static atTypeDesc _GetTypeDesc(GLenum glType)
 {
   switch (glType)
   {
@@ -49,7 +345,7 @@ atTypeDesc _GetTypeDesc(GLenum glType)
   return atGetTypeDesc<void>();
 }
 
-atTextureType _GetTexTypeDesc(GLenum glType)
+static atTextureType _GetTexTypeDesc(GLenum glType)
 {
   switch (glType)
   {
@@ -115,271 +411,3 @@ atTextureType _GetTexTypeDesc(GLenum glType)
 
   return atTexture_None;
 }
-
-bool atGLPrgm::BindIndices(atGPUBuffer *pBuffer)
-{
-  atGLBuffer *pGLBuffer = (atGLBuffer*)pBuffer;
-  if (pBuffer->Type() != atBT_IndexData)
-    return false;
- 
-  glBindBuffer((GLenum)pGLBuffer->Target(), (uint32_t)(int64_t)pGLBuffer->NativeResource());
-  m_indicesType = pGLBuffer->Desc().type;
-  m_indexCount = pGLBuffer->Count();
-  return true;
-}
-
-bool atGLPrgm::BindAttribute(const atString &name, atGPUBuffer *pBuffer)
-{
-  AttributeDesc *pDesc = m_attributes.TryGet(name);
-  if (!pDesc)
-    return false;
-
-  atGLBuffer *pGLBuffer = (atGLBuffer*)pBuffer;
-  if (pBuffer->Type() != atBT_VertexData)
-    return false;
-
-  m_vertexCount = atMin(pBuffer->Count(), m_vertexCount);
-  glBindBuffer((GLenum)pGLBuffer->Target(), (uint32_t)(int64_t)pGLBuffer->NativeResource());
-  glEnableVertexAttribArray((GLuint)pDesc->glLoc);
-  glVertexAttribPointer((GLuint)pDesc->glLoc, (GLint)pBuffer->Desc().width, (GLenum)atFormat::GLType(pBuffer->Desc().type), GL_FALSE, 0, 0);
-  return true;
-}
-
-bool atGLPrgm::BindTexture(const atString &name, atTexture *pTexture)
-{
-  TexDesc *pDesc = m_textures.TryGet(name);
-  if (!pDesc)
-    return false;
-
-  atGLTexture *pGLTex = (atGLTexture*)pTexture;
-  if (pDesc->unit == -1)
-  {
-    // Set sampler texture unit
-    pDesc->unit = m_activeTextures++;
-    glUniform1i((GLint)pDesc->glLoc, (GLint)pDesc->unit);
-  }
-
-  // Bind texture to texture unit
-  glActiveTexture((GLenum)(GL_TEXTURE0 + pDesc->unit));
-  pGLTex->Bind();
-  return true;
-}
-
-bool atGLPrgm::BindSampler(const atString &name, atSampler *pSampler) { return false; }
-
-bool atGLPrgm::SetUniform(const atString &name, const void *pData, const atTypeDesc &info)
-{
-  VarDesc *pDesc = m_uniforms.TryGet(name);
-  if (!pDesc)
-    return false;
-
-  uint32_t glLoc = (uint32_t)pDesc->glLoc;
-  float *f = (float*)pData;
-  int32_t *i = (int32_t*)pData;
-  uint32_t *ui = (uint32_t*)pData;
-  GLsizei glCount = (GLsizei)info.count;
-  
-  switch (info.type)
-  {
-  case atType_Float32:
-    switch (info.width)
-    {
-    case 1: glUniform1fv(glLoc, glCount, f); break;
-    case 2: glUniform2fv(glLoc, glCount, f); break;
-    case 3: glUniform3fv(glLoc, glCount, f); break;
-    case 4: glUniform4fv(glLoc, glCount, f); break;
-    case 16: glUniformMatrix4fv(glLoc, glCount, GL_FALSE, f);
-    default: return false;
-    }
-    break;
-
-  case atType_Int32:
-    switch (info.width)
-    {
-    case 1: glUniform1iv(glLoc, glCount, i); break;
-    case 2: glUniform2iv(glLoc, glCount, i); break;
-    case 3: glUniform3iv(glLoc, glCount, i); break;
-    case 4: glUniform4iv(glLoc, glCount, i); break;
-    default: return false;
-    }
-    break;
-
-  case atType_Uint32:
-    switch (info.width)
-    {
-    case 1: glUniform1uiv(glLoc, glCount, ui); break;
-    case 2: glUniform2uiv(glLoc, glCount, ui); break;
-    case 3: glUniform3uiv(glLoc, glCount, ui); break;
-    case 4: glUniform4uiv(glLoc, glCount, ui); break;
-    default: return false;
-    }
-    break;
-
-  default: return false;
-  }
-
-  return true;
-}
-
-bool atGLPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType, const int64_t &elementCount, const int64_t &elementOffset, const int64_t &baseVtxIdx)
-{
-  atOpenGL *pGL = (atOpenGL*)atGraphics::GetCurrent();
-  if (!pGL)
-    return false;
-
-  if (indexedMode && m_activeTextures != atType_Unknown)
-    pGL->DrawIndexed(elementCount < 0 ? m_indexCount : elementCount, elementOffset, 0, primType, m_indicesType);
-  else
-    pGL->Draw(elementCount < 0 ? m_vertexCount : elementCount, elementOffset, primType);
-
-  return true;
-}
-
-bool atGLPrgm::Delete()
-{
-  if (!NativeResource())
-    return false;
-
-  uint32_t prgmID = (uint32_t)(int64_t)NativeResource();
-  uint32_t vaoID = (uint32_t)m_vao;
-  
-  glDeleteProgram(prgmID);
-  glDeleteVertexArrays(1, &vaoID);
-
-  m_vao = 0;
-  m_pResource = 0;
-  m_activeTextures = 0;
-  m_indexCount = INT64_MAX;
-  m_vertexCount = INT64_MAX;
-  m_attributes.Clear();
-  m_textures.Clear();
-  m_uniforms.Clear();
-  return true;
-}
-
-bool atGLPrgm::Upload()
-{
-  if (NativeResource())
-    return true;
-  
-  if (!m_pStages[atPS_Vertex] || !m_pStages[atPS_Fragment])
-    return false;
-
-  uint32_t glPrgmID = 0;
-  glPrgmID = glCreateProgram();
-
-  if (glPrgmID == 0)
-    return false;
-
-  for (atShader* pShader : m_pStages)
-  {
-    atGLShader *pGLShader = (atGLShader*)pShader;
-
-    if (!pGLShader)
-      continue;
-
-    if (pShader->Upload())
-      glAttachShader(glPrgmID, (uint32_t)(int64_t)pGLShader->NativeResource());
-    else
-      return false;
-  }
-  
-  glLinkProgram(glPrgmID);
-
-  GLint result = 1;
-  glGetProgramiv(glPrgmID, GL_LINK_STATUS, &result);
-
-  if (result == GL_FALSE)
-  {
-    GLint bufLen = 0;
-    glGetProgramiv(glPrgmID, GL_INFO_LOG_LENGTH, &bufLen);
-    atVector<char> buffer(bufLen + 1, 0);
-    glGetProgramInfoLog(glPrgmID, (GLint)buffer.size(), 0, buffer.data());
-    atRelAssert(false, atString("Failed to link shader program: \n") + buffer.data());
-  }
-
-  m_pResource = (void*)(int64_t)glPrgmID;
-
-  GLuint vaoID;
-  glGenVertexArrays(1, &vaoID);
-  m_vao = vaoID;
-  
-  Reflect();
-  return true;
-}
-
-bool atGLPrgm::Bind()
-{
-  if (!Upload())
-    return false;
-
-  m_indicesType = atType_Unknown;
-  m_indexCount = INT64_MAX;
-  m_vertexCount = INT64_MAX;
-  glUseProgram((uint32_t)(int64_t)NativeResource());
-  glBindVertexArray((GLuint)m_vao);
-  return true;
-}
-
-void atGLPrgm::Reflect()
-{
-  uint32_t glPrgmID = (uint32_t)(int64_t)NativeResource();
-
-  atVector<char> nameBuffer;
-
-  GLint attrCount = 0;
-  GLint attMaxLen = 0;
-  glGetProgramiv(glPrgmID, GL_ACTIVE_ATTRIBUTES, &attrCount);
-  glGetProgramiv(glPrgmID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attMaxLen);
-  nameBuffer.resize(attMaxLen, 0);
-  for (int64_t i = 0; i < attrCount; ++i)
-  {
-    GLsizei attribSize = 0;
-    GLenum attribType = 0;
-
-    glGetActiveAttrib(glPrgmID, (GLuint)i, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, nullptr, &attribSize, &attribType, nameBuffer.data());
-    AttributeDesc desc;
-    desc.glLoc = glGetAttribLocation(glPrgmID, nameBuffer.data());
-    desc.name = nameBuffer.data();
-    desc.desc = _GetTypeDesc(attribType);
-    m_attributes.Add(nameBuffer.data(), desc);
-  }
-
-  GLint uniformCount = 0;  
-  GLint uniMaxLen = 0;
-  glGetProgramiv(glPrgmID, GL_ACTIVE_UNIFORMS, &uniformCount);
-  glGetProgramiv(glPrgmID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniMaxLen);
-  nameBuffer.clear();
-  nameBuffer.resize(uniMaxLen, 0);
-  for (int64_t i = 0; i < uniformCount; ++i)
-  {
-    GLsizei uniSize = 0;
-    GLenum uniType = 0;
-
-    glGetActiveUniform(glPrgmID, (GLuint)i, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, nullptr, &uniSize, &uniType, nameBuffer.data());
-    
-    atTypeDesc typeDesc = _GetTypeDesc(uniType);
-    if (typeDesc != atGetTypeDesc<void>())
-    {
-      VarDesc desc;
-      desc.desc = typeDesc;
-      desc.name = nameBuffer.data();
-      desc.glLoc = glGetUniformLocation(glPrgmID, nameBuffer.data());
-      m_uniforms.Add(nameBuffer.data(), desc);
-    }
-    else
-    {
-      TexDesc desc;
-      desc.type = _GetTexTypeDesc(uniType);
-
-      if (desc.type != atTexture_None)
-      {
-        desc.name = nameBuffer.data();
-        desc.glLoc = glGetUniformLocation(glPrgmID, nameBuffer.data());
-        m_textures.Add(nameBuffer.data(), desc);
-      }
-    }
-  }
-}
-
-bool atGLPrgm::HasUniform(const atString &name) { return m_uniforms.Contains(name); }

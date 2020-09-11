@@ -42,4 +42,16 @@ protected:
   atVector<uint8_t> m_pixels;
 };
 
+namespace atResourceHandlers
+{
+  class TextureHandler : public atResourceHandler<atTexture*>
+  {
+  public:
+    TextureHandler() : atResourceHandler("Texture") {}
+
+    bool Load(const atObjectDescriptor &request, atTexture **pResource) override;
+  };
+};
+
+
 #endif // atGFXTexInterface_h__

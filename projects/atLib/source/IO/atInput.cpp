@@ -27,6 +27,7 @@
 #include "atWindow.h"
 #include "atHashMap.h"
 #include "atIterator.h"
+#include <time.h>
 
 static atButtonState s_buttonState[atKC_Count + atKC_MB_Count];
 
@@ -35,6 +36,7 @@ static atVec2I _lastMousePos;
 static atVec2F _mouseVel;
 static atVec2I _lockPos = { 0,0 };
 static double _dt = 0.0;
+static int64_t _lastClock = 0;
 static bool _mouseLocked = false;
 static atHashMap<int64_t, bool> _windows;
 static atVec2F _mouseScroll;
@@ -52,7 +54,7 @@ static void _UpdateMouse()
     POINT tl = { 0, 0 };
     ClientToScreen(hWnd, &tl);
     atVec2I ps = { p.x - tl.x, p.y - tl.y };
-    atInput::OnMouseMove({ p.x - tl.x, p.y - tl.y }, _dt);
+    atInput::OnMouseMove({ p.x - tl.x, p.y - tl.y });
   }
 }
 
@@ -70,25 +72,29 @@ static HWND _GetFocus()
   return NULL;
 }
 
-void atInput::OnMouseMove(const atVec2I &pos, const double dt)
+void atInput::OnMouseMove(const atVec2I &pos)
 {
   if (!_mouseSet)
     _mousePos = pos;
 
   _lastMousePos = _mousePos;
   _mousePos = pos;
-  _mouseVel = atVec2F(_mousePos - _lastMousePos) / dt;
+  _mouseVel = atVec2F(_mousePos - _lastMousePos) / _dt;
   _mouseSet = true;
 }
 
 bool atInput::Update(const bool escExit, atWindow *pWindow)
 {
+  _dt = double(clock() - _lastClock) / CLOCKS_PER_SEC;
+  _lastClock = clock();
   _UpdateMouse();
   _UpdateButtons();
   
   bool res = atWindow::PumpMessage(pWindow) && (!escExit || !ButtonDown(atKC_Escape));
   return res;
 }
+
+double atInput::DeltaTime() { return _dt; }
 
 void atInput::LockMouse(const bool lock, const atVec2I &pos)
 {
@@ -120,8 +126,8 @@ void atInput::UnRegisterWindow(atSysWndHandle hWnd)
 }
 
 const atButtonState &atInput::GetButton(int64_t keyCode) { return s_buttonState[keyCode]; }
-void atInput::OnButtonDown(const int64_t keyCode, const double dt) { s_buttonState[keyCode].OnDown(dt); }
-void atInput::OnButtonUp(const int64_t keyCode, const double dt) { s_buttonState[keyCode].OnUp(dt); }
+void atInput::OnButtonDown(const int64_t keyCode) { s_buttonState[keyCode].OnDown(_dt); }
+void atInput::OnButtonUp(const int64_t keyCode) { s_buttonState[keyCode].OnUp(_dt); }
 bool atInput::ButtonDown(const int64_t key) { return s_buttonState[key].IsDown(); }
 bool atInput::ButtonUp(const int64_t key) { return s_buttonState[key].IsUp(); }
 bool atInput::ButtonPressed(const int64_t key) { return s_buttonState[key].IsPressed(); }
@@ -157,7 +163,6 @@ const atVec2F& atInput::MouseVelocity() { return _mouseVel; }
 atVec2F atInput::MouseDirection() { return _mouseVel.Normalize(); }
 void atInput::OnMouseWheel(const float scroll) { _mouseScroll.y += scroll; }
 bool atInput::MouseMoved() { return _mousePos != _lastMousePos; }
-void atInput::SetDT(const double dt) { _dt = dt; }
 
 // Giant switch statement coming up
 
@@ -165,16 +170,16 @@ atString atInput::ToString(const int64_t code)
 {
   switch (code)
   {
-  case atKC_0:                  return "_0";
-  case atKC_1:                  return "_1";
-  case atKC_2:                  return "_2";
-  case atKC_3:                  return "_3";
-  case atKC_4:                  return "_4";
-  case atKC_5:                  return "_5";
-  case atKC_6:                  return "_6";
-  case atKC_7:                  return "_7";
-  case atKC_8:                  return "_8";
-  case atKC_9:                  return "_9";
+  case atKC_0:                  return "0";
+  case atKC_1:                  return "1";
+  case atKC_2:                  return "2";
+  case atKC_3:                  return "3";
+  case atKC_4:                  return "4";
+  case atKC_5:                  return "5";
+  case atKC_6:                  return "6";
+  case atKC_7:                  return "7";
+  case atKC_8:                  return "8";
+  case atKC_9:                  return "9";
   case atKC_A:                  return "A";
   case atKC_B:                  return "B";
   case atKC_C:                  return "C";

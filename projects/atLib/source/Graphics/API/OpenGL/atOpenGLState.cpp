@@ -34,7 +34,9 @@ void atOpenGLState::Set(const atRenderState::State &state)
   if (!m_initialised || m_curState.cullEnabled != state.cullEnabled)             _GLFeature(GL_CULL_FACE, state.cullEnabled);
   if (!m_initialised || m_curState.stencilEnabled != state.stencilEnabled)       _GLFeature(GL_STENCIL_TEST, state.cullEnabled);
   if (!m_initialised || m_curState.depthRange != state.depthRange)               glDepthRange(state.depthRange.x, state.depthRange.y);
-  
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   m_initialised = true;
   m_curState = state;
 }

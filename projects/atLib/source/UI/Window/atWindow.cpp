@@ -116,6 +116,8 @@ atCol& atWindow::Pixel(const int64_t &index) { return Pixels()[index]; }
 const atCol& atWindow::Pixel(const atVec2I &coord) const { return Pixel(atToIndex<int64_t>(coord, Size())); }
 const atCol& atWindow::Pixel(const int64_t &index) const { return Pixels()[index]; }
 
+atGraphics* atWindow::Graphics() const { return m_pGfx; }
+
 atVector<atCol>& atWindow::PixelsV() { return m_sysWindow.Pixels(); }
 const atVector<atCol>& atWindow::PixelsV() const { return m_sysWindow.Pixels(); }
 

@@ -11,26 +11,10 @@
 
 class atDXShader : public atShader
 {
+  friend class atDXPrgm;
+
 public:
-  atDXShader(const atString &src, const atPipelineStage &stage) : atShader(src, stage) {}
-
-  bool BindTexture(const atString &name, atTexture *pTexture);
-  bool BindSampler(const atString &name, atSampler *pSampler);
-  bool SetUniform(const atString &name, const void *pData, const atTypeDesc &info);
-  bool HasUniform(const atString &name);
-
-  atVector<atString> Textures() const;
-  atVector<atString> Samplers() const;
-  atVector<atString> Uniforms() const;
-
-  const atVector<uint8_t>& ByteCode() const;
-  
-  int64_t AttributeCount() const;
-  const atString& AttributeName(const int64_t &index) const;
-  const atString& AttributeFullName(const int64_t &index) const;
-  const atTypeDesc& AttributeInfo(const int64_t &index) const;
-  const int64_t& AttributeIndex(const int64_t &index) const;
-  const int64_t& AttributeSlot(const int64_t &index) const;
+  atDXShader(const atPipelineStage &stage) : atShader(stage) {}
 
   bool Delete() override;
   bool Upload() override; // Compiles shader
@@ -38,9 +22,32 @@ public:
 
   atGraphicsAPI API() override { return atGfxApi_DirectX; }
 
+protected:
+  struct UniformLocation
+  {
+    int64_t bufferIdx = -1;
+    int64_t variableIdx = -1;
+  };
+
   void UpdateConstantBuffers();
 
-protected:
+  bool BindTexture(const int64_t &index, atTexture *pTexture);
+  bool BindSampler(const int64_t &index, atSampler *pSampler);
+  bool SetUniform(const int64_t &bufferIdx, const int64_t &varIdx, const void *pData, const atTypeDesc &info);
+
+  int64_t AttributeCount() const;
+  const atString &AttributeName(const int64_t &index) const;
+  const atString &AttributeFullName(const int64_t &index) const;
+  const atTypeDesc &AttributeInfo(const int64_t &index) const;
+  const int64_t &AttributeIndex(const int64_t &index) const;
+  const int64_t &AttributeSlot(const int64_t &index) const;
+
+  const atVector<uint8_t> &ByteCode() const;
+
+  atVector<atString> Textures() const;
+  atVector<atString> Samplers() const;
+  atVector<atKeyValue<atString, UniformLocation>> Uniforms() const;
+
   struct VarDesc
   {
     atString name;

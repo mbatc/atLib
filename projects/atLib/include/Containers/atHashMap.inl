@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 
 #include "atMinMax.h"
+#include "atHashMap.h"
 
 template<typename Key, class Value> atHashMap<Key, Value>::atHashMap(const atHashMap<Key, Value> &copy) { m_buckets = copy.m_buckets; m_size = copy.m_size; }
 template<typename Key, class Value> int64_t atHashMap<Key, Value>::Size() const { return m_size; }
@@ -86,7 +87,7 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Contains(const K
   return false;
 }
 
-template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key &key)
+template<typename Key, class Value> bool atHashMap<Key, Value>::Remove(const Key &key)
 {
   Bucket &bucket = GetBucket(key);
   for (int64_t i = 0; i < bucket.size(); ++i)
@@ -94,8 +95,10 @@ template<typename Key, class Value> void atHashMap<Key, Value>::Remove(const Key
     {
       bucket.swap_pop_back(i);
       --m_size;
-      return;
+      return true;
     }
+
+  return false;
 }
 
 template<typename Key, class Value> Value& atHashMap<Key, Value>::GetOrAdd(const Key &key)
@@ -141,6 +144,12 @@ template<typename Key, class Value> const Value* atHashMap<Key, Value>::TryGet(c
     if (kvp.m_key == key)
       return &kvp.m_val;
   return nullptr;
+}
+
+template<typename Key, class Value> Value atHashMap<Key, Value>::GetOr(const Key &key, const Value &defaultVal) const
+{
+  const Value *pVal = TryGet(key);
+  return pVal ? *pVal : defaultVal;
 }
 
 template<typename Key, class Value> atVector<Key> atHashMap<Key, Value>::GetKeys() const

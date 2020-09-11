@@ -35,6 +35,7 @@
 #include "atAnimation.h"
 #include "atVertexGroup.h"
 #include "atAnimationGroup.h"
+#include "atResourceHandler.h"
 
 enum atVertexElement
 {
@@ -171,5 +172,15 @@ atTrivialStreamWrite(atMesh::Vertex);
 
 int64_t atStreamRead(atReadStream *pStream, atMesh *pData, const int64_t count);
 int64_t atStreamWrite(atWriteStream *pStream, const atMesh *pData, const int64_t count);
+
+namespace atResourceHandlers
+{
+  class MeshHandler : public atResourceHandler<atMesh>
+  {
+  public:
+    MeshHandler() : atResourceHandler("Mesh") {}
+    bool Load(const atObjectDescriptor &request, atMesh *pResource) override;
+  };
+};
 
 #endif

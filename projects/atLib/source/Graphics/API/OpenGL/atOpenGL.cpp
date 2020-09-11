@@ -64,7 +64,7 @@ atGFXContextState* atOpenGL::GetState() { return m_pState; }
 
 void atOpenGL::ClearColour(const atVec4F &colour)
 {
-  glClearColor(colour.x, colour.y, colour.z, colour.w);
+  glClearColor(colour.x, colour.y, colour.z, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -87,14 +87,16 @@ void atOpenGL::SetWindowed(const bool &windowed)
   // Not sure what to do here yet.
 }
 
+void atOpenGL::BindContext() { BindContext(m_ctx); }
+
 atGraphicsAPI atOpenGL::API() { return atGfxApi_OpenGL; }
 
-atSampler*      atOpenGL::CreateSampler()                                                 { return nullptr; }
-atGPUBuffer*    atOpenGL::CreateBuffer(const atBufferType &type)                          { return atNew<atGLBuffer>(type); }
-atTexture*      atOpenGL::CreateTexture(const atTextureType &type)                        { return atNew<atGLTexture>(type); }
-atShader*       atOpenGL::CreateShader(const atString &src, const atPipelineStage &stage) { return atNew<atGLShader>(src, stage); }
-atProgram*      atOpenGL::CreateProgram()                                                 { return atNew<atGLPrgm>(); }
-atRenderTarget* atOpenGL::CreateRenderTarget()                                            { return atNew<atGLRenderTarget>(); }
+atSampler*      atOpenGL::CreateSampler()                                             { return nullptr; }
+atGPUBuffer*    atOpenGL::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew<atGLBuffer>(type, size); }
+atTexture*      atOpenGL::CreateTexture(const atTextureType &type)                    { return atNew<atGLTexture>(type); }
+atShader*       atOpenGL::CreateShader(const atPipelineStage &stage)                  { return atNew<atGLShader>(stage); }
+atProgram*      atOpenGL::CreateProgram()                                             { return atNew<atGLPrgm>(); }
+atRenderTarget* atOpenGL::CreateRenderTarget()                                        { return atNew<atGLRenderTarget>(); }
 
 static void GLAPIENTRY _ErrorMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {

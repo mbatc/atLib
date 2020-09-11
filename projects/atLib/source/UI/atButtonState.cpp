@@ -36,8 +36,8 @@ static void _DoBTLogic(const bool newState, bool *pState, bool *pPressed, bool *
 }
 
 void atButtonState::Update(const double dt) { _DoBTLogic(m_down, &m_down, &m_pressed, &m_released, &m_downTime, &m_upTime, &m_dblClickCount, dt); }
-void atButtonState::OnDown(const double dt) { _DoBTLogic(true, &m_down, &m_pressed, &m_released, &m_downTime, &m_upTime, &m_dblClickCount, dt); }
-void atButtonState::OnUp(const double dt) { _DoBTLogic(false, &m_down, &m_pressed, &m_released, &m_downTime, &m_upTime, &m_dblClickCount, dt); }
+void atButtonState::OnDown(const double dt) { _DoBTLogic(true, &m_down, &m_pressed, &m_released, &m_downTime, &m_upTime, &m_dblClickCount, 0); }
+void atButtonState::OnUp(const double dt) { _DoBTLogic(false, &m_down, &m_pressed, &m_released, &m_downTime, &m_upTime, &m_dblClickCount, 0); }
 bool atButtonState::IsPressed() const { return m_pressed; }
 bool atButtonState::IsReleased() const { return m_released; }
 bool atButtonState::IsDown() const { return m_down; }

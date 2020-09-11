@@ -41,11 +41,11 @@ int64_t atFont::Resolution() const { return m_resolution; }
 
 atTexture* atFont::GetTexture(const bool updateTexture)
 {
-  atUnused(updateTexture);
   if (!m_pTexture)
     m_pTexture = atGraphics::GetCurrent()->CreateTexture();
   if (m_stale && updateTexture)
     m_pTexture->Set(m_bitmap);
+  m_stale = false;
   return m_pTexture;
 }
 
@@ -129,14 +129,53 @@ atVec2F atFont::FindWhitePixel()
   return m_lastWhiteUV;
 }
 
-atFont::Glyph atFont::GetGlyph(const uint32_t codepoint)
+atRectF atFont::CalcTextBounds(const atString &text, const float &scale /*= 1*/)
 {
-  atAssert(m_font.data != nullptr, "Font is not initialised!");
+  atVec2F pos = 0;
+  float lineHeight = 0;
+  atRectF bounds;
+  for (const char c : text)
+  {
+    atFont::Glyph g = GetGlyph(c, scale);
+    atVec4F rect(float(pos.x), float(pos.y + g.yOff), float(pos.x + g.width), float(pos.y + g.height + g.yOff));
+    bounds.GrowToContain(rect.xy());
+    bounds.GrowToContain(rect.zw());
+    AdvanceCursor(c, g, &lineHeight, &pos);
+  }
+  return bounds;
+}
+
+void atFont::AdvanceCursor(const char c, const Glyph &g, float *pLineHeight, atVec2F *pPos, const atVec2F &tl /*= { 0,0 }*/) const
+{
+  pPos->x += g.advance;
+  *pLineHeight = atMax(*pLineHeight, pPos->y + g.height);
+  if (c == '\n')
+  {
+    pPos->y = *pLineHeight;
+    pPos->x = tl.x;
+    *pLineHeight = 0;
+  }
+}
+
+bool atFont::IsValid() const { return m_font.data != nullptr; }
+
+atFont::Glyph atFont::GetGlyph(const uint32_t &codepoint, const float &scale)
+{
+  atAssert(IsValid(), "Font is not initialised!");
   if (!m_glyphs.Contains(codepoint))
     m_glyphs.Add(codepoint, LoadGlyph(codepoint));
   Glyph g = m_glyphs.Get(codepoint);
+
+  // Calculate UVs
   g.tl /= m_bitmap.Size();
   g.br /= m_bitmap.Size();
+
+  // Scale geometry
+  g.advance *= scale;
+  g.xOff *= scale;
+  g.yOff *= scale;
+  g.width *= scale;
+  g.height *= scale;
   return g;
 }
 
@@ -152,7 +191,7 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
 
   if (m_nextPos.x + width >= m_bitmap.Width())
   {
-    m_nextPos.y += m_lastRowHeight;
+    m_nextPos.y += m_lastRowHeight + m_padding;
     m_lastRowHeight = 0;
     m_nextPos.x = m_nextPos.y > m_lastSize.y ? 0 : m_lastSize.x;
   }
@@ -173,15 +212,15 @@ atFont::Glyph atFont::LoadGlyph(const uint32_t codepoint)
   glyph.br = atVec2I{ m_nextPos.x + (int32_t)width, m_nextPos.y  };
 
   m_stale = true;
-  m_nextPos.x += (int32_t)width;
+  m_nextPos.x += (int32_t)width + m_padding;
   m_lastRowHeight = atMax(m_lastRowHeight, height);
 
-  double ratio = (double)m_height / (double)m_resolution;
-  glyph.xOff = (int32_t)ceil(x0 * ratio);
-  glyph.yOff = (int32_t)ceil(y0 * ratio);
-  glyph.width = (int64_t)ceil(width * ratio);
-  glyph.height = (int64_t)ceil(height * ratio);
-  glyph.advance = (int64_t)(advance * m_scale * ratio);
+  float ratio = (float)m_height / (float)m_resolution;
+  glyph.xOff = (float)ceil(x0 * ratio);
+  glyph.yOff = (float)ceil(y0 * ratio);
+  glyph.width = (float)ceil(width * ratio);
+  glyph.height = (float)ceil(height * ratio);
+  glyph.advance = advance * m_scale * ratio;
   return glyph;
 }
 
@@ -191,4 +230,13 @@ void atFont::ResizeBitmap(const atVec2I &size)
   m_bitmap = m_bitmap.Pad(0, 0, size.y - m_bitmap.Height(), size.x - m_bitmap.Width());
   m_nextPos.x = m_lastSize.x;
   m_nextPos.y = 0;
+}
+
+bool atResourceHandlers::FontHandler::Load(const atObjectDescriptor &request, atFont *pResource)
+{
+  atString path = request["url"].AsString();
+  int64_t scale = request["scale"].AsInt(24);
+  int64_t res = request["resolution"].AsInt(-1);
+  atConstruct(pResource, path, scale, res);
+  return pResource->IsValid();
 }

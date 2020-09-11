@@ -16,7 +16,17 @@ public:
   bool BindSampler(const atString &name, atSampler *pSampler) override;
 
   bool SetUniform(const atString &name, const void *pData, const atTypeDesc &info) override;
-  bool HasUniform(const atString &name) override;
+  bool HasUniform(const atString &name) const override;
+
+  int64_t FindUniform(const atString &index) const override;
+  int64_t FindAttribute(const atString &index) const override;
+  int64_t FindTexture(const atString &index) const override;
+  int64_t FindSampler(const atString &index) const override;
+
+  bool BindAttribute(const int64_t &index, atGPUBuffer *pBuffer) override;
+  bool BindTexture(const int64_t &index, atTexture *pTexture) override;
+  bool BindSampler(const int64_t &index, atSampler *pSampler) override;
+  bool SetUniform(const int64_t &index, const void *pData, const atTypeDesc &info) override;
 
   bool Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType = atGFX_PT_TriangleList, const int64_t &elementCount = -1, const int64_t &elementOffset = 0, const int64_t &baseVtxIdx = 0) override;
 
@@ -55,9 +65,13 @@ protected:
   int64_t m_vertexCount = INT64_MAX;
   atType m_indicesType = atType_Unknown;
 
-  atHashMap<atString, VarDesc> m_uniforms;
-  atHashMap<atString, TexDesc> m_textures;
-  atHashMap<atString, AttributeDesc> m_attributes;
+  atVector<VarDesc> m_uniforms;
+  atVector<TexDesc> m_textures;
+  atVector<AttributeDesc> m_attributes;
+
+  atHashMap<atString, int64_t> m_uniformLookup;
+  atHashMap<atString, int64_t> m_textureLookup;
+  atHashMap<atString, int64_t> m_attributeLookup;
 };
 
 #endif // atGLPrgm_h__

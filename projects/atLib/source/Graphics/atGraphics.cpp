@@ -68,8 +68,14 @@ void atGraphics::Release(atGFXResource *pResource)
 {
   if (pResource && pResource->Release())
     atDelete(pResource);
+  pResource = nullptr;
 }
 
-void atGraphics::SetCurrent(atGraphics *pContext) { _pCurrent = pContext; }
+void atGraphics::SetCurrent(atGraphics *pContext)
+{
+  if (_pCurrent == pContext)
+    return;
+  _pCurrent = pContext;
+}
 
 atGraphics* atGraphics::GetCurrent() { return _pCurrent; }

@@ -77,13 +77,13 @@ bool atXML::Parse(const atString &xml)
 void atXML::SetTag(const atString &tag) { m_tag = tag; }
 const atString& atXML::GetTag() const { return m_tag; }
 
-void atXML::SetAttributeValue(const atString &name, const atString &value)
+void atXML::SetAttribute(const atString &name, const atString &value)
 {
   if (!m_attributes.TryAdd(name, value))
     m_attributes[name] = value;
 }
 
-atString atXML::GetAttributeValue(const atString &name) const
+atString atXML::GetAttribute(const atString &name) const
 {
   const atString *pValue = m_attributes.TryGet(name);
   return pValue ? *pValue : "";
@@ -97,6 +97,12 @@ int64_t atXML::AsInt() const { return atScan::Int(m_value); }
 bool atXML::AsBool() const { return m_value == "1" || m_value.compare("true", atSCO_None); }
 
 const atString& atXML::AsString() const { return m_value; }
+
+void atXML::Set(const bool &value) { Set(atString(value)); }
+void atXML::Set(const double &value) { Set(atString(value)); }
+void atXML::Set(const int64_t &value) { Set(atString(value)); }
+void atXML::Set(const atString &value) { m_value = value; }
+
 int64_t atXML::GetChildCount() const { return m_children.size(); }
 
 atXML* atXML::GetChild(const int64_t &index) { return index >= 0 && index < m_children.size() ? &m_children[index] : nullptr; }
@@ -211,7 +217,7 @@ int64_t atXML::BuildElement(atStringSeeker *pSeeker, atXML *pElem, atVector<atSt
   }
 
   for (int64_t attrIdx = 0; attrIdx < (int64_t)attributes.size(); ++attrIdx)
-    pElem->SetAttributeValue(attributes[attrIdx], attrValues[attrIdx]);
+    pElem->SetAttribute(attributes[attrIdx], attrValues[attrIdx]);
 
   pSeeker->Seek(end - pSeeker->begin() + 1 + !hasBody, atSO_Start);
 

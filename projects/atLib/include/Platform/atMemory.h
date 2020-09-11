@@ -117,4 +117,3 @@ template<typename T> inline T* atNewArray(const int64_t size, const T &copy) { r
 template<typename T, typename... Args> inline void atConstruct(T *pVal, Args&&... args) { new(pVal) T(std::forward<Args>(args)...); }
 
 #endif
-

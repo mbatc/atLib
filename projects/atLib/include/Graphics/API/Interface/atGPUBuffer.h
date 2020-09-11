@@ -5,41 +5,97 @@
 #include "atGFXResource.h"
 #include <memory>
 
+enum atGPUBuffer_MapFlags
+{
+  atGB_MF_Read = 1 << 0,
+  atGB_MF_Write = 1 << 1,
+  atGB_MF_ReadWrite = atGB_MF_Read | atGB_MF_Write,
+};
+
+template<typename T> class atGPUMappedBuffer
+{
+  friend class atGPUBuffer;
+
+  atGPUMappedBuffer(atGPUBuffer *pBuffer, const atGPUBuffer_MapFlags &flags);
+  ~atGPUMappedBuffer();
+
+public:
+  // Get the element at the specified index
+  T& operator[](const int64_t &index);
+  const T& operator[](const int64_t &index) const;
+
+  // Get the element at the specified index
+  T& at(const int64_t &index);
+  const T& at(const int64_t &index) const;
+
+  // Get the buffers size in elements
+  int64_t Size() const;
+
+  // Get the buffers size in bytes
+  int64_t SizeBytes() const;
+
+  // Get a pointer to the mapped buffer
+  T* Buffer() const;
+
+  // Iterators
+  T* begin();
+  T* end();
+  const T* begin() const;
+  const T* end() const;
+
+protected:
+  atGPUBuffer *m_pBuffer;
+  T *m_pMappedBuffer;
+  int64_t m_elementCount;
+};
+
 class atGPUBuffer : public atGFXResource
 {
 public:
   atGPUBuffer(const atBufferType &bufferType);
-  template<typename T> void Set(const T &data);
+
+  // Set the buffer from a vector of values
   template<typename T> void Set(const atVector<T> &data);
+
+  // Set the buffer data
   void Set(const void *pData, const int64_t &bufLen, const atTypeDesc &desc);
 
-  virtual bool Sync() { return false; }   // Sync the CPU buffer with the GPU version
-  virtual bool Update() { return false; }
+  // Set the size of the buffer
+  virtual bool Resize(const int64_t &size) = 0;
 
-  const atTypeDesc& Desc() { return m_bufferInfo; }
-  const atBufferType& Type() { return m_mapping; }
-  const atVector<uint8_t>& Data() { return m_data; } // Return the CPU side buffer may not be up to date
-  const int64_t& Size() { return m_data.size(); }    // Return the size of the buffer
-  int64_t Count() { return Size() / (m_bufferInfo.size * m_bufferInfo.width); }
+  // Download the buffer from the GPU as an array of bytes
+  atVector<uint8_t> Download();
+
+  // Download the buffer from the GPU as an array of elements
+  // This does not convert data. T should be the same as the
+  // buffers primitive type
+  template<typename T> atVector<T> Download();
+
+  // Get a pointer to readable/writeable client memory
+  virtual void* Map(const atGPUBuffer_MapFlags &flags) = 0;
+  virtual bool Unmap() = 0;
+
+  // Get a typed mapped buffer for reading or writing
+  template<typename T> atGPUMappedBuffer<T> Map(const atGPUBuffer_MapFlags &flags);
+
+  // Get the primitive type information of the buffer
+  const atTypeDesc& Desc();
+
+  // Get the type of the buffer
+  const atBufferType& Type();
+
+  // Return the size of the buffer in bytes
+  const int64_t& Size();
+
+  // Get the number of elements in the buffer
+  int64_t Count();
 
 protected:
   atTypeDesc m_bufferInfo;
   atBufferType m_mapping;
-  atVector<uint8_t> m_data;
+  int64_t m_bufferSize;
 };
 
-template<typename T> void atGPUBuffer::Set(const T &data)
-{
-  Set((const void*)&data, sizeof(T), atGetTypeDesc(data));
-  if (m_pResource)
-    Update();
-}
-
-template<typename T> void atGPUBuffer::Set(const atVector<T> &data)
-{
-  Set((const void*)data.data(), sizeof(T) * data.size(), atGetTypeDesc(data));
-  if (m_pResource)
-    Update();
-}
+#include "atGPUBuffer.inl"
 
 #endif // atGFXBufferInterface_h__

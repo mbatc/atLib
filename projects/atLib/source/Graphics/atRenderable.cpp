@@ -2,17 +2,23 @@
 
 template<typename T> void _SetNamedItem(atVector<atKeyValue<atString, T>> *pVec, const atString &name, const T &value)
 {
+  if (value)
+    value->AddReference();
+
   for (auto &kvp : *pVec)
     if (kvp.m_key == name)
     {
-      atGraphics *pCtx = atGraphics::GetCurrent();
       if (kvp.m_val)
-        pCtx->Release(kvp.m_val);
+        atGraphics::Release(kvp.m_val);
       kvp.m_val = value;
+
+      if (!value)
+        pVec->erase(&kvp - pVec->begin());
       return;
     }
 
-  pVec->push_back({ name, value });
+  if (value)
+    pVec->push_back({ name, value });
 }
 
 atRenderable::atRenderable(atRenderable &&o)
@@ -110,6 +116,20 @@ atSampler* atRenderable::GetSampler(const atString &name)
   return nullptr;
 }
 
+void atRenderable::Clear()
+{
+  for (auto &kvp : m_attributes) atGraphics::Release(kvp.m_val);
+  for (auto &kvp : m_samplers) atGraphics::Release(kvp.m_val);
+  for (auto &kvp : m_textures) atGraphics::Release(kvp.m_val);
+  atGraphics::Release(m_pPrgm);
+
+  m_uniforms.clear();
+  m_samplers.clear();
+  m_textures.clear();
+  m_attributes.clear();
+  m_pPrgm = nullptr;
+}
+
 atGPUBuffer* atRenderable::GetAttribute(const atString &name)
 {
   for (const atKeyValue<atString, atGPUBuffer*> &kvp : m_attributes)
@@ -123,35 +143,27 @@ atProgram* atRenderable::GetProgram() { return m_pPrgm; }
 void atRenderable::SetProgram(atProgram* pProgram)
 {
   atGraphics *pCtx = atGraphics::GetCurrent();
-  pProgram->AddReference();
+  if (pProgram)
+    pProgram->AddReference();
   if (m_pPrgm)
     pCtx->Release(m_pPrgm);
   m_pPrgm = pProgram;
 }
 
-void atRenderable::SetTexture(const atString &name, atTexture* pTexture)
+void atRenderable::SetTexture(const atString &name, atTexture* pTexture) { _SetNamedItem(&m_textures, name, pTexture); }
+void atRenderable::SetSampler(const atString &name, atSampler* pSampler) { _SetNamedItem(&m_samplers, name, pSampler); }
+void atRenderable::SetAttribute(const atString &name, atGPUBuffer* pAttribute) { _SetNamedItem(&m_attributes, name, pAttribute); }
+
+void atRenderable::ClearAttribute(const atString &name) { _SetNamedItem(&m_attributes, name, (atGPUBuffer*)nullptr); }
+void atRenderable::ClearTexture(const atString &name) { _SetNamedItem(&m_textures, name, (atTexture*)nullptr); }
+void atRenderable::ClearSampler(const atString &name) { _SetNamedItem(&m_samplers, name, (atSampler*)nullptr); }
+
+void atRenderable::ClearUniform(const atString &name)
 {
-  if (!pTexture)
-    return;
-
-  pTexture->AddReference();
-  _SetNamedItem(&m_textures, name, pTexture);
-}
-
-void atRenderable::SetSampler(const atString &name, atSampler* pSampler)
-{
-  if (!pSampler)
-    return;
-
-  pSampler->AddReference();
-  _SetNamedItem(&m_samplers, name, pSampler);
-}
-
-void atRenderable::SetAttribute(const atString &name, atGPUBuffer* pAttribute)
-{
-  if (!pAttribute)
-    return;
-
-  pAttribute->AddReference();
-  _SetNamedItem(&m_attributes, name, pAttribute);
+  for (auto &kvp : m_uniforms)
+    if (kvp.m_key == name)
+    {
+      m_uniforms.erase(&kvp - m_uniforms.begin());
+      return;
+    }
 }

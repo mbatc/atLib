@@ -57,15 +57,14 @@ bool atGLTexture::Upload()
     break;
   case atTexture_2D:
     for (int64_t layer = 0; layer < m_layerCount; ++layer)
-      glTexImage2D(target, (GLint)layer, GL_RGBA8, (GLsizei)m_size.x, (GLsizei)m_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pixels.data());
+      glTexImage2D(target, (GLint)layer, GL_RGBA, (GLsizei)m_size.x, (GLsizei)m_size.y, 0, glPxlFmt, glPxlType, m_pixels.data());
     break;
   case atTexture_3D:
     glTexImage3D(target, 0, glInternalFmt, (GLsizei)m_size.x, (GLsizei)m_size.y, (GLsizei)m_layerCount, 0, glPxlFmt, glPxlType, m_pixels.data());
     break;
   }
 
-  if (m_genMipmaps)
-    GenerateMipmaps();
+  GenerateMipmaps();
   m_genMipmaps = false;
 
 #ifdef _DEBUG

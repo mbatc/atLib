@@ -35,6 +35,8 @@
 // THIRD PARTY INCLUDES
 
 #include "../../3rdParty/stb/stb_truetype.h" // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
+#include "atRect.h"
+#include "atResourceHandler.h"
 
 // --------------------
 
@@ -45,11 +47,11 @@ public:
   {
     atVec2F tl;       // Top left UV of the character (0-1)
     atVec2F br;       // Bottom right UV of the character (0-1)
-    int32_t xOff;       // Horizontal offset to apply when drawing character in Pixels
-    int32_t yOff;       // Vertical offset to apply when drawing character in Pixels
-    int64_t advance;  // Distance to move cursor horizontally 
-    int64_t width;    // Width of the glyph in pixels
-    int64_t height;   // Height of the glyph in pixels
+    float xOff;       // Horizontal offset to apply when drawing character in Pixels
+    float yOff;       // Vertical offset to apply when drawing character in Pixels
+    float advance;  // Distance to move cursor horizontally 
+    float width;    // Width of the glyph in pixels
+    float height;   // Height of the glyph in pixels
   };
 
   atFont(const atFilename &filename = "", const int64_t scale = 32, const int64_t resolution = -1);
@@ -63,16 +65,15 @@ public:
   // when it is first used, and stored for later
   //
   // Glyphs are not loaded if they are not used
-  Glyph GetGlyph(const uint32_t codepoint);
+  Glyph GetGlyph(const uint32_t &codepoint, const float &scale = 1);
 
   // Get the font texture
-  const atImage &Bitmap() const;
+  const atImage& Bitmap() const;
 
   // Get the font filename
-  const atFilename &Filename() const;
+  const atFilename& Filename() const;
 
-  // This value should not be stored as a call to GetTextureID() will 
-  // also update the Texture if new glyphs are loaded
+  // Get the texture object for the font
   atTexture* GetTexture(const bool updateTexture = true);
 
   int64_t Height() const;
@@ -80,6 +81,12 @@ public:
 
   // Returns the UV of a white pixel
   atVec2F FindWhitePixel();
+
+  atRectF CalcTextBounds(const atString &text, const float &scale = 1);
+
+  void AdvanceCursor(const char c, const atFont::Glyph &g, float *pLineHeight, atVec2F *pPos, const atVec2F &tl = { 0,0 }) const;
+
+  bool IsValid() const;
 
 protected:
   Glyph LoadGlyph(const uint32_t codepoint);
@@ -96,11 +103,24 @@ protected:
   int64_t m_height = 0;
   int64_t m_resolution = 0;
 
+  int32_t m_padding = 4;
   atTexture* m_pTexture = nullptr;
+  int32_t m_padding = 4;
   int32_t m_lastRowHeight = 0;
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();
   atVec2F m_lastWhiteUV = atVec2F::zero();
+};
+
+namespace atResourceHandlers
+{
+  class FontHandler : public atResourceHandler<atFont>
+  {
+  public:
+    FontHandler() : atResourceHandler("Font") {}
+
+    bool Load(const atObjectDescriptor &request, atFont *pResource) override;
+  };
 };
 
 #endif // atFont_h__

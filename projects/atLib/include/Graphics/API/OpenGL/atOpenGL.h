@@ -38,12 +38,14 @@ public:
   void Resize(const atVec2I &size) override;
   void SetWindowed(const bool &windowed) override;
 
+  void BindContext() override;
+
   atGraphicsAPI API() override;
 
-  atGPUBuffer*    CreateBuffer(const atBufferType &type) override;
+  atGPUBuffer*    CreateBuffer(const atBufferType &type, const int64_t &size = 0) override;
   atTexture*      CreateTexture(const atTextureType &type) override;
   atSampler*      CreateSampler() override;
-  atShader*       CreateShader(const atString &src, const atPipelineStage &stage) override;
+  atShader*       CreateShader(const atPipelineStage &stage) override;
   atProgram*      CreateProgram() override;
   atRenderTarget* CreateRenderTarget() override;
 
@@ -54,6 +56,7 @@ protected:
   static atGLCtx CreateContext(atWindow *pWindow, const bool &vsyncEnabled = true);
   static void DestroyContext(atGLCtx ctx);
   static void Swap(atGLCtx ctx);
+  static void BindContext(atGLCtx ctx);
 
   // atGLCtx implementation is hidden from the user as the definition
   // of this struct will change depending on the platform

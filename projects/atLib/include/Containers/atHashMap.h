@@ -99,7 +99,7 @@ public:
 
   bool Contains(const Key &key) const;
 
-  void Remove(const Key &key);
+  bool Remove(const Key &key);
 
   Value& GetOrAdd(const Key &key);
   Value& Get(const Key &key);
@@ -109,6 +109,8 @@ public:
   const Value* TryGet(const Key &key) const;
   const Value& Get(const Key &key) const;
   const Value& operator[](const Key &key) const;
+
+  Value GetOr(const Key &key, const Value &value) const;
 
   atVector<Key> GetKeys() const;
   atVector<Value> GetValues() const;

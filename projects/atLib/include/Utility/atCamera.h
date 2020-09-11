@@ -31,26 +31,31 @@
 #include "atTimespan.h"
 #include "atTransformable.h"
 
-class atCamera : public atTransformable<double>
+class atProjection
 {
 public:
-  atCamera(const double aspect = 1.0, const double FOV = atDegs2Rads(60), const double nearPlane = 0.1, const double farPlane = 1000.0);
+  atProjection(const atVec2I &viewDims, const double &FOV = atDegs2Rads(60), const double &nearPlane = 0.1, const double &farPlane = 1000.0);
+  atProjection(const double &aspect = 1.0, const double &FOV = atDegs2Rads(60), const double &nearPlane = 0.1, const double &farPlane = 1000.0);
+
+  atMat4D ProjectionMat(const double &clipNearZ = atClipNearZ<double>(), const double &clipFarNear = atClipFarZ<double>()) const;
+
+  atVec4I viewport = -1;
+
+  double fov;
+  double aspect;
+  double farPlane;
+  double nearPlane;
+};
+
+class atCamera : public atProjection, public atTransformable<double>
+{
+public:
+  atCamera(const atVec3D &pos = { 0, 0, 0 }, const atVec3D &rotation = { 0, 0, 0 }, const double &aspect = 1.0, const double &FOV = atDegs2Rads(60), const double &nearPlane = 0.1, const double &farPlane = 1000.0);
 
   void SetViewport(const atVec4I viewport);
   void SetViewport(const atWindow *pWindow);
-  atVec4I Viewport() const;
-  
-  atMat4D ProjectionMat(const double &clipNearZ = atClipNearZ<double>(), const double &clipFarNear = atClipFarZ<double>()) const;
-  atMat4D ViewMat() const;
 
-  double m_fov;
-  double m_aspect;
-  double m_farPlane;
-  double m_nearPlane;
-  atVec2F m_depthRange = atVec2I(0, 1);
- 
-protected:
-  atVec4I m_viewport = -1;
+  atMat4D ViewMat() const;
 };
 
 class atFPSCamera : public atCamera

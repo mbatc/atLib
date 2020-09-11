@@ -141,3 +141,16 @@ int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int
     ret += atStreamWrite(pStream, &fn.m_fullpath, 1);
   return ret;
 }
+
+bool atSerialize(atObjectDescriptor *pSerialized, const atFilename &src)
+{
+  pSerialized->Set(src.m_fullpath);
+  return true;
+}
+
+bool atDeserialize(const atObjectDescriptor &serialized, atFilename *pDst)
+{
+  atString fullPath = serialized.AsString(pDst->m_fullpath);
+  *pDst = atFilename(fullPath);
+  return true;
+}

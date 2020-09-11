@@ -26,7 +26,9 @@
 #ifndef atMemoryWriter_h__
 #define atMemoryWriter_h__
 
+#include "atVector.h"
 #include "atFileCommon.h"
+#include "atWriteStream.h"
 
 class atMemoryWriter : public atWriteStream
 {

@@ -23,6 +23,11 @@ public:
   void SetSampler(const atString &name, atSampler *pSampler);
   void SetAttribute(const atString &name, atGPUBuffer *pAttribute);
 
+  void ClearAttribute(const atString &name);
+  void ClearTexture(const atString &name);
+  void ClearSampler(const atString &name);
+  void ClearUniform(const atString &name);
+
   bool GetUniform(const atString &name, atVector<uint8_t> *pData = nullptr, atTypeDesc *pInfo = nullptr);
 
   atProgram* GetProgram();
@@ -32,6 +37,8 @@ public:
 
   template<typename T> void SetUniform(const atString &name, const T &value);
   template<typename T> void SetUniform(const atString &name, const atVector<T> &value);
+
+  void Clear();
 
 protected:
   struct Uniform

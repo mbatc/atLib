@@ -27,6 +27,7 @@
 #define atImage_h__
 
 #include "atImageHelper.h"
+#include "atResourceHandler.h"
 
 enum atSampleType
 {
@@ -70,6 +71,17 @@ public:
 protected:
   atVec2I m_size;
   atVector<atCol> m_pixels;
+};
+
+namespace atResourceHandlers
+{
+  class ImageHandler : public atResourceHandler<atImage>
+  {
+  public:
+    ImageHandler() : atResourceHandler("Image") {}
+
+    bool Load(const atObjectDescriptor &request, atImage *pResource) override;
+  };
 };
 
 #endif // atImage_h__

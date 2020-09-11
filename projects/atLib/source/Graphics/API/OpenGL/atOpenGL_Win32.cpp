@@ -121,4 +121,6 @@ void atOpenGL::DestroyContext(atGLCtx ctx)
 
 void atOpenGL::Swap(atGLCtx ctx) { SwapBuffers(ctx->hDC); }
 
+void atOpenGL::BindContext(atGLCtx ctx) { wglMakeCurrent(ctx->hDC, ctx->hGL); }
+
 #endif

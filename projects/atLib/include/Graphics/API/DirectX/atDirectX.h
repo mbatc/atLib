@@ -22,10 +22,12 @@ public:
   
   atGFXContextState* GetState();
 
-  atGPUBuffer*    CreateBuffer(const atBufferType &type) override;
+  void BindContext() override;
+
+  atGPUBuffer*    CreateBuffer(const atBufferType &type, const int64_t &size) override;
   atTexture*      CreateTexture(const atTextureType &type) override;
   atSampler*      CreateSampler() override;
-  atShader*       CreateShader(const atString &src, const atPipelineStage &stage) override;
+  atShader*       CreateShader(const atPipelineStage &stage) override;
   atProgram*      CreateProgram() override;
   atRenderTarget* CreateRenderTarget() override;
 

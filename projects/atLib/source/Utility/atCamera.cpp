@@ -26,23 +26,31 @@
 #include "atCamera.h"
 #include "atInput.h"
 
+atProjection::atProjection(const atVec2I &viewDims, const double &FOV, const double &nearPlane, const double &farPlane)
+  : atProjection((double)viewDims.x / viewDims.y, FOV, nearPlane, farPlane)
+{}
+
+atProjection::atProjection(const double &aspect, const double &FOV, const double &nearPlane, const double &farPlane)
+  : fov(FOV)
+  , aspect(aspect)
+  , nearPlane(nearPlane)
+  , farPlane(farPlane)
+{}
+
+atMat4D atProjection::ProjectionMat(const double &clipNearZ, const double &clipFarZ) const
+{
+  return atMatrixProjection(aspect, fov, nearPlane, farPlane, clipNearZ, clipFarZ);
+}
+
 // Base camera - only provides a projection matrix - static camera
-atCamera::atCamera(const double aspect, const double FOV, const double nearPlane, const double farPlane)
-  : m_fov(FOV)
-  , m_nearPlane(nearPlane)
-  , m_farPlane(farPlane)
-  , m_aspect(aspect)
+atCamera::atCamera(const atVec3D &pos, const atVec3D &rotation, const double &aspect, const double &FOV, const double &nearPlane, const double &farPlane)
+  : atProjection(aspect, FOV, nearPlane, farPlane)
 {}
 
 void atCamera::SetViewport(const atVec4I viewport)
 {
-  m_viewport = viewport;
-  m_aspect = (double)(viewport.z) / (double)(viewport.w);
-}
-
-atMat4D atCamera::ProjectionMat(const double &clipNearZ, const double &clipFarZ) const
-{
-  return atMatrixProjection(m_aspect, m_fov, m_nearPlane, m_farPlane, clipNearZ, clipFarZ);
+  this->viewport = viewport;
+  aspect = (double)(viewport.z) / (double)(viewport.w);
 }
 
 void atCamera::SetViewport(const atWindow *pWnd)
@@ -53,11 +61,6 @@ void atCamera::SetViewport(const atWindow *pWnd)
 atMat4D atCamera::ViewMat() const
 {
   return TransformMat().Inverse();
-}
-
-atVec4I atCamera::Viewport() const
-{
-  return m_viewport;
 }
 
 bool atFPSCamera::Update(const atNanoSeconds &dt)
@@ -75,7 +78,7 @@ bool atFPSCamera::Update(const atNanoSeconds &dt)
   }
   else
   {
-    rot = { -dMouse.y * msRotSpeed * m_aspect * m_sensitivity.x, -dMouse.x * msRotSpeed * m_sensitivity.y };
+    rot = { -dMouse.y * msRotSpeed * aspect * m_sensitivity.x, -dMouse.x * msRotSpeed * m_sensitivity.y };
     atInput::LockMouse(true);
   }
   

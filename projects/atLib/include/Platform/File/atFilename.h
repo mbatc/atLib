@@ -27,6 +27,7 @@
 #define _atFilename_h__
 
 #include "atString.h"
+#include "atObjectDescriptor.h"
 
 class atFilename
 {
@@ -66,6 +67,9 @@ public:
 
   friend int64_t atStreamRead(atReadStream *pStream, atFilename *pData, const int64_t count);
   friend int64_t atStreamWrite(atWriteStream *pStream, const atFilename *pData, const int64_t count);
+
+  friend bool atSerialize(atObjectDescriptor *pSerialized, const atFilename &src);
+  friend bool atDeserialize(const atObjectDescriptor &serialized, atFilename *pDst);
 
 protected:
   atString m_fullpath;

@@ -175,8 +175,10 @@ static bool _Initialise()
   io.Fonts->TexID = (ImTextureID)pTex;
 
   _pPrgm = pGfx->CreateProgram();
-  _pVertShader = pGfx->CreateShader(_vertShaderSrc, atPS_Vertex);
-  _pFragShader = pGfx->CreateShader(_fragShaderSrc, atPS_Fragment);
+  _pVertShader = pGfx->CreateShader(atPS_Vertex);
+  _pVertShader->SetSource(_vertShaderSrc);
+  _pFragShader = pGfx->CreateShader(atPS_Fragment);
+  _pFragShader->SetSource(_fragShaderSrc);
   _pSampler = pGfx->CreateSampler();
 
   _pPrgm->SetStage(_pVertShader);
