@@ -26,9 +26,11 @@
 #ifndef atBPGNetwork_h__
 #define atBPGNetwork_h__
 
+#include "atSerialize.h"
 #include "atMatrixNxM.h"
+#include "atPredictiveModel.h"
 
-class atBPGNetwork
+class atBPGNetwork : public atPredictiveModel
 {
 public:
   struct Layer
@@ -41,29 +43,33 @@ public:
 
   atBPGNetwork(int64_t inputSize, int64_t outputSize, int64_t layerCount, int64_t layerSize = 16);
 
-  atVector<double> Run(const atVector<double> &input) const;
+  virtual atVector<double> Predict(const atVector<double> &input);
 
   // Train on a specific input/output
-  bool Train(const atVector<double> &input, const atVector<double> &output, double rate = 0.5);
-
-  // Train using batched data
-  bool TrainBatch(const atVector<atVector<double>> &inputs, const atVector<atVector<double>> &outputs, double rate = 0.5);
+  virtual bool Train(const atVector<double> &input, const atVector<double> &output);
 
   // To modify a layers weights/bias use the Get functions to retrieve the current
   // values, modify the returned matrices and then use the Set functions to set
   // the networks values.
-
+  //
   // The Set functions will fail if the matrix passed is the incorrect size.
-
   const atMatrixNxM<double>& GetLayerWeights(int64_t layer) const;
   const atMatrixNxM<double>& GetLayerBiases(int64_t layer) const;
 
-  bool SetLayerWeights(int64_t layer, atMatrixNxM<double> weights);
-  bool SetLayerBiases(int64_t layer, atMatrixNxM<double> biases);
+  void SetTrainingRate(const double &rate);
+  const double& GetTrainingRate() const;
+
+  bool SetLayerWeights(int64_t layer, const atMatrixNxM<double> &weights);
+  bool SetLayerBiases(int64_t layer, const atMatrixNxM<double> &biases);
 
   int64_t LayerCount() const;
-  int64_t InputCount() const;
-  int64_t OutputCount() const;
+  int64_t InputCount() const override;
+  int64_t OutputCount() const override;
+
+  friend void atSerialize(atObjectDescriptor *pSerialized, const atBPGNetwork &src);
+  friend void atDeserialize(const atObjectDescriptor &serialized, atBPGNetwork *pDst);
+  friend void atSerialize(atObjectDescriptor *pSerialized, const atBPGNetwork::Layer &src);
+  friend void atDeserialize(const atObjectDescriptor &serialized, atBPGNetwork::Layer *pDst);
 
   static int64_t StreamWrite(atWriteStream *pStream, const atBPGNetwork *pData, const int64_t count);
   static int64_t StreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count);
@@ -71,6 +77,7 @@ public:
 protected:
   void CalculateWeights(int64_t layer, const atVector<atMatrixNxM<double>> &a, const atVector<atMatrixNxM<double>> &z, atVector<atMatrixNxM<double>> *pWeights, double carriedError);
 
+  double m_trainingRate = 0.5;
   int64_t m_nInputs;
   int64_t m_nOutputs;
   atVector<Layer> m_layers;

@@ -57,17 +57,25 @@ atString atJSON::ToString(const bool prettyPrint) const
   if (IsObject() || IsArray())
   {
     ret += IsArray() ? "[" : "{";
+    bool useNewLines = false;
     atVector<atString> pairs;
     if (IsObject())
+    {
+      useNewLines = true;
       for (auto &kvp : *m_pObject)
         pairs.push_back("\"" + kvp.m_key + (prettyPrint ? "\": " : "\":") + kvp.m_val.ToString(prettyPrint));
+    }
 
     if (IsArray())
+    {
       for (auto &val : *m_pArray)
+      {
+        useNewLines |= val.IsObject() || val.IsArray();
         pairs.push_back(val.ToString(prettyPrint));
-
-    atString valueString = atString::join(pairs, prettyPrint ? ",\n" : ",");
-    if (prettyPrint)
+      }
+    }
+    atString valueString = atString::join(pairs, prettyPrint ? (useNewLines ? ",\n" : ", ") : ",");
+    if (prettyPrint && useNewLines)
       valueString = "\n  " + valueString.replace("\n", "\n  ") + "\n";
 
     ret += valueString;

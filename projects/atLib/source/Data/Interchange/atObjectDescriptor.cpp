@@ -59,8 +59,8 @@ atObjectDescriptor::atObjectDescriptor(const atObjectDescriptor &copy)
   *this = copy;
 }
 
-atObjectDescriptor::atObjectDescriptor(const atXML &xml) { Import(xml); }
-atObjectDescriptor::atObjectDescriptor(const atJSON &json) { Import(json); }
+atObjectDescriptor::atObjectDescriptor(const atXML &xml) : atObjectDescriptor(OT_Null) { Import(xml); }
+atObjectDescriptor::atObjectDescriptor(const atJSON &json) : atObjectDescriptor(OT_Null) { Import(json); }
 
 atObjectDescriptor::atObjectDescriptor(atObjectDescriptor &&move) { *this = std::move(move); }
 
@@ -317,6 +317,9 @@ bool atObjectDescriptor::Remove(const int64_t &index)
 
 int64_t atObjectDescriptor::Find(const atString &name) const
 {
+  if (name.length() == 0)
+    return -1;
+
   for (int64_t i = 0; i < GetMemberCount(); ++i)
     if (Get(i).GetName() == name)
       return i;

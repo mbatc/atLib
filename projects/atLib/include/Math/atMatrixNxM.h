@@ -27,7 +27,6 @@
 #define atMatrixNxM_h__
 
 #include "atMinMax.h"
-#include "atTypes.h"
 #include "atVector.h"
 
 template <typename T> class atMatrixNxM
@@ -71,9 +70,17 @@ public:
   const atMatrixNxM<T> &operator=(const atMatrixNxM<T> &copy);
   template <typename T2> const atMatrixNxM<T>& operator=(const atMatrixNxM<T2> &copy);
 
+  T &at(const int64_t row, const int64_t col);
+  const T &at(const int64_t row, const int64_t col) const;
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
+
+  T &operator()(const int64_t row, const int64_t col);
+  const T &operator()(const int64_t row, const int64_t col) const;
+
+  int64_t Rows() const;
+  int64_t Columns() const;
 
   atVector<T> m_data;
   int64_t m_rows;
