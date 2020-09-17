@@ -58,8 +58,8 @@ template<typename T> atMatrixNxM<T> atMatrixNxM<T>::Cofactors() const
   atAssert(m_rows == m_columns, "rows and col must be equal!");
   atAssert(m_rows >= 2, "Matrix must be at least 2x2!");
   if (m_rows == 2)
-    return atMatrixNxM<T>({ m_data[0], -m_data[1], -m_data[2], m_data[3] });
-  atMatrixNxM<T> ret;
+    return atMatrixNxM<T>(2, 2, { m_data[0], -m_data[1], -m_data[2], m_data[3] });
+  atMatrixNxM<T> ret(m_columns, m_rows);
   for (int64_t r = 0; r < m_rows; ++r)
     for (int64_t c = 0; c < m_columns; ++c)
       ret.at(r, c) = LowOrderMatrix(c, r, std::max(int64_t(2), m_rows - 1)).Determinate() * (((r + c) % 2 == 0) ? 1 : -1);
@@ -105,7 +105,7 @@ template<typename T>  atMatrixNxM<T> atMatrixNxM<T>::Mul(const T &rhs) const
 {
   atMatrixNxM<T> ret(m_columns, m_rows);
   for (int64_t i = 0; i < m_columns * m_rows; ++i)
-    ret[i] = (T)m_data[i] * rhs;
+    ret[i] = m_data[i] * rhs;
   return ret;
 }
 
@@ -113,7 +113,7 @@ template<typename T> atMatrixNxM<T> atMatrixNxM<T>::Add(const T &rhs) const
 {
   atMatrixNxM<T> ret(m_columns, m_rows);
   for (int64_t i = 0; i < m_columns * m_rows; ++i)
-    ret[i] = (T)m_data[i] + rhs;
+    ret[i] = m_data[i] + rhs;
   return ret;
 }
 
@@ -161,13 +161,13 @@ template<typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::opera
 template<typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::operator+(const atMatrixNxM<T2>& rhs) const { return Add(rhs); }
 template<typename T> template <typename T2> atMatrixNxM<T> atMatrixNxM<T>::operator-(const atMatrixNxM<T2>& rhs) const { return Sub(rhs); }
 
-template<typename T> atMatrixNxM<T> atMatrixNxM<T>::Inverse() const { return ((m_rows == 2 && m_columns == 2) ? atMatrixNxM<T>({ m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mul((T)1 / Determinate()); }
+template<typename T> atMatrixNxM<T> atMatrixNxM<T>::Inverse() const { return ((m_rows == 2 && m_columns == 2) ? atMatrixNxM<T>(2, 2, { m_data[3], -m_data[1], -m_data[2], m_data[0] }) : Cofactors().Transpose()).Mul((T)1 / Determinate()); }
 template<typename T> const atMatrixNxM<T>& atMatrixNxM<T>::operator=(const atMatrixNxM<T> &rhs) { m_data = rhs.m_data; m_rows = rhs.m_rows; m_columns = rhs.m_columns; return *this; }
 
 template<typename T> atMatrixNxM<T>::atMatrixNxM(atMatrixNxM<T> &&move) { m_data = move.m_data, m_columns = move.m_columns; m_rows = move.m_rows; }
 template<typename T> atMatrixNxM<T>::atMatrixNxM(const atMatrixNxM<T> &copy) { m_data = copy.m_data; m_rows = copy.m_rows; m_columns = copy.m_columns; }
 
-template<typename T> bool atMatrixNxM<T>::operator==(const atMatrixNxM<T> &rhs) const { return memcmp(m_data, rhs.m_data, m_rows * m_columns) == 0; }
+template<typename T> bool atMatrixNxM<T>::operator==(const atMatrixNxM<T> &rhs) const { return m_data == rhs.m_data; }
 template<typename T> bool atMatrixNxM<T>::operator!=(const atMatrixNxM<T>& rhs) const { return !(*this == rhs); }
 template<typename T> const T& atMatrixNxM<T>::operator[](const int64_t index) const { return m_data[index]; }
 template<typename T> T& atMatrixNxM<T>::operator()(const int64_t row, const int64_t col) { return at(row, col); }

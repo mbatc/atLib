@@ -53,18 +53,14 @@ public:
   atString(atVector<char> &&move);
   atString(char *pStart, char *pEnd);
   atString(const char *pStart, const char *pEnd);
-
-  template<typename T> explicit atString(const T &o);
-  
   atString(const atVector<uint8_t> &str);
+  template<typename T> explicit atString(const T &o);
+
   explicit operator atVector<uint8_t>() const;
   explicit operator std::string() const;
 
   // implicit conversion to c-string
   operator const char* () const;
-
-  // explicit conversion to types that define atFromString()
-  template<typename T> explicit operator T() const;
 
   static atString _to_lower(const char *str);
   static atString _to_upper(const char *str);

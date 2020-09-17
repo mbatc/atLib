@@ -23,7 +23,6 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> inline atString::operator T() const { return atFromString<T>(*this); }
 template<typename T> inline atString::atString(const T &o) : atString(atToString(o)) {}
 template<typename T> inline atString atString::operator+(const T &rhs) const { return *this + atString(rhs); }
 template<typename T> inline atString atString::operator+=(const T &rhs) { *this = *this + atString(rhs); return *this; }

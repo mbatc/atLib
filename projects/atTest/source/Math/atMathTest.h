@@ -12,6 +12,7 @@ namespace tests
     void Vector3();
     void Vector4();
     void Matrix();
+    void MatrixNxM();
   }
 }
 
