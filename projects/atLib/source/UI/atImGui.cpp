@@ -38,6 +38,7 @@
 
 #include <memory>
 #include <time.h>
+#include "atFile.h"
 
 static const char* _vertShaderSrc =
 R"(
@@ -137,14 +138,14 @@ static bool _UpdateMouseCursor(ImGuiMouseCursor imguiCursor)
     LPTSTR win32Cursor = IDC_ARROW;
     switch (imguiCursor)
     {
-    case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
-    case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
-    case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
-    case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
-    case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
-    case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
-    case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
-    case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+    case ImGuiMouseCursor_Arrow:      win32Cursor = IDC_ARROW; break;
+    case ImGuiMouseCursor_TextInput:  win32Cursor = IDC_IBEAM; break;
+    case ImGuiMouseCursor_ResizeAll:  win32Cursor = IDC_SIZEALL; break;
+    case ImGuiMouseCursor_ResizeEW:   win32Cursor = IDC_SIZEWE; break;
+    case ImGuiMouseCursor_ResizeNS:   win32Cursor = IDC_SIZENS; break;
+    case ImGuiMouseCursor_ResizeNESW: win32Cursor = IDC_SIZENESW; break;
+    case ImGuiMouseCursor_ResizeNWSE: win32Cursor = IDC_SIZENWSE; break;
+    case ImGuiMouseCursor_Hand:       win32Cursor = IDC_HAND; break;
     }
     SetCursor(LoadCursor(NULL, win32Cursor));
   }
@@ -163,7 +164,8 @@ static bool _Initialise()
   config.OversampleH = config.OversampleV = 1;
   config.PixelSnapH = true;
   for (const atFilename &file : _fontFiles)
-    io.Fonts->AddFontFromFileTTF(file.c_str(), 13.0f, &config);
+    if (atFile(file, atFM_Read).IsOpen())
+      io.Fonts->AddFontFromFileTTF(file.c_str(), 13.0f, &config);
 
   uint8_t *pPixels = nullptr;
   int32_t width, height;
@@ -194,12 +196,13 @@ static bool _Initialise()
 
   io.BackendFlags = ImGuiBackendFlags_HasMouseCursors;
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  // io.ConfigDockingWithShift = false;
   // io.ConfigViewportsNoAutoMerge = true;
   // io.ConfigViewportsNoTaskBarIcon = false;
   io.ConfigDockingTabBarOnSingleWindows = true;
   io.ConfigDockingTransparentPayload = true;
   io.ConfigWindowsResizeFromEdges = true;
-  io.ConfigDockingWithShift = true;
+  io.ConfigDockingWithShift = false;
 
   io.KeyMap[ImGuiKey_Tab] = atKC_Tab;
   io.KeyMap[ImGuiKey_LeftArrow] = atKC_Left;
@@ -263,7 +266,7 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
   if (!_pPositions) _pPositions = pGfx->CreateBuffer(atBT_VertexData);
   if (!_pTexCoords) _pTexCoords = pGfx->CreateBuffer(atBT_VertexData);
   if (!_pColours) _pColours = pGfx->CreateBuffer(atBT_VertexData);
-  if (!_pIndices) _pIndices = pGfx->CreateBuffer(atBT_VertexData);
+  if (!_pIndices) _pIndices = pGfx->CreateBuffer(atBT_IndexData);
   _pPositions->Set(positions);
   _pTexCoords->Set(texcoords);
   _pColours->Set(colours);
@@ -288,7 +291,6 @@ bool atImGui::BeginFrame(atWindow *pWnd)
   _lastTime = curTime;
 
   _UpdateMouseCursor(io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor());
-
   ImGui::NewFrame();
   return true;
 }

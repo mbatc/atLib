@@ -16,6 +16,10 @@ bool atDXBuffer::Upload()
   if (NativeResource() && m_bufferSize <= m_gpuBufferSize)
     return true;
 
+  Delete();
+  if (m_bufferSize <= 0)
+    return false;
+
   D3D11_BUFFER_DESC desc = { 0 };
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -47,6 +51,7 @@ bool atDXBuffer::Delete()
   ID3D11Buffer *pBuffer = (ID3D11Buffer*)m_pResource;
   atDirectX::SafeRelease(pBuffer);
   m_pResource = nullptr;
+  m_gpuBufferSize = 0;
   return true;
 }
 
@@ -61,17 +66,21 @@ void *atDXBuffer::Map(const atGPUBuffer_MapFlags &flags)
   if (m_bufferSize == 0)
     return nullptr;
 
-  atDirectX *pDX = (atDirectX *)atGraphics::GetCurrent();
-  ID3D11Buffer *pBuffer = (ID3D11Buffer *)NativeResource();
-  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext *)pDX->GetContext();
-  D3D11_MAPPED_SUBRESOURCE resource;
+  if (!m_pMappedPtr)
+  {
+    atDirectX *pDX = (atDirectX *)atGraphics::GetCurrent();
+    ID3D11Buffer *pBuffer = (ID3D11Buffer *)NativeResource();
+    ID3D11DeviceContext *pCtx = (ID3D11DeviceContext *)pDX->GetContext();
+    D3D11_MAPPED_SUBRESOURCE resource;
 
-  pCtx->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-  if (!resource.pData)
-    return nullptr;
+    pCtx->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+    if (!resource.pData)
+      return nullptr;
 
-  ++m_mappedCount;
-  m_pMappedPtr = resource.pData;
+    ++m_mappedCount;
+    m_pMappedPtr = resource.pData;
+  }
+
   return m_pMappedPtr;
 }
 

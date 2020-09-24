@@ -116,6 +116,8 @@ public:
 
   atString Typename() const;
 
+  atVector<atString> GetMemberNames() const;
+
   friend int64_t atStreamRead(atReadStream *pStream, atObject *pData, const int64_t count);
   friend int64_t atStreamWrite(atWriteStream *pStream, atObject *pData, const int64_t count);
 

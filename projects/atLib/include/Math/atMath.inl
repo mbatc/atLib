@@ -32,33 +32,15 @@ template<typename T> inline T atATan2(const T &y, const T &x)
 }
 
 template<typename T> inline T atSquare(const T &x) { return x * x; }
-
-template<typename T> inline T atSin(const T &rads) { return sin(rads); }
-
-template<typename T> inline T atCos(const T &rads) { return cos(rads); }
-
-template<typename T> inline T atTan(const T &rads) { return tan(rads); }
-
-template<typename T> inline T atASin(const T &rads) { return asin(rads); }
-
-template<typename T> inline T atACos(const T &rads) { return acos(rads); }
-
-template<typename T> inline T atATan(const T &rads) { return atan(rads); }
-
-template<typename T> inline T atATan2(const atVector2<T> &pos)
-{
-  return atATan2(pos.x, pos.y);
-}
-
-template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time)
-{
-  return a + (b - a) * (time);
-}
-
-template<typename T, typename T2, typename T3> inline T atClamp(const T &val, const T2 &min, const T3 &max)
-{
-  return atMin(max, atMax(min, val));
-}
+template<typename T> inline T atSin(const T &rads) { return (T)sin(rads); }
+template<typename T> inline T atCos(const T &rads) { return (T)cos(rads); }
+template<typename T> inline T atTan(const T &rads) { return (T)tan(rads); }
+template<typename T> inline T atASin(const T &rads) { return (T)asin(rads); }
+template<typename T> inline T atACos(const T &rads) { return (T)acos(rads); }
+template<typename T> inline T atATan(const T &rads) { return (T)atan(rads); }
+template<typename T> inline T atATan2(const atVector2<T> &pos) { return atATan2(pos.x, pos.y); }
+template<typename T, typename T2> inline T atLerp(const T &a, const T &b, const T2 &time) { return a + (b - a) * (time); }
+template<typename T, typename T2, typename T3> inline T atClamp(const T &val, const T2 &min, const T3 &max) { return atMin(max, atMax(min, val)); }
 
 template<typename T> inline atVector2<T> atQuadraticSolve(const T &a, const T &b, const T &c)
 {

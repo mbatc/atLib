@@ -123,7 +123,7 @@ bool atDXPrgm::Upload()
   if (!(m_pStages[atPS_Vertex] && m_pStages[atPS_Fragment]))
     return false; // Must have at least a vertex and fragment shader
 
-  if (m_pLayout || ShouldReload())
+  if (m_pLayout && !ShouldReload())
     return true;
 
   Delete(); // Delete previously compiled shader

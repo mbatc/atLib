@@ -129,6 +129,8 @@ bool atObject::Empty() const { return m_data.size() == 0 && m_members.Size() == 
 
 atString atObject::Typename() const { return m_typeInfo.name(); }
 
+atVector<atString> atObject::GetMemberNames() const { return m_members.GetKeys(); }
+
 int64_t atStreamRead(atReadStream *pStream, atObject *pData, const int64_t count)
 {
   int64_t size = 0;
