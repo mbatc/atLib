@@ -117,7 +117,7 @@ template<typename T> atMatrixNxM<T> atMatrixNxM<T>::Add(const T &rhs) const
   return ret;
 }
 
-template<typename T> inline atMatrixNxM<T> atMatrixNxM<T>::Apply(T(*func)(const T &))
+template<typename T> inline atMatrixNxM<T> atMatrixNxM<T>::Apply(std::function<T(T)> func)
 {
   atMatrixNxM<T> ret = *this;
   for (T &val : ret.m_data)
@@ -125,12 +125,12 @@ template<typename T> inline atMatrixNxM<T> atMatrixNxM<T>::Apply(T(*func)(const 
   return ret;
 }
 
-template<typename T> inline atMatrixNxM<T>::atMatrixNxM(int64_t _col, int64_t _row)
+template<typename T> inline atMatrixNxM<T>::atMatrixNxM(int64_t _col, int64_t _row, const T &initialValue)
 {
   m_columns = _col;
   m_rows = _row;
   m_data.reserve(_col * _row);
-  m_data.resize(_col * _row);
+  m_data.resize(_col * _row, initialValue);
 }
 
 template<typename T> atMatrixNxM<T>::atMatrixNxM(int64_t _col, int64_t _row, const std::initializer_list<T> &list)

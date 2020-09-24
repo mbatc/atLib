@@ -51,16 +51,5 @@ bool atPredictiveModel::TrainBatch(const atMatrixNxM<double> &input, const atMat
     outVec[r].push_back(atVector<double>(&output.at(r, 0), output.m_columns));
   }
 
-  return TrainBatch(inVec, outVec);
-}
-
-bool atPredictiveModel::TrainBatch(const atVector<atVector<double>> &input, const atVector<atVector<double>> &output)
-{
-  if (input.size() != output.size())
-    return false;
-
-  bool success = true;
-  for (int64_t i = 0; i < input.size(); ++i)
-    success &= Train(input[i], output[i]);
-  return success;
+  return Train(inVec, outVec);
 }

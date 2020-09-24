@@ -46,7 +46,9 @@ public:
   virtual atVector<double> Predict(const atVector<double> &input);
 
   // Train on a specific input/output
-  virtual bool Train(const atVector<double> &input, const atVector<double> &output);
+  virtual bool Train(const atVector<atVector<double>> &input, const atVector<atVector<double>> &output);
+
+  void SetActivationFunction(std::function<double(double)> func);
 
   // To modify a layers weights/bias use the Get functions to retrieve the current
   // values, modify the returned matrices and then use the Set functions to set
@@ -75,12 +77,14 @@ public:
   static int64_t StreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count);
 
 protected:
-  void CalculateWeights(int64_t layer, const atVector<atMatrixNxM<double>> &a, const atVector<atMatrixNxM<double>> &z, atVector<atMatrixNxM<double>> *pWeights, double carriedError);
+  atMatrixNxM<double> Predict(const atVector<double> &input, atVector<atMatrixNxM<double>> *pActivations, atVector<atMatrixNxM<double>> *pRawActivations);
 
-  double m_trainingRate = 0.5;
-  int64_t m_nInputs;
-  int64_t m_nOutputs;
+  double m_trainingRate = 0.1;
+  int64_t m_nInputs = 0;
+  int64_t m_nOutputs = 0;
+  int64_t m_layerSize = 0;
   atVector<Layer> m_layers;
+  std::function<double(double)> m_activationFunc; // = atSigmoid<double>;
 };
 
 int64_t atStreamRead(atReadStream *pStream, atBPGNetwork::Layer *pData, const int64_t count);

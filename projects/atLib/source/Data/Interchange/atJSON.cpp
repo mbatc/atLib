@@ -293,7 +293,7 @@ static atJSON _ParseArray(const char **pJson, int64_t *pLength)
       break;
     _Seek(pJson, pLength, atString::_find_first(*pJson, ',') + 1);
   }
-
+  _Seek(pJson, pLength, 1);
   return ret;
 }
 

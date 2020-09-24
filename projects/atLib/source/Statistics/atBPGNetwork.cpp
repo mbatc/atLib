@@ -28,6 +28,7 @@
 
 atBPGNetwork::atBPGNetwork(int64_t inputSize, int64_t outputSize, int64_t layerCount, int64_t layerSize)
 {
+  m_layerSize = layerSize;
   m_layers.resize(1 + atMax(0, layerCount));
   m_layers[0].nNodes = inputSize;
   for (int64_t i = 1; i < m_layers.size() + 1; ++i)
@@ -44,101 +45,121 @@ atBPGNetwork::atBPGNetwork(int64_t inputSize, int64_t outputSize, int64_t layerC
 
     // Randomize values to begin with
     for (double &val : m_layers[i - 1].weights.m_data)
-      val = (double)(rand() % 500) / 500;
+      val = atClamp((double)(rand() % 500) / 500, 0.1, 1.0);
     for (double &val : m_layers[i - 1].biases.m_data)
-      val = (double)(rand() % 500) / 500;
+      val = double(rand() % 1000ll - 500) / 500;
   }
 
   m_nOutputs = outputSize;
   m_nInputs = inputSize;
 }
 
-atVector<double> atBPGNetwork::Predict(const atVector<double> &input)
-{
-  atMatrixNxM<double> activations(1, input.size());
-  memcpy(activations.m_data.data(), input.data(), input.size() * sizeof(double));
-  for (int64_t i = 0; i < m_layers.size(); ++i)
-    activations = (m_layers[i].weights * activations + m_layers[i].biases).Apply(atSigmoidApprox);
-  return activations.m_data;
-}
+atVector<double> atBPGNetwork::Predict(const atVector<double> &input) { return Predict(input, nullptr, nullptr).m_data; }
 
-void atBPGNetwork::CalculateWeights(int64_t layer, const atVector<atMatrixNxM<double>> &a, const atVector<atMatrixNxM<double>> &z, atVector<atMatrixNxM<double>> *pAdjWeight, double carriedError)
+bool atBPGNetwork::Train(const atVector<atVector<double>> &inputs, const atVector<atVector<double>> &outputs)
 {
-  if (layer < 1 || layer >= m_layers.size())
-    return;
-  int64_t prevLayer = layer - 1;
-  for (int64_t j = 0; j < m_layers[layer].nNodes; ++j)
+  atMatrixNxM<double> costGradient; // Cost gradient matrix
+  atVector<atMatrixNxM<double>> biasAdjustments;
+  atVector<atMatrixNxM<double>> weightAdjustments;
+  // For each training set
+  for (int64_t i = 0; i < inputs.size(); ++i)
   {
-    double dSig = atDerivative<double, double>(z[layer][j], atSigmoidApprox<double>);
-    double prevA = 0;
-    double err = carriedError * dSig;
-    int64_t rowStart = j * m_layers[prevLayer].nNodes;
-    for (int64_t k = 0; k < m_layers[prevLayer].nNodes; ++k)
+    const atVector<double> &set = inputs[i];   // Input set
+    const atVector<double> &goal = outputs[i]; // Target values
+
+    // Get the networks current prediction for the input set
+    // We also need to store the activates at each layer to perform back propagation
+    atVector<atMatrixNxM<double>> activations;
+    atVector<atMatrixNxM<double>> rawActivations;
+    Predict(set, &activations, &rawActivations);
+    weightAdjustments.resize(activations.size() - 1);
+    biasAdjustments.resize(activations.size() - 1);
+
+    atMatrixNxM<double> prevLayerRawActivationCostInfluence;
+    for (int64_t currentLayer = activations.size() - 1; currentLayer > 0; --currentLayer)
     {
-      int64_t matIndex = k + rowStart;
-      (*pAdjWeight)[prevLayer][matIndex] += a[prevLayer][k] * err;
-      CalculateWeights(layer - 1, a, z, pAdjWeight, err * m_layers[prevLayer].weights[matIndex]);
+      atMatrixNxM<double> &currentLayerRawActivations = rawActivations[currentLayer];
+      atMatrixNxM<double> &prevLayerRawActivations = rawActivations[currentLayer - 1];
+      atMatrixNxM<double> &currentLayerActivations = activations[currentLayer];
+      atMatrixNxM<double> &prevLayerActivations = activations[currentLayer - 1];
+
+      // Raw activation influences on the cost function for the previous layer
+      atMatrixNxM<double> currentLayerRawWeightCostInfluence = prevLayerRawActivationCostInfluence;
+      prevLayerRawActivationCostInfluence = atMatrixNxM<double>(1, prevLayerActivations.m_rows, 0);
+
+      // Weight influences on the cost function for this layer
+      atMatrixNxM<double> layerWeightCostInfluence(currentLayerActivations.m_rows, prevLayerActivations.m_rows);
+      atMatrixNxM<double> layerLayerBiasCostInfluence(1, prevLayerRawActivations.m_rows);
+
+      for (int64_t currentLayerNode = 0; currentLayerNode < currentLayerActivations.m_rows; ++currentLayerNode)
+      {
+        // double a = currentLayerActivations[currentLayerNode]; // Current layer activation value
+        for (int64_t prevLayerNode = 0; prevLayerNode < prevLayerActivations.m_rows; ++prevLayerNode)
+        {
+          // double aPrev = prevLayerActivations[prevLayerNode]; // Previous layer activation value
+
+          // Compute derivative of the current layers activation with respect to the rawActivation
+          double sigmoidActivationInfluence = 1;
+          if (m_activationFunc)
+            sigmoidActivationInfluence = atDerivative<double, double>(currentLayerRawActivations[currentLayerNode], m_activationFunc, 0.01);
+
+          if (currentLayerRawWeightCostInfluence.m_rows == 0) // The current layer is the output layer
+          {
+            // Compute derivative of the Cost function with respect to the current layers activation
+            double activationCostInfluence = 2 * (currentLayerActivations[currentLayerNode] - goal[currentLayerNode]);
+
+            sigmoidActivationInfluence *= activationCostInfluence;
+          }
+          else
+          {
+            sigmoidActivationInfluence *= m_layers[currentLayer - 1].weights(prevLayerNode, currentLayerNode) * currentLayerRawWeightCostInfluence(currentLayerNode, 0);
+          }
+
+          // Compute derivative of the current layers activation with respect to the current layers weight
+          double activationWeightInfluence = prevLayerActivations[prevLayerNode];
+
+          // Compute derivative of the Cost function with respect to the previous layers raw activation
+          double prevRawWeightCostInfluence = sigmoidActivationInfluence;
+
+          // Compute derivative of the Cost function with respect to the weight
+          double weightCostInfluence = prevRawWeightCostInfluence * activationWeightInfluence;
+
+          // Add the weight influence to the weight cost influence
+          layerWeightCostInfluence(prevLayerNode, currentLayerNode) += weightCostInfluence;
+
+          layerLayerBiasCostInfluence(prevLayerNode, 0) += prevRawWeightCostInfluence;
+
+          // Add the previous layers cost influence contributed by each node in this layer
+          prevLayerRawActivationCostInfluence(prevLayerNode, 0) += prevRawWeightCostInfluence;
+        }
+      }
+
+      if (weightAdjustments[currentLayer - 1].m_rows != layerWeightCostInfluence.m_rows)
+        weightAdjustments[currentLayer - 1] = layerWeightCostInfluence;
+      else
+        weightAdjustments[currentLayer - 1] = weightAdjustments[currentLayer - 1] + layerWeightCostInfluence;
+
+      if (biasAdjustments[currentLayer - 1].m_rows == 0)
+        biasAdjustments[currentLayer - 1] = prevLayerRawActivationCostInfluence;
+      else
+        biasAdjustments[currentLayer - 1] = biasAdjustments[currentLayer - 1] + prevLayerRawActivationCostInfluence;
     }
   }
-}
 
-bool atBPGNetwork::Train(const atVector<double> &input, const atVector<double> &output)
-{
-  if (input.size() != InputCount() || output.size() != OutputCount())
-    return false;
-
-  double avgCost = 0;
-  atVector<atMatrixNxM<double>> adjBias;
-  atVector<atMatrixNxM<double>> adjWeight;
-
-  atVector<atMatrixNxM<double>> activationRaw;
-  atVector<atMatrixNxM<double>> activations;
-
-  activations.push_back(atMatrixNxM<double>(1, input.size()));
-  memcpy(activations.back().m_data.data(), input.data(), input.size() * sizeof(double));
-  activationRaw.push_back(activations.back());
+  // Adjust the training rate so that it depends on the number of nodes in the network
+  double trainingAmount = m_trainingRate / (outputs.size() * m_nOutputs);
   for (int64_t i = 0; i < m_layers.size(); ++i)
-  {
-    activationRaw.push_back(m_layers[i].weights * activations.back() + m_layers[i].biases);
-    activations.push_back(activationRaw.back().Apply(atSigmoidApprox));
-  }
-
-  for (Layer &l : m_layers)
-  {
-    adjWeight.push_back(atMatrixNxM<double>(l.weights.m_columns, l.weights.m_rows));
-    adjBias.push_back(atMatrixNxM<double>(l.biases.m_columns, l.biases.m_rows));
-  }
-
-  for (int64_t j = 0; j < activations[activations.size() - 1].m_rows; ++j)
-    for (int64_t k = 0; k < activations[activations.size() - 2].m_rows; ++k)
-    {
-      atMatrixNxM<double> &act = activations[activations.size() - 1];
-      atMatrixNxM<double> &dB = adjBias[activations.size() - 2];
-      atMatrixNxM<double> &dW = adjWeight[activations.size() - 2];
-
-      double err = act[j] - output[j];
-      avgCost += 0.5 * atSquare(err);
-      dW[k + j * dW.m_columns] = atDerivative<double, double>(activationRaw[activations.size() - 1][j], atSigmoidApprox<double>) *
-        activations[activations.size() - 2][k] * err;
-
-      CalculateWeights(activations.size() - 2, activations, activationRaw, &adjWeight, err);
-    }
-
-  for (int64_t lIndex = 0; lIndex < m_layers.size(); ++lIndex)
-    m_layers[lIndex].weights = m_layers[lIndex].weights - adjWeight[lIndex].Mul(m_trainingRate);
+    m_layers[i].weights = m_layers[i].weights - weightAdjustments[i].Mul(trainingAmount).Apply([](double val) { return atClamp(val, -1.0, 1.0); });
+  for (int64_t i = 0; i < m_layers.size(); ++i)
+    m_layers[i].biases = m_layers[i].biases - biasAdjustments[i].Mul(trainingAmount);
 
   return true;
 }
 
-const atMatrixNxM<double>& atBPGNetwork::GetLayerWeights(int64_t layer) const
-{
-  return m_layers[layer].weights;
-}
+void atBPGNetwork::SetActivationFunction(std::function<double(double)> func) { m_activationFunc = func; }
 
-const atMatrixNxM<double>& atBPGNetwork::GetLayerBiases(int64_t layer) const
-{
-  return m_layers[layer].biases;
-}
+const atMatrixNxM<double>& atBPGNetwork::GetLayerWeights(int64_t layer) const { return m_layers[layer].weights; }
+const atMatrixNxM<double>& atBPGNetwork::GetLayerBiases(int64_t layer) const { return m_layers[layer].biases; }
 
 int64_t atBPGNetwork::LayerCount() const { return m_layers.size(); }
 int64_t atBPGNetwork::InputCount() const { return m_nInputs; }
@@ -184,6 +205,29 @@ int64_t atBPGNetwork::StreamRead(atReadStream *pStream, atBPGNetwork *pData, con
   for (int64_t i = 0; i < count; ++i)
     ret += atStreamRead(pStream, &pData[i].m_layers, 1);
   return ret;
+}
+
+atMatrixNxM<double> atBPGNetwork::Predict(const atVector<double> &input, atVector<atMatrixNxM<double>> *pActivations, atVector<atMatrixNxM<double>> *pRawActivations)
+{
+  atMatrixNxM<double> activations(1, input.size());
+  memcpy(activations.m_data.data(), input.data(), input.size() * sizeof(double));
+
+  if (pRawActivations)
+    pRawActivations->push_back(activations);
+  if (pActivations)
+    pActivations->push_back(activations);
+
+  for (int64_t i = 0; i < m_layers.size(); ++i)
+  {
+    activations = (m_layers[i].weights * activations + m_layers[i].biases);
+    if (pRawActivations)
+      pRawActivations->push_back(activations);
+    if (m_activationFunc)
+      activations = activations.Apply(m_activationFunc);
+    if (pActivations)
+      pActivations->push_back(activations);
+  }
+  return activations;
 }
 
 void atSerialize(atObjectDescriptor *pSerialized, const atBPGNetwork &src)
@@ -243,12 +287,5 @@ int64_t atStreamWrite(atWriteStream *pStream, const atBPGNetwork::Layer *pData, 
   return ret;
 }
 
-int64_t atStreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count)
-{
-  return atBPGNetwork::StreamRead(pStream, pData, count);
-}
-
-int64_t atStreamWrite(atWriteStream *pStream, const atBPGNetwork *pData, const int64_t count)
-{
-  return atBPGNetwork::StreamWrite(pStream, pData, count);
-}
+int64_t atStreamRead(atReadStream *pStream, atBPGNetwork *pData, const int64_t count) { return atBPGNetwork::StreamRead(pStream, pData, count); }
+int64_t atStreamWrite(atWriteStream *pStream, const atBPGNetwork *pData, const int64_t count) { return atBPGNetwork::StreamWrite(pStream, pData, count); }

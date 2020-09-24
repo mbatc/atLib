@@ -87,7 +87,7 @@ void atObjectDescriptor::Import(const atJSON &json)
 {
   if (json.IsArray())
   {
-    SetType(OT_Object);
+    SetType(OT_Array);
     for (const atJSON &member : json.Array())
       Add("").Import(member);
   }
