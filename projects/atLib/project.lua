@@ -1,4 +1,8 @@
 
+if (not atLibBuildPath) then
+  atLibBuildPath = "..\\..\\builds\\bin"
+end
+
 win32Build = os.target() == "windows"
 linuxBuild = os.target() == "linux"
 
@@ -40,11 +44,11 @@ characterset ("MBCS")
 
 -- Set Directories
 
-bin_path = "..\\..\\builds\\bin"
+bin_path = atLibBuildPath
 
 symbolspath '$(OutDir)$(TargetName).pdb'
-targetdir "../../builds/bin/"
-debugdir "../../builds/bin/"
+targetdir (bin_path)
+debugdir (bin_path)
 objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
 
 -- Project Flags
@@ -107,6 +111,7 @@ linkoptions { "/ignore:4075" }
     -- Copy PDB's and DLL's
     postbuildcommands { "copy \"3rdParty\\lua\\Debug\\LuaLib.pdb\" \"" .. bin_path .. "\\LuaLib.pdb\" /y" }
     postbuildcommands { "copy \"3rdParty\\fbxsdk\\lib\\x64\\debug\\libfbxsdk.dll\" \"" .. bin_path .. "\\libfbxsdk.dll\" /y" }
+    postbuildcommands { "copy \"3rdParty\\glew\\bin\\Release\\x64\\glew32.dll\" \"" .. bin_path .. "\\glew32.dll\" /y" }
 
 -- Release Configuration Settings
 
@@ -120,3 +125,4 @@ linkoptions { "/ignore:4075" }
     -- Copy PDB's and DLL's
     postbuildcommands { "copy \"3rdParty\\lua\\Release\\LuaLib.pdb\" \"" .. bin_path .. "\\LuaLib.pdb\" /y" }
     postbuildcommands { "copy \"3rdParty\\fbxsdk\\lib\\x64\\release\\libfbxsdk.dll\" \"" .. bin_path .. "\\libfbxsdk.dll\" /y" }
+    postbuildcommands { "copy \"3rdParty\\glew\\bin\\Release\\x64\\glew32.dll\" \"" .. bin_path .. "\\glew32.dll\" /y" }

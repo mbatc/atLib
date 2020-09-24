@@ -34,7 +34,7 @@ atWindowFlags operator&(const atWindowFlags &a, const atWindowFlags &b);
 struct atWindowCreateInfo
 {
   atString title = "Default Window";
-  atVec2I size = atVec2I(800, 600);
+  atVec2I size = atVec2I(-1, -1);
   atVec2I pos = atVec2I(0, 0);
   atWindowStyle style = atWS_Overlapped;
   atWindowFlags flags = atWF_Resizable | atWF_Windowed | atWF_Visible;

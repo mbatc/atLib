@@ -25,10 +25,11 @@
 
 #ifdef atPLATFORM_WIN32
 
+#include "atHashMap.h"
+#include "atDisplay.h"
 #include "atWinAPI.h"
 #include "atInput.h"
 #include "atImGui.h"
-#include "atHashMap.h"
 
 #include <windowsx.h>
 #include <hidusage.h>
@@ -297,6 +298,8 @@ bool atWin32Window::WINCreate(const atWindowCreateInfo &info)
   HINSTANCE hInstance = ::GetModuleHandle(NULL);
   atVec2I pos = info.pos;
   atVec2I size = info.size;
+  if (size.x < 0) size.x = atDisplay::ScreenResolution().x;
+  if (size.y < 0) size.y = atDisplay::ScreenResolution().y;
   DWORD style = _CreateWin32Style(info.style);
   RECT rect = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
   ::AdjustWindowRect(&rect, (DWORD)style, false);
