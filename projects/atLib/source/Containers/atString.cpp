@@ -112,6 +112,8 @@ atString atString::substr(const int64_t start, const int64_t end) const
   return std::move(subData);
 }
 
+atString atString::substr(const int64_t count) const { return substr(0, count); }
+
 int64_t atString::_find(const char *str, const char _char, int64_t start, int64_t end)
 {
   start = atMax(start, 0);
@@ -418,8 +420,8 @@ int64_t atString::find_reverse(const char _char, int64_t start, int64_t end) con
 int64_t atString::find_reverse(const char *str, int64_t start, int64_t end) const { return _find_reverse(c_str(), str, start, end); }
 int64_t atString::find_first_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(c_str(), _char, start, end); }
 int64_t atString::find_first_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(c_str(), str, start, end); }
-int64_t atString::find_last_not(const char _char, int64_t start, int64_t end) const { return _find_first_not(c_str(), _char, start, end); }
-int64_t atString::find_last_not(const char *str, int64_t start, int64_t end) const { return _find_first_not(c_str(), str, start, end); }
+int64_t atString::find_last_not(const char _char, int64_t start, int64_t end) const { return _find_last_not(c_str(), _char, start, end); }
+int64_t atString::find_last_not(const char *str, int64_t start, int64_t end) const { return _find_last_not(c_str(), str, start, end); }
 int64_t atString::find_first_of(const char _char, int64_t start, int64_t end) const { return _find_first_of(c_str(), _char, start, end); }
 int64_t atString::find_first_of(const char *set, int64_t start, int64_t end) const { return _find_first_of(c_str(), set, start, end); }
 int64_t atString::find_last_of(const char _char, int64_t start, int64_t end) const { return _find_last_of(c_str(), _char, start, end); }
@@ -429,6 +431,25 @@ int64_t atString::find_first(const char *str) const { return find(str, 0); }
 int64_t atString::find_last(const char _char) const { return find_reverse(_char); }
 int64_t atString::find_last(const char *str) const { return find_reverse(str); }
 bool atString::starts_with(const char *str) const { return _starts_with(c_str(), str); }
+atString atString::trim(const char *characters) const
+{
+  int64_t start = find_first_not(characters);
+  int64_t end = atMax(0, find_last_not(characters));
+  return substr(start, end + 1);
+}
+
+atString atString::trim_start(const char *characters) const
+{
+  int64_t start = find_first_not(characters);
+  return substr(start, -1);
+}
+
+atString atString::trim_end(const char *characters) const
+{
+  int64_t end = atMax(0, find_last_not(characters));
+  return substr(0, end + 1);
+}
+
 atVector<atString> atString::split(const char & _char, const bool dropEmpty) const { return _split(m_data.data(), _char, dropEmpty); }
 atVector<atString> atString::split(const char * split, bool isSet, const bool dropEmpty) const { return _split(m_data.data(), split, isSet, dropEmpty); }
 const char *atString::c_str() const { return m_data.data(); }

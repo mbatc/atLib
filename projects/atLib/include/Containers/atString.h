@@ -88,6 +88,7 @@ public:
   void append(const char _char);
 
   atString substr(const int64_t start, const int64_t end) const;
+  atString substr(const int64_t count) const;
 
   //***************
   // Static Find functions
@@ -137,6 +138,10 @@ public:
   int64_t find_last(const char _char) const;
   int64_t find_last(const char *str) const;
   bool starts_with(const char *str) const;
+
+  atString trim(const char *characters = atString::Whitespace()) const;
+  atString trim_start(const char *characters = atString::Whitespace()) const;
+  atString trim_end(const char *characters = atString::Whitespace()) const;
 
   static atVector<atString> _split(const char *src, const char &_char, const bool dropEmpty = true);
   static atVector<atString> _split(const char *src, const char *split, const bool isSet = false, const bool dropEmpty = true);
