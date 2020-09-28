@@ -109,6 +109,11 @@ atCol atImage::Sample(const atVec2F &uv, const atSampleType type) const
   return 0;
 }
 
+bool atImage::Save(const atFilename &path, const atImageFormat &fmt) const
+{
+  return atImageHelper::SaveImage(m_pixels, m_size, fmt, path);
+}
+
 const atImage& atImage::operator=(const atImage &copy)
 {
   m_pixels = copy.m_pixels;

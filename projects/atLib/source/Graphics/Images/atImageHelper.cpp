@@ -30,6 +30,7 @@
 
 #include "stb_image_write.h" // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
 #include "stb_image.h"       // https://github.com/nothings/stb | stb single-file public domain libraries for C/C++ https://twitter.com/nothings
+#include "nanosvg.h"
 
 //---------------------
 

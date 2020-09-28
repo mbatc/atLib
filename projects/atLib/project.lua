@@ -82,6 +82,7 @@ linkoptions { "/ignore:4075" }
   includedirs { "3rdParty/glew/include" }
   includedirs { "3rdParty/imgui" }
   includedirs { "3rdParty/fbxsdk/include" }
+  includedirs { "3rdParty/nanoSVG/src" }
 
 
 -- Third Party Files

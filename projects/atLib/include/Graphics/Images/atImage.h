@@ -65,6 +65,8 @@ public:
 
   atCol Sample(const atVec2F &uv, const atSampleType type = atST_Bilinear) const;
 
+  bool Save(const atFilename &path, const atImageFormat &fmt = atIF_PNG) const;
+
   const atImage& operator=(const atImage &copy);
   const atImage& operator=(atImage &&move);
 
