@@ -22,7 +22,7 @@ void atOpenGLState::Set(const atRenderState::State &state)
   }
   else
   {
-    if (!m_initialised || m_curState.scissor != state.scissor)               glScissor(state.scissor.x, state.scissor.y, state.scissor.z - state.scissor.x, state.scissor.w - state.scissor.y);
+    if (!m_initialised || m_curState.scissor != state.scissor)               glScissor(state.scissor.x, state.scissor.y, state.scissor.z, state.scissor.w);
     if (!m_initialised || m_curState.scissorEnabled != state.scissorEnabled) _GLFeature(GL_SCISSOR_TEST, state.scissorEnabled);
   }
 

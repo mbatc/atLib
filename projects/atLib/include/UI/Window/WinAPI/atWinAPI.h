@@ -101,6 +101,9 @@ public:
   bool IsWindowed() const;
   bool IsVisible() const;
 
+  int64_t GetDPI() const;
+  int64_t GetDefaultDPI() const;
+
   atSysWndHandle Handle() const;
   atVector<atCol>& Pixels();
   const atVector<atCol>& Pixels() const;

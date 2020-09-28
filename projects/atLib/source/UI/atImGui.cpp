@@ -40,7 +40,7 @@
 #include <time.h>
 #include "atFile.h"
 
-static const char* _vertShaderSrc =
+static const char* _vertShaderSrcDX =
 R"(
 
 cbuffer vertexBuffer : register(b0)
@@ -59,7 +59,7 @@ struct PS_INPUT
 {
   float4 pos : SV_POSITION;
   float4 col : COLOR0;
-  float2 uv  : TEXCOORD0;
+  float2 uv  : TEXCOORD0; 
 };
 
 PS_INPUT main(VS_INPUT input)
@@ -73,7 +73,7 @@ PS_INPUT main(VS_INPUT input)
 
 )";
 
-static const char* _fragShaderSrc =
+static const char* _fragShaderSrcDX =
 R"(
 
 struct PS_INPUT
@@ -90,6 +90,46 @@ float4 main(PS_INPUT input) : SV_Target
 {
   float4 out_col = input.col * texture0.Sample(sampler0, input.uv);
   return out_col;
+}
+
+)";
+
+static const char *_vertShaderSrcGL =
+R"(
+#version 330 core
+
+uniform mat4 ProjectionMatrix;
+
+in vec2 POSITION;
+in vec4 COLOR;
+in vec2 TEXCOORD;
+
+out vec4 passColour;
+out vec2 passUV;
+
+void main()
+{
+  gl_Position = ProjectionMatrix * vec4(POSITION.x, POSITION.y, 0, 1);
+  passColour = COLOR;
+  passUV     = TEXCOORD;
+}
+
+)";
+
+static const char *_fragShaderSrcGL =
+R"(
+#version 330 core
+
+uniform sampler2D texture0;
+
+in vec4 passColour;
+in vec2 passUV;
+
+out vec4 fragColour;
+
+void main()
+{
+  fragColour = passColour * texture(texture0, passUV);
 }
 
 )";
@@ -113,6 +153,8 @@ static int64_t _vbSize = AT_INVALID_ID;
 static int64_t _ibSize = AT_INVALID_ID;
 static int64_t _lastTime = -1;
 static int64_t _ticksPerSecond = -1;
+
+static double _dpiScaling = 1;
 
 static bool _initialised = false;
 
@@ -159,7 +201,7 @@ static bool _Initialise()
 
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
-
+  
   ImFontConfig config;
   config.OversampleH = config.OversampleV = 1;
   config.PixelSnapH = true;
@@ -178,9 +220,19 @@ static bool _Initialise()
 
   _pPrgm = pGfx->CreateProgram();
   _pVertShader = pGfx->CreateShader(atPS_Vertex);
-  _pVertShader->SetSource(_vertShaderSrc);
   _pFragShader = pGfx->CreateShader(atPS_Fragment);
-  _pFragShader->SetSource(_fragShaderSrc);
+
+  if (pGfx->API() == atGfxApi_DirectX)
+  {
+    _pVertShader->SetSource(_vertShaderSrcDX);
+    _pFragShader->SetSource(_fragShaderSrcDX);
+  }
+  else
+  {
+    _pVertShader->SetSource(_vertShaderSrcGL);
+    _pFragShader->SetSource(_fragShaderSrcGL);
+  }
+
   _pSampler = pGfx->CreateSampler();
 
   _pPrgm->SetStage(_pVertShader);
@@ -219,7 +271,13 @@ static bool _Initialise()
   io.KeyMap[ImGuiKey_Space] = atKC_Space;
   io.KeyMap[ImGuiKey_Enter] = atKC_Return;
   io.KeyMap[ImGuiKey_Escape] = atKC_Escape;
-
+  io.KeyMap[ImGuiKey_A] = atKC_A;
+  io.KeyMap[ImGuiKey_C] = atKC_C;
+  io.KeyMap[ImGuiKey_V] = atKC_V;
+  io.KeyMap[ImGuiKey_X] = atKC_X;
+  io.KeyMap[ImGuiKey_Y] = atKC_Y;
+  io.KeyMap[ImGuiKey_Z] = atKC_Z;
+  
   _initialised = true;
   return true;
 }
@@ -279,10 +337,12 @@ void atImGui::AddFontFile(const atFilename &file) { _fontFiles.push_back(file); 
 bool atImGui::BeginFrame(atWindow *pWnd)
 {
   _Initialise();
-  ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = pWnd->Size();
+  _dpiScaling = pWnd->GetDPIScale();
 
-  io.MousePos = atInput::MousePos();
+  ImGuiIO &io = ImGui::GetIO();
+  io.DisplaySize = pWnd->Size() / GetDPIScaling();
+
+  io.MousePos = atInput::MousePos() / GetDPIScaling();
   ImGui::GetPlatformIO().MainViewport->Size = io.DisplaySize;
 
   int64_t curTime;
@@ -310,7 +370,7 @@ bool atImGui::Render()
   rs.SetDepthWriteEnabled(false);
   rs.SetScissorEnabled(true);
   rs.SetStencilEnabled(false);
-  rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y));
+  rs.SetViewport(atVec4I(pDrawData->DisplayPos.x, pDrawData->DisplayPos.y, pDrawData->DisplaySize.x, pDrawData->DisplaySize.y) * GetDPIScaling());
 
   _ro.SetAttribute("POSITION", _pPositions);
   _ro.SetAttribute("TEXCOORD", _pTexCoords);
@@ -336,12 +396,23 @@ bool atImGui::Render()
       else
       {
         // Apply scissor/clipping rectangle
-        rs.SetScissor(atVec4I{ (LONG)(pCmd->ClipRect.x - pos.x), (LONG)(pCmd->ClipRect.y - pos.y), (LONG)(pCmd->ClipRect.z - pCmd->ClipRect.x), (LONG)(pCmd->ClipRect.w - pCmd->ClipRect.y) });
+        atVec4I clip = {
+          (LONG)(pCmd->ClipRect.x - pos.x),
+          (LONG)(pCmd->ClipRect.y - pos.y),
+          (LONG)(pCmd->ClipRect.z - pCmd->ClipRect.x),
+          (LONG)(pCmd->ClipRect.w - pCmd->ClipRect.y) };
+
+        if (atGraphics::GetCurrent()->API() == atGfxApi_OpenGL)
+          clip.y = (int32_t)(pDrawData->DisplaySize.y - pCmd->ClipRect.w);
+
+        rs.SetScissor(clip * GetDPIScaling());
+
+        atTexture *pTexture = (atTexture *)pCmd->TextureId;
 
         // Bind texture, Draw
-        _ro.SetTexture("texture0", (atTexture*)pCmd->TextureId);
+        _ro.SetTexture("texture0", pTexture);
 
-        _ro.Draw(true, atGFX_PT_TriangleList, pCmd->ElemCount, idxOffset, vtxOffset);
+        atAssert(_ro.Draw(true, atGFX_PT_TriangleList, pCmd->ElemCount, idxOffset, vtxOffset), "Draw failed");
       }
 
       idxOffset += pCmd->ElemCount;
@@ -360,8 +431,8 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
   switch (msg)
   {
-  case WM_SYSKEYDOWN: case WM_KEYDOWN: io.KeysDown[wParam] = true; break;
-  case WM_SYSKEYUP: case WM_KEYUP: io.KeysDown[wParam] = false; break;
+  case WM_KEYDOWN: io.KeysDown[wParam] = true; break;
+  case WM_KEYUP: io.KeysDown[wParam] = false; break;
   case WM_LBUTTONUP: io.MouseDown[atKC_ImGui_Left] = false; break;
   case WM_RBUTTONUP: io.MouseDown[atKC_ImGui_Right] = false; break;
   case WM_MBUTTONUP: io.MouseDown[atKC_ImGui_Middle] = false; break;
@@ -377,13 +448,15 @@ bool atImGui::ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   default: return false;
   }
 
-  io.KeyAlt = io.KeysDown[atKC_LAlt] | io.KeysDown[atKC_RAlt];
-  io.KeyCtrl = io.KeysDown[atKC_LControl] | io.KeysDown[atKC_RControl];
-  io.KeyShift = io.KeysDown[atKC_LShift] | io.KeysDown[atKC_RShift];
+  io.KeyAlt = io.KeysDown[atKC_Alt];
+  io.KeyCtrl = io.KeysDown[atKC_Control];
+  io.KeyShift = io.KeysDown[atKC_Shift];
   io.KeySuper = false;
 
   return io.WantCaptureKeyboard || io.WantCaptureMouse;
 }
+
+double atImGui::GetDPIScaling() { return _dpiScaling; }
 
 // Wrapping ImGui Functions (Useful for exposing functionality to Lua)
 
@@ -791,6 +864,8 @@ void atImGui::PopStyle() { PopStyle(1); }
 
 void atImGui::ApplyDefaultStyle()
 {
+  _Initialise();
+
   ImGuiStyle* style = &ImGui::GetStyle();
   ImVec4* colors = style->Colors;
 

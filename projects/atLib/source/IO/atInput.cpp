@@ -29,7 +29,7 @@
 #include "atIterator.h"
 #include <time.h>
 
-static atButtonState s_buttonState[atKC_Count + atKC_MB_Count];
+static atButtonState _buttonState[atKC_Count + atKC_MB_Count];
 
 static atVec2F _mousePos;
 static atVec2I _lastMousePos;
@@ -60,7 +60,7 @@ static void _UpdateMouse()
 
 static void _UpdateButtons()
 {
-  for (atButtonState &bt : atIterate(s_buttonState, atKC_Count + atKC_MB_Count))
+  for (atButtonState &bt : atIterate(_buttonState, atKC_Count + atKC_MB_Count))
     bt.Update(_dt);
 }
 
@@ -125,15 +125,15 @@ void atInput::UnRegisterWindow(atSysWndHandle hWnd)
     _windows.Remove((int64_t)hWnd);
 }
 
-const atButtonState &atInput::GetButton(int64_t keyCode) { return s_buttonState[keyCode]; }
-void atInput::OnButtonDown(const int64_t keyCode) { s_buttonState[keyCode].OnDown(_dt); }
-void atInput::OnButtonUp(const int64_t keyCode) { s_buttonState[keyCode].OnUp(_dt); }
-bool atInput::ButtonDown(const int64_t key) { return s_buttonState[key].IsDown(); }
-bool atInput::ButtonUp(const int64_t key) { return s_buttonState[key].IsUp(); }
-bool atInput::ButtonPressed(const int64_t key) { return s_buttonState[key].IsPressed(); }
-bool atInput::ButtonReleased(const int64_t key) { return s_buttonState[key].IsReleased(); }
-double atInput::ButtonDownTime(const int64_t key) { return s_buttonState[key].TimeDown(); }
-double atInput::ButtonUpTime(const int64_t key) { return s_buttonState[key].TimeUp(); }
+const atButtonState &atInput::GetButton(int64_t keyCode) { return _buttonState[keyCode]; }
+void atInput::OnButtonDown(const int64_t keyCode) { _buttonState[keyCode].OnDown(_dt); }
+void atInput::OnButtonUp(const int64_t keyCode) { _buttonState[keyCode].OnUp(_dt); }
+bool atInput::ButtonDown(const int64_t key) { return _buttonState[key].IsDown(); }
+bool atInput::ButtonUp(const int64_t key) { return _buttonState[key].IsUp(); }
+bool atInput::ButtonPressed(const int64_t key) { return _buttonState[key].IsPressed(); }
+bool atInput::ButtonReleased(const int64_t key) { return _buttonState[key].IsReleased(); }
+double atInput::ButtonDownTime(const int64_t key) { return _buttonState[key].TimeDown(); }
+double atInput::ButtonUpTime(const int64_t key) { return _buttonState[key].TimeUp(); }
 bool atInput::LeftMouseUp() { return ButtonUp(atKC_MB_Left); }
 bool atInput::LeftMouseDown() { return ButtonDown(atKC_MB_Left); }
 bool atInput::LeftMousePressed() { return ButtonPressed(atKC_MB_Left); }
@@ -260,4 +260,10 @@ atString atInput::ToString(const int64_t code)
   case atKC_MB_Middle:          return "MiddleMouse";
   }
   return atString();
+}
+
+void atInput::ResetInputs()
+{
+  for (atButtonState &state : _buttonState)
+    state.OnUp(0);
 }

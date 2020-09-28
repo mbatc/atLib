@@ -35,6 +35,7 @@ struct atWindowCreateInfo
 {
   atString title = "Default Window";
   atVec2I size = atVec2I(-1, -1);
+  bool isClientSize = false;
   atVec2I pos = atVec2I(0, 0);
   atWindowStyle style = atWS_Overlapped;
   atWindowFlags flags = atWF_Resizable | atWF_Windowed | atWF_Visible;

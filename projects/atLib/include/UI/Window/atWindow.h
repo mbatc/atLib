@@ -72,6 +72,9 @@ public:
   void Minimize();
   void Restore();
 
+  double GetDPIScale() const;
+  int64_t GetDPI() const;
+
   atWindowStyle GetStyle() const;
 
   atString GetTitle() const;
