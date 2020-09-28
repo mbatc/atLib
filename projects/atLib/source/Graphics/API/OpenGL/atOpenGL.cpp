@@ -51,7 +51,7 @@ void atOpenGL::Swap() { Swap(m_ctx); }
 void atOpenGL::DrawIndexed(int64_t nIndices, int64_t startLocation, int64_t baseVertIndex, const atGFX_PrimitiveType &primType, const atType &indicesType)
 {
   atRenderState::Bind();
-  glDrawElements((GLenum)_GetPolygonMode(primType), (GLsizei)nIndices, (GLenum)atFormat::GLType(indicesType), 0);
+  glDrawElementsBaseVertex((GLenum)_GetPolygonMode(primType), (GLsizei)nIndices, (GLenum)atFormat::GLType(indicesType), (void*)(startLocation * atSize(indicesType)),(GLint)baseVertIndex);
 }
 
 void atOpenGL::Draw(int64_t nVerts, int64_t startLocation, const atGFX_PrimitiveType &primType)

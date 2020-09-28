@@ -94,6 +94,7 @@ enum atKeyCode
   atKC_RControl = VK_RCONTROL,
   atKC_Return = VK_RETURN,
   atKC_Backspace = VK_BACK,
+  atKC_Alt = VK_MENU,
   atKC_LAlt = VK_LMENU,
   atKC_RAlt = VK_RMENU,
   atKC_Space = VK_SPACE,
@@ -305,6 +306,8 @@ public:
   static bool MouseMoved();
 
   static atString ToString(const int64_t code);
+
+  static void ResetInputs();
 
 protected:
   static void RegisterWindow(atSysWndHandle hWnd);

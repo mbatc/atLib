@@ -75,6 +75,10 @@ LRESULT __stdcall atWinAPI::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   case WM_RBUTTONUP: atInput::OnButtonUp(atKC_MB_Right); break;
   case WM_MBUTTONUP: atInput::OnButtonUp(atKC_MB_Middle); break;
   case WM_MOUSEMOVE: break;
+  case WM_KILLFOCUS:
+    // If we loose focus reset all the inputs
+    atInput::ResetInputs();
+    break;
   case WM_SIZE: case WM_MOVE:
   {
     atWindow **ppTarget = _windows.TryGet((int64_t)hWnd);
@@ -302,15 +306,15 @@ bool atWin32Window::WINCreate(const atWindowCreateInfo &info)
   if (size.y < 0) size.y = atDisplay::ScreenResolution().y;
   DWORD style = _CreateWin32Style(info.style);
   RECT rect = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
-  ::AdjustWindowRect(&rect, (DWORD)style, false);
-
-  m_hWnd = CreateWindow(m_wndCls.c_str(), info.title.c_str(), style, pos.x, pos.y, size.x, size.y, m_hParent, m_hMenu, hInstance, NULL);
+  if (info.isClientSize)
+    AdjustWindowRect(&rect, (DWORD)style, false);
+  m_hWnd = CreateWindow(m_wndCls.c_str(), info.title.c_str(), style, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, m_hParent, m_hMenu, hInstance, NULL);
 
   if (!m_hWnd)
     return false;
 
   // Enabled drag and drop
-  ::DragAcceptFiles(m_hWnd, TRUE);
+  DragAcceptFiles(m_hWnd, TRUE);
   
   return UpdatePixels();
 }
@@ -413,6 +417,9 @@ bool atWin32Window::IsMaximized() const { return ::IsZoomed(m_hWnd) != 0; }
 bool atWin32Window::IsMinimized() const { return ::IsIconic(m_hWnd) != 0; }
 bool atWin32Window::IsWindowed() const { return !m_windowedState.wasFullscreen; }
 bool atWin32Window::IsVisible() const { return ::IsWindowVisible(m_hWnd) != 0; }
+
+int64_t atWin32Window::GetDPI() const { return GetDpiForWindow(m_hWnd); }
+int64_t atWin32Window::GetDefaultDPI() const { return USER_DEFAULT_SCREEN_DPI; }
 
 static atWindowStyle _CreateLibStyle(const DWORD &wndStyle)
 {

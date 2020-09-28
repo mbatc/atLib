@@ -33,7 +33,7 @@ bool atGLPrgm::Draw(const bool &indexedMode, const atGFX_PrimitiveType &primType
     return false;
 
   if (indexedMode && m_activeTextures != atType_Unknown)
-    pGL->DrawIndexed(elementCount < 0 ? m_indexCount : elementCount, elementOffset, 0, primType, m_indicesType);
+    pGL->DrawIndexed(elementCount < 0 ? m_indexCount : elementCount, elementOffset, baseVtxIdx, primType, m_indicesType);
   else
     pGL->Draw(elementCount < 0 ? m_vertexCount : elementCount, elementOffset, primType);
 

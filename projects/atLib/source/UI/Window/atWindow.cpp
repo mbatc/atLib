@@ -74,6 +74,9 @@ void atWindow::Maximize() { m_sysWindow.Maximize(); }
 void atWindow::Minimize() { m_sysWindow.Minimize(); }
 void atWindow::Restore() { m_sysWindow.Restore(); }
 
+int64_t atWindow::GetDPI() const { return m_sysWindow.GetDPI(); }
+double atWindow::GetDPIScale() const { return (double)m_sysWindow.GetDPI() / m_sysWindow.GetDefaultDPI(); }
+
 atWindowStyle atWindow::GetStyle() const { return m_sysWindow.GetStyle(); }
 atString atWindow::GetTitle() const { return m_sysWindow.GetTitle(); }
 

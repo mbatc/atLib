@@ -50,6 +50,7 @@ public:
   static bool EndFrame();
   static bool Render();
   static bool ProcessMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  static double GetDPIScaling();
 
   static void ApplyDefaultStyle();
 
