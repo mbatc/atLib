@@ -188,9 +188,6 @@ bool atWin32Window::Create(const atWindowCreateInfo &info)
   SetVisible((info.flags & atWF_Visible) > 0);
   SetWindowed((info.flags & atWF_Windowed) > 0);
   atWinAPI::RegisterWindow(m_hWnd, m_pWindow);
-
-  printf("%d\n", GetDpiForWindow(m_hWnd));
-
   return true;
 }
 
