@@ -39,7 +39,8 @@ enum atImageFormat
   atIF_TIFF,
   atIF_PNG,
   atIF_BMP,
-  atIF_TGA
+  atIF_TGA,
+  atIF_SVG
 };
 
 class atImageHelper
