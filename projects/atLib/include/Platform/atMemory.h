@@ -35,7 +35,7 @@
 
 // Internal Functions
 template<typename T, typename... Args> T* atInternal_New(const int64_t count, Args&&... args);
-template<typename T> void atDelete(T* pBlock);
+template<typename T> void atDelete(T *pBlock);
 
 // External Functions
 template<typename T, typename... Args> T* atNew(Args&&... args);
@@ -72,6 +72,8 @@ template<typename T, typename... Args> T* atInternal_New(const int64_t count, Ar
 
 template<typename T> void atDelete(T* pBlock)
 {
+  if (!pBlock)
+    return;
   void *pActualAlloc = (int64_t*)pBlock - 1;
   const int64_t count = *(int64_t*)pActualAlloc;
   const T* pStart = pBlock;
