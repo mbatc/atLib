@@ -109,7 +109,7 @@ void atJSON::MakeArray()
   if (IsArray())
     return;
   MakeNull();
-  m_pArray = atNew<atVector<atJSON>>();
+  m_pArray = atNew(atVector<atJSON>);
 }
 
 void atJSON::MakeObject()
@@ -117,7 +117,7 @@ void atJSON::MakeObject()
   if (IsObject())
     return;
   MakeNull();
-  m_pObject = atNew<atHashMap<atString, atJSON>>();
+  m_pObject = atNew(atHashMap<atString, atJSON>);
 }
 
 void atJSON::MakeValue(const bool &isString)
@@ -125,7 +125,7 @@ void atJSON::MakeValue(const bool &isString)
   if (!(IsValue() || IsString()))
   {
     MakeNull();
-    m_pValue = atNew<atString>();
+    m_pValue = atNew(atString);
   }
   m_isString = isString;
 }

@@ -38,6 +38,7 @@ void* _atReallocTrace(void *pBlock, const int64_t size, const int64_t line, cons
 void* _atAllocRelTrace(const int64_t size, const int64_t line, const char *file, const char *function);
 void* _atReallocRelTrace(void *pBlock, const int64_t size, const int64_t line, const char *file, const char *function);
 
+void atReleaseMemRef(void *pBlock);
 void atFree(void *pBlock);
 
 #ifdef atPLATFORM_WIN32

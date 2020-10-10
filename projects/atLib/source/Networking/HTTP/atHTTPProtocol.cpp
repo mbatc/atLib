@@ -32,7 +32,7 @@ void MakeLookup()
 {
   _lookupLock.lock();
   if (!_pHTTPLookup)
-    _pHTTPLookup = atNew<_HTTPProcLookup>();
+    _pHTTPLookup = atNew(_HTTPProcLookup);
   _lookupLock.unlock();
 }
 

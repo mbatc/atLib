@@ -7,7 +7,11 @@ atSQL::atSQL(const atFilename &file)
   atFileSystem::CreateFolders(file.Directory());
   if (sqlite3_open(file.c_str(), (sqlite3**)&m_pHandle) != SQLITE_OK)
     m_pHandle = nullptr;
+  m_path = file;
 }
+
+atSQL::atSQL(atSQL &&o) { std::swap(m_pHandle, o.m_pHandle); }
+atSQL::atSQL(const atSQL &o) : atSQL(o.GetPath()) {}
 
 atSQL::~atSQL()
 {
@@ -74,6 +78,8 @@ atVector<atString> atSQL::Columns(const atString &tableName) const
   return names;
 }
 
+const atFilename &atSQL::GetPath() const { return m_path; }
+
 atVector<atString> atSQL::ColumnSQL(const atString &tableName) const
 {
   atSQLResult table = Execute("SELECT sql FROM sqlite_master WHERE type=='table' AND name=='" + tableName + "'");
@@ -85,6 +91,7 @@ atVector<atString> atSQL::ColumnSQL(const atString &tableName) const
   rows = tableSql.substr(tableSql.find('(') + 1, tableSql.find_last_of(')')).split(',');
   for (atString &rowRaw : rows)
     rowRaw = rowRaw.trim();
+  rows.resize(atMax(0, rows.size() - 2));
   return rows;
 }
 
@@ -120,12 +127,7 @@ void atSQLResult::SetColumn(void *pValue, int64_t col)
   pV = sqlite3_value_dup((sqlite3_value*)pValue);
 }
 
-atSQLResult::atSQLResult(const atVector<atString> &columns)
-  : m_nRows(0)
-{
-  m_columns = columns;
-}
-
+atSQLResult::atSQLResult(const atVector<atString> &columns) : m_nRows(0) { m_columns = columns; }
 atSQLResult::atSQLResult(const atSQLResult &copy) { *this = copy; }
 atSQLResult::atSQLResult(atSQLResult &&move) { *this = std::move(move); }
 

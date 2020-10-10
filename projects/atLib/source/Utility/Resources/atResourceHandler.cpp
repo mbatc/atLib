@@ -12,7 +12,7 @@ atResourceHandle atResourceHandlerBase::Request(const atObjectDescriptor &reques
     if (ppHandle)
       return *ppHandle;
 
-    pNewHandle = atNew<atResourceHandle::Instance>();
+    pNewHandle = atNew(atResourceHandle::Instance);
     pNewHandle->pHandler = this;
     pNewHandle->guid = guid;
     pNewHandle->refCount = 0;

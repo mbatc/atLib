@@ -59,6 +59,8 @@ class atSQL
 {
 public:
   atSQL(const atFilename &file);
+  atSQL(atSQL &&o);
+  atSQL(const atSQL &o);
   ~atSQL();
 
   // Check if the SqlLite implementation is thread-safe
@@ -76,10 +78,13 @@ public:
   // Get the names of the columns in the specified table
   atVector<atString> Columns(const atString &tableName) const;
 
+  const atFilename& GetPath() const;
+
 protected:
   atVector<atString> ColumnSQL(const atString &tableName) const;
 
   void *m_pHandle = nullptr;
+  atFilename m_path;
 };
 
 #endif // atSQL_h__

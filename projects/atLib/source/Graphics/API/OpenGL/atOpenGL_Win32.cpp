@@ -18,7 +18,7 @@ struct atGLImpl
 
 atGLCtx atOpenGL::CreateContext(atWindow *pWindow, const bool &vsyncEnabled)
 {
-  atGLImpl *pCtx = atNew<atGLImpl>();
+  atGLImpl *pCtx = atNew(atGLImpl);
 
   HWND hWnd = pWindow->Handle();
   HGLRC glCtx = 0;

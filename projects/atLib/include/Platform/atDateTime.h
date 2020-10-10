@@ -120,7 +120,7 @@ protected:
   {
     bool dirty = false;
     int64_t val = 0;
-  } *m_pFullTime = atNew<FullTime>();
+  } *m_pFullTime = atNew(FullTime);
 
   void Set(const int64_t time);
 };

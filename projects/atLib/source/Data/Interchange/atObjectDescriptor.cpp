@@ -65,7 +65,7 @@ atObjectDescriptor::atObjectDescriptor(const atJSON &json) : atObjectDescriptor(
 atObjectDescriptor::atObjectDescriptor(atObjectDescriptor &&move) { *this = std::move(move); }
 
 atObjectDescriptor::atObjectDescriptor(const ObjectType &type /*= OT_Value*/)
-  : m_pTree(atNew<NodeTree>())
+  : m_pTree(atNew(NodeTree))
 {
   m_nodeID = m_pTree->nodes.emplace();
   SetType(type);

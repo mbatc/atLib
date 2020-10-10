@@ -1,6 +1,8 @@
 #include "atWidgets.h"
 #include "atInput.h"
 
+bool atWidgets::Input(const atString &name, bool *pValue) { return ImGui::Checkbox(name.c_str(), pValue); }
+
 bool atWidgets::Input(const atString &name, atString *pValue)
 {
   static atVector<char> buffer;
@@ -8,9 +10,76 @@ bool atWidgets::Input(const atString &name, atString *pValue)
   memcpy(buffer.data(), pValue->c_str(), pValue->length() + 1);
   if (!ImGui::InputText(name.c_str(), buffer.data(), buffer.size()))
     return false;
-
   *pValue = buffer.data();
   return true;
+}
+
+bool atWidgets::Input(atObjectDescriptor *pSerialized, const bool &modifiable)
+{
+  bool active = false;
+  switch (pSerialized->GetObjectType())
+  {
+  case atObjectDescriptor::OT_Array:
+  {
+    ImGui::Text(pSerialized->GetName().c_str());
+    ImGui::PushClipRect(ImGui::GetCursorScreenPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), true); ImGui::Separator();
+    ImGui::Indent();
+    for (atObjectDescriptor &child : pSerialized->GetMembers())
+      active |= Input(&child, modifiable);
+
+    // if (modifiable)
+    //   if (ImGui::Button("Add", ImVec2(ImGui::GetContentRegionAvailWidth(), 0)))
+    //     pSerialized->Add("");
+
+    ImGui::Unindent();
+    ImGui::PopClipRect();
+  }
+  case atObjectDescriptor::OT_Object:
+  {
+    ImGui::Text(pSerialized->GetName().c_str());
+    ImGui::PushClipRect(ImGui::GetCursorScreenPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), true);
+    ImGui::Separator();
+    ImGui::Indent();
+    for (atObjectDescriptor &child : pSerialized->GetMembers())
+      active |= Input(&child, modifiable);
+    ImGui::Unindent();
+    ImGui::PopClipRect();
+  }
+  case atObjectDescriptor::OT_Value:
+  {
+    atString name = pSerialized->GetName();
+    switch (pSerialized->GetValueType())
+    {
+    case atObjectDescriptor::VT_Bool:
+    {
+      bool value = pSerialized->AsBool();
+      active |= Input(name, &value);
+      pSerialized->Set(value);
+    }
+    case atObjectDescriptor::VT_Float:
+    {
+      double value = pSerialized->AsFloat();
+      active |= Input(name, &value);
+      pSerialized->Set(value);
+    }
+    case atObjectDescriptor::VT_Int:
+    {
+      int64_t value = pSerialized->AsInt();
+      active |= Input(name, &value);
+      pSerialized->Set(value);
+    }
+    case atObjectDescriptor::VT_String:
+    {
+      atString value = pSerialized->AsString();
+      active |= Input(name, &value);
+      pSerialized->Set(value);
+    }
+    case atObjectDescriptor::VT_None: return false;
+    }
+  }
+  case atObjectDescriptor::OT_Null: return false;
+  }
+  return active;
 }
 
 struct SideBarCtx
@@ -28,6 +97,10 @@ static atHashMap<int64_t, SideBarCtx*> _sidebars;
 static atVector<SideBarCtx*> _sidebarStack;
 
 static SideBarCtx* CurrentSidebar() { return _sidebarStack.back(); }
+
+void atWidgets::Text(const atString &text, atVec2F pivot)
+{
+}
 
 bool atWidgets::BeginSidebar(const atString &id, const ImVec2 &position, float iconWidth, float height)
 {
@@ -49,7 +122,7 @@ bool atWidgets::BeginSidebar(const atString &id, const ImVec2 &position, float i
   ImGui::BringWindowToFocusFront(ImGui::GetCurrentWindow());
   // Get or create the sidebar context
   int64_t sidebarID = ImGui::GetCurrentWindow()->ID;
-  bool newSidebar = _sidebars.TryAdd(sidebarID, atNew<SideBarCtx>());
+  bool newSidebar = _sidebars.TryAdd(sidebarID, atNew(SideBarCtx));
   _sidebarStack.push_back(_sidebars[sidebarID]);
   SideBarCtx *pCtx = CurrentSidebar();
 

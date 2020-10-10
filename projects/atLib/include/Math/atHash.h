@@ -28,27 +28,22 @@
 
 #include "atMemoryWriter.h"
 
-class atHash
-{
-public:
-  static int64_t Hash(const atMemoryWriter &mem);
-  static int64_t Hash(const int64_t val);
-  static int64_t Hash(const int32_t val);
-  static int64_t Hash(const int16_t val);
-  static int64_t Hash(const int8_t val);
-  static int64_t Hash(const uint64_t val);
-  static int64_t Hash(const uint32_t val);
-  static int64_t Hash(const uint16_t val);
-  static int64_t Hash(const uint8_t val);
-  static int64_t Hash(const double val);
-  static int64_t Hash(const float val);
+int64_t atHash(const atMemoryWriter &mem);
+int64_t atHash(const int64_t val);
+int64_t atHash(const int32_t val);
+int64_t atHash(const int16_t val);
+int64_t atHash(const int8_t val);
+int64_t atHash(const uint64_t val);
+int64_t atHash(const uint32_t val);
+int64_t atHash(const uint16_t val);
+int64_t atHash(const uint8_t val);
+int64_t atHash(const double val);
+int64_t atHash(const float val);
 
-  template<typename T> static int64_t Hash(const T &o);
-  template<typename T> static int64_t Hash(const T *o);
+template<typename T> int64_t atHash(const T &o);
+template<typename T> int64_t atHash(const T *o);
 
-protected:
-  static thread_local atMemoryWriter writer;
-};
+atMemoryWriter* atHash_MemWriter();
 
 #include "atHash.inl"
 #endif // atHash_h__s

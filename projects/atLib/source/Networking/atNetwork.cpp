@@ -39,7 +39,7 @@ atNetwork::atNetwork(const bool asyncJobs)
   : m_running(true)
 {
   if (asyncJobs)
-    m_pJobThread = atNew<std::thread>(&atNetwork::ProcessJobs, this);
+    m_pJobThread = atNew(std::thread)(&atNetwork::ProcessJobs, this);
 }
 
 atNetwork::~atNetwork()
@@ -57,12 +57,12 @@ atNetwork::~atNetwork()
 atNetwork::JobStatus atNetwork::Host(const uint16_t &port)
 {
   // Create host data
-  _atHostData *pData = atNew<_atHostData>();
+  _atHostData *pData = atNew(_atHostData);
   pData->port = port;
 
   // Create Send Job
-  ConnectionJob *pJob = atNew<ConnectionJob>();
-  pJob->pConnection = atNew<Connection>();
+  ConnectionJob *pJob = atNew(ConnectionJob);
+  pJob->pConnection = atNew(Connection);
   pJob->pJobData = (void*)pData;
   pJob->jobType = _atCJT_Host;
 
@@ -76,13 +76,13 @@ atNetwork::JobStatus atNetwork::Host(const uint16_t &port)
 atNetwork::JobStatus atNetwork::Connect(const atString &url, const uint16_t &port)
 {
   // Create connect data
-  _atConnectData *pData = atNew<_atConnectData>();
+  _atConnectData *pData = atNew(_atConnectData);
   pData->port = port;
   pData->url = url;
 
   // Create Send Job
-  ConnectionJob *pJob = atNew<ConnectionJob>();
-  pJob->pConnection = atNew<Connection>();
+  ConnectionJob *pJob = atNew(ConnectionJob);
+  pJob->pConnection = atNew(Connection);
   pJob->pJobData = (void*)pData;
   pJob->jobType = _atCJT_Connect;
 
@@ -100,10 +100,10 @@ atNetwork::JobStatus atNetwork::Receive(const atConnectionHandle &handle)
     return JobStatus(nullptr, -1);
 
   // Create receive data
-  _atReceiveData *pData = atNew<_atReceiveData>();
+  _atReceiveData *pData = atNew(_atReceiveData);
 
   // Create Send Job
-  ConnectionJob *pJob = atNew<ConnectionJob>();
+  ConnectionJob *pJob = atNew(ConnectionJob);
   pJob->pConnection = *ppCon;
   pJob->pJobData = (void*)pData;
   pJob->jobType = _atCJT_Recieve;
@@ -118,11 +118,11 @@ atNetwork::JobStatus atNetwork::Send(const atConnectionHandle &handle, const atV
     return JobStatus(nullptr, -1);
 
   // Create send data
-  _atSendData *pData = atNew<_atSendData>();
+  _atSendData *pData = atNew(_atSendData);
   pData->buffer = data;
 
   // Create Send Job
-  ConnectionJob *pJob = atNew<ConnectionJob>();
+  ConnectionJob *pJob = atNew(ConnectionJob);
   pJob->pConnection = *ppCon;
   pJob->pJobData = (void*)pData;
   pJob->jobType = _atCJT_Send;
@@ -137,10 +137,10 @@ atNetwork::JobStatus atNetwork::Disconnect(const atConnectionHandle &handle)
     return JobStatus(nullptr, -1);
 
   // Create disconnect data
-  _atDisconnectData *pData = atNew<_atDisconnectData>();
+  _atDisconnectData *pData = atNew(_atDisconnectData);
 
   // Create Send Job
-  ConnectionJob *pJob = atNew<ConnectionJob>();
+  ConnectionJob *pJob = atNew(ConnectionJob);
   pJob->pConnection = *ppCon;
   pJob->pJobData = (void*)pData;
   pJob->jobType = _atCJT_Disconnect;

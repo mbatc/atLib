@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <forward_list>
 
+
 //*********************
 // Function Definitions
 
@@ -37,10 +38,9 @@
 template<typename T, typename... Args> T* atInternal_New(const int64_t count, Args&&... args);
 template<typename T> void atDelete(T *pBlock);
 
-// External Functions
-template<typename T, typename... Args> T* atNew(Args&&... args);
-template<typename T, typename... Args> T* atNewArray(const int64_t size);
-template<typename T, typename... Args> T* atNewArray(const int64_t size, const T &copy);
+#define atNew(...) new (_atAllocTrace(sizeof(__VA_ARGS__), __LINE__, __FILE__, "")) __VA_ARGS__
+#define atNewArray(count, ...) new (_atAllocTrace(sizeof(__VA_ARGS__) * count, __LINE__, __FILE__, "")) __VA_ARGS__[count]
+#define atDelete(pBlock) (delete pBlock, atReleaseMemRef((void*)pBlock))
 
 // Will Construct/Destruct object of they are non primitive types
 template<typename T, typename... Args> void atConstruct(T *pVal, Args&&... args);
@@ -54,35 +54,6 @@ template<typename T> typename std::enable_if<!std::is_destructible<T>::value>::t
 
 //*************************
 // Function Implementations
-
-template<typename T, typename... Args> T* atInternal_New(const int64_t count, Args&&... args)
-{
-  const int64_t size = count * sizeof(T);
-  void *pBlock = atAlloc(size + sizeof(int64_t));
-  memcpy(pBlock, &count, sizeof(int64_t));
-  T* pPos = (T*)((int64_t)pBlock + sizeof(int64_t));
-  T* pStart = pPos;
-
-  // construct new objects
-  while(pPos - pStart != count)
-    atConstruct(pPos++, std::forward<Args>(args)...);
-
-  return pStart;
-}
-
-template<typename T> void atDelete(T* pBlock)
-{
-  if (!pBlock)
-    return;
-  void *pActualAlloc = (int64_t*)pBlock - 1;
-  const int64_t count = *(int64_t*)pActualAlloc;
-  const T* pStart = pBlock;
-
-  // destruct objects
-  while (pBlock - pStart != count)
-    atDestruct(pBlock++);
-  atFree(pActualAlloc);
-}
 
 template<typename T> typename std::enable_if<std::is_destructible<T>::value>::type atDestructArray(T *pVal, const int64_t count)
 {
@@ -113,9 +84,6 @@ template<typename T> inline typename std::enable_if<std::is_destructible<T>::val
   pVal->~T();
 }
 
-template<typename T, typename... Args> inline T* atNew(Args&&... args) { return atInternal_New<T>(1, std::forward<Args>(args)...);  }
-template<typename T> inline T* atNewArray(const int64_t size) { return atInternal_New<T>(size); }
-template<typename T> inline T* atNewArray(const int64_t size, const T &copy) { return atInternal_New<T>(size, copy); }
 template<typename T, typename... Args> inline void atConstruct(T *pVal, Args&&... args) { new(pVal) T(std::forward<Args>(args)...); }
 
 #endif

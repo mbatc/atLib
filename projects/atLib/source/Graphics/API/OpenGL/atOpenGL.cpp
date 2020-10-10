@@ -23,7 +23,7 @@ atOpenGL::atOpenGL(atWindow *pWindow, const bool &vsyncEnabled)
   : atGraphics(pWindow, vsyncEnabled)
 {
   m_ctx = CreateContext(pWindow, vsyncEnabled);
-  m_pState = atNew<atOpenGLState>();
+  m_pState = atNew(atOpenGLState);
 
 #ifdef _DEBUG // Enable error logging in debug
   glEnable(GL_DEBUG_OUTPUT);
@@ -92,11 +92,11 @@ void atOpenGL::BindContext() { BindContext(m_ctx); }
 atGraphicsAPI atOpenGL::API() { return atGfxApi_OpenGL; }
 
 atSampler*      atOpenGL::CreateSampler()                                             { return nullptr; }
-atGPUBuffer*    atOpenGL::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew<atGLBuffer>(type, size); }
-atTexture*      atOpenGL::CreateTexture(const atTextureType &type)                    { return atNew<atGLTexture>(type); }
-atShader*       atOpenGL::CreateShader(const atPipelineStage &stage)                  { return atNew<atGLShader>(stage); }
-atProgram*      atOpenGL::CreateProgram()                                             { return atNew<atGLPrgm>(); }
-atRenderTarget* atOpenGL::CreateRenderTarget()                                        { return atNew<atGLRenderTarget>(); }
+atGPUBuffer*    atOpenGL::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew(atGLBuffer)(type, size); }
+atTexture*      atOpenGL::CreateTexture(const atTextureType &type)                    { return atNew(atGLTexture)(type); }
+atShader*       atOpenGL::CreateShader(const atPipelineStage &stage)                  { return atNew(atGLShader)(stage); }
+atProgram*      atOpenGL::CreateProgram()                                             { return atNew(atGLPrgm); }
+atRenderTarget* atOpenGL::CreateRenderTarget()                                        { return atNew(atGLRenderTarget); }
 
 static void GLAPIENTRY _ErrorMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
