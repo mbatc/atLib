@@ -101,6 +101,22 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Remove(const Key
   return false;
 }
 
+template<typename Key, class Value>
+inline bool atHashMap<Key, Value>::TrySet(const Key &key, Value &&val)
+{
+  Value *pValue = TryGet(key);
+  if (!pValue)
+    return false;
+  *pValue = std::move(val);
+  return true;
+}
+
+template<typename Key, class Value>
+inline bool atHashMap<Key, Value>::TrySet(const Key &key, const Value &val)
+{
+  return TrySet(key, Value(val));
+}
+
 template<typename Key, class Value> Value& atHashMap<Key, Value>::GetOrAdd(const Key &key)
 {
   Value *pVal = TryGet(key);
@@ -208,7 +224,7 @@ template<typename Key, class Value> bool atHashMap<Key, Value>::Rehash(const int
   return true;
 }
 
-template<typename Key, class Value> int64_t atHashMap<Key, Value>::FindBucket(const Key &key) const { return abs(atHash::Hash(key) % m_buckets.size()); }
+template<typename Key, class Value> int64_t atHashMap<Key, Value>::FindBucket(const Key &key) const { return abs(atHash(key) % m_buckets.size()); }
 template<typename Key, class Value> const typename atHashMap<Key, Value>::Bucket& atHashMap<Key, Value>::GetBucket(const Key & key) const { return m_buckets[m_buckets.size() > 1 ? FindBucket(key) : 0]; }
 template<typename Key, class Value> typename atHashMap<Key, Value>::ConstIterator atHashMap<Key, Value>::begin() const { return ConstIterator(this, 0, m_buckets[0].data()); }
 template<typename Key, class Value> typename atHashMap<Key, Value>::ConstIterator atHashMap<Key, Value>::end() const { return ConstIterator(this, m_buckets.size() - 1, m_buckets[m_buckets.size() - 1].end()); }

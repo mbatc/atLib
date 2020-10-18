@@ -91,6 +91,7 @@ public:
   void Add(const Key &key, const Value &val);
   void Add(const KVP &kvp);
   void Add(KVP &&kvp);
+
   bool TryAdd(const Key &key, Value &&val);
   bool TryAdd(const Key &key);
   bool TryAdd(const Key &key, const Value &val);
@@ -100,6 +101,10 @@ public:
   bool Contains(const Key &key) const;
 
   bool Remove(const Key &key);
+
+  // Try set an existing value in the hashmap
+  bool TrySet(const Key &key, Value &&val);
+  bool TrySet(const Key &key, const Value &val);
 
   Value& GetOrAdd(const Key &key);
   Value& Get(const Key &key);

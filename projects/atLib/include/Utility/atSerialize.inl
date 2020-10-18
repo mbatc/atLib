@@ -34,6 +34,17 @@ template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atQ
   pSerialized->Add("w") = src.w;
 }
 
+template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const atMatrixNxM<T> &src)
+{
+  pSerialized->SetType(atObjectDescriptor::OT_Array);
+  for (int64_t r = 0; r < src.Rows(); ++r)
+  {
+    atObjectDescriptor row = pSerialized->Add("", atObjectDescriptor::OT_Array);
+    for (int64_t c = 0; c < src.Columns(); ++c)
+      row.Add("").Serialize(src(r, c));
+  }
+}
+
 template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atVector2<T> *pDst)
 {
   serialized.Get("x").Deserialize(&pDst->x);
@@ -67,6 +78,23 @@ template<typename T> void atDeserialize(const atObjectDescriptor &serialized, at
   serialized.Get("y").Deserialize(pDst->y);
   serialized.Get("z").Deserialize(pDst->z);
   serialized.Get("w").Deserialize(pDst->w);
+}
+
+template<typename T> void atDeserialize(const atObjectDescriptor &serialized, atMatrixNxM<T> *pDst)
+{
+  int64_t nRows = serialized.GetMemberCount();
+  int64_t nCols = 0;
+  for (int64_t r = 0; r < nRows; ++r)
+    nCols = atMax(serialized.Get(r).GetMemberCount(), nCols);
+
+  *pDst = atMatrixNxM<T>(nCols, nRows);
+  for (int64_t r = 0; r < nRows; ++r)
+  {
+    atObjectDescriptor row = serialized.Get(r);
+    int64_t memberCount = row.GetMemberCount();
+    for (int64_t c = 0; c < memberCount; ++c)
+      row.Get(c).Deserialize(&(*pDst)(r, c));
+  }
 }
 
 template<typename T> void atSerialize(atObjectDescriptor *pSerialized, const T *pSrc, int64_t count)

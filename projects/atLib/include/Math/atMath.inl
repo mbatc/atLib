@@ -81,6 +81,32 @@ template<typename T> inline T atCatmullRomSpline(const T &p1, const T &p2, const
 
 template<typename T> inline T atSigmoid(const T &val) { return 1 / (1 + exp(-val)); }
 
+template<typename T> inline T atSigmoidApprox(const T &val)
+{
+  static T sigLookup[] = {
+    T(0),
+    atSigmoid(T(-5)),
+    atSigmoid(T(-4)),
+    atSigmoid(T(-3)),
+    atSigmoid(T(-2)),
+    atSigmoid(T(-1)),
+    atSigmoid(T(0)),
+    atSigmoid(T(1)),
+    atSigmoid(T(2)),
+    atSigmoid(T(3)),
+    atSigmoid(T(4)),
+    atSigmoid(T(5)),
+    T(1)
+  };
+  static int64_t lookupSize = atArraySize(sigLookup);
+  static int64_t sigMid = lookupSize / 2;
+
+  T offset = val + sigMid;
+  int64_t lower = atClamp(int64_t(offset), 0, lookupSize - 1);
+  int64_t upper = atClamp(int64_t(offset + 1), 0, lookupSize - 1);
+  return atLerp(sigLookup[lower], sigLookup[upper], (offset - lower));
+}
+
 template<typename T> inline T atMod(const T &a, const T &b) { return a % b; }
 
 template<typename T> inline atMatrix4x4<T> atMatrixProjection(const T aspect, const T FOV, const T nearPlane, const T farPlane, const T clipSpaceNearZ, const T clipSpaceFarZ)

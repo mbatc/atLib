@@ -931,3 +931,27 @@ void atImGui::ApplyDefaultStyle()
   style->TabRounding = 0.0f;
   style->WindowRounding = 4.0f;
 }
+
+template<> ImVec2& atAssign(ImVec2 &lhs, const atVec2F &rhs)
+{
+  lhs = { rhs.x, rhs.y };
+  return lhs;
+}
+
+template<> ImVec4& atAssign(ImVec4 &lhs, const atVec4F &rhs)
+{
+  lhs = { rhs.x, rhs.y, rhs.z, rhs.w };
+  return lhs;
+}
+
+template<> atVec2F& atAssign(atVec2F &lhs, const ImVec2 &rhs)
+{
+  lhs = { rhs.x, rhs.y };
+  return lhs;
+}
+
+template<> atVec4F& atAssign(atVec4F &lhs, const ImVec4 &rhs)
+{
+  lhs = { rhs.x, rhs.y, rhs.z, rhs.w };
+  return lhs;
+}

@@ -35,8 +35,7 @@
 #define AT_INVALID_INDEX (int64_t)-1
 #define AT_INVALID_LOC (int64_t)-1
 
-void atUnused();
-template<typename T, typename... Args> void atUnused(const T &first, Args... args) { (void)first; atUnused(args...); }
+#define atUnused(...) __VA_ARGS__
 
 enum atType : int64_t
 {

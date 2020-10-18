@@ -34,17 +34,17 @@ void atHTTPResponse::SetProtocol(const atHTTPProtocol &protocol)
 
 atHTTPProtocol atHTTPResponse::Protocol() const
 {
-  return (atHTTPProtocol)header.head[0];
+  return atFromString<atHTTPProtocol>(header.head[0]);
 }
 
 int64_t atHTTPResponse::CodeValue() const
 {
-  return (int64_t)header.head[1];
+  return atFromString<int64_t>(header.head[1]);
 }
 
 atHTTPResponseCode atHTTPResponse::Code() const
 {
-  return (atHTTPResponseCode)header.head[1];
+  return atFromString<atHTTPResponseCode>(header.head[1]);
 }
 
 atString atToString(const atHTTPResponse &header)

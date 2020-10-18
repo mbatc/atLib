@@ -16,7 +16,6 @@ public:
   atCSV& operator=(atCSV &&rhs);
   atCSV& operator=(const atCSV &rhs);
 
-
   bool Parse(const atString &csv);
 
   int64_t AsInt(const int64_t &row, const int64_t &column) const;

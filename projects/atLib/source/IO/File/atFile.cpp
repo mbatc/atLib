@@ -133,7 +133,7 @@ int64_t atFile::Write(const void *pData, const int64_t len)
 
 atString atFile::ReadText()
 {
-  if (!IsOpen())
+  if (!IsOpen() || m_info.Size() == 0)
     return "";
   atVector<char> data(m_info.Size(), 0);
   Read(data.data(), data.size());
@@ -169,7 +169,7 @@ bool atFile::Flush()
 
 int64_t atFile::Read(void *pBuffer, const int64_t size)
 {
-  if (!IsOpen())
+  if (!IsOpen() || size == 0)
     return 0;
   if (_ReadFile(pBuffer, (size_t)size, m_pFile) != 1)
     if (!feof(m_pFile))

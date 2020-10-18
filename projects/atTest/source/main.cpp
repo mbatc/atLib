@@ -64,12 +64,12 @@ void ExampleStrings()
     atString addingAsStrings = aNumber + anotherNumber;
 
     atString addingToString = atString("I like the number ") + 4;
-    double addingAsValues = double(aNumber) + double(anotherNumber);
+    double addingAsValues = atFromString<double>(aNumber) + atFromString<double>(anotherNumber);
     atUnused(addingToString, addingAsValues);
-    int64_t asValue = int64_t(aNumber);
+    int64_t asValue = atFromString<int64_t>(aNumber);
 
     // To wide strings
-    std::wstring wideString = std::wstring(atString(std::wstring(L"jlkjsalkjasp2©ýNc☼¯")));
+    std::wstring wideString = atFromString<std::wstring>(atString(std::wstring(L"jlkjsalkjasp2©ýNc☼¯")));
 
     atUnused(wideString);
   }
@@ -471,18 +471,18 @@ void ExampleBackPropagation()
   }
 
   printf("Original Network results: \n");
-  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+  for (const double val : network.Predict({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
 
   printf("\n\nSaved/Loaded Network results: \n");
-  for (const double val : otherNetwork.Run({ 0.0, 1.0, 2.0, 3.0 }))
+  for (const double val : otherNetwork.Predict({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
 
   for (int64_t i = 0; i < 10000; ++i)
     network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
 
   printf("\n\nTrained Network results: \n");
-  for (const double val : network.Run({ 0.0, 1.0, 2.0, 3.0 }))
+  for (const double val : network.Predict({ 0.0, 1.0, 2.0, 3.0 }))
     printf("%lf, ", val);
 
   printf("\n");

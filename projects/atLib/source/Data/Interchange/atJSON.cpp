@@ -57,17 +57,25 @@ atString atJSON::ToString(const bool prettyPrint) const
   if (IsObject() || IsArray())
   {
     ret += IsArray() ? "[" : "{";
+    bool useNewLines = false;
     atVector<atString> pairs;
     if (IsObject())
+    {
+      useNewLines = true;
       for (auto &kvp : *m_pObject)
         pairs.push_back("\"" + kvp.m_key + (prettyPrint ? "\": " : "\":") + kvp.m_val.ToString(prettyPrint));
+    }
 
     if (IsArray())
+    {
       for (auto &val : *m_pArray)
+      {
+        useNewLines |= val.IsObject() || val.IsArray();
         pairs.push_back(val.ToString(prettyPrint));
-
-    atString valueString = atString::join(pairs, prettyPrint ? ",\n" : ",");
-    if (prettyPrint)
+      }
+    }
+    atString valueString = atString::join(pairs, prettyPrint ? (useNewLines ? ",\n" : ", ") : ",");
+    if (prettyPrint && useNewLines)
       valueString = "\n  " + valueString.replace("\n", "\n  ") + "\n";
 
     ret += valueString;
@@ -101,7 +109,7 @@ void atJSON::MakeArray()
   if (IsArray())
     return;
   MakeNull();
-  m_pArray = atNew<atVector<atJSON>>();
+  m_pArray = atNew(atVector<atJSON>);
 }
 
 void atJSON::MakeObject()
@@ -109,7 +117,7 @@ void atJSON::MakeObject()
   if (IsObject())
     return;
   MakeNull();
-  m_pObject = atNew<atHashMap<atString, atJSON>>();
+  m_pObject = atNew(atHashMap<atString, atJSON>);
 }
 
 void atJSON::MakeValue(const bool &isString)
@@ -117,7 +125,7 @@ void atJSON::MakeValue(const bool &isString)
   if (!(IsValue() || IsString()))
   {
     MakeNull();
-    m_pValue = atNew<atString>();
+    m_pValue = atNew(atString);
   }
   m_isString = isString;
 }
@@ -285,7 +293,7 @@ static atJSON _ParseArray(const char **pJson, int64_t *pLength)
       break;
     _Seek(pJson, pLength, atString::_find_first(*pJson, ',') + 1);
   }
-
+  _Seek(pJson, pLength, 1);
   return ret;
 }
 

@@ -33,7 +33,7 @@ atNetworkWriter::~atNetworkWriter() { Close(); }
 
 bool atNetworkWriter::Open(const atString &addr, const atString &port, const int64_t timeout)
 {
-  m_pConn = atNew<atSocket>(atSocket::Connect(addr, port));
+  m_pConn = atNew(atSocket)(atSocket::Connect(addr, port));
   int64_t start = clock();
   while (!CanWrite() && (clock() - start) < timeout) Sleep((DWORD)atMin(timeout - (clock() - start), 10));
   return CanWrite();

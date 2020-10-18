@@ -79,7 +79,7 @@ void* atDirectX::GetDisplayAdapter()
 atDirectX::atDirectX(atWindow *pWindow, const bool &vsyncEnabled)
   : atGraphics(pWindow, vsyncEnabled)
 {
-  m_pImpl = atNew<__atDirectXImpl>();
+  m_pImpl = atNew(__atDirectXImpl);
 
   memset(m_pDX->m_adapterDesc, 0, sizeof(m_pDX->m_adapterDesc));
   m_pDX->m_featureList[0] = D3D_FEATURE_LEVEL_11_0;
@@ -96,7 +96,7 @@ atDirectX::atDirectX(atWindow *pWindow, const bool &vsyncEnabled)
   m_pDX->m_refresh.defDen = 1;
   m_pDX->m_refresh.defNum = 0;
   m_pDX->m_refresh.vsync = vsyncEnabled;
-  m_pState = atNew<atDirectXState>();
+  m_pState = atNew(atDirectXState);
 
   CreateSwapChain(pWindow, vsyncEnabled);
 }
@@ -347,12 +347,12 @@ void atDirectX::BindContext()
   // Don't need to do anything special here - DirectX does not have a 'Global' context
 }
 
-atGPUBuffer*    atDirectX::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew<atDXBuffer>(type, size); }
-atTexture*      atDirectX::CreateTexture(const atTextureType &type)                    { return atNew<atDXTexture>(type); }
-atSampler*      atDirectX::CreateSampler()                                             { return atNew<atDXSampler>(); }
-atShader*       atDirectX::CreateShader(const atPipelineStage &stage)                  { return atNew<atDXShader>(stage); }
-atProgram*      atDirectX::CreateProgram()                                             { return atNew<atDXPrgm>(); }
-atRenderTarget* atDirectX::CreateRenderTarget()                                        { return atNew<atDXRenderTarget>(); }
+atGPUBuffer*    atDirectX::CreateBuffer(const atBufferType &type, const int64_t &size) { return atNew(atDXBuffer)(type, size); }
+atTexture*      atDirectX::CreateTexture(const atTextureType &type)                    { return atNew(atDXTexture)(type); }
+atSampler*      atDirectX::CreateSampler()                                             { return atNew(atDXSampler); }
+atShader*       atDirectX::CreateShader(const atPipelineStage &stage)                  { return atNew(atDXShader)(stage); }
+atProgram*      atDirectX::CreateProgram()                                             { return atNew(atDXPrgm); }
+atRenderTarget* atDirectX::CreateRenderTarget()                                        { return atNew(atDXRenderTarget); }
 
 void* atDirectX::GetSwapChain() { return m_pDX->m_pSwapChain; }
 void* atDirectX::GetBackbuffer() { return m_pDX->m_pBackBuffer; }

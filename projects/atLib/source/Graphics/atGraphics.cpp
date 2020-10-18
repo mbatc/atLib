@@ -50,8 +50,8 @@ atGraphics* atGraphics::Create(const atGraphicsAPI &apiID, atWindow *pWindow, co
 {
   switch (apiID)
   {
-  case atGfxApi_DirectX: return atNew<atDirectX>(pWindow, vsync);
-  case atGfxApi_OpenGL: return atNew<atOpenGL>(pWindow, vsync);
+  case atGfxApi_DirectX: return atNew(atDirectX)(pWindow, vsync);
+  case atGfxApi_OpenGL: return atNew(atOpenGL)(pWindow, vsync);
   }
   return nullptr;
 }

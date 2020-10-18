@@ -40,7 +40,7 @@ static D3D11_BLEND_DESC _DX11BlendDesc(const atRenderState::State &state);
 static D3D11_VIEWPORT _DX11ViewportDesc(const atRenderState::State &state);
 static D3D11_RECT _DX11ScissorDesc(const atRenderState::State &state);
 
-atDirectXState::atDirectXState() { m_pImpl = atNew<__atDXStateImpl>(); }
+atDirectXState::atDirectXState() { m_pImpl = atNew(__atDXStateImpl); }
 atDirectXState::~atDirectXState() { atDelete((__atDXStateImpl*)m_pImpl); }
 
 void atDirectXState::Set(const atRenderState::State &state)

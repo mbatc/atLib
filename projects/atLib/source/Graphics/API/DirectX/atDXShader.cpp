@@ -221,7 +221,7 @@ bool atDXShader::Reflect(void *pBlob)
 
     newBuffer.data.resize(bufDesc.Size);
     newBuffer.updated = true;
-    newBuffer.pBuffer = atNew<atDXBuffer>(atBT_ShaderData);
+    newBuffer.pBuffer = atNew(atDXBuffer)(atBT_ShaderData);
     newBuffer.pBuffer->Set(newBuffer.data);
     m_buffers.push_back(std::move(newBuffer));
   }

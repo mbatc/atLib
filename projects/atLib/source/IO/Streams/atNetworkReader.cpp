@@ -32,7 +32,7 @@ atNetworkReader::~atNetworkReader() { Close(); }
 
 bool atNetworkReader::Open(const atString &port, const int64_t timeout)
 {
-  m_pHost = atNew<atSocket>(atSocket::Host(port));
+  m_pHost = atNew(atSocket)(atSocket::Host(port));
   int64_t start = clock();
   while (!CanRead() && (clock() - start) < timeout);
   return CanRead();
@@ -52,7 +52,7 @@ bool atNetworkReader::CanRead()
 {
   if (!m_pConn)
     if (m_pHost && m_pHost->CanAccept())
-      m_pConn = atNew<atSocket>(m_pHost->Accept());
+      m_pConn = atNew(atSocket)(m_pHost->Accept());
   return m_pConn && m_pConn->CanRead(); 
 }
 

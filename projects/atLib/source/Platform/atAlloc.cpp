@@ -68,6 +68,11 @@ void* _atReallocRelTrace(void *pBlock, const int64_t size, const int64_t line, c
   return ret;
 }
 
+void atReleaseMemRef(void *pBlock)
+{
+  pBlock;
+}
+
 void atFree(void *pBlock)
 {
   free(pBlock);

@@ -28,6 +28,7 @@
 
 #include "../../3rdParty/imgui/imgui.h"
 #include "../../3rdParty/imgui/imgui_internal.h"
+#include "atAssign.h"
 #include "atWindow.h"
 #include "atFilename.h"
 
@@ -130,5 +131,10 @@ public:
   static void PopStyle(int64_t count);
   static void PopStyle();
 };
+
+template<> ImVec2& atAssign(ImVec2 &lhs, const atVec2F &rhs);
+template<> ImVec4& atAssign(ImVec4 &lhs, const atVec4F &rhs);
+template<> atVec2F& atAssign(atVec2F &lhs, const ImVec2 &rhs);
+template<> atVec4F& atAssign(atVec4F &lhs, const ImVec4 &rhs);
 
 #endif // atImGui_h__

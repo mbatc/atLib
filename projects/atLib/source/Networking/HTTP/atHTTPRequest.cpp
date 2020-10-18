@@ -47,12 +47,12 @@ const atString& atHTTPRequest::URI() const
 
 atHTTPMethod atHTTPRequest::Method() const
 {
-  return (atHTTPMethod)header.head[0];
+  return atFromString<atHTTPMethod>(header.head[0]);
 }
 
 atHTTPProtocol atHTTPRequest::Protocol() const
 {
-  return (atHTTPProtocol)header.head[2];
+  return atFromString<atHTTPProtocol>(header.head[2]);
 }
 
 atString atToString(const atHTTPRequest &header)

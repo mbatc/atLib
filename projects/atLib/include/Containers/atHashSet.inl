@@ -237,7 +237,7 @@ inline bool atHashSet<T>::BucketContainsValue(const Bucket &bucket, const T &val
 template<typename T>
 inline int64_t atHashSet<T>::BucketIndex(const T &value) const
 {
-  return atHash::Hash(value) % m_buckets.size();
+  return atHash(value) % m_buckets.size();
 }
 
 template<typename T>

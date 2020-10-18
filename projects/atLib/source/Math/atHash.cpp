@@ -26,8 +26,6 @@
 #include "atHash.h"
 #include "atIterator.h"
 
-thread_local atMemoryWriter atHash::writer;
-
 uint64_t atMurmur(const void *key, int64_t len, uint64_t seed = 2147483647)
 {
   const uint64_t m = 0xc6a4a7935bd1e995LLU;
@@ -80,14 +78,20 @@ uint64_t atOneAtTime(const void *pData, int64_t len, uint64_t seed = 2147483647)
   return hash;
 }
 
-int64_t atHash::Hash(const atMemoryWriter &mem) { return (int64_t)(atMurmur(mem.m_data.data(), mem.m_data.size())); }
-int64_t atHash::Hash(const int64_t val) { return val; }
-int64_t atHash::Hash(const int32_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const int16_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const int8_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const uint64_t val) { return val; }
-int64_t atHash::Hash(const uint32_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const uint16_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const uint8_t val) { return (int64_t)val; }
-int64_t atHash::Hash(const double val) { return *(int64_t*)&val; }
-int64_t atHash::Hash(const float val) { return *(int64_t*)&val; }
+int64_t atHash(const atMemoryWriter &mem) { return (int64_t)(atMurmur(mem.m_data.data(), mem.m_data.size())); }
+int64_t atHash(const int64_t val) { return val; }
+int64_t atHash(const int32_t val) { return (int64_t)val; }
+int64_t atHash(const int16_t val) { return (int64_t)val; }
+int64_t atHash(const int8_t val) { return (int64_t)val; }
+int64_t atHash(const uint64_t val) { return val; }
+int64_t atHash(const uint32_t val) { return (int64_t)val; }
+int64_t atHash(const uint16_t val) { return (int64_t)val; }
+int64_t atHash(const uint8_t val) { return (int64_t)val; }
+int64_t atHash(const double val) { return *(int64_t*)&val; }
+int64_t atHash(const float val) { return *(int64_t*)&val; }
+
+atMemoryWriter* atHash_MemWriter()
+{
+  static thread_local atMemoryWriter writer;
+  return &writer;
+}

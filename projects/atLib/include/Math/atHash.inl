@@ -24,11 +24,12 @@
 // THE SOFTWARE.
 // -----------------------------------------------------------------------------
 
-template<typename T> int64_t atHash::Hash(const T &o)
+template<typename T> int64_t atHash(const T &o)
 {
-  writer.Clear();
-  writer.Write(o);
-  return atHash::Hash(writer);
+  atMemoryWriter *pMem = atHash_MemWriter();
+  pMem->Clear();
+  pMem->Write(o);
+  return atHash(*pMem);
 }
 
-template<typename T> int64_t atHash::Hash(const T *o) { return Hash((int64_t)o); }
+template<typename T> int64_t atHash(const T *o) { return atHash((int64_t)o); }

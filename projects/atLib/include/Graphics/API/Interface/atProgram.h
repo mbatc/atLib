@@ -52,7 +52,7 @@ protected:
     return success;
   }
 
-  atShader* m_pStages[atPS_Count];
+  atShader* m_pStages[atPS_Count] = { 0 };
 
   int64_t m_shaderRound = -1;
 

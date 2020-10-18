@@ -26,14 +26,14 @@
 #ifndef atMatrixNxM_h__
 #define atMatrixNxM_h__
 
+#include <functional>
 #include "atMinMax.h"
-#include "atTypes.h"
 #include "atVector.h"
 
 template <typename T> class atMatrixNxM
 {
 public:
-  atMatrixNxM(int64_t _col = 0, int64_t _row = 0);
+  atMatrixNxM(int64_t _col = 0, int64_t _row = 0, const T &initialValue = T(0));
   atMatrixNxM(int64_t _col, int64_t _row, const std::initializer_list<T> &list);
   atMatrixNxM(const atMatrixNxM<T> &copy);
   atMatrixNxM(atMatrixNxM<T> &&move);
@@ -58,7 +58,7 @@ public:
   atMatrixNxM<T> Mul(const T &rhs) const;
   atMatrixNxM<T> Sub(const T &rhs) const;
   atMatrixNxM<T> Add(const T &rhs) const;
-  atMatrixNxM<T> Apply(T (*func)(const T &));
+  atMatrixNxM<T> Apply(std::function<T(T)> func);
 
   atMatrixNxM<T> LowOrderMatrix(const int64_t x, const int64_t y, const int64_t dim) const;
 
@@ -71,9 +71,17 @@ public:
   const atMatrixNxM<T> &operator=(const atMatrixNxM<T> &copy);
   template <typename T2> const atMatrixNxM<T>& operator=(const atMatrixNxM<T2> &copy);
 
+  T &at(const int64_t row, const int64_t col);
+  const T &at(const int64_t row, const int64_t col) const;
 
   T& operator[](const int64_t index);
   const T& operator[](const int64_t index) const;
+
+  T &operator()(const int64_t row, const int64_t col);
+  const T &operator()(const int64_t row, const int64_t col) const;
+
+  int64_t Rows() const;
+  int64_t Columns() const;
 
   atVector<T> m_data;
   int64_t m_rows;
