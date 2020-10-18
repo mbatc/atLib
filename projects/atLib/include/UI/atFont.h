@@ -104,7 +104,7 @@ protected:
   int64_t m_resolution = 0;
 
   atTexture* m_pTexture = nullptr;
-
+  int32_t m_padding = 4;
   int32_t m_lastRowHeight = 0;
   atVec2I m_nextPos = atVec2I::zero();
   atVec2I m_lastSize = atVec2I::zero();

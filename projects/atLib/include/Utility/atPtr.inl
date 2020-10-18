@@ -173,7 +173,7 @@ inline void atPtr<T>::Create(T *pData, bool isForeign, std::function<void(T *)> 
   m_pInstance->onAcquire = onAcquire;
 }
 
-template<typename T> inline atPtr<T>::operator bool() const { return m_pInstance && m_pInstance->pData; }
+template<typename T> inline atPtr<T>::operator bool() const { return !IsNull(); }
 template<typename T> inline bool atPtr<T>::operator==(const T *pRhs) const { return Get() == pRhs; }
 template<typename T> inline bool atPtr<T>::operator==(const std::nullptr_t &) const { return IsNull(); }
 template<typename T> inline bool atPtr<T>::operator==(const atPtr<T> &rhs) const { return Get() == rhs.Get(); }
