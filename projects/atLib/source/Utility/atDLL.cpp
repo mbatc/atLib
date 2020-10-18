@@ -1,5 +1,5 @@
 #include "atDLL.h"
-#include <libloaderapi.h>
+#include <windows.h>
 
 atDLL::atDLL(const atFilename &path)
   : m_module(atNew(Module)(path))
@@ -13,8 +13,9 @@ atFilename atDLL::GetDLLPath() const { return m_module ? m_module->GetPath() : "
 
 atDLL::Module::Module(const atFilename &path)
   : m_dllPath(path)
-  , pHandle(LoadLibrary(path.c_str()))
-{}
+{
+  pHandle = LoadLibrary(path.Path().replace('/', '\\'));
+}
 
 atDLL::Module::~Module() { FreeLibrary((HMODULE)pHandle); }
 

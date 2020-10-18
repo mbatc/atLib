@@ -309,6 +309,37 @@ void ExampleNetworkStreaming()
 }
 
 
+// -----------------------------------------------------------
+// Sample code demonstrating how load a DLL and call one of
+// its functions using the atDLL wrapper
+//
+// This example loads the ShellExecute function at runtime
+// and opens explorer in to the 'setup/Win' folder in the repo
+
+#include "atDLL.h"
+
+void ExampleLoadDLL()
+{
+  // Load the DLL
+  atDLL sys32Dll("Shell32.dll");
+
+  // Get a pointer to a function in the DLL
+  // NOTE: There is no type checking here so the type signature MUST match the exported DLL function
+  auto shellExecute = sys32Dll.Get<HINSTANCE(HWND, LPCSTR, LPCTSTR, LPCTSTR, LPCTSTR, INT)>("ShellExecuteA");
+
+  // Check if the function ptr is valid
+  if (shellExecute)
+  {
+    // Call the DLL function
+    shellExecute(NULL, "explore", "..\\..\\setup\\Win", 0, 0, SW_SHOWDEFAULT);
+
+    // Or
+
+    // Call the function directly from the atDLL object
+    // Explicitly casting to the correct types is important if the signature might not be resolved correctly by the compiler.
+    sys32Dll.Call<HINSTANCE>("ShellExecuteA", HWND(0), "explore", "..\\..\\setup\\Win", LPCSTR(0), LPCSTR(0), int(SW_SHOWDEFAULT));
+  }
+}
 
 // -----------------------------------------------
 // BELOW HERE IS GUARANTEED TO BE AN ABSOLUTE MESS
@@ -479,7 +510,7 @@ void ExampleBackPropagation()
     printf("%lf, ", val);
 
   for (int64_t i = 0; i < 10000; ++i)
-    network.Train({ 10, 1, 3, 5 }, { 1, 0.75, 0.5, 0.25 });
+    network.Train({ { 10, 1, 3, 5 } }, { { 1, 0.75, 0.5, 0.25 } });
 
   printf("\n\nTrained Network results: \n");
   for (const double val : network.Predict({ 0.0, 1.0, 2.0, 3.0 }))
@@ -489,21 +520,6 @@ void ExampleBackPropagation()
   getchar();
 }
 
-#include "atDLL.h"
-
-void ExampleLoadDLL()
-{
-  atDLL sys32Dll("system32.dll");
-  auto shellExecute = sys32Dll.Get<HINSTANCE(HWND, LPCSTR, LPCTSTR, LPCTSTR, LPCTSTR, INT)>("ShellExecuteA");
-  if (shellExecute) // Call shellExecute from the DLL loaded at runtime
-  {
-    shellExecute(NULL, "explore", "C:\\Users\\mickb\\Documents\\Dev\\atLib\\setup\\Win", 0, 0, SW_SHOWDEFAULT);
-
-    // Call the function directly from the DLL
-    // Explicitly casting to the correct types is important if the signature might not be resolved correctly by the compiler
-    sys32Dll.Call<HINSTANCE>("ShellExecuteA", HWND(0), "explore", "C:\\Users\\mickb\\Documents\\Dev\\atLib\\setup\\Win", LPCSTR(0), LPCSTR(0), int(SW_SHOWDEFAULT));
-  }
-}
 
 #include "atBVH.h"
 #include "atIntersects.h"

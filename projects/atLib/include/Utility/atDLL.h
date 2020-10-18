@@ -3,6 +3,7 @@
 
 #include "atFilename.h"
 #include "atPtr.h"
+#include <type_traits>
 
 class atDLL
 {
@@ -63,14 +64,14 @@ inline std::function<FuncSig> atDLL::Get(const atString &name)
   if (!m_module)
     return nullptr;
 
-  std::function<FuncSig> callable = (FuncSig)m_module->GetFunction(name);
+  std::function<FuncSig> callable = (FuncSig*)m_module->GetFunction(name);
   return callable;
 }
 
 template<typename ReturnType, typename ...Args>
 inline ReturnType atDLL::Call(const atString &name, Args&&... args)
 {
-  typedef FuncSig std::decay_t<ReturnType>(std::decay_t<Args>...);
+  using FuncSig = std::decay_t<ReturnType>(std::decay_t<Args>...);
   std::function<FuncSig> callable = Get<FuncSig>(name);
   return callable(std::forward<Args>(args)...);
 }
