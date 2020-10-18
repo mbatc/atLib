@@ -116,7 +116,7 @@ atFilename::atFilename(const char *path) { assign(path); }
 atFilename::atFilename(const atString &path) { assign(path); }
 atFilename::atFilename(const atFilename &copy) { assign(copy.m_fullpath); }
 atString atFilename::Path(const bool withExtension) const { return withExtension ? m_fullpath : m_directory + "/" + m_name; }
-atString atFilename::Name(const bool withExtension) const { return withExtension ? m_name + "." + m_extension : m_name; }
+atString atFilename::Name(const bool withExtension) const { return withExtension && m_extension.length() > 0 ? m_name + "." + m_extension : m_name; }
 atString atFilename::Extension() const { return m_extension; }
 atString atFilename::Directory() const { return m_directory; }
 atFilename atFilename::ResolveFullPath() const { return ResolveFullPath(*this); }

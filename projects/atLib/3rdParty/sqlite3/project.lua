@@ -8,10 +8,12 @@ characterset ("MBCS")
 
 -- Set Directories
 
+bin_path = atLibBuildPath
+
 symbolspath '$(OutDir)$(TargetName).pdb'
-targetdir "../../../../builds/bin/"
-debugdir "../../../../builds/bin/"
-objdir "../../../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
+targetdir (bin_path)
+debugdir (bin_path)
+objdir "../../builds/output/%{cfg.platform}_%{cfg.buildcfg}"
 
 -- Project Flags
 

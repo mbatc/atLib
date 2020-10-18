@@ -36,8 +36,8 @@ public:
 
   struct FileInfo
   {
-    bool isFolder;
-    int64_t size;
+    bool isFolder = false;
+    int64_t size = 0;
     atFilename path;
   };
 

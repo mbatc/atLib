@@ -46,6 +46,8 @@ public:
 class atImGui
 {
 public:
+  static void Initialise();
+
   static void AddFontFile(const atFilename &file);
   static bool BeginFrame(atWindow *pWnd);
   static bool EndFrame();

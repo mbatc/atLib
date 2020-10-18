@@ -332,11 +332,13 @@ static bool _UpdateBuffers(ImDrawData *pDrawData)
   return true;
 }
 
+void atImGui::Initialise() { _Initialise(); }
+
 void atImGui::AddFontFile(const atFilename &file) { _fontFiles.push_back(file); }
 
 bool atImGui::BeginFrame(atWindow *pWnd)
 {
-  _Initialise();
+  Initialise();
   _dpiScaling = pWnd->GetDPIScale();
 
   ImGuiIO &io = ImGui::GetIO();

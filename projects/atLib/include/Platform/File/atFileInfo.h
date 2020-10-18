@@ -48,7 +48,7 @@ public:
   atDateTime LastAccessed() const;
   atDateTime LastModified() const;
 
-  const atFilename &Filename() const;
+  const atFilename& Filename() const;
 
   static bool IsDirectory(const atFilename &file);
   static int64_t Size(const atFilename &file);
