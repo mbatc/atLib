@@ -9,6 +9,17 @@
 
 template<typename T> class atPtr
 {
+protected:
+  struct Instance
+  {
+    T *pData = nullptr;                 // Raw pointer
+    bool isForeign = false;             // Was this created by atPtr
+    std::atomic<int64_t> refCount;      // How many references are there
+    std::function<void(T *)> onDelete;  // What to do when deleting the pointer
+    std::function<void(T *, int64_t)> onRelease; // What to do when releasing a reference to the pointer
+    std::function<void(T *, int64_t)> onAcquire; // What to do when acquiring a reference to the pointer
+  } *m_pInstance = nullptr;
+
 public:
   atPtr(T *pPtr = nullptr,
     std::function<void(T *)> onDelete = [](T *pPtr) { atDelete(pPtr); },
@@ -88,16 +99,6 @@ public:
   template<typename U> friend int64_t atHash(const atPtr<U> &o);
 
 protected:
-  struct Instance
-  {
-    T *pData = nullptr;                 // Raw pointer
-    bool isForeign = false;             // Was this created by atPtr
-    std::atomic<int64_t> refCount;      // How many references are there
-    std::function<void(T *)> onDelete;  // What to do when deleting the pointer
-    std::function<void(T *, int64_t)> onRelease; // What to do when releasing a reference to the pointer
-    std::function<void(T *, int64_t)> onAcquire; // What to do when acquiring a reference to the pointer
-  } *m_pInstance = nullptr;
-
   void Release();
   void Acquire(Instance *pInstance);
   void Create(T *pData, bool isForeign,

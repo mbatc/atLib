@@ -869,8 +869,14 @@ int main(int argc, char **argv)
   // ExampleObjectDescriptor();
   ExampleLoadDLL();
 
-#ifndef atVS2019 // VS2019 pauses by default in the IDE
-  getchar();
+#ifdef atMSVC_VER
+  #if atMSVC_VER < atVS2019 // VS2019 pauses by default in the IDE
+    getchar();
+  #else
+    // Do nothing
+  #endif
+#else
+  getchar(); // Not windows MSVC - pause
 #endif
 
   return atWindow::GetResult();

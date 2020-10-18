@@ -102,53 +102,14 @@ bool atDXBuffer::Unmap()
   return true;
 }
 
-bool atDXBuffer::Resize(const int64_t &size)
-{
-  m_bufferSize = size;
-  return Upload();
-}
-
-void *atDXBuffer::Map(const atGPUBuffer_MapFlags &flags)
-{
-  if (m_bufferSize == 0)
-    return nullptr;
-
-  atDirectX *pDX = (atDirectX *)atGraphics::GetCurrent();
-  ID3D11Buffer *pBuffer = (ID3D11Buffer *)NativeResource();
-  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext *)pDX->GetContext();
-  D3D11_MAPPED_SUBRESOURCE resource;
-
-  pCtx->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-  if (!resource.pData)
-    return nullptr;
-
-  ++m_mappedCount;
-  m_pMappedPtr = resource.pData;
-  return m_pMappedPtr;
-}
-
-bool atDXBuffer::Unmap()
-{
-  if (!m_pMappedPtr)
-    return false;
-
-  atDirectX *pDX = (atDirectX *)atGraphics::GetCurrent();
-  ID3D11Buffer *pBuffer = (ID3D11Buffer *)NativeResource();
-  ID3D11DeviceContext *pCtx = (ID3D11DeviceContext *)pDX->GetContext();
-
-  if (--m_mappedCount == 0)
-  {
-    pCtx->Unmap(pBuffer, 0);
-    m_pMappedPtr = nullptr;
-  }
-
-  return true;
-}
-
 #else
 
 bool atDXBuffer::Update() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
 bool atDXBuffer::Upload() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
 bool atDXBuffer::Delete() { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+bool atDXBuffer::Resize(const int64_t &size)             { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+void *atDXBuffer::Map(const atGPUBuffer_MapFlags &flags) { atRelAssert("DirectX is only supported on Windows platforms."); return nullptr; }
+bool atDXBuffer::Unmap()                                 { atRelAssert("DirectX is only supported on Windows platforms."); return false; }
+
 
 #endif

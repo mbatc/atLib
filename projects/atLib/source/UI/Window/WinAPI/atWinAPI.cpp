@@ -31,7 +31,7 @@
 #include "atInput.h"
 #include "atImGui.h"
 
-#include <windowsx.h>
+#include <windows.h>
 #include <hidusage.h>
 #include <gdiplus.h>
 #include <time.h>
@@ -418,7 +418,15 @@ bool atWin32Window::IsMinimized() const { return ::IsIconic(m_hWnd) != 0; }
 bool atWin32Window::IsWindowed() const { return !m_windowedState.wasFullscreen; }
 bool atWin32Window::IsVisible() const { return ::IsWindowVisible(m_hWnd) != 0; }
 
-int64_t atWin32Window::GetDPI() const { return GetDpiForWindow(m_hWnd); }
+int64_t atWin32Window::GetDPI() const
+{
+#if atMSVC_VER >= atVS2019
+  return ::GetDpiForWindow(m_hWnd);
+#else
+  return USER_DEFAULT_SCREEN_DPI;
+#endif
+}
+
 int64_t atWin32Window::GetDefaultDPI() const { return USER_DEFAULT_SCREEN_DPI; }
 
 static atWindowStyle _CreateLibStyle(const DWORD &wndStyle)

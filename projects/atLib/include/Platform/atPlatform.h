@@ -6,24 +6,31 @@
 #define atMSVC 1
 #define atCOMPILER atMSVC
 
+#define atVS2019 5
+#define atVS2017 4
+#define atVS2015 3
+#define atVS2013 2
+#define atVS2012 1
+#define atVS2010 0
+
 // Determine the visual studio IDE version
 #if _MSC_VER >= 1920
-#define atVS2019
+#define atMSVC_VER atVS2019
 #define atIDE "vs2019"
 #elif _MSC_VER >= 1910
-#define atVS2017
+#define atMSVC_VER atVS2017
 #define atIDE "vs2017"
 #elif _MSC_VER >= 1900
-#define atVS2015
+#define atMSVC_VER atVS2015
 #define atIDE "vs2015"
 #elif _MSC_VER >= 1800
-#define atVS2013
+#define atMSVC_VER atVS2013
 #define atIDE "vs2013"
 #elif _MSC_VER >= 1700
-#define atVS2012
+#define atMSVC_VER atVS2012
 #define atIDE "vs2012"
 #elif _MSC_VER >= 1600
-#define atVS2010
+#define atMSVC_VER atVS2010
 #define atIDE "vs2010"
 #endif
 #endif

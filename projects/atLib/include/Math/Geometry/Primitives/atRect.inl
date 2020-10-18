@@ -7,13 +7,6 @@ inline atRect<T>::atRect(const atRect<T2> &o)
   , m_max(o.m_max)
 {}
 
-template<typename T>
-template<typename T2>
-inline atRect<T>::atRect(const atRect<T2> &o)
-  : m_min(o.m_min)
-  , m_max(o.m_max)
-{}
-
 template<typename T> inline atRect<T>::atRect(const T &left, const T &top, const T &right, const T &bottom)
   : m_min(left, top)
   , m_max(right, bottom)

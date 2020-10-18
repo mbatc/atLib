@@ -103,7 +103,6 @@ protected:
   int64_t m_height = 0;
   int64_t m_resolution = 0;
 
-  int32_t m_padding = 4;
   atTexture* m_pTexture = nullptr;
   int32_t m_padding = 4;
   int32_t m_lastRowHeight = 0;
