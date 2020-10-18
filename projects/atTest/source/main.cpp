@@ -489,6 +489,22 @@ void ExampleBackPropagation()
   getchar();
 }
 
+#include "atDLL.h"
+
+void ExampleLoadDLL()
+{
+  atDLL sys32Dll("system32.dll");
+  auto shellExecute = sys32Dll.Get<HINSTANCE(HWND, LPCSTR, LPCTSTR, LPCTSTR, LPCTSTR, INT)>("ShellExecuteA");
+  if (shellExecute) // Call shellExecute from the DLL loaded at runtime
+  {
+    shellExecute(NULL, "explore", "C:\\Users\\mickb\\Documents\\Dev\\atLib\\setup\\Win", 0, 0, SW_SHOWDEFAULT);
+
+    // Call the function directly from the DLL
+    // Explicitly casting to the correct types is important if the signature might not be resolved correctly by the compiler
+    sys32Dll.Call<HINSTANCE>("ShellExecuteA", HWND(0), "explore", "C:\\Users\\mickb\\Documents\\Dev\\atLib\\setup\\Win", LPCSTR(0), LPCSTR(0), int(SW_SHOWDEFAULT));
+  }
+}
+
 #include "atBVH.h"
 #include "atIntersects.h"
 #include "atHashSet.h"
@@ -765,8 +781,9 @@ int main(int argc, char **argv)
   // ExampeBackPropagation();
   // ExampleRunLua();
   // ExampleRuntimeGraphicsAPI();
-  ExampleResourceManager();
+  // ExampleResourceManager();
   // ExampleObjectDescriptor();
+  ExampleLoadDLL();
 
 #ifndef atVS2019 // VS2019 pauses by default in the IDE
   getchar();
