@@ -8,7 +8,7 @@ characterset ("MBCS")
 
 -- Set Directories
 
-bin_path = atLibBuildPath
+bin_path = "..\\..\\" .. atLibBuildPath
 
 symbolspath '$(OutDir)$(TargetName).pdb'
 targetdir (bin_path)
