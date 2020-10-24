@@ -27,8 +27,6 @@
 #define atMatrix_h__
 
 #include "atMinMax.h"
-#include "atAssert.h"
-#include "atTypes.h"
 #include "atVector4.h"
 
 template<typename T> inline T atMatrixDet2x2(T a, T b, T c, T d);

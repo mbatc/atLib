@@ -26,8 +26,6 @@
 #ifndef _atVector2_h__
 #define _atVector2_h__
 
-#include "atAssert.h"
-#include "atTypes.h"
 
 template<typename T> class atVector2
 {
