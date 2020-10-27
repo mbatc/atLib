@@ -1,4 +1,3 @@
-#include "atPool.h"
 
 template<typename T>
 inline atPool<T>::atPool(const int64_t &capacity)
@@ -76,6 +75,30 @@ inline const T& atPool<T>::operator[](const int64_t &index) const
 }
 
 template<typename T>
+inline typename atPool<T>::Iterator atPool<T>::begin()
+{
+  return Iterator(this, 0);
+}
+
+template<typename T>
+inline typename atPool<T>::Iterator atPool<T>::end()
+{
+  return Iterator(this, m_size);
+}
+
+template<typename T>
+inline const typename atPool<T>::ConstIterator atPool<T>::begin() const
+{
+  return ConstIterator(this, 0);
+}
+
+template<typename T>
+inline const typename atPool<T>::ConstIterator atPool<T>::end() const
+{
+  return ConstIterator(this, m_size);
+}
+
+template<typename T>
 inline bool atPool<T>::TryGrow(const int64_t &requiredCapacity)
 {
   return m_capacity > requiredCapacity || Grow(atMax(requiredCapacity, m_capacity * 2));
@@ -130,3 +153,39 @@ inline int64_t atPool<T>::emplace(Args&&... args)
   m_usedFlags[slot] = true;
   return slot;
 }
+
+template<typename T>
+inline atPool<T>::Iterator::Iterator(atPool *pPool, int64_t start)
+  : m_pPool(pPool)
+  , m_idx(start)
+{}
+
+template<typename T>
+inline atPool<T>::Iterator::Iterator(const Iterator &it)
+  : m_pPool(it.m_pPool)
+  , m_idx(it.m_idx)
+{}
+
+template<typename T> inline T &atPool<T>::Iterator::operator*() { return m_pPool->at(m_idx); }
+template<typename T> inline T *atPool<T>::Iterator::operator->() { return &m_pPool->at(m_idx); }
+template<typename T> bool atPool<T>::Iterator::operator==(const Iterator &rhs) const { return m_pPool == rhs.m_pPool && m_idx == rhs.m_idx; }
+template<typename T> bool atPool<T>::Iterator::operator!=(const Iterator &rhs) const { return !(*this == rhs); }
+template<typename T> typename atPool<T>::Iterator &atPool<T>::Iterator::operator++() { while (++m_idx < m_size && !m_usedFlags[m_idx]); }
+
+template<typename T>
+inline atPool<T>::ConstIterator::ConstIterator(atPool *pPool, int64_t start)
+  : m_pPool(pPool)
+  , m_idx(start)
+{}
+
+template<typename T>
+inline atPool<T>::ConstIterator::ConstIterator(const ConstIterator &it)
+  : m_pPool(it.m_pPool)
+  , m_idx(it.m_idx)
+{}
+
+template<typename T> inline const T &atPool<T>::ConstIterator::operator*() { return m_pPool->at(m_idx); }
+template<typename T> inline const T *atPool<T>::ConstIterator::operator->() { return &m_pPool->at(m_idx); }
+template<typename T> bool atPool<T>::ConstIterator::operator==(const ConstIterator &rhs) const { return m_pPool == rhs.m_pPool && m_idx == rhs.m_idx; }
+template<typename T> bool atPool<T>::ConstIterator::operator!=(const ConstIterator &rhs) const { return !(*this == rhs); }
+template<typename T> typename atPool<T>::ConstIterator &atPool<T>::ConstIterator::operator++() { while (++m_idx < m_size && !m_usedFlags[m_idx]); }

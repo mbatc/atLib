@@ -34,21 +34,37 @@ public:
   {
     friend atPool;
 
+  public:
     Iterator(atPool *pPool, int64_t start);
     Iterator(const Iterator &it);
 
+    T &operator*();
+    T *operator->();
+
     bool operator==(const Iterator &rhs) const;
+    bool operator!=(const Iterator &rhs) const;
+
     Iterator& operator++();
+
+  protected:
+    int64_t m_idx = -1;
+    atPool *m_pPool = nullptr;;
   };
 
   class ConstIterator
   {
     friend atPool;
 
+  public:
     ConstIterator(atPool *pPool, int64_t start);
     ConstIterator(const ConstIterator &it);
 
+    const T &operator*();
+    const T *operator->();
+
     bool operator==(const ConstIterator &rhs) const;
+    bool operator!=(const ConstIterator &rhs) const;
+
     ConstIterator& operator++();
   };
 
@@ -82,6 +98,12 @@ public:
   // Accessor operators
   T& operator[](const int64_t &index);
   const T& operator[](const int64_t &index) const;
+
+  Iterator begin();
+  Iterator end();
+
+  const ConstIterator begin() const;
+  const ConstIterator end() const;
 
 protected:
   bool TryGrow(const int64_t &requiredCapacity);
