@@ -143,7 +143,7 @@ inline void atPtr<T>::Release()
 }
 
 template<typename T>
-inline void atPtr<T>::Acquire(atPtr<T>::Instance *pInstance)
+inline void atPtr<T>::Acquire(typename atPtr<T>::Instance *pInstance)
 {
   if (m_pInstance == pInstance)
     return; // Same ptr

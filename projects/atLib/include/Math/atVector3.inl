@@ -204,6 +204,7 @@ template<typename T> inline const atVector3<T>& atVector3<T>::operator*=(const a
 template<typename T> inline const atVector3<T>& atVector3<T>::operator/=(const atVector3<T>& rhs) { return assign(*this / rhs); }
 template<typename T> inline const atVector3<T>& atVector3<T>::operator%=(const atVector3<T>& rhs) { return assign(*this % rhs); }
 template<typename T> inline const atVector3<T>& atVector3<T>::operator=(const atVector3<T>& rhs) { return assign(rhs); }
+
 template<typename T> inline bool atVector3<T>::operator==(const atVector3<T>& rhs) const { return memcmp(this, &rhs, sizeof(atVector3<T>)) == 0; }
 template<typename T> inline bool atVector3<T>::operator!=(const atVector3<T>& rhs) const { return !(*this == rhs); }
 

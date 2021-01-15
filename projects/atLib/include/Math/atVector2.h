@@ -26,7 +26,6 @@
 #ifndef _atVector2_h__
 #define _atVector2_h__
 
-
 template<typename T> class atVector2
 {
 public:

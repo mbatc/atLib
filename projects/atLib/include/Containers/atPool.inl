@@ -59,6 +59,7 @@ inline bool atPool<T>::erase(const int64_t &index)
   atDestruct(m_pData + index);
   m_freeSlots.push_back(index);
   m_usedFlags[index] = false;
+  --m_size;
   return true;
 }
 

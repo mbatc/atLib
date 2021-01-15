@@ -98,6 +98,7 @@ public:
   template<typename T2> const atVector3<T>& operator/=(const T2 &rhs);
   template<typename T2> const atVector3<T>& operator%=(const T2 &rhs);
   template<typename T2> const atVector3<T>& operator=(const T2 &rhs);
+
   template<typename T2> bool operator==(const T2 &rhs) const;
   template<typename T2> bool operator!=(const T2 &rhs) const;
   
